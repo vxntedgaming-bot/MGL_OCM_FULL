@@ -46,6 +46,7 @@ python manage.py close_expired_auctions
 
 ## Core OCM
 
+- MGL currently has one active competition: **Super League 1**. A safe data migration associates existing clubs and fixtures with that league and marks any other league rows inactive. Do not invent Super League 2 until there are enough managers.
 - Transfer currency is **tokens**. New clubs start with **50 tokens**. Approved managers also start with 50 personal tokens.
 - Club treasuries, squads and history stay with the club if a manager leaves.
 - Manager sales need owner/admin approval before they go live on `/market/`.

@@ -1847,4 +1847,40 @@ textarea {
     }
 }
 
+.mgl-standings-wrap {
+    padding: 8px 0 16px;
+    overflow-x: auto;
+}
+
+.mgl-standings {
+    display: grid;
+    grid-template-columns: 36px minmax(90px, 1.8fr) repeat(8, minmax(28px, 0.55fr));
+    gap: 8px;
+    align-items: center;
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+}
+
+.mgl-standings-head {
+    color: var(--muted);
+    font-size: 8px;
+    font-weight: 900;
+    letter-spacing: 0.8px;
+}
+
+.mgl-standings b {
+    color: var(--orange);
+}
+
+@media (max-width: 700px) {
+    .mgl-standings-wide {
+        display: none;
+    }
+
+    .mgl-standings {
+        grid-template-columns: 32px 1fr 32px 40px 40px;
+    }
+}
+
 

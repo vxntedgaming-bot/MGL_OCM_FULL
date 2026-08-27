@@ -21,6 +21,10 @@ class Fixture(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     class Meta:
         ordering=["matchweek","scheduled_at","id"]
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        if self.home_team_id and self.away_team_id and self.home_team_id == self.away_team_id:
+            raise ValidationError("A club cannot be scheduled against itself.")
     def __str__(self): return f"{self.home_team} vs {self.away_team}"
 
 class MatchSubmission(models.Model):

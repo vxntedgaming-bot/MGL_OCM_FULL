@@ -1,18 +1,32 @@
 {% extends "core/base.html" %}
 
-{% block title %}Leagues — MGL{% endblock %}
+{% block title %}Super League 1 — MGL{% endblock %}
 
 {% block content %}
 <section class="mgl-section">
     <div class="section-heading">
         <div>
             <div class="eyebrow">COMPETITION</div>
-            <h2>MGL LEAGUES</h2>
-            <p>Clubs are permanent. Managers can change; squads and token balances stay with the club.</p>
+            <h2>{% if active_league %}{{ active_league.name|upper }}{% else %}MGL LEAGUES{% endif %}</h2>
+            <p>MGL currently runs one active competition. All current clubs compete here.</p>
         </div>
         <span class="section-line"></span>
     </div>
+</section>
 
+<section class="mgl-section">
+    <div class="dashboard-panel">
+        {% include "mgl/includes/league_table.html" %}
+    </div>
+</section>
+
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">CLUBS</div>
+            <h2>SUPER LEAGUE 1</h2>
+        </div>
+    </div>
     {% for league in leagues %}
         <div class="dashboard-panel" style="margin-bottom:20px">
             <div class="panel-heading">
@@ -26,11 +40,11 @@
                     <b>{{ team.tokens }} TKN</b>
                 </div>
             {% empty %}
-                {% include "mgl/includes/empty_state.html" with title="NO CLUBS IN THIS LEAGUE" body="The owner will add MGL clubs here. They will remain even if a manager leaves." %}
+                {% include "mgl/includes/empty_state.html" with title="NO CLUBS IN SUPER LEAGUE 1 YET" body="Existing MGL clubs will appear here. They stay in Super League 1 even if a manager leaves." %}
             {% endfor %}
         </div>
     {% empty %}
-        {% include "mgl/includes/empty_state.html" with kicker="LEAGUES" title="NO LEAGUES PUBLISHED YET" body="Leagues and clubs will appear here once the owner creates them in the league office." %}
+        {% include "mgl/includes/empty_state.html" with kicker="LEAGUES" title="NO LEAGUES PUBLISHED YET" body="Super League 1 will appear here once the league office is set up." %}
     {% endfor %}
 </section>
 {% endblock %}

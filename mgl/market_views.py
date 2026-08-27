@@ -5,6 +5,7 @@ from django.views.decorators.http import require_POST
 
 from auctions.models import PlayerAuction
 from leagues.models import League
+from leagues.services import active_league
 from players.models import Player
 from teams.models import Team
 
@@ -30,6 +31,7 @@ from managers.services import approve_manager_application, reject_manager_applic
 
 from .permissions import approved_manager, owner_admin_required
 from .services import manager_for_user
+from .standings import build_league_table
 
 
 def transfer_market(request):
@@ -119,15 +121,26 @@ def buy_player(request, listing_id):
 
 
 def leagues_page(request):
+    league = active_league()
     leagues = (
         League.objects.filter(is_active=True)
         .prefetch_related("teams__manager")
         .order_by("name")
     )
-    return render(request, "mgl/leagues.html", {"leagues": leagues})
+    table = build_league_table(league)
+    return render(
+        request,
+        "mgl/leagues.html",
+        {
+            "leagues": leagues,
+            "active_league": league,
+            "table": table,
+        },
+    )
 
 
 def stats_page(request):
+    league = active_league()
     top_scorers = (
         Player.objects.filter(goals__gt=0)
         .select_related("mgl_team")
@@ -147,6 +160,8 @@ def stats_page(request):
             "club_count": Team.objects.count(),
             "player_count": Player.objects.count(),
             "free_agent_count": Player.objects.filter(is_free_agent=True, mgl_team__isnull=True).count(),
+            "active_league": league,
+            "table": build_league_table(league),
         },
     )
 
@@ -154,7 +169,7 @@ def stats_page(request):
 def job_centre(request):
     manager = manager_for_user(request.user)
     vacant = (
-        Team.objects.filter(manager__isnull=True)
+        Team.objects.filter(manager__isnull=True, league__is_active=True)
         .select_related("league")
         .prefetch_related("players")
         .order_by("name")

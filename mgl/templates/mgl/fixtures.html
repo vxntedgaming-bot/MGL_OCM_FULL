@@ -7,7 +7,7 @@
     <div class="section-heading">
         <div>
             <div class="eyebrow">MATCH CENTRE</div>
-            <h2>FIXTURES</h2>
+            <h2>{% if active_league %}{{ active_league.name|upper }} FIXTURES{% else %}FIXTURES{% endif %}</h2>
         </div>
         <span class="section-line"></span>
     </div>
