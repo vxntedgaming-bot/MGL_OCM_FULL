@@ -24,11 +24,13 @@ Competitive results and rewards are only finalized by Admin/Owner. The existing 
 The website is the source of truth. Approved events become `NewsPost` rows. `discord_bot.bot` polls those rows and posts them to mapped Discord channels. Configure `DISCORD_TOKEN` and `MGL_CHANNELS`.
 
 ## First run
-1. Activate the venv.
+1. Create and activate the existing venv: `python3 -m venv venv && source venv/bin/activate`
 2. `pip install -r requirements-mgl.txt`
-3. `python manage.py makemigrations`
-4. `python manage.py migrate`
+3. Copy `.env.example` to `.env` if you need to override local defaults.
+4. `python manage.py migrate` (migrations already exist; do not run `makemigrations` on a fresh checkout)
 5. `python manage.py seed_packs`
 6. `python manage.py mgl_reset` if you want a completely blank competition setup while keeping the player database.
 7. Create leagues/teams in Admin. Only Owner/Admin should edit team name/logo/manager assignment.
 8. Keep FC26 players as free agents until you deliberately allocate them.
+
+Local development uses SQLite (`db.sqlite3`). Production should set `DATABASE_URL` or `POSTGRES_*` and start the site with Gunicorn (`gunicorn --config gunicorn.conf.py`). See `README.md` for environment variables, `collectstatic`, and HTTPS settings.
