@@ -184,6 +184,97 @@ class AuctionRequest(models.Model):
     reviewed_at=models.DateTimeField(null=True,blank=True)
     reviewed_by=models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.SET_NULL,null=True,blank=True,related_name="auction_requests_reviewed")
 
+
+class PlayerListing(models.Model):
+    PENDING = "PENDING"
+    LIVE = "LIVE"
+    SOLD = "SOLD"
+    CANCELLED = "CANCELLED"
+    REJECTED = "REJECTED"
+
+    STATUS_CHOICES = [
+        (PENDING, "Pending approval"),
+        (LIVE, "Live"),
+        (SOLD, "Sold"),
+        (CANCELLED, "Cancelled"),
+        (REJECTED, "Rejected"),
+    ]
+
+    player = models.ForeignKey("players.Player", on_delete=models.CASCADE, related_name="listings")
+    team = models.ForeignKey("teams.Team", on_delete=models.CASCADE, related_name="player_listings")
+    seller = models.ForeignKey("managers.ManagerApplication", on_delete=models.CASCADE, related_name="player_listings")
+    asking_price = models.DecimalField(max_digits=8, decimal_places=2)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=PENDING)
+    created_at = models.DateTimeField(auto_now_add=True)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    reviewed_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="listings_reviewed")
+    sold_to = models.ForeignKey("managers.ManagerApplication", on_delete=models.SET_NULL, null=True, blank=True, related_name="players_bought")
+    sold_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.player.name} listed for {self.asking_price}"
+
+
+class MarketTransaction(models.Model):
+    AUCTION = "AUCTION"
+    SALE = "SALE"
+    BID_RESERVE = "BID_RESERVE"
+    BID_REFUND = "BID_REFUND"
+    ADMIN_ASSIGN = "ADMIN_ASSIGN"
+
+    PENDING = "PENDING"
+    COMPLETED = "COMPLETED"
+    REJECTED = "REJECTED"
+    CANCELLED = "CANCELLED"
+
+    TYPE_CHOICES = [
+        (AUCTION, "Auction"),
+        (SALE, "Sale"),
+        (BID_RESERVE, "Bid reserve"),
+        (BID_REFUND, "Bid refund"),
+        (ADMIN_ASSIGN, "Admin assignment"),
+    ]
+    STATUS_CHOICES = [
+        (PENDING, "Pending"),
+        (COMPLETED, "Completed"),
+        (REJECTED, "Rejected"),
+        (CANCELLED, "Cancelled"),
+    ]
+
+    player = models.ForeignKey("players.Player", on_delete=models.SET_NULL, null=True, blank=True, related_name="market_transactions")
+    seller = models.ForeignKey("managers.ManagerApplication", on_delete=models.SET_NULL, null=True, blank=True, related_name="sales")
+    buyer = models.ForeignKey("managers.ManagerApplication", on_delete=models.SET_NULL, null=True, blank=True, related_name="purchases")
+    from_team = models.ForeignKey("teams.Team", on_delete=models.SET_NULL, null=True, blank=True, related_name="tokens_spent_transfers")
+    to_team = models.ForeignKey("teams.Team", on_delete=models.SET_NULL, null=True, blank=True, related_name="tokens_received_transfers")
+    amount = models.DecimalField(max_digits=8, decimal_places=2)
+    transaction_type = models.CharField(max_length=20, choices=TYPE_CHOICES)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=COMPLETED)
+    approved_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="market_transactions_approved")
+    auction = models.ForeignKey("auctions.PlayerAuction", on_delete=models.SET_NULL, null=True, blank=True, related_name="market_transactions")
+    listing = models.ForeignKey("mgl.PlayerListing", on_delete=models.SET_NULL, null=True, blank=True, related_name="market_transactions")
+    notes = models.CharField(max_length=255, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class ClubApplication(models.Model):
+    manager = models.ForeignKey("managers.ManagerApplication", on_delete=models.CASCADE, related_name="club_applications")
+    team = models.ForeignKey("teams.Team", on_delete=models.CASCADE, related_name="club_applications")
+    message = models.TextField(blank=True)
+    status = models.CharField(max_length=20, choices=ApprovalStatus.choices, default=ApprovalStatus.PENDING)
+    created_at = models.DateTimeField(auto_now_add=True)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    reviewed_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="club_applications_reviewed")
+
+    class Meta:
+        ordering = ["-created_at"]
+
 class FixtureReleaseBatch(models.Model):
     name=models.CharField(max_length=100)
     batch_number=models.PositiveSmallIntegerField()

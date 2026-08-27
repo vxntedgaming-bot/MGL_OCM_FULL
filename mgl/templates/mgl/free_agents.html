@@ -1,1 +1,40 @@
-{% extends "core/base.html" %}{% block title %}Free Agents{% endblock %}{% block content %}<section class="mgl-section"><div class="eyebrow">MGL MARKET</div><h1>FREE AGENTS</h1><div class="dashboard-panel">{% for p in players %}<div class="table-row"><strong>{{ p.name }}</strong><span>{{ p.position }}</span><span>{{ p.overall }}</span><span>{{ p.calculated_tier }}</span></div>{% empty %}<p>No free agents.</p>{% endfor %}</div></section>{% endblock %}
+{% extends "core/base.html" %}
+
+{% block title %}Free Agents — MGL{% endblock %}
+
+{% block content %}
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">MGL MARKET</div>
+            <h2>FREE AGENTS</h2>
+            <p>Players not assigned to an MGL club. Admin/Owner can auction or assign them.</p>
+        </div>
+        <a href="{% url 'transfer_market' %}" class="view-all">MARKET →</a>
+    </div>
+
+    <div class="dashboard-panel">
+        {% for p in players %}
+            <div class="table-row">
+                <strong><a href="{% url 'player_profile' p.id %}">{{ p.name }}</a></strong>
+                <span>{{ p.position }}</span>
+                <span>{{ p.overall }}</span>
+                <span>{{ p.calculated_tier }}</span>
+            </div>
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with title="NO FREE AGENTS" body="Unassigned FC26 players will show here. The player pool is never reset when clubs are populated." %}
+        {% endfor %}
+    </div>
+    {% if page_obj and page_obj.has_other_pages %}
+        <div class="mgl-pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+            {% endif %}
+            <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">Next</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

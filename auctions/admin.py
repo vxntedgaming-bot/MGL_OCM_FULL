@@ -2,6 +2,7 @@ from django.contrib import admin, messages
 from django.utils import timezone
 from datetime import timedelta
 
+from mgl.market import settle_auction
 from players.models import Player
 
 from .models import PlayerAuction, AuctionBid, TokenTransaction
@@ -81,11 +82,20 @@ class PlayerAuctionAdmin(admin.ModelAdmin):
     )
 
     readonly_fields = (
-        "status",
         "winning_manager",
         "winning_bid",
         "created_at",
     )
+
+    actions = ("close_selected_auctions",)
+
+    @admin.action(description="Close selected auctions and assign winners")
+    def close_selected_auctions(self, request, queryset):
+        closed = 0
+        for auction in queryset:
+            settle_auction(auction, reviewer=request.user)
+            closed += 1
+        self.message_user(request, f"Closed {closed} auction(s).")
 
 
 @admin.register(AuctionBid)

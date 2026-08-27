@@ -1,34 +1,23 @@
 from django.contrib import admin
-from django.utils import timezone
 
 from .models import ManagerApplication
+from .services import approve_manager_application, reject_manager_application
 
 
 @admin.action(description="Approve selected manager applications")
 def approve_manager_applications(modeladmin, request, queryset):
     for application in queryset:
-        application.status = ManagerApplication.APPROVED
-        application.reviewed_at = timezone.now()
-        application.reviewed_by = request.user
-
-        user = application.user
-        user.role = user.MANAGER
-        user.is_active = True
-        user.save()
-
-        if application.tokens == 0:
-            application.tokens = 50.00
-
-        application.save()
+        if application.status != ManagerApplication.PENDING:
+            continue
+        approve_manager_application(application, request.user)
 
 
 @admin.action(description="Reject selected manager applications")
 def reject_manager_applications(modeladmin, request, queryset):
     for application in queryset:
-        application.status = ManagerApplication.REJECTED
-        application.reviewed_at = timezone.now()
-        application.reviewed_by = request.user
-        application.save()
+        if application.status != ManagerApplication.PENDING:
+            continue
+        reject_manager_application(application, request.user)
 
 
 @admin.register(ManagerApplication)

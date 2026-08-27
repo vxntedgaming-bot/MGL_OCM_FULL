@@ -1,64 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% extends "core/base.html" %}
 
-    <title>MGL Application Submitted</title>
+{% block title %}Application submitted — MGL{% endblock %}
 
-    <style>
-        body {
-            margin: 0;
-            min-height: 100vh;
-            font-family: Arial, sans-serif;
-            background: #0b0f14;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .card {
-            width: 90%;
-            max-width: 600px;
-            background: #151a21;
-            border: 1px solid #252c36;
-            border-radius: 16px;
-            padding: 45px;
-            text-align: center;
-        }
-
-        h1 {
-            font-size: 30px;
-        }
-
-        p {
-            color: #9ca3af;
-            line-height: 1.6;
-        }
-    </style>
-</head>
-
-<body>
-
-<div class="card">
-
-    <h1>✅ Application Submitted</h1>
-
-    <p>
-        Your MGL Manager application has been successfully submitted.
-    </p>
-
-    <p>
-        An Owner or Admin will now review your application.
-    </p>
-
-    <p>
-        You will only receive Manager access after your application
-        has been approved.
-    </p>
-
-</div>
-
-</body>
-</html>
+{% block content %}
+<section class="mgl-section">
+    <div class="mgl-auth-card">
+        <div class="eyebrow">APPLICATION RECEIVED</div>
+        <h1>YOU'RE IN THE QUEUE</h1>
+        <p>An MGL Owner or Admin will review your manager application. You will be able to log in after approval and will start with 50 tokens.</p>
+        <a href="{% url 'home' %}" class="primary-button">BACK TO HOME</a>
+    </div>
+</section>
+{% endblock %}

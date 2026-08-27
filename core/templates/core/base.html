@@ -17,72 +17,53 @@
     <div class="mgl-header-inner">
 
         <a href="{% url 'home' %}" class="mgl-logo">
-
             <span class="mgl-logo-mark">M</span>
-
             <span class="mgl-logo-text">
                 METAGAMINGLEAGUE
                 <span>ONLINE CAREER MODE</span>
             </span>
-
         </a>
 
+        <input type="checkbox" id="mgl-nav-toggle" class="mgl-nav-checkbox">
+        <label for="mgl-nav-toggle" class="mgl-nav-burger" aria-label="Open menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </label>
 
         <nav class="mgl-nav">
-
             <a href="{% url 'home' %}">HOME</a>
-            {% if user.is_authenticated %}<a href="{% url 'manager_hub' %}">MY HUB</a>{% endif %}
-
-            <a href="#">LEAGUES</a>
-
-            <a href="{% url 'fixture_list' %}">FIXTURES</a>
-
-            <a href="{% url 'live_auctions' %}">MARKET</a>
-
-            <a href="#">STATS</a>
-
-            <a href="#">JOB CENTRE</a>
-
             {% if user.is_authenticated %}
-                {% if user.role == "OWNER" or user.role == "ADMIN" %}
-                    <a href="{% url 'club_management_admin' %}">CLUBS</a>
-                {% endif %}
+                <a href="{% url 'manager_hub' %}">MY HUB</a>
             {% endif %}
-
+            <a href="{% url 'leagues_page' %}">LEAGUES</a>
+            <a href="{% url 'fixture_list' %}">FIXTURES</a>
+            <a href="{% url 'transfer_market' %}">MARKET</a>
+            <a href="{% url 'stats_page' %}">STATS</a>
+            <a href="{% url 'job_centre' %}">JOB CENTRE</a>
+            {% if mgl_is_control %}
+                <a href="{% url 'control_centre' %}">CONTROL</a>
+            {% endif %}
         </nav>
 
-
         <div class="mgl-header-actions">
-
             {% if user.is_authenticated %}
-
-                <a href="{% url 'manager_profile' %}" class="header-button">
-                    PROFILE
-                </a>
-
+                {% if mgl_token_balance != None %}
+                    <span class="mgl-token-chip">{{ mgl_token_balance }} TKN</span>
+                {% endif %}
+                <a href="{% url 'manager_profile' %}" class="header-button">PROFILE</a>
                 <form method="post" action="{% url 'manager_logout' %}" class="mgl-logout-form">
                     {% csrf_token %}
-                    <button type="submit" class="header-button">
-                        LOGOUT
-                    </button>
+                    <button type="submit" class="header-button">LOGOUT</button>
                 </form>
-
             {% else %}
-
-                <a href="{% url 'manager_login' %}" class="header-button">
-                    LOGIN
-                </a>
-
+                <a href="{% url 'manager_login' %}" class="header-button">LOGIN</a>
             {% endif %}
-
         </div>
-
     </div>
 </header>
 
-
 <main class="mgl-main">
-
     {% if messages %}
         <div class="mgl-messages">
             {% for message in messages %}
@@ -95,39 +76,30 @@
 
     {% block content %}
     {% endblock %}
-
 </main>
 
-
 <footer class="mgl-footer">
-
     <div class="mgl-footer-inner">
-
         <div>
             <strong>MGL</strong>
             <p>MetaGamingLeague</p>
             <p>Online Career Mode</p>
         </div>
-
         <div>
             <strong>LEAGUE</strong>
             <p>Competitive EA FC</p>
             <p>Managers • Transfers • Fixtures</p>
         </div>
-
         <div>
             <strong>COMMUNITY</strong>
             <p>Discord</p>
             <p>News & Updates</p>
         </div>
-
         <div>
             <strong>© MGL</strong>
             <p>All rights reserved.</p>
         </div>
-
     </div>
-
 </footer>
 
 </body>

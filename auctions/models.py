@@ -89,6 +89,14 @@ class AuctionBid(models.Model):
 
     amount = models.PositiveIntegerField()
 
+    team = models.ForeignKey(
+        "teams.Team",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="auction_bids",
+    )
+
     created_at = models.DateTimeField(
         auto_now_add=True,
     )

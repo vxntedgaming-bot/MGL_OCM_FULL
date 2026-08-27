@@ -1,0 +1,122 @@
+{% extends "core/base.html" %}
+
+{% block title %}MGL Control — Owner / Admin{% endblock %}
+
+{% block content %}
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">LEAGUE OFFICE</div>
+            <h2>OWNER / ADMIN CONTROL</h2>
+            <p>Approve managers, listings and club applications. Clubs and squads are never deleted when a manager leaves.</p>
+        </div>
+        <a href="{% url 'club_management_admin' %}" class="view-all">CLUBS →</a>
+    </div>
+</section>
+
+<section class="mgl-section">
+    <div class="dashboard-grid">
+        <div class="dashboard-panel">
+            <div class="panel-heading"><span>PENDING MANAGER APPLICATIONS</span></div>
+            {% for app in pending_managers %}
+                <div class="table-row">
+                    <strong>{{ app.display_name }}</strong>
+                    <span>{{ app.gamertag }}</span>
+                    <small>{{ app.preferred_team }}</small>
+                    <form method="post" action="{% url 'control_approve_manager' app.id %}">{% csrf_token %}<button class="header-button" type="submit">APPROVE</button></form>
+                    <form method="post" action="{% url 'control_reject_manager' app.id %}">{% csrf_token %}<button class="header-button" type="submit">REJECT</button></form>
+                </div>
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with title="NO PENDING APPLICATIONS" body="New manager registrations will appear here for owner or admin approval. Approved managers start with 50 tokens." %}
+            {% endfor %}
+        </div>
+
+        <div class="dashboard-panel">
+            <div class="panel-heading"><span>PLAYER SALE REQUESTS</span></div>
+            {% for listing in pending_listings %}
+                <div class="table-row">
+                    <strong>{{ listing.player.name }}</strong>
+                    <span>{{ listing.team.short_name }} · {{ listing.asking_price }} TKN</span>
+                    <form method="post" action="{% url 'control_approve_listing' listing.id %}">{% csrf_token %}<button class="header-button" type="submit">APPROVE</button></form>
+                    <form method="post" action="{% url 'control_reject_listing' listing.id %}">{% csrf_token %}<button class="header-button" type="submit">REJECT</button></form>
+                </div>
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with title="NO SALE REQUESTS" body="When a manager lists a player, approve it here before it reaches the market." %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="mgl-section">
+    <div class="dashboard-grid">
+        <div class="dashboard-panel">
+            <div class="panel-heading"><span>JOB CENTRE APPLICATIONS</span></div>
+            {% for app in pending_jobs %}
+                <div class="table-row">
+                    <strong>{{ app.manager.display_name }}</strong>
+                    <span>{{ app.team.name }}</span>
+                    <form method="post" action="{% url 'control_approve_job' app.id %}">{% csrf_token %}<button class="header-button" type="submit">APPOINT</button></form>
+                    <form method="post" action="{% url 'control_reject_job' app.id %}">{% csrf_token %}<button class="header-button" type="submit">REJECT</button></form>
+                </div>
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with title="NO CLUB APPLICATIONS" body="Approved managers can apply for vacant clubs from the Job Centre." %}
+            {% endfor %}
+        </div>
+        <div class="dashboard-panel">
+            <div class="panel-heading"><span>LIVE AUCTIONS</span></div>
+            {% for auction in live_auctions %}
+                <div class="table-row">
+                    <strong>{{ auction.player.name }}</strong>
+                    <span>{{ auction.winning_bid }} TKN</span>
+                    <form method="post" action="{% url 'control_close_auction' auction.id %}">{% csrf_token %}<button class="header-button" type="submit">CLOSE</button></form>
+                </div>
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with title="NO LIVE AUCTIONS" body="Release free agents to auction from Django admin, then close them here to assign the winner." %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">CLUBS</div>
+            <h2>TOKEN BALANCES AND MANAGERS</h2>
+        </div>
+    </div>
+    <div class="dashboard-panel">
+        {% for team in teams %}
+            <div class="table-row">
+                <strong>{{ team.name }}</strong>
+                <span>{% if team.manager %}{{ team.manager.username }}{% else %}VACANT{% endif %}</span>
+                <b>{{ team.tokens }} TKN</b>
+                <a href="{% url 'club_squad_admin' team.id %}">SQUAD →</a>
+            </div>
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with title="NO CLUBS YET" body="Create MGL clubs in Django admin. Squads and token balances stay with the club when a manager leaves." %}
+        {% endfor %}
+    </div>
+</section>
+
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">LEDGER</div>
+            <h2>TOKEN TRANSACTIONS</h2>
+        </div>
+    </div>
+    <div class="dashboard-panel">
+        {% for row in transactions %}
+            <div class="table-row">
+                <span>{{ row.created_at|date:"d M Y H:i" }}</span>
+                <strong>{{ row.get_transaction_type_display }}</strong>
+                <span>{{ row.player.name|default:"—" }}</span>
+                <b>{{ row.amount }} TKN</b>
+                <small>{{ row.status }}</small>
+            </div>
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with title="NO TRANSACTIONS YET" body="Auctions, sales and refunds are stored here with player, clubs, amount and status." %}
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

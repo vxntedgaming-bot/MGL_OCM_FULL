@@ -33,6 +33,13 @@ class Team(models.Model):
 
     roster_limit = models.PositiveSmallIntegerField(default=30)
 
+    tokens = models.DecimalField(
+        max_digits=8,
+        decimal_places=2,
+        default=50,
+        help_text="Club transfer budget in MGL tokens. Remains with the club if the manager leaves.",
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
