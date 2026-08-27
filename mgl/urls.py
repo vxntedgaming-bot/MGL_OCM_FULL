@@ -5,8 +5,8 @@ from . import views
 urlpatterns = [
     path(
         "",
-        views.home,
-        name="home",
+        views.mgl_index,
+        name="mgl_index",
     ),
 
     path(
@@ -37,11 +37,11 @@ urlpatterns = [
         name="player_database",
     ),
 
-path(
-    "players/<int:player_id>/",
-    views.player_profile,
-    name="player_profile",
-),
+    path(
+        "players/<int:player_id>/",
+        views.player_profile,
+        name="player_profile",
+    ),
 
     path(
         "free-agents/",
