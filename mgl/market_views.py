@@ -11,6 +11,7 @@ from teams.models import Team
 from .market import (
     approve_listing,
     buy_listed_player,
+    cancel_listing,
     close_expired_auctions,
     club_for_user,
     list_player_for_sale,
@@ -80,6 +81,22 @@ def sell_player(request, player_id):
             f"{player.name} listed for {listing.asking_price} tokens. "
             "An owner or admin must approve the listing before it goes live.",
         )
+    except ValueError as exc:
+        messages.error(request, str(exc))
+    return redirect("team_management")
+
+
+@login_required
+@require_POST
+def cancel_player_listing(request, listing_id):
+    manager = approved_manager(request.user)
+    if not manager:
+        messages.error(request, "You must be an approved manager to withdraw a listing.")
+        return redirect("team_management")
+    listing = get_object_or_404(PlayerListing, pk=listing_id)
+    try:
+        cancel_listing(listing, manager)
+        messages.success(request, f"{listing.player.name} is no longer listed.")
     except ValueError as exc:
         messages.error(request, str(exc))
     return redirect("team_management")

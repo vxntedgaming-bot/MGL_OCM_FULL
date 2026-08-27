@@ -117,6 +117,13 @@ def place_auction_bid(auction, manager, amount):
     except (TypeError, ValueError) as exc:
         raise ValueError("Enter a whole number of tokens.") from exc
 
+    if amount <= 0:
+        raise ValueError("Bid amount must be greater than zero.")
+
+    player = Player.objects.select_for_update().get(pk=auction.player_id)
+    if player.mgl_team_id == team.id:
+        raise ValueError("You cannot bid on a player already at your club.")
+
     highest_bid = (
         auction.bids.select_for_update()
         .select_related("manager", "team")
@@ -384,6 +391,7 @@ def buy_listed_player(listing, buyer):
         amount=listing.asking_price,
         transaction_type=MarketTransaction.SALE,
         status=MarketTransaction.COMPLETED,
+        approved_by=listing.reviewed_by,
         listing=listing,
     )
     record_token_transaction(
@@ -404,4 +412,16 @@ def buy_listed_player(listing, buyer):
         f"{listing.player.name} moved from {listing.team.name} to {buyer_club.name} "
         f"for {listing.asking_price} tokens.",
     )
+    return listing
+
+
+@transaction.atomic
+def cancel_listing(listing, manager):
+    listing = PlayerListing.objects.select_for_update().get(pk=listing.pk)
+    if listing.seller_id != manager.id:
+        raise ValueError("You can only withdraw your own listing.")
+    if listing.status not in [PlayerListing.PENDING, PlayerListing.LIVE]:
+        raise ValueError("This listing cannot be withdrawn.")
+    listing.status = PlayerListing.CANCELLED
+    listing.save(update_fields=["status"])
     return listing

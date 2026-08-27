@@ -119,6 +119,11 @@ urlpatterns = [
     ),
 
     path("market/listings/<int:listing_id>/buy/", views_market.buy_player, name="buy_player"),
+    path(
+        "market/listings/<int:listing_id>/cancel/",
+        views_market.cancel_player_listing,
+        name="cancel_player_listing",
+    ),
     path("team/sell/<int:player_id>/", views_market.sell_player, name="sell_player"),
     path("jobs/<int:team_id>/apply/", views_market.apply_for_club, name="apply_for_club"),
     path("control/", views_market.control_centre, name="control_centre"),

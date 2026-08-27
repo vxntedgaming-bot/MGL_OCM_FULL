@@ -595,6 +595,15 @@ def team_management(request):
 
     total_ovr = sum(player.overall for player in players)
     available_spaces = max(0, team.roster_limit - len(players))
+    listings = {
+        listing.player_id: listing
+        for listing in PlayerListing.objects.filter(
+            team=team,
+            status__in=[PlayerListing.PENDING, PlayerListing.LIVE],
+        )
+    }
+    for player in players:
+        player.current_listing = listings.get(player.id)
 
     return render(
         request,
