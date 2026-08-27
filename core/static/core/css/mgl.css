@@ -995,8 +995,10 @@ button.header-button {
     }
 
     .mgl-logo-mark {
-        width:
-
+        width: 34px;
+        height: 34px;
+    }
+}
 
 /* =========================================================
    MGL PLAYER CARDS
@@ -1786,6 +1788,12 @@ textarea {
 }
 
 @media (max-width: 900px) {
+    .mgl-header {
+        height: auto;
+        min-height: 76px;
+        overflow: visible;
+    }
+
     .mgl-header-inner {
         flex-wrap: wrap;
         height: auto;
@@ -1793,9 +1801,16 @@ textarea {
         padding-bottom: 12px;
     }
 
+    .mgl-logo {
+        min-width: 0;
+        flex: 1;
+    }
+
     .mgl-nav-burger {
         display: flex;
         margin-left: auto;
+        flex-shrink: 0;
+        z-index: 2;
     }
 
     .mgl-nav {
