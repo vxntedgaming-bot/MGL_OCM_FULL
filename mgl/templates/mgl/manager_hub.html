@@ -29,6 +29,19 @@
             {% endif %}
         </div>
         <div class="overview-stat">
+            <span>LEAGUE</span>
+            {% if team and team.league %}
+                <strong>{{ team.league.short_name }}</strong>
+                <small>{{ team.league.name|upper }}</small>
+            {% elif active_league %}
+                <strong>{{ active_league.short_name }}</strong>
+                <small>{{ active_league.name|upper }}</small>
+            {% else %}
+                <strong>SL1</strong>
+                <small>SUPER LEAGUE 1</small>
+            {% endif %}
+        </div>
+        <div class="overview-stat">
             <span>MANAGER</span>
             <strong>{{ manager.display_name }}</strong>
             <small>{{ manager.status }}</small>

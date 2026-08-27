@@ -8,7 +8,9 @@ from django.views.decorators.http import require_POST
 
 from accounts.models import User
 from leagues.models import League
+from leagues.services import active_league
 from managers.models import ManagerApplication
+from mgl.standings import build_league_table
 from players.models import Player
 from teams.models import Team
 
@@ -48,18 +50,29 @@ def mgl_index(request):
 
 
 def home(request):
-    upcoming = (
-        Fixture.objects
-        .filter(
-            is_released=True,
-            status="SCHEDULED",
-        )
-        .select_related(
-            "home_team",
-            "away_team",
-            "league",
-        )[:5]
+    league = active_league()
+    upcoming_qs = Fixture.objects.filter(
+        is_released=True,
+        status="SCHEDULED",
+    ).select_related(
+        "home_team",
+        "away_team",
+        "league",
     )
+    completed_qs = Fixture.objects.filter(
+        is_released=True,
+        status="COMPLETED",
+    ).select_related(
+        "home_team",
+        "away_team",
+    ).prefetch_related(
+        "submission__team_stats",
+    ).order_by("-id")
+    if league:
+        upcoming_qs = upcoming_qs.filter(league=league)
+        completed_qs = completed_qs.filter(league=league)
+
+    upcoming = upcoming_qs[:5]
 
     news = (
         NewsPost.objects
@@ -68,21 +81,7 @@ def home(request):
     )
 
     recent_results = []
-    completed = (
-        Fixture.objects
-        .filter(
-            is_released=True,
-            status="COMPLETED",
-        )
-        .select_related(
-            "home_team",
-            "away_team",
-        )
-        .prefetch_related(
-            "submission__team_stats",
-        )
-        .order_by("-id")[:5]
-    )
+    completed = completed_qs[:5]
 
     for fixture in completed:
         home_goals = None
@@ -106,6 +105,7 @@ def home(request):
         .select_related("mgl_team")
         .order_by("-goals", "name")[:5]
     )
+    table = build_league_table(league)[:10]
 
     return render(
         request,
@@ -118,6 +118,8 @@ def home(request):
             "league_count": League.objects.filter(is_active=True).count(),
             "club_count": Team.objects.count(),
             "player_count": Player.objects.count(),
+            "active_league": league,
+            "table": table,
         },
     )
 
@@ -170,7 +172,11 @@ def manager_hub(request):
         )
         return redirect("manager_login")
 
-    team = getattr(request.user, "managed_team", None)
+    team = (
+        Team.objects.select_related("league")
+        .filter(manager=request.user)
+        .first()
+    )
     recent = []
     pending_actions = []
 
@@ -220,12 +226,14 @@ def manager_hub(request):
             "roster_count": roster_count,
             "token_balance": token_balance,
             "pending_actions": pending_actions,
+            "active_league": getattr(team, "league", None) or active_league(),
         },
     )
 
 
 @login_required
 def fixture_list(request):
+    league = active_league()
     fixtures = (
         Fixture.objects
         .filter(is_released=True)
@@ -235,6 +243,8 @@ def fixture_list(request):
             "league",
         )
     )
+    if league:
+        fixtures = fixtures.filter(league=league)
     team = getattr(request.user, "managed_team", None)
 
     return render(
@@ -243,6 +253,7 @@ def fixture_list(request):
         {
             "fixtures": fixtures,
             "team": team,
+            "active_league": league,
         },
     )
 

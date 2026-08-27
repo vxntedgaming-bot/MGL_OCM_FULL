@@ -38,7 +38,7 @@
 
         <div class="panel-label">CURRENT SEASON</div>
 
-        <strong>MGL</strong>
+        <strong>{% if active_league %}{{ active_league.name|upper }}{% else %}MGL{% endif %}</strong>
 
         <div class="panel-status">
             <span class="status-dot"></span>
@@ -295,15 +295,7 @@
     <div class="dashboard-grid">
 
         <div class="dashboard-panel">
-
-            <div class="panel-heading">
-                <span>LEAGUE TABLE</span>
-            </div>
-
-            <div class="table-row">
-                {% include "mgl/includes/empty_state.html" with title="LEAGUE TABLE COMING SOON" body="Standings will be published here after enough official results are in. Clubs and managers are already listed under Leagues." %}
-            </div>
-
+            {% include "mgl/includes/league_table.html" %}
         </div>
 
 

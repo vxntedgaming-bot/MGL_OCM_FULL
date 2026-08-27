@@ -88,7 +88,7 @@
         {% for team in teams %}
             <div class="table-row">
                 <strong>{{ team.name }}</strong>
-                <span>{% if team.manager %}{{ team.manager.username }}{% else %}VACANT{% endif %}</span>
+                <span>{{ team.league.short_name }} · {% if team.manager %}{{ team.manager.username }}{% else %}VACANT{% endif %}</span>
                 <b>{{ team.tokens }} TKN</b>
                 <a href="{% url 'club_squad_admin' team.id %}">SQUAD →</a>
             </div>
