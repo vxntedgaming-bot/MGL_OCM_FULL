@@ -1,0 +1,103 @@
+{% load static %}
+
+<a href="{% url 'player_profile' player.id %}" class="mgl-player-card-link">
+
+    <article class="mgl-player-card">
+
+        {% if player.overall >= 75 %}
+            <img
+                src="{% static 'mgl/cards/gold_card.png' %}"
+                class="mgl-player-card-bg"
+                alt=""
+            >
+        {% elif player.overall >= 65 %}
+            <img
+                src="{% static 'mgl/cards/silver_card.png' %}"
+                class="mgl-player-card-bg"
+                alt=""
+            >
+        {% else %}
+            <img
+                src="{% static 'mgl/cards/bronze_card.png' %}"
+                class="mgl-player-card-bg"
+                alt=""
+            >
+        {% endif %}
+
+        {# PLAYER FACE #}
+        {% if player.player_face_url %}
+            <img
+                src="{{ player.player_face_url }}"
+                class="mgl-player-face"
+                alt="{{ player.name }}"
+                loading="lazy"
+                onerror="this.style.display='none';"
+            >
+        {% endif %}
+
+        <div class="mgl-player-card-content">
+
+            {# RATING + POSITION #}
+            <div class="mgl-card-top">
+
+                <div class="mgl-card-rating">
+                    <strong>{{ player.overall }}</strong>
+                    <span>OVR</span>
+                </div>
+
+                <div class="mgl-card-position">
+                    {{ player.position }}
+                </div>
+
+            </div>
+
+            {# PLAYER NAME #}
+            <div class="mgl-card-name">
+                {{ player.name }}
+            </div>
+
+            {# ORIGINAL FC CLUB #}
+            <div class="mgl-card-club">
+                {{ player.fc27_club|default:"FC Club N/A" }}
+            </div>
+
+            {# SIX MAIN ATTRIBUTES #}
+            <div class="mgl-card-stats">
+
+                <div class="mgl-card-stat">
+                    <strong>{{ player.pace }}</strong>
+                    <span>PAC</span>
+                </div>
+
+                <div class="mgl-card-stat">
+                    <strong>{{ player.shooting }}</strong>
+                    <span>SHO</span>
+                </div>
+
+                <div class="mgl-card-stat">
+                    <strong>{{ player.passing }}</strong>
+                    <span>PAS</span>
+                </div>
+
+                <div class="mgl-card-stat">
+                    <strong>{{ player.dribbling }}</strong>
+                    <span>DRI</span>
+                </div>
+
+                <div class="mgl-card-stat">
+                    <strong>{{ player.defending }}</strong>
+                    <span>DEF</span>
+                </div>
+
+                <div class="mgl-card-stat">
+                    <strong>{{ player.physical }}</strong>
+                    <span>PHY</span>
+                </div>
+
+            </div>
+
+        </div>
+
+    </article>
+
+</a>

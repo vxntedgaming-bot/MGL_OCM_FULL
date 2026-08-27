@@ -1,0 +1,417 @@
+{% extends "core/base.html" %}
+
+{% block title %}MGL – MetaGamingLeague{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<section class="mgl-hero">
+
+    <div class="mgl-hero-main">
+
+        <div class="eyebrow">METAGAMINGLEAGUE</div>
+
+        <h1>
+            YOUR CLUB.<br>
+            <span>YOUR LEGACY.</span>
+        </h1>
+
+        <p>
+            The competitive EA FC online career mode.
+            Manage your club, build your squad, compete
+            for trophies and make your mark on MGL.
+        </p>
+
+        <div class="hero-actions">
+            <a href="{% url 'manager_register' %}" class="primary-button">
+                JOIN MGL
+            </a>
+
+            <a href="#mgl-hub" class="secondary-button">
+                EXPLORE MGL
+            </a>
+        </div>
+
+    </div>
+
+    <div class="mgl-season-panel">
+
+        <div class="panel-label">CURRENT SEASON</div>
+
+        <strong>MGL</strong>
+
+        <div class="panel-status">
+            <span class="status-dot"></span>
+            LEAGUE IS LIVE
+        </div>
+
+        <div class="panel-divider"></div>
+
+        <div class="season-info">
+            <span>TRANSFER WINDOW</span>
+            <b>OPEN</b>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- QUICK ACCESS -->
+<section class="mgl-section" id="mgl-hub">
+
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">MGL HUB</div>
+            <h2>MANAGE YOUR CAREER</h2>
+        </div>
+
+        <span class="section-line"></span>
+    </div>
+
+    <div class="mgl-card-grid">
+
+        <a href="#" class="mgl-action-card featured-card">
+            <div class="card-icon">▣</div>
+            <div>
+                <small>COMPETITION</small>
+                <h3>LEAGUES</h3>
+                <p>Tables, form and title races.</p>
+            </div>
+            <span class="card-arrow">→</span>
+        </a>
+
+        <a href="#" class="mgl-action-card">
+            <div class="card-icon">◷</div>
+            <div>
+                <small>MATCH CENTRE</small>
+                <h3>FIXTURES</h3>
+                <p>Upcoming matches and results.</p>
+            </div>
+            <span class="card-arrow">→</span>
+        </a>
+
+        <a href="#" class="mgl-action-card">
+            <div class="card-icon">↔</div>
+            <div>
+                <small>TRANSFERS</small>
+                <h3>MARKET</h3>
+                <p>Buy, sell, loan and negotiate.</p>
+            </div>
+            <span class="card-arrow">→</span>
+        </a>
+
+        <a href="#" class="mgl-action-card">
+            <div class="card-icon">◆</div>
+            <div>
+                <small>PLAYERS</small>
+                <h3>DATABASE</h3>
+                <p>Explore the MGL player pool.</p>
+            </div>
+            <span class="card-arrow">→</span>
+        </a>
+
+        <a href="#" class="mgl-action-card">
+            <div class="card-icon">▥</div>
+            <div>
+                <small>PERFORMANCE</small>
+                <h3>STATISTICS</h3>
+                <p>Goals, assists and ratings.</p>
+            </div>
+            <span class="card-arrow">→</span>
+        </a>
+
+        <a href="{% url 'manager_register' %}" class="mgl-action-card">
+            <div class="card-icon">♟</div>
+            <div>
+                <small>MANAGEMENT</small>
+                <h3>JOB CENTRE</h3>
+                <p>Find your next club.</p>
+            </div>
+            <span class="card-arrow">→</span>
+        </a>
+
+    </div>
+
+</section>
+
+
+<!-- OVERVIEW -->
+<section class="mgl-section">
+
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">MGL OVERVIEW</div>
+            <h2>THE LEAGUE AT A GLANCE</h2>
+        </div>
+
+        <span class="section-line"></span>
+    </div>
+
+    <div class="overview-grid">
+
+        <div class="overview-stat">
+            <span>ACTIVE LEAGUES</span>
+            <strong>02</strong>
+            <small>SUPER LEAGUE 1 + 2</small>
+        </div>
+
+        <div class="overview-stat">
+            <span>COMPETING CLUBS</span>
+            <strong>16</strong>
+            <small>MGL TEAMS</small>
+        </div>
+
+        <div class="overview-stat">
+            <span>PLAYER DATABASE</span>
+            <strong>FC</strong>
+            <small>EA FC PLAYER POOL</small>
+        </div>
+
+        <div class="overview-stat">
+            <span>TRANSFER WINDOW</span>
+            <strong>OPEN</strong>
+            <small>MARKET ACTIVE</small>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- MATCH CENTRE -->
+<section class="mgl-section">
+
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">MATCH CENTRE</div>
+            <h2>FIXTURES & RESULTS</h2>
+        </div>
+
+        <a href="#" class="view-all">
+            VIEW ALL →
+        </a>
+    </div>
+
+    <div class="match-layout">
+
+        <div class="match-panel">
+
+            <div class="panel-heading">
+                <span>UPCOMING FIXTURES</span>
+                <b>THIS WEEK</b>
+            </div>
+
+            <div class="match-row">
+                <span class="match-date">27 AUG</span>
+                <strong>NAPOLI</strong>
+                <span class="vs">VS</span>
+                <strong>CHELSEA</strong>
+                <span class="match-time">20:00</span>
+            </div>
+
+            <div class="match-row">
+                <span class="match-date">28 AUG</span>
+                <strong>MAN UNITED</strong>
+                <span class="vs">VS</span>
+                <strong>MARSEILLE</strong>
+                <span class="match-time">20:00</span>
+            </div>
+
+            <div class="match-row">
+                <span class="match-date">29 AUG</span>
+                <strong>JUVENTUS</strong>
+                <span class="vs">VS</span>
+                <strong>LEIPZIG</strong>
+                <span class="match-time">20:00</span>
+            </div>
+
+        </div>
+
+
+        <div class="match-panel">
+
+            <div class="panel-heading">
+                <span>RECENT RESULTS</span>
+                <b>MGL</b>
+            </div>
+
+            <div class="result-row">
+                <span class="result-win">W</span>
+                <strong>NAPOLI</strong>
+                <b>4 - 2</b>
+                <strong>CHELSEA</strong>
+            </div>
+
+            <div class="result-row">
+                <span class="result-win">W</span>
+                <strong>MARSEILLE</strong>
+                <b>3 - 1</b>
+                <strong>JUVENTUS</strong>
+            </div>
+
+            <div class="result-row">
+                <span class="result-draw">D</span>
+                <strong>INTER</strong>
+                <b>2 - 2</b>
+                <strong>ATHLETIC</strong>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- TABLE + TOP SCORERS -->
+<section class="mgl-section">
+
+    <div class="dashboard-grid">
+
+        <div class="dashboard-panel">
+
+            <div class="panel-heading">
+                <span>LEAGUE TABLE</span>
+                <a href="#">VIEW ALL →</a>
+            </div>
+
+            <div class="table-head">
+                <span>#</span>
+                <span>TEAM</span>
+                <span>P</span>
+                <span>GD</span>
+                <span>PTS</span>
+            </div>
+
+            <div class="table-row">
+                <b>1</b>
+                <strong>Napoli</strong>
+                <span>6</span>
+                <span>+33</span>
+                <strong>18</strong>
+            </div>
+
+            <div class="table-row">
+                <b>2</b>
+                <strong>Chelsea</strong>
+                <span>6</span>
+                <span>+16</span>
+                <strong>13</strong>
+            </div>
+
+            <div class="table-row">
+                <b>3</b>
+                <strong>Manchester United</strong>
+                <span>6</span>
+                <span>+13</span>
+                <strong>13</strong>
+            </div>
+
+            <div class="table-row">
+                <b>4</b>
+                <strong>Marseille</strong>
+                <span>6</span>
+                <span>+11</span>
+                <strong>12</strong>
+            </div>
+
+            <div class="table-row">
+                <b>5</b>
+                <strong>RB Leipzig</strong>
+                <span>6</span>
+                <span>+17</span>
+                <strong>10</strong>
+            </div>
+
+        </div>
+
+
+        <div class="dashboard-panel">
+
+            <div class="panel-heading">
+                <span>TOP SCORERS</span>
+                <a href="#">VIEW ALL →</a>
+            </div>
+
+            <div class="scorer-row">
+                <span class="rank">01</span>
+                <strong>TOP SCORER</strong>
+                <b>16</b>
+                <small>GOALS</small>
+            </div>
+
+            <div class="scorer-row">
+                <span class="rank">02</span>
+                <strong>PLAYER</strong>
+                <b>11</b>
+                <small>GOALS</small>
+            </div>
+
+            <div class="scorer-row">
+                <span class="rank">03</span>
+                <strong>PLAYER</strong>
+                <b>11</b>
+                <small>GOALS</small>
+            </div>
+
+            <div class="scorer-row">
+                <span class="rank">04</span>
+                <strong>PLAYER</strong>
+                <b>5</b>
+                <small>GOALS</small>
+            </div>
+
+            <div class="scorer-row">
+                <span class="rank">05</span>
+                <strong>PLAYER</strong>
+                <b>4</b>
+                <small>GOALS</small>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- DISCORD -->
+<section class="discord-banner">
+
+    <div class="discord-icon">◉</div>
+
+    <div>
+        <div class="eyebrow">MGL COMMUNITY</div>
+        <h2>JOIN THE MGL DISCORD</h2>
+        <p>
+            Fixtures, transfers, announcements, results and
+            everything happening around the league.
+        </p>
+    </div>
+
+    <a href="#" class="primary-button">
+        JOIN DISCORD
+    </a>
+
+</section>
+
+
+<!-- REGISTER CTA -->
+<section class="mgl-cta">
+
+    <div>
+        <div class="eyebrow">YOUR CAREER STARTS HERE</div>
+        <h2>READY TO MANAGE?</h2>
+        <p>
+            Create your manager account and take control of an MGL club.
+        </p>
+    </div>
+
+    <a href="{% url 'manager_register' %}" class="primary-button">
+        REGISTER NOW
+    </a>
+
+</section>
+
+{% endblock %}

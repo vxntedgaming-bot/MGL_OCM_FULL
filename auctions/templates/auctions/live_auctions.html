@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MGL Player Auctions</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #111;
+            color: #fff;
+            margin: 0;
+            padding: 30px;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        .tokens {
+            margin-bottom: 30px;
+            font-size: 20px;
+        }
+
+        .auction {
+            background: #1d1d1d;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .auction h2 {
+            margin-top: 0;
+        }
+
+        .bid-form {
+            margin-top: 15px;
+        }
+
+        input {
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #555;
+            width: 120px;
+        }
+
+        button {
+            padding: 10px 18px;
+            border: 0;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .message {
+            background: #222;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>🪙 MGL Player Auctions</h1>
+
+    {% if request.user.is_authenticated %}
+        {% if request.user.manager_application %}
+            <div class="tokens">
+                Your Tokens:
+                <strong>{{ request.user.manager_application.tokens }}</strong>
+            </div>
+        {% endif %}
+    {% endif %}
+
+    {% for message in messages %}
+        <div class="message">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    {% if auctions %}
+
+        {% for auction in auctions %}
+
+            <div class="auction">
+
+                <h2>{{ auction.player.name }}</h2>
+
+                <p>
+                    <strong>Position:</strong>
+                    {{ auction.player.position }}
+                </p>
+
+                <p>
+                    <strong>Overall:</strong>
+                    {{ auction.player.overall }}
+                </p>
+
+                <p>
+                    <strong>FC26 Club:</strong>
+                    {{ auction.player.fc27_club }}
+                </p>
+
+                <p>
+                    <strong>Current Highest Bid:</strong>
+                    {{ auction.winning_bid }} tokens
+                </p>
+
+                <p>
+                    <strong>Minimum Next Bid:</strong>
+
+                    {% if auction.winning_bid %}
+                        {{ auction.winning_bid|add:auction.minimum_increment }}
+                    {% else %}
+                        {{ auction.starting_bid }}
+                    {% endif %}
+
+                </p>
+
+                <p>
+                    <strong>Auction Ends:</strong>
+                    {{ auction.ends_at }}
+                </p>
+
+                {% if request.user.is_authenticated and request.user.manager_application %}
+
+                    <form
+                        method="post"
+                        action="{% url 'place_bid' auction.id %}"
+                        class="bid-form"
+                    >
+
+                        {% csrf_token %}
+
+                        <input
+                            type="number"
+                            name="amount"
+                            min="1"
+                            placeholder="Tokens"
+                            required
+                        >
+
+                        <button type="submit">
+                            Place Bid
+                        </button>
+
+                    </form>
+
+                {% else %}
+
+                    <p>
+                        You must be an approved manager to bid.
+                    </p>
+
+                {% endif %}
+
+            </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <p>There are currently no live player auctions.</p>
+
+    {% endif %}
+
+</body>
+</html>

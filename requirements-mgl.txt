@@ -1,0 +1,5 @@
+Django>=6.1,<6.2
+Pillow>=10.0
+python-dotenv>=1.0
+# Optional Discord integration
+discord.py>=2.6

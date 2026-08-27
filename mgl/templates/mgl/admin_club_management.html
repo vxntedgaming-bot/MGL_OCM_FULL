@@ -1,0 +1,138 @@
+{% extends "core/base.html" %}
+
+{% block title %}Club Management — MGL{% endblock %}
+
+{% block content %}
+
+<section class="mgl-section">
+
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">OWNER / ADMIN</div>
+            <h1>CLUB MANAGEMENT</h1>
+            <p>Manage MGL clubs, managers and squads.</p>
+        </div>
+
+        <span class="section-line"></span>
+    </div>
+
+
+    <div class="mgl-card-grid">
+
+        {% for team in teams %}
+
+        <div class="dashboard-panel">
+
+            <div style="display:flex;align-items:center;gap:20px;">
+
+                {% if team.logo %}
+                    <img
+                        src="{{ team.logo.url }}"
+                        alt="{{ team.name }}"
+                        style="width:70px;height:70px;object-fit:contain;"
+                    >
+                {% endif %}
+
+                <div>
+                    <div class="eyebrow">
+                        {{ team.league.name }}
+                    </div>
+
+                    <h2>{{ team.name }}</h2>
+
+                    <p>
+                        {{ team.short_name }}
+                    </p>
+                </div>
+
+            </div>
+
+
+            <hr>
+
+
+            <p>
+                <strong>Manager:</strong>
+
+                {% if team.manager %}
+                    {{ team.manager.username }}
+                {% else %}
+                    <span style="color:#ff7a00;">
+                        AVAILABLE
+                    </span>
+                {% endif %}
+            </p>
+
+
+            <p>
+                <strong>Squad:</strong>
+
+                {{ team.players.count }}/{{ team.roster_limit }}
+            </p>
+
+
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+
+                <a
+                    href="{% url 'edit_club_admin' team.id %}"
+                    class="secondary-button"
+                >
+                    EDIT CLUB
+                </a>
+
+
+                <a
+                    href="{% url 'club_squad_admin' team.id %}"
+                    class="secondary-button"
+                >
+                    VIEW SQUAD
+                </a>
+
+
+                <a
+                    href="{% url 'change_club_manager' team.id %}"
+                    class="secondary-button"
+                >
+                    CHANGE MANAGER
+                </a>
+
+
+                {% if team.manager %}
+
+                <form
+                    method="post"
+                    action="{% url 'remove_club_manager' team.id %}"
+                >
+
+                    {% csrf_token %}
+
+                    <button
+                        type="submit"
+                        class="secondary-button"
+                        onclick="return confirm('Remove this manager from the club? The club and squad will remain intact.')"
+                    >
+                        REMOVE MANAGER
+                    </button>
+
+                </form>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+        {% empty %}
+
+        <div class="dashboard-panel">
+            <h2>No clubs yet</h2>
+            <p>Add your first MGL club to begin.</p>
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</section>
+
+{% endblock %}

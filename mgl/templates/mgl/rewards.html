@@ -1,0 +1,34 @@
+k{% extends "core/base.html" %}
+
+{% block title %}Rewards — MGL{% endblock %}
+
+{% block content %}
+
+<section class="mgl-section">
+
+    <div class="eyebrow">MGL REWARDS</div>
+
+    <h1>MY REWARDS</h1>
+
+    {% if manager %}
+        <div class="overview-stat">
+            <span>AVAILABLE TOKENS</span>
+            <strong>{{ manager.tokens }}</strong>
+        </div>
+    {% endif %}
+
+    <h2>REWARD HISTORY</h2>
+
+    {% for reward in rewards %}
+        <div class="table-row">
+            <strong>{{ reward.reason }}</strong>
+            <span>+{{ reward.amount }} TOKENS</span>
+            <small>{{ reward.created_at|date:"d M Y" }}</small>
+        </div>
+    {% empty %}
+        <p>No rewards yet.</p>
+    {% endfor %}
+
+</section>
+
+{% endblock %}

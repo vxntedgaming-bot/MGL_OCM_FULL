@@ -1,0 +1,560 @@
+{% extends "core/base.html" %}
+
+{% block title %}Manager Hub — MGL{% endblock %}
+
+{% block content %}
+
+<section class="mgl-section">
+
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">MGL MANAGER HUB</div>
+            <h2>WELCOME BACK, {{ manager.display_name|upper }}</h2>
+        </div>
+
+        <span class="section-line"></span>
+    </div>
+
+
+    <!-- MANAGER SUMMARY -->
+
+    <div class="overview-grid">
+
+        <div class="overview-stat">
+            <span>TOKEN BALANCE</span>
+            <strong>{{ manager.tokens }}</strong>
+            <small>MGL TOKENS</small>
+        </div>
+
+        <div class="overview-stat">
+            <span>MY CLUB</span>
+
+            {% if team %}
+                <strong>{{ team.short_name }}</strong>
+                <small>{{ team.name }}</small>
+            {% else %}
+                <strong>—</strong>
+                <small>NO CLUB ASSIGNED</small>
+            {% endif %}
+
+        </div>
+
+        <div class="overview-stat">
+            <span>SQUAD</span>
+            <strong>{{ roster_count }}</strong>
+
+            {% if team %}
+                <small>/ {{ team.roster_limit }} PLAYERS</small>
+            {% else %}
+                <small>NO SQUAD</small>
+            {% endif %}
+        </div>
+
+        <div class="overview-stat">
+            <span>MANAGER OF WEEK</span>
+
+            {% if manager.career %}
+                <strong>{{ manager.career.manager_of_week }}</strong>
+            {% else %}
+                <strong>0</strong>
+            {% endif %}
+
+            <small>AWARDS</small>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- CLUB -->
+
+<section class="mgl-section">
+
+    <div class="section-heading">
+
+        <div>
+            <div class="eyebrow">MY CLUB</div>
+
+            {% if team %}
+                <h2>{{ team.name|upper }}</h2>
+            {% else %}
+                <h2>NO CLUB ASSIGNED</h2>
+            {% endif %}
+        </div>
+
+    </div>
+
+
+    {% if team %}
+
+    <div class="dashboard-grid">
+
+        <div class="dashboard-panel">
+
+            <div class="panel-heading">
+                <span>CLUB INFORMATION</span>
+            </div>
+
+            <div class="table-row">
+                <span>CLUB</span>
+                <strong>{{ team.name }}</strong>
+            </div>
+
+            <div class="table-row">
+                <span>SHORT NAME</span>
+                <strong>{{ team.short_name }}</strong>
+            </div>
+
+            <div class="table-row">
+                <span>MANAGER</span>
+                <strong>{{ manager.display_name }}</strong>
+            </div>
+
+            <div class="table-row">
+                <span>SQUAD</span>
+                <strong>{{ roster_count }} / {{ team.roster_limit }}</strong>
+            </div>
+
+        </div>
+
+
+        <div class="dashboard-panel">
+
+            <div class="panel-heading">
+                <span>CAREER</span>
+
+                <a href="{% url 'manager_profile' %}">
+                    PROFILE →
+                </a>
+            </div>
+
+            {% if manager.career %}
+
+            <div class="table-row">
+                <span>WINS</span>
+                <strong>{{ manager.career.wins }}</strong>
+            </div>
+
+            <div class="table-row">
+                <span>DRAWS</span>
+                <strong>{{ manager.career.draws }}</strong>
+            </div>
+
+            <div class="table-row">
+                <span>LOSSES</span>
+                <strong>{{ manager.career.losses }}</strong>
+            </div>
+
+            <div class="table-row">
+                <span>TROPHIES</span>
+                <strong>{{ manager.career.trophies }}</strong>
+            </div>
+
+            {% else %}
+
+            <p>No career statistics yet.</p>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+    {% else %}
+
+    <div class="dashboard-panel">
+
+        <p>
+            You currently don't have a club assigned.
+            Visit the Job Centre to apply for an available position.
+        </p>
+
+        <a
+            href="{% url 'manager_register' %}"
+            class="primary-button"
+        >
+            JOB CENTRE
+        </a>
+
+    </div>
+
+    {% endif %}
+
+</section>
+
+
+<!-- QUICK ACCESS -->
+
+<section class="mgl-section">
+
+    <div class="section-heading">
+
+        <div>
+            <div class="eyebrow">MANAGER TOOLS</div>
+            <h2>MANAGE YOUR CAREER</h2>
+        </div>
+
+        <span class="section-line"></span>
+
+    </div>
+
+
+    <div class="mgl-card-grid">
+
+
+        <a
+            href="{% url 'team_management' %}"
+            class="mgl-action-card featured-card"
+        >
+
+            <div class="card-icon">♟</div>
+
+            <div>
+
+                <small>MY CLUB</small>
+
+                <h3>TEAM MANAGEMENT</h3>
+
+                <p>
+                    Manage your squad, view players
+                    and release players.
+                </p>
+
+            </div>
+
+            <span class="card-arrow">→</span>
+
+        </a>
+
+
+        <a
+            href="{% url 'fixture_list' %}"
+            class="mgl-action-card"
+        >
+
+            <div class="card-icon">◷</div>
+
+            <div>
+
+                <small>MATCH CENTRE</small>
+
+                <h3>FIXTURES</h3>
+
+                <p>
+                    View your upcoming matches
+                    and submit results.
+                </p>
+
+            </div>
+
+            <span class="card-arrow">→</span>
+
+        </a>
+
+
+        <a
+            href="{% url 'free_agents' %}"
+            class="mgl-action-card"
+        >
+
+            <div class="card-icon">↔</div>
+
+            <div>
+
+                <small>MARKET</small>
+
+                <h3>FREE AGENTS</h3>
+
+                <p>
+                    Browse players currently
+                    available.
+                </p>
+
+            </div>
+
+            <span class="card-arrow">→</span>
+
+        </a>
+
+
+        <a
+            href="{% url 'player_database' %}"
+            class="mgl-action-card"
+        >
+
+            <div class="card-icon">◆</div>
+
+            <div>
+
+                <small>FC26</small>
+
+                <h3>PLAYER DATABASE</h3>
+
+                <p>
+                    Explore the complete FC26
+                    player database.
+                </p>
+
+            </div>
+
+            <span class="card-arrow">→</span>
+
+        </a>
+
+
+        <a
+            href="#"
+            class="mgl-action-card"
+        >
+
+            <div class="card-icon">↔</div>
+
+            <div>
+
+                <small>TRANSFERS</small>
+
+                <h3>TRANSFER MARKET</h3>
+
+                <p>
+                    Buy, sell, loan and negotiate
+                    players.
+                </p>
+
+            </div>
+
+            <span class="card-arrow">→</span>
+
+        </a>
+
+
+        <a
+            href="#"
+            class="mgl-action-card"
+        >
+
+            <div class="card-icon">◆</div>
+
+            <div>
+
+                <small>AUCTIONS</small>
+
+                <h3>PLAYER AUCTIONS</h3>
+
+                <p>
+                    Browse and bid on available
+                    auction players.
+                </p>
+
+            </div>
+
+            <span class="card-arrow">→</span>
+
+        </a>
+
+
+        <a
+            href="#"
+            class="mgl-action-card"
+        >
+
+            <div class="card-icon">▣</div>
+
+            <div>
+
+                <small>PACKS</small>
+
+                <h3>MGL PACKS</h3>
+
+                <p>
+                    Open Gold, Silver, Bronze,
+                    Elite and Youth packs.
+                </p>
+
+            </div>
+
+            <span class="card-arrow">→</span>
+
+        </a>
+
+
+        <a
+            href="{% url 'manager_profile' %}"
+            class="mgl-action-card"
+        >
+
+            <div class="card-icon">♙</div>
+
+            <div>
+
+                <small>CAREER</small>
+
+                <h3>MY PROFILE</h3>
+
+                <p>
+                    View your career, trophies,
+                    awards and statistics.
+                </p>
+
+            </div>
+
+            <span class="card-arrow">→</span>
+
+        </a>
+
+
+        <a
+            href="{% url 'manager_rewards' %}"
+            class="mgl-action-card"
+        >
+
+            <div class="card-icon">★</div>
+
+            <div>
+
+                <small>ECONOMY</small>
+
+                <h3>TOKEN REWARDS</h3>
+
+                <p>
+                    View every token earned
+                    throughout your career.
+                </p>
+
+            </div>
+
+            <span class="card-arrow">→</span>
+
+        </a>
+
+    </div>
+
+</section>
+
+
+<!-- RECENT MATCHES -->
+
+<section class="mgl-section">
+
+    <div class="section-heading">
+
+        <div>
+
+            <div class="eyebrow">MATCH CENTRE</div>
+
+            <h2>RECENT FIXTURES</h2>
+
+        </div>
+
+        <a
+            href="{% url 'fixture_list' %}"
+            class="view-all"
+        >
+            VIEW ALL →
+        </a>
+
+    </div>
+
+
+    <div class="dashboard-panel">
+
+        {% for fixture in recent %}
+
+        <div class="match-row">
+
+            <span class="match-date">
+                {{ fixture.scheduled_at|date:"d M"|upper }}
+            </span>
+
+            <strong>
+                {{ fixture.home_team.name }}
+            </strong>
+
+            <span class="vs">
+                VS
+            </span>
+
+            <strong>
+                {{ fixture.away_team.name }}
+            </strong>
+
+            <span class="match-time">
+                {{ fixture.status }}
+            </span>
+
+        </div>
+
+        {% empty %}
+
+        <div class="table-row">
+            <span>No recent fixtures.</span>
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</section>
+
+
+<!-- TOKEN ACTIVITY -->
+
+<section class="mgl-section">
+
+    <div class="section-heading">
+
+        <div>
+
+            <div class="eyebrow">MGL ECONOMY</div>
+
+            <h2>RECENT TOKEN REWARDS</h2>
+
+        </div>
+
+        <a
+            href="{% url 'manager_rewards' %}"
+            class="view-all"
+        >
+            VIEW ALL →
+        </a>
+
+    </div>
+
+
+    <div class="dashboard-panel">
+
+        {% for reward in rewards %}
+
+        <div class="table-row">
+
+            <span>
+                {{ reward.created_at|date:"d M Y" }}
+            </span>
+
+            <strong>
+                {{ reward.reason }}
+            </strong>
+
+            <b>
+                +{{ reward.amount }}
+            </b>
+
+        </div>
+
+        {% empty %}
+
+        <div class="table-row">
+
+            <span>
+                No token rewards yet.
+            </span>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</section>
+
+{% endblock %}

@@ -1,0 +1,104 @@
+{% extends "core/base.html" %}
+
+{% block title %}Change Manager — MGL{% endblock %}
+
+{% block content %}
+
+<section class="mgl-section">
+
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">OWNER / ADMIN</div>
+
+            <h1>CHANGE MANAGER</h1>
+
+            <p>
+                {{ team.name }}
+            </p>
+        </div>
+
+        <span class="section-line"></span>
+    </div>
+
+
+    <div class="dashboard-panel">
+
+        {% if team.manager %}
+
+        <p>
+            Current manager:
+            <strong>{{ team.manager.username }}</strong>
+        </p>
+
+        {% else %}
+
+        <p>
+            This club is currently
+            <strong style="color:#ff7a00;">
+                AVAILABLE
+            </strong>
+        </p>
+
+        {% endif %}
+
+
+        <form method="post">
+
+            {% csrf_token %}
+
+            <label>
+                Select Approved Manager
+
+                <select
+                    name="manager_application"
+                    required
+                >
+
+                    <option value="">
+                        Select manager...
+                    </option>
+
+                    {% for application in available_managers %}
+
+                    <option value="{{ application.id }}">
+
+                        {{ application.display_name }}
+
+                        —
+                        {{ application.gamertag }}
+
+                        (@{{ application.user.username }})
+
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </label>
+
+
+            {% if available_managers %}
+
+            <button
+                type="submit"
+                class="primary-button"
+            >
+                APPOINT MANAGER
+            </button>
+
+            {% else %}
+
+            <p>
+                There are currently no approved available managers.
+            </p>
+
+            {% endif %}
+
+        </form>
+
+    </div>
+
+</section>
+
+{% endblock %}

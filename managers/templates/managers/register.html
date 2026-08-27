@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MGL Manager Registration</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: #0b0f14;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 620px;
+        }
+
+        .logo {
+            text-align: center;
+            font-size: 42px;
+            font-weight: 900;
+            margin-bottom: 8px;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #9ca3af;
+            margin-bottom: 28px;
+        }
+
+        .card {
+            background: #151a21;
+            border: 1px solid #252c36;
+            border-radius: 16px;
+            padding: 32px;
+        }
+
+        .field {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 13px 14px;
+            border-radius: 8px;
+            border: 1px solid #343c48;
+            background: #0d1117;
+            color: white;
+            font-size: 15px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #4f8cff;
+        }
+
+        .help {
+            color: #7f8996;
+            font-size: 13px;
+            margin-top: 6px;
+        }
+
+        .errors {
+            color: #ff6b6b;
+            font-size: 14px;
+            margin-top: 6px;
+        }
+
+        .submit {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            background: #2563eb;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .submit:hover {
+            background: #1d4ed8;
+        }
+
+        .notice {
+            margin-top: 20px;
+            padding: 14px;
+            background: #10151c;
+            border-radius: 8px;
+            color: #9ca3af;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="logo">⚽ MGL</div>
+
+    <div class="title">Manager Registration</div>
+
+    <div class="subtitle">
+        Apply to become an official MGL Manager
+    </div>
+
+    <div class="card">
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="errors">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div class="field">
+                <label for="{{ form.username.id_for_label }}">
+                    Username
+                </label>
+
+                {{ form.username }}
+
+                {% for error in form.username.errors %}
+                    <div class="errors">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="field">
+                <label for="{{ form.email.id_for_label }}">
+                    Email
+                </label>
+
+                {{ form.email }}
+
+                {% for error in form.email.errors %}
+                    <div class="errors">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="field">
+                <label for="{{ form.display_name.id_for_label }}">
+                    Display Name
+                </label>
+
+                {{ form.display_name }}
+
+                {% for error in form.display_name.errors %}
+                    <div class="errors">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="field">
+                <label for="{{ form.gamertag.id_for_label }}">
+                    EA FC Gamertag
+                </label>
+
+                {{ form.gamertag }}
+
+                {% for error in form.gamertag.errors %}
+                    <div class="errors">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="field">
+                <label for="{{ form.preferred_team.id_for_label }}">
+                    Preferred Team
+                </label>
+
+                {{ form.preferred_team }}
+
+                <div class="help">
+                    Optional — the Owner can assign your team later.
+                </div>
+
+                {% for error in form.preferred_team.errors %}
+                    <div class="errors">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="field">
+                <label for="{{ form.password.id_for_label }}">
+                    Password
+                </label>
+
+                {{ form.password }}
+
+                {% for error in form.password.errors %}
+                    <div class="errors">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="field">
+                <label for="{{ form.confirm_password.id_for_label }}">
+                    Confirm Password
+                </label>
+
+                {{ form.confirm_password }}
+
+                {% for error in form.confirm_password.errors %}
+                    <div class="errors">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <button class="submit" type="submit">
+                SUBMIT MANAGER APPLICATION
+            </button>
+
+        </form>
+
+        <div class="notice">
+            Your application will be reviewed by an MGL Owner or Admin.
+            You will not receive Manager access until your application
+            has been approved.
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

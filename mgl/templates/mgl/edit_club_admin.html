@@ -1,0 +1,90 @@
+{% extends "core/base.html" %}
+
+{% block title %}Edit Club — MGL{% endblock %}
+
+{% block content %}
+
+<section class="mgl-section">
+
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">OWNER / ADMIN</div>
+            <h1>EDIT CLUB</h1>
+            <p>{{ team.name }}</p>
+        </div>
+
+        <span class="section-line"></span>
+    </div>
+
+
+    <div class="dashboard-panel">
+
+        <form method="post" enctype="multipart/form-data">
+
+            {% csrf_token %}
+
+            <label>
+                Club Name
+                <input
+                    type="text"
+                    name="name"
+                    value="{{ team.name }}"
+                    maxlength="100"
+                    required
+                >
+            </label>
+
+
+            <label>
+                Short Name
+                <input
+                    type="text"
+                    name="short_name"
+                    value="{{ team.short_name }}"
+                    maxlength="20"
+                    required
+                >
+            </label>
+
+
+            <label>
+                Club Logo
+                <input
+                    type="file"
+                    name="logo"
+                    accept="image/*"
+                >
+            </label>
+
+
+            {% if team.logo %}
+
+            <p>
+                Current logo:
+            </p>
+
+            <img
+                src="{{ team.logo.url }}"
+                alt="{{ team.name }}"
+                style="width:120px;height:120px;object-fit:contain;"
+            >
+
+            {% endif %}
+
+
+            <br><br>
+
+            <button
+                type="submit"
+                class="primary-button"
+            >
+                SAVE CLUB
+            </button>
+
+        </form>
+
+    </div>
+
+</section>
+
+{% endblock %}

@@ -1,0 +1,434 @@
+{% extends "core/base.html" %}
+
+{% block title %}Team Management — MGL{% endblock %}
+
+{% block content %}
+
+<section class="mgl-section">
+
+    <div class="section-heading">
+
+        <div>
+
+            <div class="eyebrow">MGL MANAGER HUB</div>
+
+            {% if team %}
+
+                <h1>{{ team.name }}</h1>
+
+                <p>
+                    Team Management
+                    ·
+                    {{ players|length }}/{{ team.roster_limit }} players
+                </p>
+
+            {% else %}
+
+                <h1>TEAM MANAGEMENT</h1>
+
+                <p>You are not currently assigned to a club.</p>
+
+            {% endif %}
+
+        </div>
+
+        <span class="section-line"></span>
+
+    </div>
+
+
+    {% if team %}
+
+        <!-- SQUAD SUMMARY -->
+
+        <div class="overview-grid">
+
+            <div class="overview-stat">
+
+                <span>SQUAD SIZE</span>
+
+                <strong>
+                    {{ players|length }}/{{ team.roster_limit }}
+                </strong>
+
+            </div>
+
+
+            <div class="overview-stat">
+
+                <span>AVAILABLE SPACES</span>
+
+                <strong>
+                    {{ team.roster_limit|add:"-"|add:players|length }}
+                </strong>
+
+            </div>
+
+
+            <div class="overview-stat">
+
+                <span>AVERAGE OVR</span>
+
+                <strong>
+                    {% if players %}
+                        {% widthratio total_ovr players|length 1 %}
+                    {% else %}
+                        0
+                    {% endif %}
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <!-- GOALKEEPERS -->
+
+        <div class="dashboard-panel">
+
+            <div class="eyebrow">GOALKEEPERS</div>
+
+            <h2>GK</h2>
+
+            {% for player in players %}
+
+                {% if player.position == "GK" %}
+
+                    <div class="table-row">
+
+                        <div>
+
+                            <strong>
+                                {{ player.name }}
+                            </strong>
+
+                            <small>
+                                GK · {{ player.overall }} OVR
+                            </small>
+
+                        </div>
+
+
+                        <div>
+
+                            {% if player.card_tier %}
+
+                                <span>
+                                    {{ player.card_tier }}
+                                </span>
+
+                            {% else %}
+
+                                <span>
+                                    {{ player.calculated_tier }}
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <form
+                            method="post"
+                            action="{% url 'release_my_player' player.id %}"
+                        >
+
+                            {% csrf_token %}
+
+                            <button
+                                type="submit"
+                                class="secondary-button"
+                                onclick="return confirm('Release {{ player.name }} to Free Agents? This does not require Admin approval.')"
+                            >
+                                RELEASE
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                {% endif %}
+
+            {% empty %}
+
+                <p>No goalkeepers.</p>
+
+            {% endfor %}
+
+        </div>
+
+
+        <!-- DEFENDERS -->
+
+        <div class="dashboard-panel">
+
+            <div class="eyebrow">DEFENDERS</div>
+
+            <h2>DEFENCE</h2>
+
+            {% for player in players %}
+
+                {% if player.position == "CB" or player.position == "LB" or player.position == "RB" %}
+
+                    <div class="table-row">
+
+                        <div>
+
+                            <strong>
+                                {{ player.name }}
+                            </strong>
+
+                            <small>
+                                {{ player.position }}
+                                ·
+                                {{ player.overall }} OVR
+                            </small>
+
+                        </div>
+
+
+                        <span>
+                            {% if player.card_tier %}
+                                {{ player.card_tier }}
+                            {% else %}
+                                {{ player.calculated_tier }}
+                            {% endif %}
+                        </span>
+
+
+                        <form
+                            method="post"
+                            action="{% url 'release_my_player' player.id %}"
+                        >
+
+                            {% csrf_token %}
+
+                            <button
+                                type="submit"
+                                class="secondary-button"
+                                onclick="return confirm('Release {{ player.name }} to Free Agents?')"
+                            >
+                                RELEASE
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                {% endif %}
+
+            {% endfor %}
+
+        </div>
+
+
+        <!-- MIDFIELDERS -->
+
+        <div class="dashboard-panel">
+
+            <div class="eyebrow">MIDFIELDERS</div>
+
+            <h2>MIDFIELD</h2>
+
+            {% for player in players %}
+
+                {% if player.position == "CDM" or player.position == "CM" or player.position == "CAM" %}
+
+                    <div class="table-row">
+
+                        <div>
+
+                            <strong>
+                                {{ player.name }}
+                            </strong>
+
+                            <small>
+                                {{ player.position }}
+                                ·
+                                {{ player.overall }} OVR
+                            </small>
+
+                        </div>
+
+
+                        <span>
+                            {% if player.card_tier %}
+                                {{ player.card_tier }}
+                            {% else %}
+                                {{ player.calculated_tier }}
+                            {% endif %}
+                        </span>
+
+
+                        <form
+                            method="post"
+                            action="{% url 'release_my_player' player.id %}"
+                        >
+
+                            {% csrf_token %}
+
+                            <button
+                                type="submit"
+                                class="secondary-button"
+                                onclick="return confirm('Release {{ player.name }} to Free Agents?')"
+                            >
+                                RELEASE
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                {% endif %}
+
+            {% endfor %}
+
+        </div>
+
+
+        <!-- WINGERS -->
+
+        <div class="dashboard-panel">
+
+            <div class="eyebrow">WINGERS</div>
+
+            <h2>WIDE PLAYERS</h2>
+
+            {% for player in players %}
+
+                {% if player.position == "LM" or player.position == "RM" or player.position == "LW" or player.position == "RW" %}
+
+                    <div class="table-row">
+
+                        <div>
+
+                            <strong>
+                                {{ player.name }}
+                            </strong>
+
+                            <small>
+                                {{ player.position }}
+                                ·
+                                {{ player.overall }} OVR
+                            </small>
+
+                        </div>
+
+
+                        <span>
+                            {% if player.card_tier %}
+                                {{ player.card_tier }}
+                            {% else %}
+                                {{ player.calculated_tier }}
+                            {% endif %}
+                        </span>
+
+
+                        <form
+                            method="post"
+                            action="{% url 'release_my_player' player.id %}"
+                        >
+
+                            {% csrf_token %}
+
+                            <button
+                                type="submit"
+                                class="secondary-button"
+                                onclick="return confirm('Release {{ player.name }} to Free Agents?')"
+                            >
+                                RELEASE
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                {% endif %}
+
+            {% endfor %}
+
+        </div>
+
+
+        <!-- STRIKERS -->
+
+        <div class="dashboard-panel">
+
+            <div class="eyebrow">ATTACKERS</div>
+
+            <h2>STRIKERS</h2>
+
+            {% for player in players %}
+
+                {% if player.position == "ST" or player.position == "CF" %}
+
+                    <div class="table-row">
+
+                        <div>
+
+                            <strong>
+                                {{ player.name }}
+                            </strong>
+
+                            <small>
+                                {{ player.position }}
+                                ·
+                                {{ player.overall }} OVR
+                            </small>
+
+                        </div>
+
+
+                        <span>
+                            {% if player.card_tier %}
+                                {{ player.card_tier }}
+                            {% else %}
+                                {{ player.calculated_tier }}
+                            {% endif %}
+                        </span>
+
+
+                        <form
+                            method="post"
+                            action="{% url 'release_my_player' player.id %}"
+                        >
+
+                            {% csrf_token %}
+
+                            <button
+                                type="submit"
+                                class="secondary-button"
+                                onclick="return confirm('Release {{ player.name }} to Free Agents?')"
+                            >
+                                RELEASE
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                {% endif %}
+
+            {% endfor %}
+
+        </div>
+
+
+    {% else %}
+
+        <div class="dashboard-panel">
+
+            <h2>No club assigned</h2>
+
+            <p>
+                You need to be assigned to an MGL club before
+                you can manage a squad.
+            </p>
+
+        </div>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}
