@@ -1,0 +1,127 @@
+{% extends "core/base.html" %}
+
+{% block title %}Transfer Market — MGL{% endblock %}
+
+{% block content %}
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">MGL MARKET</div>
+            <h2>TRANSFER MARKET</h2>
+            <p>Auctions, listed players and free agents. All deals use MGL tokens.</p>
+        </div>
+        <span class="section-line"></span>
+    </div>
+
+    <div class="overview-grid">
+        <div class="overview-stat">
+            <span>YOUR TOKENS</span>
+            <strong>{{ token_balance|default:"—" }}</strong>
+            <small>{% if team %}{{ team.name }}{% else %}ASSIGN A CLUB TO BID{% endif %}</small>
+        </div>
+        <div class="overview-stat">
+            <span>LIVE AUCTIONS</span>
+            <strong>{{ auctions|length }}</strong>
+            <small>TOKEN BIDS</small>
+        </div>
+        <div class="overview-stat">
+            <span>PLAYERS FOR SALE</span>
+            <strong>{{ listings|length }}</strong>
+            <small>ASKING PRICE</small>
+        </div>
+        <div class="overview-stat">
+            <span>FREE AGENTS</span>
+            <strong>{{ free_agent_count }}</strong>
+            <small>UNASSIGNED FC26 PLAYERS</small>
+        </div>
+    </div>
+</section>
+
+<section class="mgl-section" id="auctions">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">AUCTIONS</div>
+            <h2>LIVE PLAYER AUCTIONS</h2>
+        </div>
+    </div>
+
+    {% for auction in auctions %}
+        <div class="dashboard-panel" style="margin-bottom:16px">
+            <div class="panel-heading">
+                <span>{{ auction.player.name }} · {{ auction.player.position }} · {{ auction.player.overall }} OVR</span>
+                <b>{{ auction.winning_bid|default:auction.starting_bid }} TKN</b>
+            </div>
+            <div class="table-row">
+                <span>Highest bid</span>
+                <strong>{% if auction.winning_manager %}{{ auction.winning_manager.display_name }}{% else %}No bids yet{% endif %}</strong>
+            </div>
+            <div class="table-row">
+                <span>Ends</span>
+                <strong>{{ auction.ends_at|date:"d M Y H:i" }}</strong>
+            </div>
+            {% if user.is_authenticated and team %}
+            <form method="post" action="{% url 'place_bid' auction.id %}" class="mgl-inline-form">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.path }}">
+                <input type="number" name="amount" min="1" placeholder="Bid tokens" required>
+                <button type="submit" class="primary-button">PLACE BID</button>
+            </form>
+            {% endif %}
+        </div>
+    {% empty %}
+        {% include "mgl/includes/empty_state.html" with kicker="AUCTIONS" title="NO LIVE AUCTIONS" body="When the league office releases a free agent into auction, managers will be able to bid tokens here." %}
+    {% endfor %}
+</section>
+
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">TRANSFERS</div>
+            <h2>PLAYERS FOR SALE</h2>
+        </div>
+    </div>
+
+    {% for listing in listings %}
+        <div class="dashboard-panel" style="margin-bottom:16px">
+            <div class="panel-heading">
+                <span>{{ listing.player.name }} · {{ listing.player.position }} · {{ listing.player.overall }} OVR</span>
+                <b>{{ listing.asking_price }} TKN</b>
+            </div>
+            <div class="table-row">
+                <span>Seller</span>
+                <strong>{{ listing.team.name }}</strong>
+            </div>
+            {% if user.is_authenticated and team and team.id != listing.team_id %}
+            <form method="post" action="{% url 'buy_player' listing.id %}">
+                {% csrf_token %}
+                <button type="submit" class="primary-button">BUY NOW</button>
+            </form>
+            {% endif %}
+        </div>
+    {% empty %}
+        {% include "mgl/includes/empty_state.html" with kicker="SALES" title="NO PLAYERS LISTED" body="Managers can list a squad player for a token asking price. Listings go live after owner/admin approval." %}
+    {% endfor %}
+</section>
+
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">FREE AGENTS</div>
+            <h2>UNASSIGNED PLAYERS</h2>
+        </div>
+        <a href="{% url 'free_agents' %}" class="view-all">VIEW ALL →</a>
+    </div>
+    <div class="dashboard-panel">
+        {% for player in free_agents %}
+            <div class="table-row">
+                <strong>{{ player.name }}</strong>
+                <span>{{ player.position }}</span>
+                <b>{{ player.overall }}</b>
+                <a href="{% url 'player_profile' player.id %}">PROFILE →</a>
+            </div>
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with kicker="POOL" title="NO FREE AGENTS TO SHOW" body="Unassigned FC26 players will appear here once the player pool is imported." %}
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

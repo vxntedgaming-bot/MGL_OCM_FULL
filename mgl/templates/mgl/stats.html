@@ -1,0 +1,52 @@
+{% extends "core/base.html" %}
+
+{% block title %}Stats — MGL{% endblock %}
+
+{% block content %}
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">MGL STATS</div>
+            <h2>LEAGUE NUMBERS</h2>
+        </div>
+        <span class="section-line"></span>
+    </div>
+
+    <div class="overview-grid">
+        <div class="overview-stat"><span>CLUBS</span><strong>{{ club_count }}</strong></div>
+        <div class="overview-stat"><span>PLAYERS</span><strong>{{ player_count }}</strong></div>
+        <div class="overview-stat"><span>FREE AGENTS</span><strong>{{ free_agent_count }}</strong></div>
+        <div class="overview-stat"><span>CURRENCY</span><strong>TOKENS</strong><small>NO CASH ECONOMY</small></div>
+    </div>
+</section>
+
+<section class="mgl-section">
+    <div class="dashboard-grid">
+        <div class="dashboard-panel">
+            <div class="panel-heading"><span>TOP SCORERS</span></div>
+            {% for player in top_scorers %}
+                <div class="scorer-row">
+                    <span class="rank">{{ forloop.counter|stringformat:"02d" }}</span>
+                    <strong>{{ player.name }}</strong>
+                    <b>{{ player.goals }}</b>
+                    <small>GOALS</small>
+                </div>
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with title="NO GOALS RECORDED" body="Official scorers appear after match results are approved by an admin or owner." %}
+            {% endfor %}
+        </div>
+        <div class="dashboard-panel">
+            <div class="panel-heading"><span>RECENT TRANSFERS</span></div>
+            {% for row in recent_transfers %}
+                <div class="table-row">
+                    <strong>{{ row.player.name|default:"Token movement" }}</strong>
+                    <span>{{ row.from_team.short_name|default:"FA" }} → {{ row.to_team.short_name|default:"—" }}</span>
+                    <b>{{ row.amount }} TKN</b>
+                </div>
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with title="NO TRANSFERS YET" body="Completed auctions and sales will be listed here with token amounts." %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

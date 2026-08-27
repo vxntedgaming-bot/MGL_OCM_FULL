@@ -1,1 +1,57 @@
-{% extends "core/base.html" %}{% block title %}Manager Profile{% endblock %}{% block content %}<section class="mgl-section"><div class="eyebrow">MANAGER PROFILE</div><h1>{{ manager.display_name }}</h1>{% if manager %}<p>Tokens <strong>{{ manager.tokens }}</strong></p>{% endif %}<div class="overview-grid">{% if career %}<div class="overview-stat"><span>WINS</span><strong>{{ career.wins }}</strong></div><div class="overview-stat"><span>TROPHIES</span><strong>{{ career.trophies }}</strong></div><div class="overview-stat"><span>GOLDEN BOOTS</span><strong>{{ career.golden_boots }}</strong></div><div class="overview-stat"><span>MANAGER OF WEEK</span><strong>{{ career.manager_of_week }}</strong></div>{% endif %}</div><h2>TROPHIES</h2>{% for t in trophies %}<div class="table-row"><strong>{{ t.name }}</strong><span>{{ t.season }}</span></div>{% empty %}<p>No trophies yet.</p>{% endfor %}</section>{% endblock %}
+{% extends "core/base.html" %}
+
+{% block title %}Manager Profile — MGL{% endblock %}
+
+{% block content %}
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">MANAGER PROFILE</div>
+            <h2>{{ manager.display_name|upper }}</h2>
+            <p>{{ manager.gamertag }} · {{ manager.status }}</p>
+        </div>
+        <span class="section-line"></span>
+    </div>
+
+    <div class="overview-grid">
+        <div class="overview-stat">
+            <span>TOKEN BALANCE</span>
+            <strong>{{ mgl_token_balance|default:manager.tokens }}</strong>
+            <small>{% if mgl_has_club %}CLUB TREASURY{% else %}PERSONAL TOKENS{% endif %}</small>
+        </div>
+        {% if career %}
+        <div class="overview-stat">
+            <span>WINS</span>
+            <strong>{{ career.wins }}</strong>
+        </div>
+        <div class="overview-stat">
+            <span>TROPHIES</span>
+            <strong>{{ career.trophies }}</strong>
+        </div>
+        <div class="overview-stat">
+            <span>MANAGER OF THE WEEK</span>
+            <strong>{{ career.manager_of_week }}</strong>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">HONOURS</div>
+            <h2>TROPHIES</h2>
+        </div>
+    </div>
+    <div class="dashboard-panel">
+        {% for trophy in trophies %}
+            <div class="table-row">
+                <strong>{{ trophy.name }}</strong>
+                <span>{{ trophy.season }}</span>
+            </div>
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with title="NO TROPHIES YET" body="League titles, cups and awards will be recorded here as seasons are completed." %}
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

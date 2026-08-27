@@ -27,17 +27,29 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-Optional player import (FC26 CSV is already in the repo):
+Optional player import and squad fill (FC26 CSV is already in the repo). `generate_balanced_squads` only fills clubs that currently have **no players**. It assigns 26 random FC26 players rated 64–73 and leaves the rest as free agents. It does not reset the player database.
 
 ```bash
 python manage.py import_fc27 fc26_players_mgl.csv
 python manage.py sync_fc26_details fc26_players_raw.csv
+python manage.py generate_balanced_squads --dry-run
+python manage.py generate_balanced_squads
+python manage.py close_expired_auctions
 ```
 
 - Site: http://127.0.0.1:8000/
 - Django admin: http://127.0.0.1:8000/admin/
 - Manager register / login: `/register/`, `/login/`
 - Manager tools: `/mgl/hub/`
+- Owner / admin control: `/mgl/control/`
+- Public pages: `/leagues/`, `/market/`, `/stats/`, `/jobs/`
+
+## Core OCM
+
+- Transfer currency is **tokens**. New clubs start with **50 tokens**. Approved managers also start with 50 personal tokens.
+- Club treasuries, squads and history stay with the club if a manager leaves.
+- Manager sales need owner/admin approval before they go live on `/market/`.
+- Auction bids reserve club tokens. Being outbid refunds the previous club automatically.
 
 Local defaults:
 

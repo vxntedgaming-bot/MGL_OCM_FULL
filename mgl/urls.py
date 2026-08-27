@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from . import market_views as views_market
 
 
 urlpatterns = [
@@ -115,5 +116,50 @@ urlpatterns = [
         "admin/clubs/<int:team_id>/squad/",
         views.club_squad_admin,
         name="club_squad_admin",
+    ),
+
+    path("market/listings/<int:listing_id>/buy/", views_market.buy_player, name="buy_player"),
+    path(
+        "market/listings/<int:listing_id>/cancel/",
+        views_market.cancel_player_listing,
+        name="cancel_player_listing",
+    ),
+    path("team/sell/<int:player_id>/", views_market.sell_player, name="sell_player"),
+    path("jobs/<int:team_id>/apply/", views_market.apply_for_club, name="apply_for_club"),
+    path("control/", views_market.control_centre, name="control_centre"),
+    path(
+        "control/managers/<int:application_id>/approve/",
+        views_market.control_approve_manager,
+        name="control_approve_manager",
+    ),
+    path(
+        "control/managers/<int:application_id>/reject/",
+        views_market.control_reject_manager,
+        name="control_reject_manager",
+    ),
+    path(
+        "control/listings/<int:listing_id>/approve/",
+        views_market.control_approve_listing,
+        name="control_approve_listing",
+    ),
+    path(
+        "control/listings/<int:listing_id>/reject/",
+        views_market.control_reject_listing,
+        name="control_reject_listing",
+    ),
+    path(
+        "control/auctions/<int:auction_id>/close/",
+        views_market.control_close_auction,
+        name="control_close_auction",
+    ),
+    path(
+        "control/jobs/<int:application_id>/approve/",
+        views_market.control_approve_job,
+        name="control_approve_job",
+    ),
+    path(
+        "control/jobs/<int:application_id>/reject/",
+        views_market.control_reject_job,
+        name="control_reject_job",
     ),
 ]

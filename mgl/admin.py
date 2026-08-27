@@ -762,3 +762,34 @@ class ManagerWeekAdmin(admin.ModelAdmin):
         "wins",
         "reward",
     )
+
+
+from .models import ClubApplication, MarketTransaction, PlayerListing
+
+
+@admin.register(PlayerListing)
+class PlayerListingAdmin(admin.ModelAdmin):
+    list_display = ("player", "team", "seller", "asking_price", "status", "created_at")
+    list_filter = ("status",)
+
+
+@admin.register(MarketTransaction)
+class MarketTransactionAdmin(admin.ModelAdmin):
+    list_display = (
+        "created_at",
+        "transaction_type",
+        "player",
+        "seller",
+        "buyer",
+        "amount",
+        "status",
+    )
+    list_filter = ("transaction_type", "status")
+    readonly_fields = ("created_at", "completed_at")
+
+
+@admin.register(ClubApplication)
+class ClubApplicationAdmin(admin.ModelAdmin):
+    list_display = ("manager", "team", "status", "created_at")
+    list_filter = ("status",)
+

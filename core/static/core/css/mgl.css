@@ -995,8 +995,10 @@ button.header-button {
     }
 
     .mgl-logo-mark {
-        width:
-
+        width: 34px;
+        height: 34px;
+    }
+}
 
 /* =========================================================
    MGL PLAYER CARDS
@@ -1655,4 +1657,194 @@ button.header-button {
         bottom: 5%;
     }
 }
+
+/* =========================================================
+   OCM SHARED UI
+========================================================= */
+
+.mgl-empty {
+    padding: 28px 20px;
+    border: 1px solid var(--border);
+    background: var(--bg-soft);
+}
+
+.mgl-empty h3 {
+    margin: 8px 0 10px;
+    font-size: 16px;
+    letter-spacing: 0.5px;
+}
+
+.mgl-empty p {
+    margin: 0;
+    max-width: 520px;
+    color: var(--muted-light);
+    line-height: 1.7;
+}
+
+.mgl-auth-card {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 36px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+}
+
+.mgl-auth-card h1 {
+    margin: 8px 0 12px;
+}
+
+.mgl-form label {
+    display: block;
+    margin: 16px 0 6px;
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 1px;
+}
+
+.mgl-form input,
+.mgl-form select,
+.mgl-form textarea,
+.mgl-inline-form input,
+.mgl-inline-form select,
+textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+}
+
+.mgl-inline-form {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 12px 20px 16px;
+}
+
+.mgl-inline-form input {
+    width: auto;
+    min-width: 140px;
+}
+
+.mgl-form-error,
+.mgl-help {
+    color: var(--muted-light);
+    font-size: 13px;
+}
+
+.mgl-form-error {
+    color: #ff8a8a;
+}
+
+.mgl-form .primary-button {
+    margin-top: 20px;
+}
+
+.mgl-token-chip {
+    padding: 8px 10px;
+    border: 1px solid rgba(255, 115, 0, 0.45);
+    color: var(--orange);
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 1px;
+}
+
+.mgl-nav-checkbox {
+    display: none;
+}
+
+.mgl-nav-burger {
+    display: none;
+    width: 40px;
+    height: 40px;
+    place-items: center;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    cursor: pointer;
+}
+
+.mgl-nav-burger span {
+    display: block;
+    width: 18px;
+    height: 2px;
+    background: var(--orange);
+}
+
+.mgl-pagination {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin: 28px 0 8px;
+    color: var(--muted-light);
+    font-size: 12px;
+}
+
+.mgl-pagination a {
+    color: var(--orange);
+    font-weight: 900;
+}
+
+@media (max-width: 900px) {
+    .mgl-header {
+        height: auto;
+        min-height: 76px;
+        overflow: visible;
+    }
+
+    .mgl-header-inner {
+        flex-wrap: wrap;
+        height: auto;
+        padding-top: 12px;
+        padding-bottom: 12px;
+    }
+
+    .mgl-logo {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .mgl-nav-burger {
+        display: flex;
+        margin-left: auto;
+        flex-shrink: 0;
+        z-index: 2;
+    }
+
+    .mgl-nav {
+        display: none;
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 14px;
+        padding: 12px 0 8px;
+        order: 5;
+    }
+
+    .mgl-nav-checkbox:checked ~ .mgl-nav {
+        display: flex;
+    }
+
+    .mgl-header-actions {
+        width: 100%;
+        justify-content: flex-end;
+        order: 4;
+    }
+
+    .overview-grid,
+    .mgl-card-grid,
+    .dashboard-grid,
+    .match-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .match-row {
+        grid-template-columns: 1fr;
+        min-height: auto;
+        padding: 14px 20px;
+    }
+}
+
 

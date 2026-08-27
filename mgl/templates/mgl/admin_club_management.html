@@ -64,6 +64,11 @@
             </p>
 
 
+                <p>
+                    <strong>Tokens:</strong>
+                    {{ team.tokens }} TKN
+                </p>
+
             <p>
                 <strong>Squad:</strong>
 
@@ -123,12 +128,7 @@
         </div>
 
         {% empty %}
-
-        <div class="dashboard-panel">
-            <h2>No clubs yet</h2>
-            <p>Add your first MGL club to begin.</p>
-        </div>
-
+            {% include "mgl/includes/empty_state.html" with title="NO CLUBS YET" body="Add MGL clubs in Django admin. Clubs, squads and token balances stay in the league if a manager leaves." %}
         {% endfor %}
 
     </div>

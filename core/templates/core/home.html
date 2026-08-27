@@ -71,7 +71,7 @@
 
     <div class="mgl-card-grid">
 
-        <a href="#" class="mgl-action-card featured-card">
+        <a href="{% url 'leagues_page' %}" class="mgl-action-card featured-card">
             <div class="card-icon">▣</div>
             <div>
                 <small>COMPETITION</small>
@@ -91,7 +91,7 @@
             <span class="card-arrow">→</span>
         </a>
 
-        <a href="{% url 'live_auctions' %}" class="mgl-action-card">
+        <a href="{% url 'transfer_market' %}" class="mgl-action-card">
             <div class="card-icon">↔</div>
             <div>
                 <small>TRANSFERS</small>
@@ -111,7 +111,7 @@
             <span class="card-arrow">→</span>
         </a>
 
-        <a href="#" class="mgl-action-card">
+        <a href="{% url 'stats_page' %}" class="mgl-action-card">
             <div class="card-icon">▥</div>
             <div>
                 <small>PERFORMANCE</small>
@@ -121,7 +121,7 @@
             <span class="card-arrow">→</span>
         </a>
 
-        <a href="#" class="mgl-action-card">
+        <a href="{% url 'job_centre' %}" class="mgl-action-card">
             <div class="card-icon">♟</div>
             <div>
                 <small>MANAGEMENT</small>
@@ -223,9 +223,7 @@
                 </span>
             </div>
             {% empty %}
-            <div class="match-row">
-                <span>No upcoming fixtures have been released.</span>
-            </div>
+            {% include "mgl/includes/empty_state.html" with kicker="UPCOMING FIXTURES" title="NO FIXTURES HAVE BEEN RELEASED YET" body="No upcoming fixtures have been released. Fixtures will appear here once the MGL schedule is published." %}
             {% endfor %}
 
         </div>
@@ -252,9 +250,7 @@
                 <strong>{{ fixture.away_team.name }}</strong>
             </div>
             {% empty %}
-            <div class="result-row">
-                <span>No approved results yet.</span>
-            </div>
+            {% include "mgl/includes/empty_state.html" with title="NO APPROVED RESULTS YET" body="Official results will appear here after admins approve submitted matches." %}
             {% endfor %}
 
         </div>
@@ -285,9 +281,7 @@
             <small>{{ post.category }}</small>
         </div>
         {% empty %}
-        <div class="table-row">
-            <span>No published news yet.</span>
-        </div>
+        {% include "mgl/includes/empty_state.html" with title="NO PUBLISHED NEWS YET" body="No published news yet. Transfers, auctions and results will be posted here as the season develops." %}
         {% endfor %}
 
     </div>
@@ -307,7 +301,7 @@
             </div>
 
             <div class="table-row">
-                <span>League tables are not published on this page yet.</span>
+                {% include "mgl/includes/empty_state.html" with title="LEAGUE TABLE COMING SOON" body="Standings will be published here after enough official results are in. Clubs and managers are already listed under Leagues." %}
             </div>
 
         </div>
@@ -328,9 +322,7 @@
                 <small>GOALS</small>
             </div>
             {% empty %}
-            <div class="scorer-row">
-                <span>No goals have been approved yet.</span>
-            </div>
+            {% include "mgl/includes/empty_state.html" with title="NO GOALS HAVE BEEN APPROVED YET" body="Top scorers are calculated from approved match data only." %}
             {% endfor %}
 
         </div>

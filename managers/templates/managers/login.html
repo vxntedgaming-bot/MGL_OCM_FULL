@@ -1,96 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MGL Manager Login</title>
+{% extends "core/base.html" %}
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #111;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-        }
+{% block title %}Manager Login — MGL{% endblock %}
 
-        .login-box {
-            background: #1d1d1d;
-            padding: 35px;
-            border-radius: 12px;
-            width: 350px;
-            box-sizing: border-box;
-        }
+{% block content %}
+<section class="mgl-section">
+    <div class="mgl-auth-card">
+        <div class="eyebrow">MGL ACCESS</div>
+        <h1>MANAGER LOGIN</h1>
+        <p>Sign in to your Online Career Mode hub, squad and transfer market.</p>
 
-        h1 {
-            text-align: center;
-        }
+        <form method="post" class="mgl-form">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <label for="id_username">Username</label>
+            {{ form.username }}
+            <label for="id_password">Password</label>
+            {{ form.password }}
+            <input type="hidden" name="next" value="{{ next }}">
+            <button type="submit" class="primary-button">LOGIN</button>
+        </form>
 
-        label {
-            display: block;
-            margin-top: 15px;
-            margin-bottom: 5px;
-        }
+        {% if form.errors %}
+            <p class="mgl-form-error">Invalid username or password.</p>
+        {% endif %}
 
-        input {
-            width: 100%;
-            padding: 11px;
-            box-sizing: border-box;
-            border-radius: 6px;
-            border: 1px solid #555;
-        }
-
-        button {
-            width: 100%;
-            margin-top: 20px;
-            padding: 12px;
-            border: 0;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .error {
-            margin-top: 15px;
-            color: #ff7777;
-        }
-    </style>
-</head>
-
-<body>
-
-<div class="login-box">
-
-    <h1>MGL Manager Login</h1>
-
-    <form method="post">
-        {% csrf_token %}
-
-        {{ form.non_field_errors }}
-
-        <label for="id_username">Username</label>
-        {{ form.username }}
-
-        <label for="id_password">Password</label>
-        {{ form.password }}
-
-        <input type="hidden" name="next" value="{{ next }}">
-
-        <button type="submit">
-            Login
-        </button>
-    </form>
-
-    {% if form.errors %}
-        <div class="error">
-            Invalid username or password.
-        </div>
-    {% endif %}
-
-</div>
-
-</body>
-</html>
+        <p class="mgl-help">Need a career? <a href="{% url 'manager_register' %}">Apply as a manager</a>.</p>
+    </div>
+</section>
+{% endblock %}

@@ -1,34 +1,50 @@
 {% extends "core/base.html" %}
 
-{% block title %}Rewards — MGL{% endblock %}
+{% block title %}Transactions — MGL{% endblock %}
 
 {% block content %}
-
 <section class="mgl-section">
-
-    <div class="eyebrow">MGL REWARDS</div>
-
-    <h1>MY REWARDS</h1>
-
-    {% if manager %}
-        <div class="overview-stat">
-            <span>AVAILABLE TOKENS</span>
-            <strong>{{ manager.tokens }}</strong>
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">MGL ECONOMY</div>
+            <h1>TOKEN LEDGER</h1>
         </div>
-    {% endif %}
+        <span class="section-line"></span>
+    </div>
+
+    <div class="overview-stat" style="max-width:320px;margin-bottom:24px">
+        <span>{% if team %}{{ team.name }} TREASURY{% else %}AVAILABLE TOKENS{% endif %}</span>
+        <strong>{{ token_balance }}</strong>
+        <small>MGL TOKENS</small>
+    </div>
+
+    <h2>TRANSFERS AND AUCTIONS</h2>
+    <div class="dashboard-panel">
+        {% for row in transfers %}
+            <div class="table-row">
+                <span>{{ row.created_at|date:"d M Y H:i" }}</span>
+                <strong>{{ row.get_transaction_type_display }}</strong>
+                <span>{{ row.player.name|default:"—" }}</span>
+                <span>{{ row.from_team.short_name|default:"FA" }} → {{ row.to_team.short_name|default:"—" }}</span>
+                <b>{{ row.amount }} TKN</b>
+                <small>{{ row.status }}{% if row.approved_by %} · {{ row.approved_by.username }}{% endif %}</small>
+            </div>
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with title="NO MARKET TRANSACTIONS YET" body="Sales, auction wins and refunds are recorded with player, clubs, amount and status." %}
+        {% endfor %}
+    </div>
 
     <h2>REWARD HISTORY</h2>
-
-    {% for reward in rewards %}
-        <div class="table-row">
-            <strong>{{ reward.reason }}</strong>
-            <span>+{{ reward.amount }} TOKENS</span>
-            <small>{{ reward.created_at|date:"d M Y" }}</small>
-        </div>
-    {% empty %}
-        <p>No rewards yet.</p>
-    {% endfor %}
-
+    <div class="dashboard-panel">
+        {% for reward in rewards %}
+            <div class="table-row">
+                <strong>{{ reward.reason }}</strong>
+                <span>{{ reward.amount }} TOKENS</span>
+                <small>{{ reward.created_at|date:"d M Y" }}</small>
+            </div>
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with title="NO REWARDS YET" body="Approved matches, TOTW and press conferences credit tokens here." %}
+        {% endfor %}
+    </div>
 </section>
-
 {% endblock %}

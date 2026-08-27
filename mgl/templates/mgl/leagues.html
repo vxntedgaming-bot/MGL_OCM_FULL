@@ -1,0 +1,36 @@
+{% extends "core/base.html" %}
+
+{% block title %}Leagues — MGL{% endblock %}
+
+{% block content %}
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">COMPETITION</div>
+            <h2>MGL LEAGUES</h2>
+            <p>Clubs are permanent. Managers can change; squads and token balances stay with the club.</p>
+        </div>
+        <span class="section-line"></span>
+    </div>
+
+    {% for league in leagues %}
+        <div class="dashboard-panel" style="margin-bottom:20px">
+            <div class="panel-heading">
+                <span>{{ league.name }}</span>
+                <b>SEASON {{ league.season }}</b>
+            </div>
+            {% for team in league.teams.all %}
+                <div class="table-row">
+                    <strong>{{ team.name }}</strong>
+                    <span>{% if team.manager %}{{ team.manager.username }}{% else %}VACANT{% endif %}</span>
+                    <b>{{ team.tokens }} TKN</b>
+                </div>
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with title="NO CLUBS IN THIS LEAGUE" body="The owner will add MGL clubs here. They will remain even if a manager leaves." %}
+            {% endfor %}
+        </div>
+    {% empty %}
+        {% include "mgl/includes/empty_state.html" with kicker="LEAGUES" title="NO LEAGUES PUBLISHED YET" body="Leagues and clubs will appear here once the owner creates them in the league office." %}
+    {% endfor %}
+</section>
+{% endblock %}

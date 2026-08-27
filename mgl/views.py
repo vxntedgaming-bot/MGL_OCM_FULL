@@ -1,7 +1,6 @@
-from functools import wraps
-
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
@@ -24,7 +23,11 @@ from .models import (
     PressConference,
     NewsPost,
     RewardTransaction,
+    MarketTransaction,
+    PlayerListing,
 )
+from .market import club_for_user, token_balance_for_user
+from .permissions import owner_admin_required
 from .services import manager_for_user
 
 
@@ -169,6 +172,7 @@ def manager_hub(request):
 
     team = getattr(request.user, "managed_team", None)
     recent = []
+    pending_actions = []
 
     if team:
         recent = (
@@ -176,14 +180,33 @@ def manager_hub(request):
             .filter(Q(home_team=team) | Q(away_team=team))
             .order_by("-id")[:10]
         )
+        pending_listings = PlayerListing.objects.filter(
+            team=team,
+            status=PlayerListing.PENDING,
+        ).count()
+        if pending_listings:
+            pending_actions.append(f"{pending_listings} player sale(s) waiting for admin approval")
+        pending_matches = MatchSubmission.objects.filter(
+            fixture__in=Fixture.objects.filter(Q(home_team=team) | Q(away_team=team)),
+            status="PENDING",
+        ).count()
+        if pending_matches:
+            pending_actions.append(f"{pending_matches} match result(s) waiting for approval")
 
     rewards = (
         RewardTransaction.objects
         .filter(manager=manager)
-        .order_by("-created_at")[:10]
+        .order_by("-created_at")[:8]
+    )
+    transfers = (
+        MarketTransaction.objects
+        .filter(Q(seller=manager) | Q(buyer=manager))
+        .select_related("player", "from_team", "to_team")
+        .order_by("-created_at")[:8]
     )
 
     roster_count = team.players.count() if team else 0
+    token_balance = token_balance_for_user(request.user)
 
     return render(
         request,
@@ -193,7 +216,10 @@ def manager_hub(request):
             "team": team,
             "recent": recent,
             "rewards": rewards,
+            "transfers": transfers,
             "roster_count": roster_count,
+            "token_balance": token_balance,
+            "pending_actions": pending_actions,
         },
     )
 
@@ -209,12 +235,14 @@ def fixture_list(request):
             "league",
         )
     )
+    team = getattr(request.user, "managed_team", None)
 
     return render(
         request,
         "mgl/fixtures.html",
         {
             "fixtures": fixtures,
+            "team": team,
         },
     )
 
@@ -430,12 +458,15 @@ def free_agents(request):
         )
         .order_by("-overall", "name")
     )
+    from django.core.paginator import Paginator
+    page = Paginator(players, 40).get_page(request.GET.get("page"))
 
     return render(
         request,
         "mgl/free_agents.html",
         {
-            "players": players,
+            "players": page,
+            "page_obj": page,
         },
     )
 
@@ -489,12 +520,15 @@ def player_database(request):
         )
 
     players = players.order_by("-overall", "name")
+    paginator = Paginator(players, 24)
+    page = paginator.get_page(request.GET.get("page"))
 
     return render(
         request,
         "mgl/player_database.html",
         {
-            "players": players,
+            "players": page,
+            "page_obj": page,
             "selected_tier": tier,
             "search": search,
         },
@@ -514,6 +548,13 @@ def rewards(request):
         .select_related("fixture")
         .order_by("-created_at")
     )
+    transfers = (
+        MarketTransaction.objects
+        .filter(Q(seller=manager) | Q(buyer=manager))
+        .select_related("player", "from_team", "to_team")
+        .order_by("-created_at")
+    )
+    token_balance = token_balance_for_user(request.user)
 
     return render(
         request,
@@ -521,6 +562,9 @@ def rewards(request):
         {
             "manager": manager,
             "rewards": rewards,
+            "transfers": transfers,
+            "token_balance": token_balance,
+            "team": club_for_user(request.user),
         },
     )
 
@@ -551,6 +595,15 @@ def team_management(request):
 
     total_ovr = sum(player.overall for player in players)
     available_spaces = max(0, team.roster_limit - len(players))
+    listings = {
+        listing.player_id: listing
+        for listing in PlayerListing.objects.filter(
+            team=team,
+            status__in=[PlayerListing.PENDING, PlayerListing.LIVE],
+        )
+    }
+    for player in players:
+        player.current_listing = listings.get(player.id)
 
     return render(
         request,
@@ -562,24 +615,6 @@ def team_management(request):
             "available_spaces": available_spaces,
         },
     )
-
-
-def owner_admin_required(view_func):
-    """
-    Only MGL OWNER or ADMIN users can access club administration.
-    """
-
-    @wraps(view_func)
-    def wrapper(request, *args, **kwargs):
-        if request.user.role not in [User.OWNER, User.ADMIN]:
-            messages.error(
-                request,
-                "You do not have permission to access Club Management.",
-            )
-            return redirect("manager_hub")
-        return view_func(request, *args, **kwargs)
-
-    return login_required(wrapper)
 
 
 @owner_admin_required

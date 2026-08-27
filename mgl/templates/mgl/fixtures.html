@@ -1,1 +1,34 @@
-{% extends "core/base.html" %}{% block title %}MGL Fixtures{% endblock %}{% block content %}<section class="mgl-section"><div class="eyebrow">MATCH CENTRE</div><h1>FIXTURES</h1>{% for f in fixtures %}<div class="match-panel" style="margin:12px 0;padding:20px"><strong>{{ f.home_team.name }}</strong> VS <strong>{{ f.away_team.name }}</strong><span style="float:right">{{ f.scheduled_at|date:"d M H:i" }}</span>{% if f.status == 'SCHEDULED' %}<a class="primary-button" style="float:right;margin-right:20px" href="{% url 'submit_match' f.id %}">SUBMIT STATS</a>{% endif %}</div>{% empty %}<p>No fixtures have been released yet.</p>{% endfor %}</section>{% endblock %}
+{% extends "core/base.html" %}
+
+{% block title %}Fixtures — MGL{% endblock %}
+
+{% block content %}
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">MATCH CENTRE</div>
+            <h2>FIXTURES</h2>
+        </div>
+        <span class="section-line"></span>
+    </div>
+
+    {% for f in fixtures %}
+        <div class="match-panel" style="margin-bottom:16px;padding:20px">
+            <div class="match-row">
+                <span class="match-date">{{ f.scheduled_at|date:"d M"|upper|default:"TBC" }}</span>
+                <strong>{{ f.home_team.name }}</strong>
+                <span class="vs">VS</span>
+                <strong>{{ f.away_team.name }}</strong>
+                <span class="match-time">{{ f.status }}</span>
+            </div>
+            {% if f.status == 'SCHEDULED' %}
+                {% if team.id == f.home_team_id or team.id == f.away_team_id %}
+                    <a class="primary-button" href="{% url 'submit_match' f.id %}">SUBMIT RESULT / PLAYER STATS</a>
+                {% endif %}
+            {% endif %}
+        </div>
+    {% empty %}
+        {% include "mgl/includes/empty_state.html" with kicker="UPCOMING FIXTURES" title="NO FIXTURES HAVE BEEN RELEASED YET" body="Fixtures will appear here once the MGL schedule is published by the league office." %}
+    {% endfor %}
+</section>
+{% endblock %}

@@ -3,35 +3,45 @@
 {% block title %}Player Database — MGL{% endblock %}
 
 {% block content %}
-
 <section class="mgl-section">
-
     <div class="section-heading">
         <div>
-            <div class="eyebrow">FC27 PLAYER POOL</div>
+            <div class="eyebrow">FC26 PLAYER POOL</div>
             <h1>PLAYER DATABASE</h1>
-            <p>Browse every MGL player and their original FC club.</p>
+            <p>Browse the MGL player pool. Unassigned players are free agents.</p>
         </div>
-
         <span class="section-line"></span>
     </div>
 
+    <form method="get" class="mgl-inline-form" style="margin-bottom:24px">
+        <input type="search" name="search" value="{{ search }}" placeholder="Search name, club or position">
+        <select name="tier">
+            <option value="">All tiers</option>
+            <option value="GOLD" {% if selected_tier == "GOLD" %}selected{% endif %}>Gold</option>
+            <option value="SILVER" {% if selected_tier == "SILVER" %}selected{% endif %}>Silver</option>
+            <option value="BRONZE" {% if selected_tier == "BRONZE" %}selected{% endif %}>Bronze</option>
+        </select>
+        <button type="submit" class="primary-button">SEARCH</button>
+    </form>
+
     <div class="mgl-player-card-grid">
-
         {% for player in players %}
-
             {% include "mgl/includes/player_card.html" with player=player %}
-
         {% empty %}
-
-            <div class="dashboard-panel">
-                <p>No players found.</p>
-            </div>
-
+            {% include "mgl/includes/empty_state.html" with title="NO PLAYERS FOUND" body="Try another search, or import the FC26 player pool if this database is empty." %}
         {% endfor %}
-
     </div>
 
+    {% if page_obj and page_obj.has_other_pages %}
+        <div class="mgl-pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}&search={{ search }}&tier={{ selected_tier }}">Previous</a>
+            {% endif %}
+            <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}&search={{ search }}&tier={{ selected_tier }}">Next</a>
+            {% endif %}
+        </div>
+    {% endif %}
 </section>
-
 {% endblock %}
