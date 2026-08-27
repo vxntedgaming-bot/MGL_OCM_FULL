@@ -81,7 +81,7 @@
             <span class="card-arrow">→</span>
         </a>
 
-        <a href="#" class="mgl-action-card">
+        <a href="{% url 'fixture_list' %}" class="mgl-action-card">
             <div class="card-icon">◷</div>
             <div>
                 <small>MATCH CENTRE</small>
@@ -91,17 +91,17 @@
             <span class="card-arrow">→</span>
         </a>
 
-        <a href="#" class="mgl-action-card">
+        <a href="{% url 'live_auctions' %}" class="mgl-action-card">
             <div class="card-icon">↔</div>
             <div>
                 <small>TRANSFERS</small>
                 <h3>MARKET</h3>
-                <p>Buy, sell, loan and negotiate.</p>
+                <p>Live player auctions and free agents.</p>
             </div>
             <span class="card-arrow">→</span>
         </a>
 
-        <a href="#" class="mgl-action-card">
+        <a href="{% url 'player_database' %}" class="mgl-action-card">
             <div class="card-icon">◆</div>
             <div>
                 <small>PLAYERS</small>
@@ -121,7 +121,7 @@
             <span class="card-arrow">→</span>
         </a>
 
-        <a href="{% url 'manager_register' %}" class="mgl-action-card">
+        <a href="#" class="mgl-action-card">
             <div class="card-icon">♟</div>
             <div>
                 <small>MANAGEMENT</small>
@@ -152,19 +152,19 @@
 
         <div class="overview-stat">
             <span>ACTIVE LEAGUES</span>
-            <strong>02</strong>
-            <small>SUPER LEAGUE 1 + 2</small>
+            <strong>{{ league_count|stringformat:"02d" }}</strong>
+            <small>MGL COMPETITIONS</small>
         </div>
 
         <div class="overview-stat">
             <span>COMPETING CLUBS</span>
-            <strong>16</strong>
+            <strong>{{ club_count }}</strong>
             <small>MGL TEAMS</small>
         </div>
 
         <div class="overview-stat">
             <span>PLAYER DATABASE</span>
-            <strong>FC</strong>
+            <strong>{{ player_count }}</strong>
             <small>EA FC PLAYER POOL</small>
         </div>
 
@@ -188,7 +188,7 @@
             <h2>FIXTURES & RESULTS</h2>
         </div>
 
-        <a href="#" class="view-all">
+        <a href="{% url 'fixture_list' %}" class="view-all">
             VIEW ALL →
         </a>
     </div>
@@ -202,29 +202,31 @@
                 <b>THIS WEEK</b>
             </div>
 
+            {% for fixture in upcoming %}
             <div class="match-row">
-                <span class="match-date">27 AUG</span>
-                <strong>NAPOLI</strong>
+                <span class="match-date">
+                    {% if fixture.scheduled_at %}
+                        {{ fixture.scheduled_at|date:"d M"|upper }}
+                    {% else %}
+                        TBC
+                    {% endif %}
+                </span>
+                <strong>{{ fixture.home_team.name }}</strong>
                 <span class="vs">VS</span>
-                <strong>CHELSEA</strong>
-                <span class="match-time">20:00</span>
+                <strong>{{ fixture.away_team.name }}</strong>
+                <span class="match-time">
+                    {% if fixture.scheduled_at %}
+                        {{ fixture.scheduled_at|date:"H:i" }}
+                    {% else %}
+                        {{ fixture.status }}
+                    {% endif %}
+                </span>
             </div>
-
+            {% empty %}
             <div class="match-row">
-                <span class="match-date">28 AUG</span>
-                <strong>MAN UNITED</strong>
-                <span class="vs">VS</span>
-                <strong>MARSEILLE</strong>
-                <span class="match-time">20:00</span>
+                <span>No upcoming fixtures have been released.</span>
             </div>
-
-            <div class="match-row">
-                <span class="match-date">29 AUG</span>
-                <strong>JUVENTUS</strong>
-                <span class="vs">VS</span>
-                <strong>LEIPZIG</strong>
-                <span class="match-time">20:00</span>
-            </div>
+            {% endfor %}
 
         </div>
 
@@ -236,28 +238,57 @@
                 <b>MGL</b>
             </div>
 
+            {% for fixture in recent_results %}
             <div class="result-row">
-                <span class="result-win">W</span>
-                <strong>NAPOLI</strong>
-                <b>4 - 2</b>
-                <strong>CHELSEA</strong>
+                <span class="result-win">FT</span>
+                <strong>{{ fixture.home_team.name }}</strong>
+                <b>
+                    {% if fixture.home_goals != None and fixture.away_goals != None %}
+                        {{ fixture.home_goals }} - {{ fixture.away_goals }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </b>
+                <strong>{{ fixture.away_team.name }}</strong>
             </div>
-
+            {% empty %}
             <div class="result-row">
-                <span class="result-win">W</span>
-                <strong>MARSEILLE</strong>
-                <b>3 - 1</b>
-                <strong>JUVENTUS</strong>
+                <span>No approved results yet.</span>
             </div>
-
-            <div class="result-row">
-                <span class="result-draw">D</span>
-                <strong>INTER</strong>
-                <b>2 - 2</b>
-                <strong>ATHLETIC</strong>
-            </div>
+            {% endfor %}
 
         </div>
+
+    </div>
+
+</section>
+
+
+<!-- NEWS -->
+<section class="mgl-section">
+
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">MGL NEWS</div>
+            <h2>LATEST UPDATES</h2>
+        </div>
+
+        <span class="section-line"></span>
+    </div>
+
+    <div class="dashboard-panel">
+
+        {% for post in news %}
+        <div class="table-row">
+            <span>{{ post.created_at|date:"d M Y" }}</span>
+            <strong>{{ post.title }}</strong>
+            <small>{{ post.category }}</small>
+        </div>
+        {% empty %}
+        <div class="table-row">
+            <span>No published news yet.</span>
+        </div>
+        {% endfor %}
 
     </div>
 
@@ -273,55 +304,10 @@
 
             <div class="panel-heading">
                 <span>LEAGUE TABLE</span>
-                <a href="#">VIEW ALL →</a>
-            </div>
-
-            <div class="table-head">
-                <span>#</span>
-                <span>TEAM</span>
-                <span>P</span>
-                <span>GD</span>
-                <span>PTS</span>
             </div>
 
             <div class="table-row">
-                <b>1</b>
-                <strong>Napoli</strong>
-                <span>6</span>
-                <span>+33</span>
-                <strong>18</strong>
-            </div>
-
-            <div class="table-row">
-                <b>2</b>
-                <strong>Chelsea</strong>
-                <span>6</span>
-                <span>+16</span>
-                <strong>13</strong>
-            </div>
-
-            <div class="table-row">
-                <b>3</b>
-                <strong>Manchester United</strong>
-                <span>6</span>
-                <span>+13</span>
-                <strong>13</strong>
-            </div>
-
-            <div class="table-row">
-                <b>4</b>
-                <strong>Marseille</strong>
-                <span>6</span>
-                <span>+11</span>
-                <strong>12</strong>
-            </div>
-
-            <div class="table-row">
-                <b>5</b>
-                <strong>RB Leipzig</strong>
-                <span>6</span>
-                <span>+17</span>
-                <strong>10</strong>
+                <span>League tables are not published on this page yet.</span>
             </div>
 
         </div>
@@ -331,43 +317,21 @@
 
             <div class="panel-heading">
                 <span>TOP SCORERS</span>
-                <a href="#">VIEW ALL →</a>
+                <a href="{% url 'player_database' %}">VIEW ALL →</a>
             </div>
 
+            {% for player in top_scorers %}
             <div class="scorer-row">
-                <span class="rank">01</span>
-                <strong>TOP SCORER</strong>
-                <b>16</b>
+                <span class="rank">{{ forloop.counter|stringformat:"02d" }}</span>
+                <strong>{{ player.name }}</strong>
+                <b>{{ player.goals }}</b>
                 <small>GOALS</small>
             </div>
-
+            {% empty %}
             <div class="scorer-row">
-                <span class="rank">02</span>
-                <strong>PLAYER</strong>
-                <b>11</b>
-                <small>GOALS</small>
+                <span>No goals have been approved yet.</span>
             </div>
-
-            <div class="scorer-row">
-                <span class="rank">03</span>
-                <strong>PLAYER</strong>
-                <b>11</b>
-                <small>GOALS</small>
-            </div>
-
-            <div class="scorer-row">
-                <span class="rank">04</span>
-                <strong>PLAYER</strong>
-                <b>5</b>
-                <small>GOALS</small>
-            </div>
-
-            <div class="scorer-row">
-                <span class="rank">05</span>
-                <strong>PLAYER</strong>
-                <b>4</b>
-                <small>GOALS</small>
-            </div>
+            {% endfor %}
 
         </div>
 

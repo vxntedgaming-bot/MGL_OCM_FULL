@@ -1,0 +1,92 @@
+{% extends "core/base.html" %}
+
+{% block title %}{{ team.name }} Squad — MGL{% endblock %}
+
+{% block content %}
+
+<section class="mgl-section">
+
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">OWNER / ADMIN</div>
+            <h1>{{ team.name|upper }} SQUAD</h1>
+            <p>
+                {{ team.short_name }}
+                ·
+                {{ team.league.name }}
+                ·
+                {{ players|length }}/{{ team.roster_limit }} players
+            </p>
+        </div>
+
+        <a href="{% url 'club_management_admin' %}" class="view-all">
+            BACK TO CLUBS →
+        </a>
+    </div>
+
+
+    <div class="overview-grid">
+
+        <div class="overview-stat">
+            <span>MANAGER</span>
+            {% if team.manager %}
+                <strong>{{ team.manager.username }}</strong>
+            {% else %}
+                <strong>—</strong>
+                <small>AVAILABLE</small>
+            {% endif %}
+        </div>
+
+        <div class="overview-stat">
+            <span>SQUAD SIZE</span>
+            <strong>{{ players|length }}/{{ team.roster_limit }}</strong>
+        </div>
+
+        <div class="overview-stat">
+            <span>AVAILABLE SPACES</span>
+            <strong>{{ available_spaces }}</strong>
+        </div>
+
+    </div>
+
+
+    <div class="dashboard-panel">
+
+        <div class="panel-heading">
+            <span>FULL SQUAD</span>
+        </div>
+
+        {% for player in players %}
+        <div class="table-row">
+            <div>
+                <strong>{{ player.name }}</strong>
+                <small>
+                    {{ player.position }}
+                    ·
+                    {{ player.overall }} OVR
+                </small>
+            </div>
+
+            <span>
+                {% if player.card_tier %}
+                    {{ player.card_tier }}
+                {% else %}
+                    {{ player.calculated_tier }}
+                {% endif %}
+            </span>
+
+            <a href="{% url 'player_profile' player.id %}">
+                PROFILE →
+            </a>
+        </div>
+        {% empty %}
+        <div class="table-row">
+            <span>This club currently has no players.</span>
+        </div>
+        {% endfor %}
+
+    </div>
+
+</section>
+
+{% endblock %}
