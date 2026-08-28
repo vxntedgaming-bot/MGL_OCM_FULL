@@ -73,6 +73,11 @@ urlpatterns = [
         views.manager_profile,
         name="manager_profile",
     ),
+    path(
+        "profile/resign/",
+        views.resign_from_club,
+        name="resign_from_club",
+    ),
 
     path(
         "rewards/",

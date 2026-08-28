@@ -31,8 +31,8 @@
                     <strong class="mgl-info-club">{% team_logo team "sm" %} {{ team.short_name }}</strong>
                     <small>{{ team.name }}{% if team.league %} · {{ team.league.name }}{% endif %}</small>
                 {% else %}
-                    <strong>—</strong>
-                    <small>NO CLUB ASSIGNED</small>
+                    <strong>No Club</strong>
+                    <small>AVAILABLE FOR MANAGEMENT</small>
                 {% endif %}
             </div>
             <div class="overview-stat">
@@ -45,6 +45,11 @@
                 <strong>No data yet</strong>
                 <small>NOT RECORDED IN MGL</small>
             </div>
+        </div>
+        <div class="mgl-profile-actions">
+            {% if team %}
+                <a href="{% url 'manager_profile' %}?resign=1" class="mgl-danger-button">RESIGN FROM CLUB</a>
+            {% endif %}
         </div>
     </div>
 </section>
@@ -104,7 +109,8 @@
         {% for spell in spells %}
             <div class="table-row">
                 <strong class="mgl-info-club">{% team_logo spell.team "xs" %} {{ spell.team.name }}</strong>
-                <span>{{ spell.started_at|date:"d M Y" }} — {% if spell.ended_at %}{{ spell.ended_at|date:"d M Y" }}{% else %}CURRENT JOB{% endif %}</span>
+                <span>Manager · {{ spell.started_at|date:"d M Y" }} — {% if spell.ended_at %}{{ spell.ended_at|date:"d M Y" }}{% else %}CURRENT JOB{% endif %}</span>
+                <small>Status: {% if not spell.ended_at %}Current job{% elif spell.end_reason %}{{ spell.get_end_reason_display }}{% else %}Ended{% endif %}</small>
             </div>
         {% empty %}
             {% include "mgl/includes/empty_state.html" with title="NO DATA YET" body="Club appointments will appear here after you take a job." %}
@@ -131,4 +137,22 @@
         {% endfor %}
     </div>
 </section>
+
+{% if confirm_resign and team %}
+<div class="mgl-modal-backdrop">
+    <div class="mgl-modal" role="dialog" aria-modal="true">
+        <div class="eyebrow">ACCOUNT</div>
+        <h2>RESIGN FROM CLUB?</h2>
+        <p>Are you sure you want to resign from {{ team.name }}?</p>
+        <p>Your manager account and personal token balance will be kept. You will no longer manage this club. The squad stays with {{ team.name }}.</p>
+        <form method="post" action="{% url 'resign_from_club' %}" class="mgl-modal-form">
+            {% csrf_token %}
+            <div class="mgl-modal-actions">
+                <a href="{% url 'manager_profile' %}" class="secondary-button">CANCEL</a>
+                <button type="submit" class="mgl-danger-button">CONFIRM RESIGNATION</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
 {% endblock %}

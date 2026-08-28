@@ -48,7 +48,7 @@ from .market import (
 from .nav import COMPETITIONS, LIVE_COMPETITION_SLUGS
 from .permissions import approved_manager, owner_admin_required
 from .services import manager_for_user
-from .tenure import close_club_spell_for_user, open_club_spell
+from .tenure import close_club_spell_for_user, open_club_spell, resign_manager_from_club
 
 
 def _post_int(post, key, default=0):
@@ -636,6 +636,7 @@ def manager_profile(request):
         .order_by("-created_at")[:20]
     )
     team = club_for_user(request.user)
+    confirm_resign = request.GET.get("resign") == "1" and team is not None
     spells = manager.club_spells.select_related("team").order_by("-started_at")
     applications = manager.club_applications.select_related("team").order_by("-created_at")[:12]
     played = 0
@@ -677,8 +678,28 @@ def manager_profile(request):
             "win_rate": win_rate,
             "goals_for": goals_for,
             "goals_against": goals_against,
+            "confirm_resign": confirm_resign,
         },
     )
+
+
+@login_required
+@require_POST
+def resign_from_club(request):
+    manager = approved_manager(request.user)
+    if not manager:
+        messages.error(request, "You must be an approved manager to resign from a club.")
+        return redirect("manager_profile")
+    try:
+        team = resign_manager_from_club(manager)
+    except ValueError as exc:
+        messages.error(request, str(exc))
+        return redirect("manager_profile")
+    messages.success(
+        request,
+        f"You have resigned from {team.name}. Your personal token balance is unchanged.",
+    )
+    return redirect("manager_profile")
 
 
 @login_required
@@ -975,7 +996,7 @@ def remove_club_manager(request, team_id):
 
     team.manager = None
     team.save(update_fields=["manager"])
-    close_club_spell_for_user(old_manager, team)
+    close_club_spell_for_user(old_manager, team, reason="REMOVED")
 
     messages.success(
         request,
@@ -1032,7 +1053,7 @@ def change_club_manager(request, team_id):
         team.manager = new_manager
         team.save(update_fields=["manager"])
         if old_manager:
-            close_club_spell_for_user(old_manager, team)
+            close_club_spell_for_user(old_manager, team, reason="REASSIGNED")
         open_club_spell(application, team)
 
         if old_manager:

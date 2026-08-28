@@ -290,6 +290,15 @@ class FixtureReleaseBatch(models.Model):
 
 
 class ManagerClubSpell(models.Model):
+    RESIGNED = "RESIGNED"
+    REMOVED = "REMOVED"
+    REASSIGNED = "REASSIGNED"
+    END_REASON_CHOICES = [
+        (RESIGNED, "Resigned"),
+        (REMOVED, "Removed"),
+        (REASSIGNED, "Reassigned"),
+    ]
+
     manager = models.ForeignKey(
         "managers.ManagerApplication",
         on_delete=models.CASCADE,
@@ -298,6 +307,7 @@ class ManagerClubSpell(models.Model):
     team = models.ForeignKey("teams.Team", on_delete=models.CASCADE, related_name="manager_spells")
     started_at = models.DateTimeField(auto_now_add=True)
     ended_at = models.DateTimeField(null=True, blank=True)
+    end_reason = models.CharField(max_length=20, blank=True, choices=END_REASON_CHOICES)
 
     class Meta:
         ordering = ["-started_at"]

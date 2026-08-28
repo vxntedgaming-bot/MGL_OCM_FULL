@@ -3327,11 +3327,33 @@ textarea {
     grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
 }
 
-.mgl-profile-identity {
+.mgl-profile-actions {
     display: flex;
-    gap: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.mgl-danger-button {
+    display: inline-flex;
     align-items: center;
-    min-width: 0;
+    justify-content: center;
+    min-height: 46px;
+    padding: 0 22px;
+    border: 1px solid #f87171;
+    background: rgba(248, 113, 113, 0.08);
+    color: #fca5a5;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0.14em;
+    text-decoration: none;
+    cursor: pointer;
+    appearance: none;
+}
+
+.mgl-danger-button:hover {
+    background: rgba(248, 113, 113, 0.18);
+    color: #fecaca;
 }
 
 .mgl-profile-avatar {
@@ -3573,10 +3595,15 @@ textarea {
         align-items: stretch;
     }
 
+    .mgl-profile-actions,
     .mgl-modal-actions,
     .mgl-market-actions {
         display: grid;
         grid-template-columns: 1fr;
+    }
+
+    .mgl-danger-button {
+        width: 100%;
     }
 }
 
