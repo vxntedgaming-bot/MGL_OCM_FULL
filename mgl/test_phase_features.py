@@ -333,11 +333,14 @@ class ControlCentreFreeAgentFilterTests(TestCase):
         self.assertContains(all_view, self.mid.name)
         self.assertNotContains(all_view, self.assigned.name)
 
-        plus = self.client.get(reverse("control_centre"), {"ovr": "71+"})
+        plus = self.client.get(reverse("control_centre"), {"ovr": "71-plus"})
         self.assertContains(plus, self.high.name)
         self.assertContains(plus, self.star.name)
         self.assertNotContains(plus, self.mid.name)
         self.assertNotContains(plus, self.low.name)
+        plus_alias = self.client.get(reverse("control_centre"), {"ovr": "71+"})
+        self.assertContains(plus_alias, self.star.name)
+        self.assertNotContains(plus_alias, self.mid.name)
 
         under = self.client.get(reverse("control_centre"), {"ovr": "under-62"})
         self.assertContains(under, self.low.name)

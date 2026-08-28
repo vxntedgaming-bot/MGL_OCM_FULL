@@ -42,7 +42,7 @@ from .tenure import open_club_spell
 FREE_AGENT_OVR_FILTERS = (
     ("all", "All"),
     ("62-70", "62–70 OVR"),
-    ("71+", "71+ OVR"),
+    ("71-plus", "71+ OVR"),
     ("under-62", "Under 62 OVR"),
 )
 FREE_AGENT_OVR_FILTER_KEYS = {key for key, _label in FREE_AGENT_OVR_FILTERS}
@@ -52,6 +52,8 @@ CONTROL_FREE_AGENT_LIMIT = 40
 
 def parse_free_agent_ovr_filter(value):
     value = (value or "").strip()
+    if value in {"71+", "71"}:
+        value = "71-plus"
     if value in FREE_AGENT_OVR_FILTER_KEYS:
         return value
     return DEFAULT_FREE_AGENT_OVR_FILTER
@@ -60,7 +62,7 @@ def parse_free_agent_ovr_filter(value):
 def apply_free_agent_ovr_filter(queryset, ovr_filter):
     if ovr_filter == "62-70":
         return queryset.filter(overall__gte=62, overall__lte=70)
-    if ovr_filter == "71+":
+    if ovr_filter == "71-plus":
         return queryset.filter(overall__gte=71)
     if ovr_filter == "under-62":
         return queryset.filter(overall__lt=62)
