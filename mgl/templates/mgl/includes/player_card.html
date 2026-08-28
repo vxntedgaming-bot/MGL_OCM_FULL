@@ -3,7 +3,7 @@
 {% if linked %}
 <a href="{% url 'player_profile' player.id %}" class="mgl-player-card-link">
 {% endif %}
-<article class="mgl-player-card mgl-player-card--{{ size|default:'standard' }} mgl-player-card--{{ tier|lower }}">
+<article class="mgl-player-card mgl-player-card--{{ size|default:'standard' }} mgl-player-card--{{ tier|lower }} mgl-player-card--status-{{ player|market_status_slug }}">
     {% if tier == "GOLD" %}
         <img src="{% static 'mgl/cards/gold_card.png' %}" class="mgl-player-card-bg" alt="">
     {% elif tier == "SILVER" %}
@@ -45,7 +45,7 @@
                 {% if player.mgl_team %}
                     {{ player.mgl_team.short_name }}
                 {% else %}
-                    {{ player|market_status_label }}
+                    <span class="mgl-status-badge mgl-status-badge--{{ player|market_status_slug }}">{{ player|market_status_label }}</span>
                 {% endif %}
             </div>
         </div>

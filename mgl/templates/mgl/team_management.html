@@ -51,6 +51,59 @@
             </div>
         </div>
 
+        {% if players %}
+        <div class="mgl-pitch" aria-label="Squad pitch">
+            {% for label, group in squad_groups %}
+                {% if label == "FORWARDS" %}
+                <div class="mgl-pitch-row">
+                    {% for player in group|slice:":4" %}
+                        <div class="mgl-pitch-chip" title="{{ player.name }}">
+                            <b>{{ player.position }}</b>
+                            <span>{{ player|card_name }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            {% endfor %}
+            {% for label, group in squad_groups %}
+                {% if label == "MIDFIELDERS" %}
+                <div class="mgl-pitch-row">
+                    {% for player in group|slice:":5" %}
+                        <div class="mgl-pitch-chip" title="{{ player.name }}">
+                            <b>{{ player.position }}</b>
+                            <span>{{ player|card_name }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            {% endfor %}
+            {% for label, group in squad_groups %}
+                {% if label == "DEFENDERS" %}
+                <div class="mgl-pitch-row">
+                    {% for player in group|slice:":5" %}
+                        <div class="mgl-pitch-chip" title="{{ player.name }}">
+                            <b>{{ player.position }}</b>
+                            <span>{{ player|card_name }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            {% endfor %}
+            {% for label, group in squad_groups %}
+                {% if label == "GOALKEEPERS" %}
+                <div class="mgl-pitch-row">
+                    {% for player in group|slice:":1" %}
+                        <div class="mgl-pitch-chip" title="{{ player.name }}">
+                            <b>{{ player.position }}</b>
+                            <span>{{ player|card_name }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+
         <div class="mgl-squad-note">
             Starting XI, substitutes and reserves will appear here when official lineups are stored. Manage each player from their card. A club may have 6 active transfer and auction listings in total.
         </div>

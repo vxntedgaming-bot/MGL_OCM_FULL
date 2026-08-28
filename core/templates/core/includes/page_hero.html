@@ -1,0 +1,8 @@
+{% load static %}
+<header class="mgl-page-hero">
+    {% if crumb %}<div class="mgl-crumb">{{ crumb }}</div>{% endif %}
+    {% if kicker %}<div class="eyebrow">{{ kicker }}</div>{% endif %}
+    <h1>{{ title }}</h1>
+    {% if body %}<p>{{ body }}</p>{% endif %}
+    <img src="{% static 'core/img/mgl-logo.png' %}" alt="" class="mgl-mark">
+</header>

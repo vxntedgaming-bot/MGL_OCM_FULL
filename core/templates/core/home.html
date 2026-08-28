@@ -9,79 +9,135 @@
     <div class="mgl-hero-copy">
         <div class="mgl-live-badge"><span></span> SEASON {{ active_league.season|default:"1" }} LIVE</div>
         <img src="{% static 'core/img/mgl-logo.png' %}" alt="" class="mgl-hero-logo">
-        <h1>MGL<br><span>ONLINE CAREER MODE</span></h1>
+        <h1>COMPETE. <span>MANAGE.</span> WIN.</h1>
         <p>
-            Build your club. Manage your squad. Compete against real managers.
-            Experience EA FC online career mode with transfers, fixtures, leagues and competitive football.
+            Build your club. Manage your squad. Compete against real managers
+            in Meta Gaming League Online Career Mode.
         </p>
         <div class="hero-actions">
-            <a href="{% url 'manager_register' %}" class="primary-button">JOIN THE LEAGUE</a>
-            <a href="{% url 'leagues_page' %}" class="secondary-button">VIEW LEAGUES</a>
+            <a href="{% url 'manager_register' %}" class="primary-button">GET STARTED</a>
+            <a href="#mgl-about" class="secondary-button">LEARN MORE</a>
         </div>
     </div>
 </section>
 
-<section class="mgl-stat-strip" id="mgl-about">
-    <div class="mgl-stat-strip-inner">
+<section class="mgl-section">
+    <div class="mgl-home-board">
+        <article class="mgl-home-card" id="mgl-news">
+            <h2>LATEST NEWS</h2>
+            {% for post in news %}
+                <div class="mgl-news-row">
+                    <div class="mgl-news-thumb" aria-hidden="true"></div>
+                    <div>
+                        <strong>{{ post.title }}</strong>
+                        <small>{{ post.get_category_display }} · {{ post.created_at|date:"d M Y" }}</small>
+                    </div>
+                </div>
+            {% empty %}
+                {% for item in activity %}
+                    {% if forloop.counter <= 4 %}
+                    <div class="mgl-news-row">
+                        <div class="mgl-news-thumb" aria-hidden="true"></div>
+                        <div>
+                            <strong>{{ item.title }}</strong>
+                            <small>{{ item.kind }}{% if item.when %} · {{ item.when|date:"d M Y" }}{% endif %}</small>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% empty %}
+                    {% include "mgl/includes/empty_state.html" with title="NO PUBLISHED NEWS YET" body="No published news yet. Transfers, auctions and results will be posted here as the season develops." %}
+                {% endfor %}
+            {% endfor %}
+        </article>
+
+        <article class="mgl-home-card">
+            <h2>NEXT FIXTURE</h2>
+            {% with fixture=upcoming.0 %}
+                {% if fixture %}
+                    <div class="mgl-next-fixture">
+                        <small>{% if fixture.scheduled_at %}{{ fixture.scheduled_at|date:"D d M · H:i"|upper }}{% else %}DATE TBC{% endif %}</small>
+                        <div class="mgl-club-pair">
+                            <div>
+                                {% team_logo fixture.home_team "lg" %}
+                                <strong>{{ fixture.home_team.name }}</strong>
+                            </div>
+                            <span class="mgl-vs">VS</span>
+                            <div>
+                                {% team_logo fixture.away_team "lg" %}
+                                <strong>{{ fixture.away_team.name }}</strong>
+                            </div>
+                        </div>
+                        <a href="{% url 'fixture_list' %}" class="secondary-button">ALL FIXTURES</a>
+                    </div>
+                {% else %}
+                    {% include "mgl/includes/empty_state.html" with kicker="UPCOMING FIXTURES" title="NO FIXTURES HAVE BEEN RELEASED YET" body="Fixtures will appear here once the MGL schedule is published." %}
+                {% endif %}
+            {% endwith %}
+        </article>
+
+        <article class="mgl-home-card">
+            <h2>LEAGUE TABLE</h2>
+            {% include "mgl/includes/league_table.html" with table=table|slice:":4" league=active_league %}
+            <p style="margin-top:16px"><a href="{% url 'leagues_page' %}" class="view-all">FULL TABLE →</a></p>
+        </article>
+    </div>
+</section>
+
+<section class="mgl-section" id="mgl-about">
+    <div class="section-heading">
         <div>
-            <strong>{{ club_count }}</strong>
-            <span>ACTIVE CLUBS</span>
+            <div class="eyebrow">ABOUT US</div>
+            <h2>THE LEAGUE</h2>
+            <p>Premium competitive EA FC career football. Real managers. Official clubs. One squad across the website and the game.</p>
         </div>
-        <div>
-            <strong>{{ manager_count }}</strong>
-            <span>ACTIVE MANAGERS</span>
-        </div>
-        <div>
-            <strong>{{ matches_played }}</strong>
-            <span>MATCHES PLAYED</span>
-        </div>
-        <div>
-            <strong>SEASON {{ active_league.season|default:"1" }}</strong>
-            <span>CURRENT SEASON</span>
-        </div>
+    </div>
+    <div class="mgl-pillar-grid">
+        <article class="mgl-pillar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M8 21V8l4-3 4 3v13"/><path d="M8 12h8"/></svg>
+            <h3>COMPETITIVE</h3>
+            <p>Fixtures, tables and results are recorded officially. Win your league the hard way.</p>
+        </article>
+        <article class="mgl-pillar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z"/><path d="M4 20a8 8 0 0 1 16 0"/></svg>
+            <h3>COMMUNITY</h3>
+            <p>Managers compete, trade and apply for clubs inside one shared Online Career Mode.</p>
+        </article>
+        <article class="mgl-pillar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3 4 7v6c0 5 3.4 7.8 8 9 4.6-1.2 8-4 8-9V7l-8-4Z"/></svg>
+            <h3>INTEGRITY</h3>
+            <p>Owner and admin tools keep auctions, tokens and squads honest. Unassigned players are not Free Agents.</p>
+        </article>
     </div>
 </section>
 
 <section class="mgl-section" id="mgl-how">
     <div class="section-heading">
         <div>
-            <div class="eyebrow">GETTING STARTED</div>
+            <div class="eyebrow">RULES</div>
             <h2>HOW IT WORKS</h2>
         </div>
         <span class="section-line"></span>
     </div>
-    <div class="mgl-step-grid">
-        <article class="mgl-step-card">
-            <div class="mgl-step-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z"/><path d="M4 20a8 8 0 0 1 16 0"/></svg>
-            </div>
-            <div class="mgl-step-num">01</div>
-            <h3>JOIN THE LEAGUE</h3>
-            <p>Create your account and apply for an available managerial position.</p>
+    <div class="mgl-rules-grid">
+        <article class="mgl-rule">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
+            <h3>MATCH</h3>
+            <p>Play your released fixture, then submit the result for league office approval.</p>
         </article>
-        <article class="mgl-step-card">
-            <div class="mgl-step-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/><path d="M5 7.5h14M5 16.5h14"/></svg>
-            </div>
-            <div class="mgl-step-num">02</div>
-            <h3>BUILD YOUR SQUAD</h3>
-            <p>Manage your assigned MGL club and build your squad using the official player database.</p>
+        <article class="mgl-rule">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/></svg>
+            <h3>SQUAD</h3>
+            <p>Clubs start with 26 players and cannot exceed 30. Squads stay with the club.</p>
         </article>
-        <article class="mgl-step-card">
-            <div class="mgl-step-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
-            </div>
-            <div class="mgl-step-num">03</div>
-            <h3>PLAY YOUR FIXTURES</h3>
-            <p>Arrange and play your matches, then submit your results through the website.</p>
+        <article class="mgl-rule">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z"/><path d="M4 20a8 8 0 0 1 16 0"/></svg>
+            <h3>BEHAVIOUR</h3>
+            <p>Managers only control their own club. Releases and auctions follow the existing rules.</p>
         </article>
-        <article class="mgl-step-card">
-            <div class="mgl-step-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 7h10v10H7z"/><path d="M3 12h4M17 12h4"/><path d="M12 3v4M12 17v4"/></svg>
-            </div>
-            <div class="mgl-step-num">04</div>
-            <h3>TRADE &amp; SIGN PLAYERS</h3>
-            <p>Use the transfer market to buy, loan, release and negotiate players.</p>
+        <article class="mgl-rule">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3 4 7v6c0 5 3.4 7.8 8 9 4.6-1.2 8-4 8-9V7l-8-4Z"/></svg>
+            <h3>FAIR PLAY</h3>
+            <p>Unassigned FC26 players are not free. Only a no-bid auction or a club release creates a Free Agent.</p>
         </article>
     </div>
 </section>
@@ -98,10 +154,11 @@
         <div class="mgl-split-panel">
             <div class="eyebrow">IN EA FC</div>
             <h3>FORMATION BOARD</h3>
-            <div class="mgl-pitch-mock">
-                <span></span><span></span><span></span><span></span>
-                <span></span><span></span><span></span><span></span>
-                <span></span><span></span><span></span>
+            <div class="mgl-pitch" aria-hidden="true">
+                <div class="mgl-pitch-row"><span class="mgl-pitch-chip"><b>ST</b></span><span class="mgl-pitch-chip"><b>ST</b></span></div>
+                <div class="mgl-pitch-row"><span class="mgl-pitch-chip"><b>LM</b></span><span class="mgl-pitch-chip"><b>CM</b></span><span class="mgl-pitch-chip"><b>CM</b></span><span class="mgl-pitch-chip"><b>RM</b></span></div>
+                <div class="mgl-pitch-row"><span class="mgl-pitch-chip"><b>LB</b></span><span class="mgl-pitch-chip"><b>CB</b></span><span class="mgl-pitch-chip"><b>CB</b></span><span class="mgl-pitch-chip"><b>RB</b></span></div>
+                <div class="mgl-pitch-row"><span class="mgl-pitch-chip"><b>GK</b></span></div>
             </div>
             <p>Mirror your assigned 26-player squad in Edit Team. Tactics stay yours.</p>
         </div>
@@ -109,12 +166,33 @@
             <div class="eyebrow">ON MGL</div>
             <h3>SQUAD MANAGEMENT</h3>
             <div class="mgl-squad-mock">
-                <div><b>GK</b><span>Starter pool</span><em>64–73</em></div>
-                <div><b>DEF</b><span>Back line</span><em>Official</em></div>
+                <div><b>GK</b><span>Starter pool</span><em>Official</em></div>
+                <div><b>DEF</b><span>Back line</span><em>26 start</em></div>
                 <div><b>MID</b><span>Engine room</span><em>Tokens</em></div>
                 <div><b>FWD</b><span>Attack</span><em>Market</em></div>
             </div>
             <p>Ratings, ownership and transfers live on the site. Clubs keep their squad if a manager leaves.</p>
+        </div>
+    </div>
+</section>
+
+<section class="mgl-stat-strip">
+    <div class="mgl-stat-strip-inner">
+        <div>
+            <strong>{{ club_count }}</strong>
+            <span>ACTIVE CLUBS</span>
+        </div>
+        <div>
+            <strong>{{ manager_count }}</strong>
+            <span>ACTIVE MANAGERS</span>
+        </div>
+        <div>
+            <strong>{{ matches_played }}</strong>
+            <span>MATCHES PLAYED</span>
+        </div>
+        <div>
+            <strong>SEASON {{ active_league.season|default:"1" }}</strong>
+            <span>CURRENT SEASON</span>
         </div>
     </div>
 </section>
@@ -144,10 +222,31 @@
 <section class="mgl-section">
     <div class="section-heading">
         <div>
+            <div class="eyebrow">STATISTICS</div>
+            <h2>TOP GOALSCORERS</h2>
+        </div>
+        <a href="{% url 'stats_page' %}" class="view-all">STATS HUB →</a>
+    </div>
+    <div class="dashboard-panel">
+        {% for player in top_scorers %}
+            <div class="table-row">
+                <strong>{{ player|card_name }}</strong>
+                <span class="mgl-info-club">{% if player.mgl_team %}{% team_logo player.mgl_team "xs" %} {{ player.mgl_team.short_name }}{% else %}<span class="mgl-status-badge mgl-status-badge--{{ player|market_status_slug }}">{{ player|market_status_label }}</span>{% endif %}</span>
+                <b>{{ player.goals }} GLS</b>
+            </div>
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with title="NO STATISTICS AVAILABLE YET." body="Goalscorers will appear here after official results are approved." %}
+        {% endfor %}
+    </div>
+</section>
+
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
             <div class="eyebrow">THE GRID</div>
             <h2>MGL CLUBS</h2>
         </div>
-        <a href="{% url 'job_centre' %}" class="view-all">JOB CENTRE →</a>
+        <a href="{% url 'job_centre' %}" class="view-all">JOBS →</a>
     </div>
     <div class="mgl-club-grid">
         {% for team in showcase_clubs %}
@@ -226,27 +325,6 @@
             {% include "mgl/includes/empty_state.html" with title="NO APPROVED RESULTS YET" body="Official results will appear here after admins approve submitted matches." %}
             {% endfor %}
         </div>
-    </div>
-</section>
-
-<section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">FEED</div>
-            <h2>LATEST FROM MGL</h2>
-        </div>
-    </div>
-    <div class="mgl-activity-list">
-        {% for item in activity %}
-        <article class="mgl-activity-card">
-            <span>{{ item.kind }}</span>
-            <strong>{{ item.title }}</strong>
-            <p>{{ item.detail }}</p>
-            {% if item.when %}<small>{{ item.when|date:"d M Y" }}</small>{% endif %}
-        </article>
-        {% empty %}
-        {% include "mgl/includes/empty_state.html" with title="NO PUBLISHED NEWS YET" body="No published news yet. Transfers, auctions and results will be posted here as the season develops." %}
-        {% endfor %}
     </div>
 </section>
 
