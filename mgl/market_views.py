@@ -35,17 +35,19 @@ from managers.services import STARTING_TOKENS, approve_manager_application, reje
 from .permissions import approved_manager, owner_admin_required
 from .services import manager_for_user
 from .standings import build_league_table
+from .player_state import club_players, free_agents as free_agent_qs, market_counts, unassigned_players
 from .tenure import open_club_spell
 
-# Admin-only selection filter over the existing Free Agent pool.
+# Admin-only selection filter over the unassigned FC26 pool.
 # Does not create a second pool, change ratings, or toggle is_free_agent.
-FREE_AGENT_OVR_FILTERS = (
+UNASSIGNED_OVR_FILTERS = (
     ("all", "All"),
     ("62-70", "62–70 OVR"),
     ("71-plus", "71+ OVR"),
     ("under-62", "Under 62 OVR"),
 )
-FREE_AGENT_OVR_FILTER_KEYS = {key for key, _label in FREE_AGENT_OVR_FILTERS}
+FREE_AGENT_OVR_FILTERS = UNASSIGNED_OVR_FILTERS
+FREE_AGENT_OVR_FILTER_KEYS = {key for key, _label in UNASSIGNED_OVR_FILTERS}
 DEFAULT_FREE_AGENT_OVR_FILTER = "62-70"
 CONTROL_FREE_AGENT_LIMIT = 40
 
@@ -91,11 +93,8 @@ def transfer_market(request):
         .select_related("player", "player__mgl_team", "team", "seller")
         .order_by("-created_at")
     )
-    free_agent_count = Player.objects.filter(is_free_agent=True, mgl_team__isnull=True).count()
-    free_agents = (
-        Player.objects.filter(is_free_agent=True, mgl_team__isnull=True)
-        .order_by("-overall", "name")[:12]
-    )
+    counts = market_counts()
+    free_agents = free_agent_qs().order_by("-overall", "name")[:12]
     manager = manager_for_user(request.user)
     team = club_for_user(request.user)
     return render(
@@ -105,7 +104,9 @@ def transfer_market(request):
             "auctions": auctions,
             "listings": listings,
             "free_agents": free_agents,
-            "free_agent_count": free_agent_count,
+            "free_agent_count": counts["free_agents"],
+            "unassigned_count": counts["unassigned"],
+            "club_player_count": counts["club_players"],
             "manager": manager,
             "team": team,
             "token_balance": token_balance_for_user(request.user),
@@ -225,7 +226,8 @@ def stats_page(request):
             "top_managers": top_managers,
             "club_count": Team.objects.count(),
             "player_count": Player.objects.count(),
-            "free_agent_count": Player.objects.filter(is_free_agent=True, mgl_team__isnull=True).count(),
+            "unassigned_count": unassigned_players().count(),
+            "free_agent_count": free_agent_qs().count(),
         },
     )
 
@@ -326,10 +328,11 @@ def control_centre(request):
         "player", "seller", "buyer"
     ).order_by("-created_at")[:20]
     ovr_filter = parse_free_agent_ovr_filter(request.GET.get("ovr"))
-    free_agent_pool = Player.objects.filter(is_free_agent=True, mgl_team__isnull=True)
-    filtered_free_agents = apply_free_agent_ovr_filter(free_agent_pool, ovr_filter)
-    free_agent_match_count = filtered_free_agents.count()
-    free_agents = filtered_free_agents.order_by("-overall", "name")[:CONTROL_FREE_AGENT_LIMIT]
+    unassigned_pool = unassigned_players()
+    filtered_unassigned = apply_free_agent_ovr_filter(unassigned_pool, ovr_filter)
+    free_agent_match_count = filtered_unassigned.count()
+    free_agents = filtered_unassigned.order_by("-overall", "name")[:CONTROL_FREE_AGENT_LIMIT]
+    counts = market_counts()
     return render(
         request,
         "mgl/control_centre.html",
@@ -347,7 +350,8 @@ def control_centre(request):
             "free_agent_ovr_filter": ovr_filter,
             "free_agent_ovr_filters": FREE_AGENT_OVR_FILTERS,
             "free_agent_match_count": free_agent_match_count,
-            "free_agent_total_count": free_agent_pool.count(),
+            "free_agent_total_count": unassigned_pool.count(),
+            "market_counts": counts,
             "control_next": f"{reverse('control_centre')}?ovr={ovr_filter}",
             "auction_durations": AUCTION_DURATION_CHOICES,
         },

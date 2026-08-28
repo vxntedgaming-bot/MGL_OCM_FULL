@@ -167,6 +167,13 @@ def player_tier(player):
 
 
 @register.filter
+def market_status_label(player):
+    from mgl.player_state import market_status_label as label
+
+    return label(player)
+
+
+@register.filter
 def card_name(player):
     """Uppercase the stored FC26 recognised name. Do not take only the last token."""
     name = getattr(player, "name", "") or str(player)

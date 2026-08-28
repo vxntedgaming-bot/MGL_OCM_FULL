@@ -71,7 +71,7 @@
                     <form method="post" action="{% url 'control_close_auction' auction.id %}">{% csrf_token %}<button class="header-button" type="submit">CLOSE</button></form>
                 </div>
             {% empty %}
-                {% include "mgl/includes/empty_state.html" with title="NO LIVE AUCTIONS" body="Release a free agent to auction from this page or from Free Agents. Closing an auction settles the winner on the server." %}
+                {% include "mgl/includes/empty_state.html" with title="NO LIVE AUCTIONS" body="Release an unassigned player to auction from this page. Closing an auction settles the winner on the server. No bids makes the player a Free Agent." %}
             {% endfor %}
         </div>
     </div>
@@ -81,8 +81,8 @@
     <div class="section-heading">
         <div>
             <div class="eyebrow">AUCTIONS</div>
-            <h2>RELEASE A FREE AGENT</h2>
-            <p>Choose an unassigned player from the existing Free Agent pool and a server-side timer. Maximum length is 12 hours. Starting bid 0–10 TKN.</p>
+            <h2>RELEASE AN UNASSIGNED PLAYER</h2>
+            <p>Choose any unassigned FC26 player and a server-side timer. Maximum length is 12 hours. Starting bid 0–10 TKN. The initial starting pool is 64–70 OVR; after that any unassigned overall can be released. Managers cannot use this control.</p>
         </div>
     </div>
     <form method="get" class="mgl-filter-bar mgl-filter-bar--auction-ovr" role="search">
@@ -95,9 +95,9 @@
         <button type="submit" class="header-button">FILTER</button>
     </form>
     <p class="mgl-filter-meta">
-        Showing {{ free_agents|length }} of {{ free_agent_match_count }} matching free agents
+        Showing {{ free_agents|length }} of {{ free_agent_match_count }} matching unassigned players
         ({{ free_agent_total_count }} unassigned in the pool).
-        Selection only — ratings and Free Agent status are unchanged.
+        Selection only — ratings are unchanged. These are not Free Agents.
     </p>
     <div class="dashboard-panel">
         {% for player in free_agents %}
@@ -118,7 +118,7 @@
                 </form>
             </div>
         {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO FREE AGENTS IN THIS RANGE" body="No unassigned players match that OVR filter. Choose All to browse the existing Free Agent pool. Ratings are not changed." %}
+            {% include "mgl/includes/empty_state.html" with title="NO UNASSIGNED PLAYERS IN THIS RANGE" body="No unassigned players match that OVR filter. Choose All to browse the unused FC26 pool. Ratings are not changed." %}
         {% endfor %}
     </div>
 </section>

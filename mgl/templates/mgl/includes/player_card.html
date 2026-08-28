@@ -45,7 +45,7 @@
                 {% if player.mgl_team %}
                     {{ player.mgl_team.short_name }}
                 {% else %}
-                    FREE AGENT
+                    {{ player|market_status_label }}
                 {% endif %}
             </div>
         </div>

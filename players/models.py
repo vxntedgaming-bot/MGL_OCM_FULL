@@ -136,7 +136,13 @@ class Player(models.Model):
         related_name="players",
     )
 
-    is_free_agent = models.BooleanField(default=True)
+    is_free_agent = models.BooleanField(
+        default=False,
+        help_text=(
+            "True only for Free Agents (no-bid auction or club release). "
+            "Unused FC26 pool players are unassigned, not free agents."
+        ),
+    )
 
     # MGL statistics
     appearances = models.PositiveIntegerField(default=0)

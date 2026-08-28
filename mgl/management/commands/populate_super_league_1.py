@@ -20,8 +20,8 @@ CSV_NAME = "fc26_players_mgl.csv"
 class Command(BaseCommand):
     help = (
         "Idempotently create the 14 official Premier League clubs and import "
-        "the FC26 player pool as unassigned free agents. Does not assign "
-        "players to MGL clubs unless --fill-squads is passed."
+        "the FC26 player pool as unassigned players. Does not assign "
+        "players to MGL clubs. Starting squads are a dry-run auction pool."
     )
 
     def add_arguments(self, parser):
@@ -66,21 +66,18 @@ class Command(BaseCommand):
                     f"Player pool already has {existing} FC26 ids; skipping import."
                 )
             else:
-                self.stdout.write(f"Importing {csv_path.name} as unassigned free agents...")
+                self.stdout.write(f"Importing {csv_path.name} as unassigned players...")
                 call_command("import_fc27", str(csv_path))
 
         fill_squads = options["fill_squads"] and not options["skip_squads"]
         if fill_squads:
-            try:
-                call_command("generate_balanced_squads", official_sl1=True)
-            except CommandError as exc:
-                message = str(exc)
-                if "already has a squad" not in message:
-                    raise
-                self.stdout.write(message)
+            raise CommandError(
+                "Squad auto-fill is disabled. Use propose_starting_auction_pool "
+                "for a dry-run starting auction pool. Do not auto-assign players."
+            )
         else:
             self.stdout.write(
-                "Skipping squad fill. All imported players remain free agents."
+                "Skipping squad fill. Imported players remain UNASSIGNED, not Free Agents."
             )
 
         self._report(league)
@@ -93,10 +90,10 @@ class Command(BaseCommand):
             return sum(1 for row in csv.DictReader(handle) if (row.get("fc27_id") or "").strip())
 
     def _report(self, league):
+        from mgl.player_state import market_counts
+
         official = Team.objects.filter(short_name__in=OFFICIAL_SL1_SHORT_NAMES).order_by("name")
-        player_count = Player.objects.count()
-        assigned = Player.objects.filter(mgl_team__isnull=False).count()
-        free_agents = Player.objects.filter(is_free_agent=True, mgl_team__isnull=True).count()
+        counts = market_counts()
         sl2 = League.objects.filter(short_name__iexact="SL2").count()
         fixtures = Fixture.objects.count()
         history = MarketTransaction.objects.count()
@@ -110,9 +107,11 @@ class Command(BaseCommand):
                 f"{team.players.count()} players, {team.tokens} TKN, "
                 f"manager={'none' if team.manager_id is None else team.manager.username}"
             )
-        self.stdout.write(f"Players: {player_count}")
-        self.stdout.write(f"Assigned to clubs: {assigned}")
-        self.stdout.write(f"Free agents: {free_agents}")
+        self.stdout.write(f"Players: {counts['players']}")
+        self.stdout.write(f"Unassigned: {counts['unassigned']}")
+        self.stdout.write(f"Free agents: {counts['free_agents']}")
+        self.stdout.write(f"Live auctions: {counts['auctions']}")
+        self.stdout.write(f"Club players: {counts['club_players']}")
         self.stdout.write(f"Super League 2 rows: {sl2}")
         self.stdout.write(f"Fixtures: {fixtures}")
         self.stdout.write(f"Market transactions: {history}")

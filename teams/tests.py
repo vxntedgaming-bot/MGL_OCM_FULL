@@ -2,6 +2,7 @@ from decimal import Decimal
 from io import StringIO
 
 from django.core.management import call_command
+from django.core.management.base import CommandError
 from django.test import TestCase
 
 from leagues.models import League
@@ -124,10 +125,10 @@ class OfficialSuperLeagueOneClubTests(TestCase):
                 is_free_agent=True,
             )
 
-        call_command("generate_balanced_squads", official_sl1=True, stdout=StringIO())
+        with self.assertRaises(CommandError):
+            call_command("generate_balanced_squads", official_sl1=True, stdout=StringIO())
 
-        self.assertEqual(arsenal.players.count(), 26)
-        self.assertTrue(all(64 <= player.overall <= 73 for player in arsenal.players.all()))
+        self.assertEqual(arsenal.players.count(), 0)
         self.assertEqual(outsider.players.count(), 0)
         self.assertEqual(
             Player.objects.filter(mgl_team=arsenal).count()

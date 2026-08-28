@@ -8,7 +8,7 @@ from players.models import Player
 class Command(BaseCommand):
     help = (
         "Import or update FC26/FC27 players from a CSV file. "
-        "Never assigns an MGL club. New rows are unassigned free agents. "
+        "Never assigns an MGL club. New rows are unassigned (not free agents). "
         "fc27_club is stored as FC26 reference data only."
     )
 
@@ -103,9 +103,9 @@ class Command(BaseCommand):
                     fc27_id=fc27_id,
                     defaults=defaults,
                 )
-                if was_created and (player.mgl_team_id or not player.is_free_agent):
+                if was_created and (player.mgl_team_id or player.is_free_agent):
                     player.mgl_team = None
-                    player.is_free_agent = True
+                    player.is_free_agent = False
                     player.save(update_fields=["mgl_team", "is_free_agent"])
 
                 if was_created:

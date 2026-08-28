@@ -26,12 +26,12 @@
                     {% elif auction.player.mgl_team %}
                         {{ auction.player.mgl_team.name }}
                     {% elif auction.listing_kind == "FREE_AGENT" %}
-                        FREE AGENT
+                        UNASSIGNED
                     {% else %}
                         IN AUCTION
                     {% endif %}
                 </p>
-                <p>Seller: {% if auction.listed_by_manager %}{{ auction.listed_by_manager.display_name }}{% elif auction.listing_kind == "FREE_AGENT" %}Free Agents{% else %}League office{% endif %}</p>
+                <p>Seller: {% if auction.listed_by_manager %}{{ auction.listed_by_manager.display_name }}{% elif auction.listing_kind == "FREE_AGENT" %}League office{% else %}League office{% endif %}</p>
                 <div class="mgl-market-price">{{ auction.winning_bid|default:auction.starting_bid }} TKN</div>
                 <p>Starting bid: {{ auction.starting_bid }} TKN · Current bid: {% if auction.winning_bid %}{{ auction.winning_bid }} TKN{% else %}No bids yet{% endif %}</p>
                 <p>Highest bidder: {% if auction.winning_manager %}{{ auction.winning_manager.display_name }}{% else %}No bids yet{% endif %}</p>
@@ -49,7 +49,7 @@
             </div>
         </article>
     {% empty %}
-        {% include "mgl/includes/empty_state.html" with kicker="AUCTIONS" title="NO LIVE AUCTIONS" body="Admins can release free agents into auction from Free Agents. Managers can list their own players from Team Management." %}
+        {% include "mgl/includes/empty_state.html" with kicker="AUCTIONS" title="NO LIVE AUCTIONS" body="Admins can release unassigned players into auction from Control Centre. Managers can list their own club players from Team Management." %}
     {% endfor %}
 </section>
 {% endblock %}

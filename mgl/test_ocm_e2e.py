@@ -2,6 +2,7 @@ from datetime import timedelta
 from decimal import Decimal
 
 from django.core.management import call_command
+from django.core.management.base import CommandError
 from django.test import Client, TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -358,19 +359,16 @@ class OcmEndToEndTests(TestCase):
                 overall=64 + (index % 10),
                 is_free_agent=True,
             )
-        call_command("generate_balanced_squads")
+        with self.assertRaises(CommandError):
+            call_command("generate_balanced_squads")
         club.refresh_from_db()
         filled.refresh_from_db()
         existing.refresh_from_db()
-        self.assertEqual(club.players.count(), 26)
-        self.assertTrue(all(64 <= player.overall <= 73 for player in club.players.all()))
+        self.assertEqual(club.players.count(), 0)
         self.assertEqual(filled.players.count(), 1)
         self.assertEqual(existing.mgl_team_id, filled.id)
-        assigned_ids = list(club.players.values_list("id", flat=True))
-        self.assertEqual(len(assigned_ids), len(set(assigned_ids)))
-        self.assertNotIn(existing.id, assigned_ids)
         leftovers = Player.objects.filter(is_free_agent=True, mgl_team__isnull=True)
-        self.assertGreaterEqual(leftovers.count(), 0)
+        self.assertEqual(leftovers.count(), 26)
         self.assertEqual(
             Player.objects.filter(mgl_team=club).count()
             + Player.objects.filter(mgl_team=filled).count()

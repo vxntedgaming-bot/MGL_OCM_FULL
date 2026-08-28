@@ -13,7 +13,7 @@ def release_players_to_auction(modeladmin, request, queryset):
 
     for player in queryset:
 
-        if not player.is_free_agent:
+        if player.is_free_agent or player.mgl_team_id:
             skipped += 1
             continue
 
@@ -51,8 +51,8 @@ def release_players_to_auction(modeladmin, request, queryset):
     if skipped:
         messages.warning(
             request,
-            f"{skipped} player(s) skipped because they are already "
-            f"owned or already have an active auction."
+            f"{skipped} player(s) skipped because they are a Free Agent, "
+            f"already owned, or already have an active auction."
         )
 
 

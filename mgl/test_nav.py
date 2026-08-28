@@ -75,6 +75,8 @@ class NavigationDropdownTests(TestCase):
         self.assertContains(response, "Championship")
         self.assertContains(response, "League One")
         self.assertNotContains(response, reverse("competition_page", kwargs={"slug": "mls"}))
+        self.assertNotContains(response, reverse("unassigned_players"))
+        self.assertNotContains(response, "UNASSIGNED PLAYERS")
         self.assertContains(response, "CUPS")
         self.assertContains(response, "WAITING ROOM LEAGUE")
         self.assertContains(response, reverse("leagues_page"))
@@ -151,6 +153,23 @@ class NavigationDropdownTests(TestCase):
         ]
         self.assertEqual(current_labels, ["FREE AGENTS"])
         self.assertFalse(menus["my-team"]["is_current"])
+
+    def test_unassigned_players_nav_is_admin_only(self):
+        anonymous = self.client.get("/")
+        self.assertNotContains(anonymous, reverse("unassigned_players"))
+        self.client.login(username="navuser", password="test-pass-123")
+        manager = self.client.get("/")
+        self.assertNotContains(manager, reverse("unassigned_players"))
+        self.assertNotContains(manager, "UNASSIGNED PLAYERS")
+        User.objects.create_user(
+            username="navowner",
+            password="test-pass-123",
+            role=User.OWNER,
+        )
+        self.client.login(username="navowner", password="test-pass-123")
+        owner = self.client.get("/")
+        self.assertContains(owner, reverse("unassigned_players"))
+        self.assertContains(owner, "UNASSIGNED PLAYERS")
 
 
 class PlayerSearchAndCardNameTests(TestCase):
