@@ -78,7 +78,7 @@ class OcmEndToEndTests(TestCase):
 
         register = self._register("alice", "Alice", "AlicePSN")
         self.assertEqual(register.status_code, 200)
-        self.assertContains(register, "50 tokens")
+        self.assertContains(register, "20 tokens")
 
         user_a = User.objects.get(username="alice")
         self.assertFalse(user_a.is_active)
@@ -107,7 +107,7 @@ class OcmEndToEndTests(TestCase):
         user_a.refresh_from_db()
         self.assertEqual(application_a.status, ManagerApplication.APPROVED)
         self.assertTrue(user_a.is_active)
-        self.assertEqual(application_a.tokens, Decimal("50.00"))
+        self.assertEqual(application_a.tokens, Decimal("20.00"))
         self.client.logout()
 
         self.assertTrue(self.client.login(username="alice", password="Ocm-pass-12345"))
@@ -129,10 +129,9 @@ class OcmEndToEndTests(TestCase):
         self.assertTrue(self.client.login(username="alice", password="Ocm-pass-12345"))
         hub = self.client.get(reverse("manager_hub"))
         self.assertContains(hub, "AFC")
-        self.assertContains(hub, "50")
         squad = self.client.get(reverse("team_management"))
         self.assertContains(squad, "Player X")
-        self.assertContains(squad, "50")
+        self.assertContains(squad, "20")
         self.assertNotContains(squad, "250")
 
         forbidden = self.client.post(reverse("control_approve_listing", args=[9999]))
@@ -197,16 +196,16 @@ class OcmEndToEndTests(TestCase):
         self.client.post(reverse("buy_player", args=[listing.id]), {"asking_price": "12"})
         self.client.post(reverse("buy_player", args=[listing.id]))
         self.player.refresh_from_db()
+        application_a.refresh_from_db()
+        application_b.refresh_from_db()
         self.club_a.refresh_from_db()
         self.club_b.refresh_from_db()
         self.assertEqual(self.player.mgl_team_id, self.club_b.id)
         self.assertFalse(self.player.is_free_agent)
-        self.assertEqual(self.club_a.tokens, Decimal("62.00"))
-        self.assertEqual(self.club_b.tokens, Decimal("38.00"))
-        self.assertEqual(
-            self.club_a.tokens + self.club_b.tokens,
-            Decimal("100.00"),
-        )
+        self.assertEqual(application_a.tokens, Decimal("32.00"))
+        self.assertEqual(application_b.tokens, Decimal("8.00"))
+        self.assertEqual(self.club_a.tokens, Decimal("50.00"))
+        self.assertEqual(self.club_b.tokens, Decimal("50.00"))
         tx = MarketTransaction.objects.get(
             player=self.player,
             transaction_type=MarketTransaction.SALE,
@@ -227,12 +226,13 @@ class OcmEndToEndTests(TestCase):
         self.client.login(username="owner", password="test-pass-123")
         global_ledger = self.client.get(reverse("control_centre"))
         self.assertContains(global_ledger, "Player X")
-        self.assertContains(global_ledger, "62.00")
-        self.assertContains(global_ledger, "38.00")
+        self.assertContains(global_ledger, "12")
         self.client.post(reverse("remove_club_manager", args=[self.club_a.id]))
         self.club_a.refresh_from_db()
+        application_a.refresh_from_db()
         self.assertIsNone(self.club_a.manager_id)
-        self.assertEqual(self.club_a.tokens, Decimal("62.00"))
+        self.assertEqual(self.club_a.tokens, Decimal("50.00"))
+        self.assertEqual(application_a.tokens, Decimal("32.00"))
         self.assertEqual(self.club_a.players.count(), 1)
         self.assertEqual(self.club_a.players.get().name, "Kept Player")
         self.client.logout()
@@ -255,12 +255,14 @@ class OcmEndToEndTests(TestCase):
         )
         self.club_a.refresh_from_db()
         self.assertEqual(self.club_a.manager_id, user_a.id)
-        self.assertEqual(self.club_a.tokens, Decimal("62.00"))
+        self.assertEqual(self.club_a.tokens, Decimal("50.00"))
+        application_a.refresh_from_db()
+        self.assertEqual(application_a.tokens, Decimal("32.00"))
         self.client.logout()
 
         self.client.login(username="alice", password="Ocm-pass-12345")
         hub = self.client.get(reverse("manager_hub"))
-        self.assertContains(hub, "62")
+        self.assertContains(hub, "AFC")
         self.client.logout()
 
     def test_zero_and_invalid_bids_are_rejected(self):
@@ -378,7 +380,7 @@ class OcmEndToEndTests(TestCase):
 
     def test_auction_http_bid_close_moves_player(self):
         user = User.objects.create_user(username="mgr", password="test-pass-123")
-        ManagerApplication.objects.create(
+        manager = ManagerApplication.objects.create(
             user=user,
             display_name="Mgr",
             gamertag="M1",
@@ -396,18 +398,22 @@ class OcmEndToEndTests(TestCase):
         )
         self.client.login(username="mgr", password="test-pass-123")
         self.client.post(reverse("place_bid", args=[auction.id]), {"amount": "8", "next": "/market/"})
+        manager.refresh_from_db()
         self.club_a.refresh_from_db()
-        self.assertEqual(self.club_a.tokens, Decimal("42.00"))
+        self.assertEqual(manager.tokens, Decimal("12.00"))
+        self.assertEqual(self.club_a.tokens, Decimal("50.00"))
         self.client.logout()
         self.client.login(username="owner", password="test-pass-123")
         self.client.post(reverse("control_close_auction", args=[auction.id]))
         self.fa.refresh_from_db()
         auction.refresh_from_db()
+        manager.refresh_from_db()
         self.club_a.refresh_from_db()
         self.assertEqual(self.fa.mgl_team_id, self.club_a.id)
         self.assertFalse(self.fa.is_free_agent)
         self.assertEqual(auction.status, PlayerAuction.ENDED)
-        self.assertEqual(self.club_a.tokens, Decimal("42.00"))
+        self.assertEqual(manager.tokens, Decimal("12.00"))
+        self.assertEqual(self.club_a.tokens, Decimal("50.00"))
         self.assertTrue(
             MarketTransaction.objects.filter(
                 player=self.fa,

@@ -1,59 +1,46 @@
 {% extends "core/base.html" %}
 {% load static mgl_ui %}
 
-{% block title %}Super League 1 — MGL{% endblock %}
+{% block title %}Leagues — MGL{% endblock %}
 
 {% block content %}
 <section class="mgl-section">
     <div class="section-heading">
         <div>
             <div class="eyebrow">COMPETITION</div>
-            <h2>{% if active_league %}{{ active_league.name|upper }}{% else %}MGL LEAGUES{% endif %}</h2>
-            <p>MGL currently runs one active competition. All current clubs compete here.</p>
+            <h2>MGL LEAGUES</h2>
+            <p>Premier League is the live top division. Championship and League One are open for later clubs.</p>
         </div>
         <span class="section-line"></span>
     </div>
 </section>
 
+{% for block in tables %}
 <section class="mgl-section">
     <div class="mgl-league-banner">
         <img src="{% static 'core/img/mgl-logo.png' %}" alt="" class="mgl-logo-img">
         <div>
-            <div class="eyebrow">SEASON {{ active_league.season|default:"1" }}</div>
-            <h3>SUPER LEAGUE 1</h3>
-            <p>The only live MGL competition. All current clubs compete here.</p>
+            <div class="eyebrow">SEASON {{ block.league.season|default:"1" }}</div>
+            <h3>{{ block.league.name|upper }}</h3>
+            <p>{% if block.league.short_name == "PL" %}The top active MGL competition.{% elif block.table %}Active division.{% else %}No clubs assigned yet.{% endif %}</p>
         </div>
     </div>
-</section>
-
-<section class="mgl-section">
-    <div class="dashboard-panel">
-        {% include "mgl/includes/league_table.html" %}
+    <div class="dashboard-panel" style="margin-top:24px">
+        {% include "mgl/includes/league_table.html" with table=block.table league=block.league %}
+    </div>
+    <div class="mgl-club-grid" style="margin-top:24px">
+        {% for team in block.league.teams.all %}
+            <article class="mgl-club-card">
+                {% team_logo team "lg" %}
+                <strong>{{ team.name }}</strong>
+                <span>{% if team.manager %}{{ team.manager.username }}{% else %}VACANT{% endif %}</span>
+            </article>
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with title="NO CLUBS YET" body="This division is available. Clubs will appear here when they are assigned." %}
+        {% endfor %}
     </div>
 </section>
-
-<section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">CLUBS</div>
-            <h2>SUPER LEAGUE 1</h2>
-        </div>
-    </div>
-    {% for league in leagues %}
-        <div class="mgl-club-grid">
-            {% for team in league.teams.all %}
-                <article class="mgl-club-card">
-                    {% team_logo team "lg" %}
-                    <strong>{{ team.name }}</strong>
-                    <span>{% if team.manager %}{{ team.manager.username }}{% else %}VACANT{% endif %}</span>
-                    <b>{{ team.tokens }} TKN</b>
-                </article>
-            {% empty %}
-                {% include "mgl/includes/empty_state.html" with title="NO CLUBS IN SUPER LEAGUE 1 YET" body="Existing MGL clubs will appear here. They stay in Super League 1 even if a manager leaves." %}
-            {% endfor %}
-        </div>
-    {% empty %}
-        {% include "mgl/includes/empty_state.html" with kicker="LEAGUES" title="NO LEAGUES PUBLISHED YET" body="Super League 1 will appear here once the league office is set up." %}
-    {% endfor %}
-</section>
+{% empty %}
+    {% include "mgl/includes/empty_state.html" with kicker="LEAGUES" title="NO LEAGUES PUBLISHED YET" body="Premier League will appear here once the league office is set up." %}
+{% endfor %}
 {% endblock %}

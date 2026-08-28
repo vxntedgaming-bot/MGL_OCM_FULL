@@ -33,7 +33,7 @@ Optional player import and squad fill (FC26 CSV is already in the repo). Prefer 
 python manage.py populate_super_league_1
 ```
 
-That command creates the 14 official Super League 1 clubs if missing, imports `fc26_players_mgl.csv` without assigning MGL clubs, then runs `generate_balanced_squads --official-sl1` for empty official clubs only. It does not reset tokens, managers, fixtures, or history.
+That command creates the 14 official Premier League clubs if missing, imports `fc26_players_mgl.csv` without assigning MGL clubs, then runs `generate_balanced_squads --official-sl1` for empty official clubs only. It does not reset tokens, managers, fixtures, or history.
 
 The same steps can still be run separately. `generate_balanced_squads` only fills clubs that currently have **no players**. It assigns 26 random FC26 players rated 64–73 and leaves the rest as free agents. It does not reset the player database.
 
@@ -62,12 +62,12 @@ python manage.py close_expired_auctions
 
 ## Core OCM
 
-- MGL currently has one active competition: **Super League 1**. A safe data migration associates existing clubs and fixtures with that league and marks any other league rows inactive. Do not invent Super League 2 until there are enough managers.
-- Official Super League 1 clubs (created idempotently, 50 tokens, no manager): Real Madrid, Barcelona, Atletico Madrid, Manchester United, Chelsea, Manchester City, Arsenal, Liverpool, Tottenham, Paris Saint-Germain, Lyon, Marseille, Bayer Leverkusen, Bayern Munich.
-- Transfer currency is **tokens**. New clubs start with **50 tokens**. Approved managers also start with 50 personal tokens.
-- Club treasuries, squads and history stay with the club if a manager leaves.
+- MGL currently has three active divisions: **Premier League**, **Championship** and **League One**. Super League 1 was renamed in place to Premier League so existing club IDs, squads and fixtures stay attached. MLS is not an active competition.
+- Official Premier League clubs (created idempotently): Real Madrid, Barcelona, Atletico Madrid, Manchester United, Chelsea, Manchester City, Arsenal, Liverpool, Tottenham, Paris Saint-Germain, Lyon, Marseille, Bayer Leverkusen, Bayern Munich. Club treasury rows still start at 50 tokens; that figure is not the manager's personal balance.
+- Transfer currency is **tokens**. New manager sign-ups receive **20 personal tokens**. That balance belongs to the manager account and is not reset when they leave, join, or apply for a club.
+- Squads stay with the club if a manager leaves. Token balances stay with the manager.
 - Manager sales need owner/admin approval before they go live on `/market/`.
-- Auction bids reserve club tokens. Being outbid refunds the previous club automatically.
+- Auction bids reserve the manager's personal tokens. Being outbid refunds the previous manager automatically.
 
 Local defaults:
 

@@ -1,0 +1,131 @@
+{% extends "core/base.html" %}
+{% load mgl_ui %}
+
+{% block title %}Scouting — MGL{% endblock %}
+
+{% block content %}
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">MARKET</div>
+            <h1>SCOUT HEADQUARTERS</h1>
+            <p>You keep your scout level even if you leave a club. Scouts pick real FC26 players. Reports are private to this manager.</p>
+        </div>
+        <span class="section-line"></span>
+    </div>
+
+    <div class="mgl-scout-hq">
+        <div class="mgl-scout-hq-copy">
+            <div class="eyebrow">YOUR TOKENS</div>
+            <h2>{{ token_balance }} TKN</h2>
+            <p>Personal balance. Upgrades are sequential: Level 1 then 2 then 3.</p>
+        </div>
+    </div>
+</section>
+
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">DISPATCH</div>
+            <h2>SEND YOUR SCOUT</h2>
+        </div>
+    </div>
+    <div class="mgl-scout-grid">
+        {% for panel in panels %}
+            <article class="mgl-scout-card mgl-scout-card--{{ panel.tier|lower }}">
+                <span class="mgl-scout-badge">{{ panel.label|upper }}</span>
+                <h3>SEASON {{ panel.label|upper }} SCOUT</h3>
+                <p class="mgl-scout-meta">
+                    <span>{{ panel.range.0 }}–{{ panel.range.1 }} OVR</span>
+                    <span>{{ panel.cooldown_hours }}h wait</span>
+                </p>
+                <div class="mgl-scout-level">
+                    <span>LEVEL {{ panel.level }} / 3</span>
+                    <div class="mgl-scout-pips" aria-hidden="true">
+                        <i class="{% if panel.level >= 1 %}is-on{% endif %}"></i>
+                        <i class="{% if panel.level >= 2 %}is-on{% endif %}"></i>
+                        <i class="{% if panel.level >= 3 %}is-on{% endif %}"></i>
+                    </div>
+                    {% if panel.current %}
+                        <small>ON ASSIGNMENT · {{ panel.remaining|wait_left }}</small>
+                    {% else %}
+                        <small>AVAILABLE</small>
+                    {% endif %}
+                </div>
+                <form method="post" class="mgl-scout-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="dispatch">
+                    <input type="hidden" name="tier" value="{{ panel.tier }}">
+                    <label>
+                        REGION
+                        <select name="region">
+                            <option value="">Anywhere</option>
+                            {% for nation in nationalities %}
+                                <option value="{{ nation }}">{{ nation }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        POSITION
+                        <select name="position">
+                            <option value="">Any Position</option>
+                            {% for pos in positions %}
+                                <option value="{{ pos }}">{{ pos }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <button type="submit" class="primary-button" {% if not panel.available %}disabled{% endif %}>DISPATCH SCOUT</button>
+                </form>
+                {% if panel.next_cost %}
+                    <form method="post" class="mgl-scout-upgrade">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="upgrade">
+                        <input type="hidden" name="tier" value="{{ panel.tier }}">
+                        <button type="submit" class="secondary-button">UPGRADE TO LEVEL {{ panel.level|add:1 }} ({{ panel.next_cost }} TOKENS)</button>
+                    </form>
+                {% else %}
+                    <p class="mgl-help">Maximum level reached.</p>
+                {% endif %}
+            </article>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">REPORTS</div>
+            <h2>RECENT SCOUT REPORTS</h2>
+            <p>Only reports from this manager. Scouted players are existing FC26 records.</p>
+        </div>
+    </div>
+    <div class="mgl-report-list">
+        {% for report in reports %}
+            <article class="mgl-report-row">
+                {% player_card report.player "small" %}
+                <div class="mgl-report-meta">
+                    <h3>{{ report.player.name }}</h3>
+                    <p>{{ report.player.overall }} OVR · {{ report.player.position }} · {{ report.player.nationality|default:"Unknown nation" }}</p>
+                    <p>
+                        {{ report.tier }} · Level {{ report.level }}
+                        {% if report.region %} · {{ report.region }}{% endif %}
+                        {% if report.position %} · {{ report.position }}{% endif %}
+                    </p>
+                    <p>{{ report.discovered_at|date:"d M Y H:i" }}</p>
+                    <p>
+                        {% if report.player.mgl_team %}
+                            {{ report.player.mgl_team.name }}
+                        {% elif report.player.is_free_agent %}
+                            FREE AGENT
+                        {% else %}
+                            UNAVAILABLE
+                        {% endif %}
+                    </p>
+                </div>
+            </article>
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with title="NO REPORTS YET" body="Dispatch a bronze, silver or gold scout to generate a private report from the FC26 player pool." %}
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

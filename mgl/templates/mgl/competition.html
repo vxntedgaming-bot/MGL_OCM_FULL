@@ -1,5 +1,5 @@
 {% extends "core/base.html" %}
-{% load static %}
+{% load static mgl_ui %}
 
 {% block title %}{{ competition_name }} — MGL{% endblock %}
 
@@ -9,10 +9,33 @@
         <div>
             <div class="eyebrow">COMPETITION</div>
             <h1>{{ competition_name|upper }}</h1>
-            <p>This competition is not live in MGL. Super League 1 is the only active league.</p>
+            {% if is_live %}
+                <p>{{ competition_name }} is an active MGL division.</p>
+            {% else %}
+                <p>This competition is not currently live. Premier League, Championship and League One are the active divisions.</p>
+            {% endif %}
         </div>
         <a href="{% url 'leagues_page' %}" class="view-all">ALL LEAGUES →</a>
     </div>
-    {% include "mgl/includes/empty_state.html" with kicker="NOT LIVE" title=competition_name|upper body="No table, clubs or fixtures are generated for this competition. Current clubs compete in Super League 1." %}
+    {% if is_live %}
+        <div class="dashboard-panel">
+            {% include "mgl/includes/league_table.html" with table=table league=league %}
+        </div>
+        {% if league %}
+        <div class="mgl-club-grid" style="margin-top:24px">
+            {% for team in league.teams.all %}
+                <article class="mgl-club-card">
+                    {% team_logo team "lg" %}
+                    <strong>{{ team.name }}</strong>
+                    <span>{% if team.manager %}{{ team.manager.username }}{% else %}VACANT{% endif %}</span>
+                </article>
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with title="NO CLUBS YET" body="Clubs will appear here when they are assigned to this division." %}
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% else %}
+        {% include "mgl/includes/empty_state.html" with kicker="NOT LIVE" title=competition_name|upper body="No table, clubs or fixtures are generated for this competition." %}
+    {% endif %}
 </section>
 {% endblock %}

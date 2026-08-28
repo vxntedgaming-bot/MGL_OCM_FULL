@@ -34,6 +34,17 @@ urlpatterns = [
     ),
 
     path(
+        "team/auction/<int:player_id>/",
+        views.list_player_for_auction,
+        name="list_player_for_auction",
+    ),
+    path(
+        "free-agents/<int:player_id>/auction/",
+        views.auction_free_agent,
+        name="auction_free_agent",
+    ),
+
+    path(
         "players/",
         views.player_database,
         name="player_database",

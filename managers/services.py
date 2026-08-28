@@ -6,7 +6,7 @@ from django.utils import timezone
 from .models import ManagerApplication
 
 
-STARTING_TOKENS = Decimal("50.00")
+STARTING_TOKENS = Decimal("20.00")
 
 
 @transaction.atomic

@@ -15,11 +15,6 @@
 
     <div class="overview-grid">
         <div class="overview-stat">
-            <span>TOKEN BALANCE</span>
-            <strong>{{ token_balance }}</strong>
-            <small>{% if team %}{{ team.short_name }} CLUB TREASURY{% else %}PERSONAL TOKENS{% endif %}</small>
-        </div>
-        <div class="overview-stat">
             <span>MY CLUB</span>
             {% if team %}
                 <strong class="mgl-info-club">{% team_logo team "sm" %} {{ team.short_name }}</strong>
@@ -38,8 +33,8 @@
                 <strong>{{ active_league.short_name }}</strong>
                 <small>{{ active_league.name|upper }}</small>
             {% else %}
-                <strong>SL1</strong>
-                <small>SUPER LEAGUE 1</small>
+                <strong>PL</strong>
+                <small>PREMIER LEAGUE</small>
             {% endif %}
         </div>
         <div class="overview-stat">
@@ -112,7 +107,7 @@
             <div>
                 <small>JOB CENTRE</small>
                 <h3>APPLY FOR A CLUB</h3>
-                <p>Vacant MGL clubs keep their squad and token balance.</p>
+                <p>Vacant MGL clubs keep their squad. Your token balance stays with you.</p>
             </div>
             <span class="card-arrow">→</span>
         </a>

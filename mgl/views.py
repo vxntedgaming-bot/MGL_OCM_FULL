@@ -5,11 +5,12 @@ from django.db import transaction
 from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from accounts.models import User
 from leagues.models import League
-from leagues.services import active_league
+from leagues.services import active_league, ensure_premier_league
 from managers.models import ManagerApplication
 from mgl.standings import build_league_table
 from players.models import Player
@@ -32,11 +33,20 @@ from .models import (
     RewardTransaction,
     MarketTransaction,
     PlayerListing,
+    ScoutAssignment,
 )
-from .market import club_for_user, token_balance_for_user
-from .nav import COMPETITIONS
-from .permissions import owner_admin_required
+from .market import (
+    AUCTION_DURATION_CHOICES,
+    close_expired_auctions,
+    club_for_user,
+    create_free_agent_auction,
+    create_manager_auction,
+    token_balance_for_user,
+)
+from .nav import COMPETITIONS, LIVE_COMPETITION_SLUGS
+from .permissions import approved_manager, owner_admin_required
 from .services import manager_for_user
+from .tenure import close_club_spell_for_user, open_club_spell
 
 
 def _post_int(post, key, default=0):
@@ -600,6 +610,7 @@ def free_agents(request):
             "positions": [choice[0] for choice in Player.POSITION_CHOICES],
             "querystring": _querystring(request),
             "result_count": page.paginator.count,
+            "auction_durations": AUCTION_DURATION_CHOICES,
         },
     )
 
@@ -618,6 +629,31 @@ def manager_profile(request):
         .filter(manager=manager)
         .order_by("-created_at")[:20]
     )
+    team = club_for_user(request.user)
+    spells = manager.club_spells.select_related("team").order_by("-started_at")
+    applications = manager.club_applications.select_related("team").order_by("-created_at")[:12]
+    played = 0
+    win_rate = None
+    if career:
+        played = career.wins + career.draws + career.losses
+        if played:
+            win_rate = round(100 * career.wins / played, 1)
+    goals_for = 0
+    goals_against = 0
+    if team:
+        own_stats = TeamMatchStats.objects.filter(
+            team=team,
+            submission__status=ApprovalStatus.APPROVED,
+        )
+        for row in own_stats:
+            goals_for += row.goals
+        conceded = TeamMatchStats.objects.filter(
+            submission__status=ApprovalStatus.APPROVED,
+        ).filter(
+            Q(submission__fixture__home_team=team) | Q(submission__fixture__away_team=team)
+        ).exclude(team=team)
+        for row in conceded:
+            goals_against += row.goals
 
     return render(
         request,
@@ -627,6 +663,14 @@ def manager_profile(request):
             "career": career,
             "trophies": trophies,
             "rewards": rewards,
+            "team": team,
+            "token_balance": token_balance_for_user(request.user),
+            "spells": spells,
+            "applications": applications,
+            "played": played,
+            "win_rate": win_rate,
+            "goals_for": goals_for,
+            "goals_against": goals_against,
         },
     )
 
@@ -758,6 +802,7 @@ def team_management(request):
                 "players": [],
                 "total_ovr": 0,
                 "available_spaces": 0,
+                "token_balance": token_balance_for_user(request.user),
             },
         )
 
@@ -778,8 +823,19 @@ def team_management(request):
             status__in=[PlayerListing.PENDING, PlayerListing.LIVE],
         )
     }
+    from auctions.models import PlayerAuction
+
+    close_expired_auctions()
+    live_auctions = {
+        auction.player_id: auction
+        for auction in PlayerAuction.objects.filter(
+            player_id__in=[player.id for player in players],
+            status=PlayerAuction.LIVE,
+        )
+    }
     for player in players:
         player.current_listing = listings.get(player.id)
+        player.current_auction = live_auctions.get(player.id)
 
     gk = {"GK"}
     defence = {"CB", "LB", "RB", "LWB", "RWB"}
@@ -808,6 +864,8 @@ def team_management(request):
             "total_ovr": total_ovr,
             "available_spaces": available_spaces,
             "squad_groups": squad_groups,
+            "token_balance": token_balance_for_user(request.user),
+            "auction_durations": AUCTION_DURATION_CHOICES,
         },
     )
 
@@ -892,11 +950,12 @@ def remove_club_manager(request, team_id):
 
     team.manager = None
     team.save(update_fields=["manager"])
+    close_club_spell_for_user(old_manager, team)
 
     messages.success(
         request,
         f"{old_manager.username} has left {team.name}. "
-        f"The club remains intact and is now available.",
+        f"The club remains intact and the manager keeps their token balance.",
     )
     return redirect("club_management_admin")
 
@@ -947,6 +1006,9 @@ def change_club_manager(request, team_id):
         old_manager = team.manager
         team.manager = new_manager
         team.save(update_fields=["manager"])
+        if old_manager:
+            close_club_spell_for_user(old_manager, team)
+        open_club_spell(application, team)
 
         if old_manager:
             messages.success(
@@ -998,15 +1060,30 @@ def club_squad_admin(request, team_id):
 
 
 def competition_page(request, slug):
+    if slug == "mls":
+        raise Http404("MLS is not an active MGL competition.")
     name = COMPETITIONS.get(slug)
     if not name:
         raise Http404("Unknown competition")
+    ensure_premier_league()
+    short = LIVE_COMPETITION_SLUGS.get(slug)
+    league = None
+    table = None
+    if short:
+        league = League.objects.filter(
+            short_name__iexact=short, is_active=True
+        ).prefetch_related("teams__manager").first()
+        if league:
+            table = build_league_table(league)
     return render(
         request,
         "mgl/competition.html",
         {
             "competition_name": name,
             "competition_slug": slug,
+            "league": league,
+            "table": table,
+            "is_live": bool(league),
         },
     )
 
@@ -1028,7 +1105,7 @@ def head_to_head(request):
         request,
         "Head to Head",
         "STATS & HISTORY",
-        "Head-to-head records will appear here after official Super League 1 matches are played and approved. No exhibition results are invented.",
+        "Head-to-head records will appear here after official Premier League matches are played and approved. No exhibition results are invented.",
     )
 
 
@@ -1081,13 +1158,135 @@ def transfer_history(request):
     )
 
 
+@login_required
 def scouting(request):
-    return _feature_page(
-        request,
-        "Scouting",
-        "MARKET",
-        "The scouting network is not live yet. Super League 1 clubs use the transfer market, free agents and auctions to move players.",
+    from mgl.scouting import (
+        BRONZE,
+        GOLD,
+        SILVER,
+        TIER_BASE_HOURS,
+        TIER_RANGES,
+        UPGRADE_COSTS,
+        complete_ready_assignments,
+        cooldown_hours,
+        dispatch_scout,
+        get_or_create_scout_profile,
+        level_for,
+        remaining_wait,
+        scout_nationalities,
+        scout_positions,
+        upgrade_scout,
     )
+
+    manager = manager_for_user(request.user)
+    if not manager:
+        return redirect("manager_login")
+    if request.method == "POST":
+        action = request.POST.get("action")
+        try:
+            if action == "upgrade":
+                profile, level, cost = upgrade_scout(manager, request.POST.get("tier"))
+                messages.success(request, f"Scout upgraded to level {level} for {cost} tokens.")
+            elif action == "dispatch":
+                assignment = dispatch_scout(
+                    manager,
+                    request.POST.get("tier"),
+                    request.POST.get("region", ""),
+                    request.POST.get("position", ""),
+                )
+                messages.success(
+                    request,
+                    f"{assignment.get_tier_display()} scout dispatched. Report ready at {assignment.ready_at}.",
+                )
+            else:
+                messages.error(request, "Unknown scouting action.")
+        except ValueError as exc:
+            messages.error(request, str(exc))
+        return redirect("scouting")
+
+    complete_ready_assignments(manager)
+    profile = get_or_create_scout_profile(manager)
+    now = timezone.now()
+    panels = []
+    for tier, label in ((BRONZE, "Bronze"), (SILVER, "Silver"), (GOLD, "Gold")):
+        level = level_for(profile, tier)
+        current = (
+            ScoutAssignment.objects.filter(
+                manager=manager, tier=tier, status=ScoutAssignment.PENDING
+            )
+            .order_by("-started_at")
+            .first()
+        )
+        wait = remaining_wait(current, now=now) if current else None
+        nxt = level + 1
+        panels.append(
+            {
+                "tier": tier,
+                "label": label,
+                "range": TIER_RANGES[tier],
+                "base_hours": TIER_BASE_HOURS[tier],
+                "level": level,
+                "cooldown_hours": cooldown_hours(tier, level),
+                "next_cost": UPGRADE_COSTS.get(nxt),
+                "current": current,
+                "remaining": wait,
+                "available": current is None or (wait is not None and wait.total_seconds() <= 0),
+            }
+        )
+    reports = manager.scout_reports.select_related("player", "player__mgl_team")[:20]
+    return render(
+        request,
+        "mgl/scouting.html",
+        {
+            "manager": manager,
+            "token_balance": token_balance_for_user(request.user),
+            "panels": panels,
+            "nationalities": scout_nationalities(),
+            "positions": scout_positions(),
+            "reports": reports,
+        },
+    )
+
+
+@login_required
+@require_POST
+def list_player_for_auction(request, player_id):
+    manager = approved_manager(request.user)
+    if not manager:
+        messages.error(request, "You must be an approved manager to auction a player.")
+        return redirect("team_management")
+    player = get_object_or_404(Player, pk=player_id)
+    try:
+        create_manager_auction(
+            player,
+            manager,
+            request.POST.get("duration"),
+            request.POST.get("starting_bid") or 1,
+        )
+        messages.success(request, f"{player.name} is now in auction.")
+    except ValueError as exc:
+        messages.error(request, str(exc))
+    return redirect("team_management")
+
+
+@owner_admin_required
+@require_POST
+def auction_free_agent(request, player_id):
+    player = get_object_or_404(Player, pk=player_id)
+    try:
+        auction = create_free_agent_auction(
+            player,
+            request.user,
+            request.POST.get("duration"),
+            request.POST.get("starting_bid") or 1,
+        )
+        messages.success(
+            request,
+            f"{player.name} is live in auction until {auction.ends_at}.",
+        )
+    except ValueError as exc:
+        messages.error(request, str(exc))
+    return redirect(request.POST.get("next") or "free_agents")
 
 
 def youth_academy(request):

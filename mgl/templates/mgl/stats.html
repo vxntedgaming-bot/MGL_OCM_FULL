@@ -1,57 +1,90 @@
 {% extends "core/base.html" %}
 {% load mgl_ui %}
 
-{% block title %}Stats — MGL{% endblock %}
+{% block title %}Stats Hub — MGL{% endblock %}
 
 {% block content %}
 <section class="mgl-section">
     <div class="section-heading">
         <div>
-            <div class="eyebrow">MGL STATS</div>
-            <h2>LEAGUE NUMBERS</h2>
+            <div class="eyebrow">STATS &amp; HISTORY</div>
+            <h1>STATS HUB</h1>
+            <p>Leaderboards use approved MGL match statistics only. No league table is shown here.</p>
         </div>
         <span class="section-line"></span>
     </div>
-
-    <div class="overview-grid">
-        <div class="overview-stat"><span>CLUBS</span><strong>{{ club_count }}</strong></div>
-        <div class="overview-stat"><span>PLAYERS</span><strong>{{ player_count }}</strong></div>
-        <div class="overview-stat"><span>FREE AGENTS</span><strong>{{ free_agent_count }}</strong></div>
-        <div class="overview-stat"><span>CURRENCY</span><strong>TOKENS</strong><small>NO CASH ECONOMY</small></div>
-    </div>
 </section>
 
 <section class="mgl-section">
-    <div class="dashboard-panel">
-        {% include "mgl/includes/league_table.html" %}
-    </div>
-</section>
-
-<section class="mgl-section">
-    <div class="dashboard-grid">
+    <div class="mgl-stats-grid">
         <div class="dashboard-panel">
-            <div class="panel-heading"><span>TOP SCORERS</span></div>
+            <div class="panel-heading"><span>TOP GOAL SCORERS</span></div>
             {% for player in top_scorers %}
                 <div class="scorer-row">
                     <span class="rank">{{ forloop.counter|stringformat:"02d" }}</span>
                     <strong>{{ player.name }}</strong>
+                    <span>{{ player.position }}{% if player.mgl_team %} · {{ player.mgl_team.short_name }}{% endif %}</span>
                     <b>{{ player.goals }}</b>
                     <small>GOALS</small>
                 </div>
             {% empty %}
-                {% include "mgl/includes/empty_state.html" with title="NO GOALS RECORDED" body="Official scorers appear after match results are approved by an admin or owner." %}
+                {% include "mgl/includes/empty_state.html" with title="NO STATISTICS AVAILABLE YET." body="Official scorers appear after match results are approved by an admin or owner." %}
             {% endfor %}
         </div>
         <div class="dashboard-panel">
-            <div class="panel-heading"><span>RECENT TRANSFERS</span></div>
-            {% for row in recent_transfers %}
-                <div class="table-row">
-                    <strong>{{ row.player.name|default:"Token movement" }}</strong>
-                    <span class="mgl-info-club">{% team_logo row.from_team "xs" %} {{ row.from_team.short_name|default:"FA" }} → {% team_logo row.to_team "xs" %} {{ row.to_team.short_name|default:"—" }}</span>
-                    <b>{{ row.amount }} TKN</b>
+            <div class="panel-heading"><span>TOP ASSISTERS</span></div>
+            {% for player in top_assisters %}
+                <div class="scorer-row">
+                    <span class="rank">{{ forloop.counter|stringformat:"02d" }}</span>
+                    <strong>{{ player.name }}</strong>
+                    <span>{{ player.position }}{% if player.mgl_team %} · {{ player.mgl_team.short_name }}{% endif %}</span>
+                    <b>{{ player.assists }}</b>
+                    <small>ASSISTS</small>
                 </div>
             {% empty %}
-                {% include "mgl/includes/empty_state.html" with title="NO TRANSFERS YET" body="Completed auctions and sales will be listed here with token amounts." %}
+                {% include "mgl/includes/empty_state.html" with title="NO STATISTICS AVAILABLE YET." body="Official assists appear after match results are approved." %}
+            {% endfor %}
+        </div>
+        <div class="dashboard-panel">
+            <div class="panel-heading"><span>TOP DEFENDERS</span></div>
+            {% for player in top_defenders %}
+                <div class="scorer-row">
+                    <span class="rank">{{ forloop.counter|stringformat:"02d" }}</span>
+                    <strong>{{ player.name }}</strong>
+                    <span>{{ player.position }}{% if player.mgl_team %} · {{ player.mgl_team.short_name }}{% endif %}</span>
+                    <b>{{ player.avg_def|floatformat:1 }}</b>
+                    <small>AVG RATING</small>
+                </div>
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with title="NO STATISTICS AVAILABLE YET." body="Defender ratings appear after approved match submissions." %}
+            {% endfor %}
+        </div>
+        <div class="dashboard-panel">
+            <div class="panel-heading"><span>TOP GOALKEEPERS</span></div>
+            {% for player in top_keepers %}
+                <div class="scorer-row">
+                    <span class="rank">{{ forloop.counter|stringformat:"02d" }}</span>
+                    <strong>{{ player.name }}</strong>
+                    <span>{{ player.position }}{% if player.mgl_team %} · {{ player.mgl_team.short_name }}{% endif %}</span>
+                    <b>{{ player.total_saves }}</b>
+                    <small>SAVES</small>
+                </div>
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with title="NO STATISTICS AVAILABLE YET." body="Goalkeeper saves appear after approved match submissions." %}
+            {% endfor %}
+        </div>
+        <div class="dashboard-panel">
+            <div class="panel-heading"><span>TOP MANAGERS</span></div>
+            {% for row in top_managers %}
+                <div class="scorer-row">
+                    <span class="rank">{{ forloop.counter|stringformat:"02d" }}</span>
+                    <strong>{{ row.manager.display_name }}</strong>
+                    <span>{{ row.wins }}W {{ row.draws }}D {{ row.losses }}L</span>
+                    <b>{{ row.wins }}</b>
+                    <small>WINS</small>
+                </div>
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with title="NO STATISTICS AVAILABLE YET." body="Manager records appear after official MGL career statistics are stored." %}
             {% endfor %}
         </div>
     </div>

@@ -131,13 +131,13 @@
         <img src="{% static 'core/img/mgl-logo.png' %}" alt="" class="mgl-logo-img">
         <div>
             <div class="eyebrow">ACTIVE LEAGUE</div>
-            <h3>{% if active_league %}{{ active_league.name|upper }}{% else %}SUPER LEAGUE 1{% endif %}</h3>
-            <p>{{ club_count }} official clubs currently belong to Super League 1.</p>
+            <h3>{% if active_league %}{{ active_league.name|upper }}{% else %}PREMIER LEAGUE{% endif %}</h3>
+            <p>{{ club_count }} official clubs currently belong to the Premier League.</p>
         </div>
         <a href="{% url 'leagues_page' %}" class="primary-button">VIEW LEAGUE TABLE</a>
     </div>
     <div class="dashboard-panel" style="margin-top:24px">
-        {% include "mgl/includes/league_table.html" %}
+        {% include "mgl/includes/league_table.html" with table=table league=active_league %}
     </div>
 </section>
 
@@ -159,7 +159,7 @@
         {% endfor %}
     </div>
     {% if not showcase_clubs %}
-        {% include "mgl/includes/empty_state.html" with kicker="SUPER LEAGUE 1" title="NO CLUBS IN SUPER LEAGUE 1 YET" body="Official MGL clubs will appear here once they are created in Super League 1." %}
+        {% include "mgl/includes/empty_state.html" with kicker="PREMIER LEAGUE" title="NO CLUBS IN THE PREMIER LEAGUE YET" body="Official MGL clubs will appear here once they are created in the Premier League." %}
     {% endif %}
 </section>
 

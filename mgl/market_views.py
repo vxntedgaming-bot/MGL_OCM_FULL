@@ -1,15 +1,16 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Avg, Count, Q, Sum
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
 from auctions.models import PlayerAuction
-from leagues.models import League
-from leagues.services import active_league
+from leagues.services import active_divisions, active_league
 from players.models import Player
 from teams.models import Team
 
 from .market import (
+    AUCTION_DURATION_CHOICES,
     approve_listing,
     buy_listed_player,
     cancel_listing,
@@ -23,15 +24,17 @@ from .market import (
 from .models import (
     ApprovalStatus,
     ClubApplication,
+    ManagerCareerStat,
     MarketTransaction,
     PlayerListing,
 )
 from managers.models import ManagerApplication
-from managers.services import approve_manager_application, reject_manager_application
+from managers.services import STARTING_TOKENS, approve_manager_application, reject_manager_application
 
 from .permissions import approved_manager, owner_admin_required
 from .services import manager_for_user
 from .standings import build_league_table
+from .tenure import open_club_spell
 
 
 def transfer_market(request):
@@ -121,47 +124,66 @@ def buy_player(request, listing_id):
 
 
 def leagues_page(request):
-    league = active_league()
-    leagues = (
-        League.objects.filter(is_active=True)
-        .prefetch_related("teams__manager")
-        .order_by("name")
-    )
-    table = build_league_table(league)
+    divisions = active_divisions()
+    premier = next((row for row in divisions if row.short_name == "PL"), None)
     return render(
         request,
         "mgl/leagues.html",
         {
-            "leagues": leagues,
-            "active_league": league,
-            "table": table,
+            "divisions": divisions,
+            "leagues": divisions,
+            "active_league": premier or active_league(),
+            "tables": [
+                {"league": league, "table": build_league_table(league)}
+                for league in divisions
+            ],
         },
     )
 
 
 def stats_page(request):
-    league = active_league()
     top_scorers = (
         Player.objects.filter(goals__gt=0)
         .select_related("mgl_team")
         .order_by("-goals", "name")[:20]
     )
-    recent_transfers = (
-        MarketTransaction.objects.filter(status=MarketTransaction.COMPLETED)
-        .select_related("player", "from_team", "to_team")
-        .order_by("-created_at")[:15]
+    top_assisters = (
+        Player.objects.filter(assists__gt=0)
+        .select_related("mgl_team")
+        .order_by("-assists", "name")[:20]
+    )
+    top_defenders = (
+        Player.objects.filter(defender_ratings__team_stats__submission__status=ApprovalStatus.APPROVED)
+        .select_related("mgl_team")
+        .annotate(
+            avg_def=Avg("defender_ratings__rating"),
+            def_apps=Count("defender_ratings", distinct=True),
+        )
+        .order_by("-avg_def", "-def_apps", "name")[:20]
+    )
+    top_keepers = (
+        Player.objects.filter(gk_saves__team_stats__submission__status=ApprovalStatus.APPROVED)
+        .select_related("mgl_team")
+        .annotate(total_saves=Sum("gk_saves__saves"))
+        .order_by("-total_saves", "name")[:20]
+    )
+    top_managers = (
+        ManagerCareerStat.objects.select_related("manager", "manager__user")
+        .filter(Q(wins__gt=0) | Q(draws__gt=0) | Q(losses__gt=0) | Q(trophies__gt=0))
+        .order_by("-wins", "-trophies", "manager__display_name")[:20]
     )
     return render(
         request,
         "mgl/stats.html",
         {
             "top_scorers": top_scorers,
-            "recent_transfers": recent_transfers,
+            "top_assisters": top_assisters,
+            "top_defenders": top_defenders,
+            "top_keepers": top_keepers,
+            "top_managers": top_managers,
             "club_count": Team.objects.count(),
             "player_count": Player.objects.count(),
             "free_agent_count": Player.objects.filter(is_free_agent=True, mgl_team__isnull=True).count(),
-            "active_league": league,
-            "table": build_league_table(league),
         },
     )
 
@@ -227,7 +249,7 @@ def control_approve_manager(request, application_id):
         approve_manager_application(application, request.user)
         messages.success(
             request,
-            f"{application.display_name} is now an approved manager and starts with 50 tokens.",
+            f"{application.display_name} is now an approved manager and starts with {STARTING_TOKENS} tokens.",
         )
     except ValueError as exc:
         messages.error(request, str(exc))
@@ -261,6 +283,10 @@ def control_centre(request):
     recent_activity = MarketTransaction.objects.select_related(
         "player", "seller", "buyer"
     ).order_by("-created_at")[:20]
+    free_agents = (
+        Player.objects.filter(is_free_agent=True, mgl_team__isnull=True)
+        .order_by("-overall", "name")[:40]
+    )
     return render(
         request,
         "mgl/control_centre.html",
@@ -274,6 +300,8 @@ def control_centre(request):
             "transactions": MarketTransaction.objects.select_related(
                 "player", "seller", "buyer", "from_team", "to_team"
             )[:30],
+            "free_agents": free_agents,
+            "auction_durations": AUCTION_DURATION_CHOICES,
         },
     )
 
@@ -331,13 +359,14 @@ def control_approve_job(request, application_id):
         return redirect("control_centre")
     team.manager = new_manager
     team.save(update_fields=["manager"])
+    open_club_spell(application.manager, team)
     application.status = ApprovalStatus.APPROVED
     application.reviewed_at = timezone.now()
     application.reviewed_by = request.user
     application.save(update_fields=["status", "reviewed_at", "reviewed_by"])
     messages.success(
         request,
-        f"{new_manager.username} is now manager of {team.name}. The squad and token balance remain with the club.",
+        f"{new_manager.username} is now manager of {team.name}. Token balance stays with the manager.",
     )
     return redirect("control_centre")
 

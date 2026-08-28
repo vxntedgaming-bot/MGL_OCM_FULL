@@ -51,12 +51,9 @@
         </div>
 
         <div class="mgl-card-stats">
-            <div class="mgl-card-stat"><span>PAC</span><strong>{{ player.pace }}</strong></div>
-            <div class="mgl-card-stat"><span>SHO</span><strong>{{ player.shooting }}</strong></div>
-            <div class="mgl-card-stat"><span>PAS</span><strong>{{ player.passing }}</strong></div>
-            <div class="mgl-card-stat"><span>DRI</span><strong>{{ player.dribbling }}</strong></div>
-            <div class="mgl-card-stat"><span>DEF</span><strong>{{ player.defending }}</strong></div>
-            <div class="mgl-card-stat"><span>PHY</span><strong>{{ player.physical }}</strong></div>
+            {% for stat in card_stats %}
+                <div class="mgl-card-stat"><span>{{ stat.label }}</span><strong>{{ stat.value }}</strong></div>
+            {% endfor %}
         </div>
     </div>
 </article>

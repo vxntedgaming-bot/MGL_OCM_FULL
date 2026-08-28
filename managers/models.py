@@ -29,7 +29,7 @@ class ManagerApplication(models.Model):
         blank=True,
     )
 
-    tokens = models.DecimalField(max_digits=8, decimal_places=2, default=50)
+    tokens = models.DecimalField(max_digits=8, decimal_places=2, default=20)
 
     status = models.CharField(
         max_length=20,

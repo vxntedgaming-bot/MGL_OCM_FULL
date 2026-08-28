@@ -17,21 +17,33 @@ class SuperLeagueOneTests(TestCase):
     def setUp(self):
         self.client = Client(HTTP_HOST="127.0.0.1")
 
-    def test_migrate_seeds_one_active_super_league_1(self):
-        sl1 = League.objects.get(short_name="SL1")
-        self.assertEqual(sl1.name, "Super League 1")
+    def test_migrate_seeds_premier_league_and_lower_divisions(self):
+        sl1 = League.objects.get(short_name="PL")
+        self.assertEqual(sl1.name, "Premier League")
         self.assertTrue(sl1.is_active)
-        self.assertEqual(League.objects.filter(is_active=True).count(), 1)
+        self.assertEqual(
+            set(League.objects.filter(is_active=True).values_list("short_name", flat=True)),
+            {"PL", "CH", "L1"},
+        )
 
         home = self.client.get("/")
-        self.assertContains(home, "SUPER LEAGUE 1")
+        self.assertContains(home, "PREMIER LEAGUE")
         self.assertNotContains(home, "Super League 2")
+        self.assertNotContains(home, "MLS")
         leagues = self.client.get("/leagues/")
-        self.assertContains(leagues, "SUPER LEAGUE 1")
+        self.assertContains(leagues, "PREMIER LEAGUE")
+        self.assertContains(leagues, "CHAMPIONSHIP")
+        self.assertContains(leagues, "LEAGUE ONE")
         self.assertNotContains(leagues, "Super League 2")
+        self.assertNotContains(leagues, "href=\"/leagues/mls/\"")
         stats = self.client.get("/stats/")
-        self.assertContains(stats, "SUPER LEAGUE 1")
+        self.assertContains(stats, "TOP GOAL SCORERS")
+        self.assertContains(stats, "TOP ASSISTERS")
+        self.assertContains(stats, "TOP DEFENDERS")
+        self.assertContains(stats, "TOP GOALKEEPERS")
+        self.assertContains(stats, "TOP MANAGERS")
         self.assertNotContains(stats, "Super League 2")
+        self.assertNotContains(stats, "PTS")
 
     def test_ensure_moves_clubs_and_hides_sl2(self):
         sl1 = ensure_super_league_1()
@@ -61,18 +73,18 @@ class SuperLeagueOneTests(TestCase):
         self.assertFalse(sl2.is_active)
         self.assertEqual(League.objects.filter(short_name="SL2").count(), 1)
         self.assertEqual(club_a.league_id, sl1.id)
-        self.assertEqual(club_b.league_id, sl1.id)
+        self.assertEqual(club_b.league_id, sl2.id)
         self.assertEqual(club_b.tokens, Decimal("41.00"))
-        self.assertEqual(Fixture.objects.get(home_team=club_a).league_id, sl1.id)
-        self.assertGreaterEqual(Team.objects.filter(league=sl1).count(), 16)
+        self.assertEqual(Fixture.objects.get(home_team=club_a).league_id, sl2.id)
+        self.assertGreaterEqual(Team.objects.filter(league=sl1).count(), 15)
 
         page = self.client.get("/leagues/")
-        self.assertContains(page, "SUPER LEAGUE 1")
+        self.assertContains(page, "PREMIER LEAGUE")
         self.assertContains(page, "Alpha FC")
-        self.assertContains(page, "Beta FC")
+        self.assertNotContains(page, "Beta FC")
         self.assertNotContains(page, "Super League 2")
         home = self.client.get("/")
-        self.assertContains(home, "SUPER LEAGUE 1")
+        self.assertContains(home, "PREMIER LEAGUE")
         self.assertNotContains(home, "Super League 2")
         jobs = self.client.get("/jobs/")
         self.assertContains(jobs, "Alpha FC")
@@ -141,7 +153,7 @@ class SuperLeagueOneTests(TestCase):
         self.assertEqual(solo["played"], 0)
         self.assertEqual(solo["points"], 0)
 
-    def test_manager_hub_shows_super_league_1(self):
+    def test_manager_hub_shows_premier_league(self):
         league = ensure_super_league_1()
         user = User.objects.create_user(username="mgr", password="test-pass-123")
         ManagerApplication.objects.create(
@@ -159,8 +171,7 @@ class SuperLeagueOneTests(TestCase):
         )
         self.client.login(username="mgr", password="test-pass-123")
         response = self.client.get(reverse("manager_hub"))
-        self.assertContains(response, "SUPER LEAGUE 1")
-        self.assertContains(response, "50")
+        self.assertContains(response, "PREMIER LEAGUE")
         self.assertContains(response, "HFC")
         self.assertEqual(self.client.get(reverse("control_centre")).status_code, 302)
         self.assertEqual(

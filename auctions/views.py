@@ -36,6 +36,7 @@ def place_bid(request, auction_id):
     if not manager:
         messages.error(request, "You must be an approved manager to bid.")
         return redirect("live_auctions")
+    close_expired_auctions()
     auction = get_object_or_404(PlayerAuction, pk=auction_id)
     try:
         place_auction_bid(auction, manager, request.POST.get("amount"))

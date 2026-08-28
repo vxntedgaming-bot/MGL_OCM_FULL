@@ -83,9 +83,6 @@
 
         <div class="mgl-header-actions">
             {% if user.is_authenticated %}
-                {% if mgl_token_balance != None %}
-                    <span class="mgl-token-chip">{{ mgl_token_balance }} TKN</span>
-                {% endif %}
                 <a href="{% url 'manager_profile' %}" class="header-button">PROFILE</a>
                 <form method="post" action="{% url 'manager_logout' %}" class="mgl-logout-form">
                     {% csrf_token %}

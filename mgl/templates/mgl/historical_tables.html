@@ -9,12 +9,12 @@
         <div>
             <div class="eyebrow">STATS &amp; HISTORY</div>
             <h1>HISTORICAL LEAGUE TABLES</h1>
-            <p>Previous Super League 1 seasons will appear here after they are completed. The current table is shown below.</p>
+            <p>Previous Premier League seasons will appear here after they are completed. The current table is shown below.</p>
         </div>
         <a href="{% url 'leagues_page' %}" class="view-all">CURRENT TABLE →</a>
     </div>
     <div class="dashboard-panel">
-        {% include "mgl/includes/league_table.html" %}
+        {% include "mgl/includes/league_table.html" with table=table league=active_league %}
     </div>
 </section>
 {% endblock %}

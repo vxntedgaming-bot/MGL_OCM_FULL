@@ -78,11 +78,15 @@ class MarketEconomyTests(TestCase):
         listing.save(update_fields=["status"])
         buy_listed_player(listing, self.mgr_b)
         self.player.refresh_from_db()
+        self.mgr_a.refresh_from_db()
+        self.mgr_b.refresh_from_db()
         self.team_a.refresh_from_db()
         self.team_b.refresh_from_db()
         self.assertEqual(self.player.mgl_team_id, self.team_b.id)
-        self.assertEqual(self.team_a.tokens, Decimal("62.00"))
-        self.assertEqual(self.team_b.tokens, Decimal("38.00"))
+        self.assertEqual(self.mgr_a.tokens, Decimal("62.00"))
+        self.assertEqual(self.mgr_b.tokens, Decimal("38.00"))
+        self.assertEqual(self.team_a.tokens, Decimal("50.00"))
+        self.assertEqual(self.team_b.tokens, Decimal("50.00"))
         self.assertTrue(
             MarketTransaction.objects.filter(
                 player=self.player,
@@ -109,10 +113,14 @@ class MarketEconomyTests(TestCase):
         )
         place_auction_bid(auction, self.mgr_a, 10)
         place_auction_bid(auction, self.mgr_b, 12)
+        self.mgr_a.refresh_from_db()
+        self.mgr_b.refresh_from_db()
         self.team_a.refresh_from_db()
         self.team_b.refresh_from_db()
+        self.assertEqual(self.mgr_a.tokens, Decimal("50.00"))
+        self.assertEqual(self.mgr_b.tokens, Decimal("38.00"))
         self.assertEqual(self.team_a.tokens, Decimal("50.00"))
-        self.assertEqual(self.team_b.tokens, Decimal("38.00"))
+        self.assertEqual(self.team_b.tokens, Decimal("50.00"))
 
     def test_settling_auction_assigns_player(self):
         auction = PlayerAuction.objects.create(
@@ -155,8 +163,10 @@ class MarketEconomyTests(TestCase):
         )
         place_auction_bid(auction, self.mgr_a, 10)
         place_auction_bid(auction, self.mgr_a, 15)
+        self.mgr_a.refresh_from_db()
         self.team_a.refresh_from_db()
-        self.assertEqual(self.team_a.tokens, Decimal("35.00"))
+        self.assertEqual(self.mgr_a.tokens, Decimal("35.00"))
+        self.assertEqual(self.team_a.tokens, Decimal("50.00"))
         self.assertEqual(auction.bids.filter(manager=self.mgr_a).count(), 1)
 
     def test_cannot_bid_without_a_club(self):
@@ -194,7 +204,7 @@ class MarketEconomyTests(TestCase):
         application.refresh_from_db()
         applicant_user.refresh_from_db()
         self.assertEqual(application.status, ManagerApplication.APPROVED)
-        self.assertEqual(application.tokens, Decimal("50.00"))
+        self.assertEqual(application.tokens, Decimal("20.00"))
         self.assertTrue(applicant_user.is_active)
 
     def test_manager_cannot_open_control_centre(self):

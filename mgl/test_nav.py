@@ -74,7 +74,7 @@ class NavigationDropdownTests(TestCase):
         self.assertContains(response, "Premier League")
         self.assertContains(response, "Championship")
         self.assertContains(response, "League One")
-        self.assertContains(response, "MLS")
+        self.assertNotContains(response, reverse("competition_page", kwargs={"slug": "mls"}))
         self.assertContains(response, "CUPS")
         self.assertContains(response, "WAITING ROOM LEAGUE")
         self.assertContains(response, reverse("leagues_page"))
@@ -113,7 +113,7 @@ class NavigationDropdownTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Premier League")
         self.assertContains(response, "mgl-nav-item--sub is-current")
-        self.assertContains(response, "Super League 1 is the only active league")
+        self.assertNotContains(response, "Super League 1 is the only active league")
         self.assertNotContains(response, "Super League 2")
 
     def test_my_team_dropdown_highlights_when_logged_in(self):

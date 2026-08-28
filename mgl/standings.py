@@ -3,7 +3,7 @@ from mgl.models import ApprovalStatus, Fixture
 
 def build_league_table(league):
     """
-    Super League 1 standings from approved, completed fixtures.
+    Super League / Premier League standings from approved, completed fixtures.
     Every club in the league is included even if it has not played.
     """
 

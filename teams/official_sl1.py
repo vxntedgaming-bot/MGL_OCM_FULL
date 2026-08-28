@@ -27,7 +27,7 @@ STARTING_TOKENS = Decimal("50.00")
 
 def ensure_official_sl1_clubs():
     """
-    Create the 14 official Super League 1 clubs if they are missing.
+    Create the 14 official Premier League clubs if they are missing.
 
     Existing clubs are matched by short name, then full name.
     Tokens, managers, squads and history are not overwritten.

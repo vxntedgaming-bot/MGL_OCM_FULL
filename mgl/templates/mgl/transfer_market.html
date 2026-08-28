@@ -16,11 +16,6 @@
 
     <div class="overview-grid">
         <div class="overview-stat">
-            <span>YOUR TOKENS</span>
-            <strong>{{ token_balance|default:"—" }}</strong>
-            <small>{% if team %}{{ team.name }}{% else %}ASSIGN A CLUB TO BID{% endif %}</small>
-        </div>
-        <div class="overview-stat">
             <span>LIVE AUCTIONS</span>
             <strong>{{ auctions|length }}</strong>
             <small>TOKEN BIDS</small>

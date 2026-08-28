@@ -31,8 +31,8 @@
             </div>
             <div class="overview-stat">
                 <span>TOKEN BALANCE</span>
-                <strong>{{ team.tokens }}</strong>
-                <small>CLUB TREASURY</small>
+                <strong>{{ token_balance }}</strong>
+                <small>PERSONAL TOKENS</small>
             </div>
             <div class="overview-stat">
                 <span>AVERAGE OVR</span>
@@ -62,11 +62,23 @@
                             {% csrf_token %}
                             <button type="submit" class="secondary-button">WITHDRAW</button>
                         </form>
+                    {% elif player.current_auction %}
+                        <span>IN AUCTION · {{ player.current_auction.ends_at|time_left }}</span>
                     {% else %}
                     <form method="post" action="{% url 'sell_player' player.id %}" class="mgl-inline-form">
                         {% csrf_token %}
                         <input type="number" name="asking_price" min="1" step="1" placeholder="Tokens" required>
                         <button type="submit" class="primary-button">LIST FOR SALE</button>
+                    </form>
+                    <form method="post" action="{% url 'list_player_for_auction' player.id %}" class="mgl-inline-form">
+                        {% csrf_token %}
+                        <select name="duration" required>
+                            {% for minutes, label in auction_durations %}
+                                <option value="{{ minutes }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="number" name="starting_bid" min="1" value="1" required>
+                        <button type="submit" class="secondary-button">AUCTION</button>
                     </form>
                     {% endif %}
                 </div>
@@ -103,7 +115,7 @@
         {% endif %}
         {% endfor %}
     {% else %}
-        {% include "mgl/includes/empty_state.html" with title="NO CLUB ASSIGNED" body="Apply for a vacant Super League 1 club from the Job Centre." %}
+        {% include "mgl/includes/empty_state.html" with title="NO CLUB ASSIGNED" body="Apply for a vacant Premier League club from the Job Centre. Your token balance stays with this account." %}
     {% endif %}
 </section>
 {% endblock %}

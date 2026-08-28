@@ -287,3 +287,94 @@ class FixtureReleaseBatch(models.Model):
     is_released=models.BooleanField(default=False)
     class Meta:
         ordering=["batch_number"]
+
+
+class ManagerClubSpell(models.Model):
+    manager = models.ForeignKey(
+        "managers.ManagerApplication",
+        on_delete=models.CASCADE,
+        related_name="club_spells",
+    )
+    team = models.ForeignKey("teams.Team", on_delete=models.CASCADE, related_name="manager_spells")
+    started_at = models.DateTimeField(auto_now_add=True)
+    ended_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-started_at"]
+
+
+class ScoutProfile(models.Model):
+    manager = models.OneToOneField(
+        "managers.ManagerApplication",
+        on_delete=models.CASCADE,
+        related_name="scout_profile",
+    )
+    bronze_level = models.PositiveSmallIntegerField(default=0)
+    silver_level = models.PositiveSmallIntegerField(default=0)
+    gold_level = models.PositiveSmallIntegerField(default=0)
+
+
+class ScoutAssignment(models.Model):
+    BRONZE = "BRONZE"
+    SILVER = "SILVER"
+    GOLD = "GOLD"
+    TIER_CHOICES = [
+        (BRONZE, "Bronze"),
+        (SILVER, "Silver"),
+        (GOLD, "Gold"),
+    ]
+    PENDING = "PENDING"
+    READY = "READY"
+    COMPLETE = "COMPLETE"
+
+    manager = models.ForeignKey(
+        "managers.ManagerApplication",
+        on_delete=models.CASCADE,
+        related_name="scout_assignments",
+    )
+    tier = models.CharField(max_length=10, choices=TIER_CHOICES)
+    level = models.PositiveSmallIntegerField(default=0)
+    region = models.CharField(max_length=100, blank=True)
+    position = models.CharField(max_length=10, blank=True)
+    player = models.ForeignKey(
+        "players.Player",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="scout_assignments",
+    )
+    started_at = models.DateTimeField(auto_now_add=True)
+    ready_at = models.DateTimeField()
+    completed_at = models.DateTimeField(null=True, blank=True)
+    status = models.CharField(max_length=12, default=PENDING)
+
+    class Meta:
+        ordering = ["-started_at"]
+
+
+class ScoutReport(models.Model):
+    manager = models.ForeignKey(
+        "managers.ManagerApplication",
+        on_delete=models.CASCADE,
+        related_name="scout_reports",
+    )
+    player = models.ForeignKey(
+        "players.Player",
+        on_delete=models.CASCADE,
+        related_name="scout_reports",
+    )
+    assignment = models.ForeignKey(
+        ScoutAssignment,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="reports",
+    )
+    tier = models.CharField(max_length=10)
+    level = models.PositiveSmallIntegerField(default=0)
+    region = models.CharField(max_length=100, blank=True)
+    position = models.CharField(max_length=10, blank=True)
+    discovered_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-discovered_at"]

@@ -9,13 +9,9 @@
         <div>
             <div class="eyebrow">MGL MARKET</div>
             <h2>PLAYER AUCTIONS</h2>
+            <p>Timers are enforced on the server. Expired auctions close even if this page is not open.</p>
         </div>
         <a href="{% url 'transfer_market' %}" class="view-all">FULL MARKET →</a>
-    </div>
-
-    <div class="overview-stat" style="max-width:280px;margin-bottom:24px">
-        <span>YOUR TOKENS</span>
-        <strong>{{ token_balance }}</strong>
     </div>
 
     {% for auction in auctions %}
@@ -24,8 +20,19 @@
             <div class="mgl-market-meta">
                 <h3>{{ auction.player.name }}</h3>
                 <p>{{ auction.player.position }} · {{ auction.player.overall }} OVR</p>
+                <p>
+                    {% if auction.player.mgl_team %}
+                        {{ auction.player.mgl_team.name }}
+                    {% elif auction.listing_kind == "FREE_AGENT" %}
+                        FREE AGENT
+                    {% else %}
+                        IN AUCTION
+                    {% endif %}
+                </p>
                 <div class="mgl-market-price">{{ auction.winning_bid|default:auction.starting_bid }} TKN</div>
                 <p>Highest bidder: {% if auction.winning_manager %}{{ auction.winning_manager.display_name }}{% else %}No bids yet{% endif %}</p>
+                <p>Time remaining: {{ auction.ends_at|time_left }}</p>
+                <p>Status: {{ auction.status }} · {% if auction.duration_minutes == 720 %}12 hours{% else %}{{ auction.duration_minutes }} minutes{% endif %}</p>
                 <form method="post" action="{% url 'place_bid' auction.id %}" class="mgl-inline-form">
                     {% csrf_token %}
                     <input type="hidden" name="next" value="{{ request.path }}">
@@ -35,7 +42,7 @@
             </div>
         </article>
     {% empty %}
-        {% include "mgl/includes/empty_state.html" with kicker="AUCTIONS" title="NO LIVE AUCTIONS" body="There are currently no live player auctions. The league office can release free agents into auction from admin." %}
+        {% include "mgl/includes/empty_state.html" with kicker="AUCTIONS" title="NO LIVE AUCTIONS" body="Admins can release free agents into auction from Free Agents. Managers can list their own players from Team Management." %}
     {% endfor %}
 </section>
 {% endblock %}

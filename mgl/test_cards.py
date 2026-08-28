@@ -283,7 +283,6 @@ class PlayerCardQaTests(TestCase):
         self.assertIn("mgl-player-card--gold", accent_html)
 
         for position in (
-            "GK",
             "CB",
             "LB",
             "RB",
@@ -307,5 +306,40 @@ class PlayerCardQaTests(TestCase):
             self.assertIn("<span>DRI</span>", html)
             self.assertIn("<span>DEF</span>", html)
             self.assertIn("<span>PHY</span>", html)
+            self.assertNotIn("<span>DIV</span>", html)
             self.assertLess(html.find("<span>PAC</span>"), html.find("<span>PHY</span>"))
             self.assertEqual(html.count('class="mgl-card-stat"'), 6)
+
+        gk_html = render_player_card(
+            Player(
+                name="Robin Risser",
+                position="GK",
+                overall=71,
+                pace=40,
+                shooting=20,
+                passing=30,
+                dribbling=25,
+                defending=18,
+                physical=50,
+                fc_gk_diving=71,
+                fc_gk_handling=72,
+                fc_gk_kicking=64,
+                fc_gk_reflexes=71,
+                fc_gk_speed=39,
+                fc_gk_positioning=67,
+            )
+        )
+        self.assertIn(">GK<", gk_html)
+        self.assertIn("<span>DIV</span><strong>71</strong>", gk_html)
+        self.assertIn("<span>HAN</span><strong>72</strong>", gk_html)
+        self.assertIn("<span>KIC</span><strong>64</strong>", gk_html)
+        self.assertIn("<span>REF</span><strong>71</strong>", gk_html)
+        self.assertIn("<span>SPE</span><strong>39</strong>", gk_html)
+        self.assertIn("<span>POS</span><strong>67</strong>", gk_html)
+        self.assertNotIn("<span>PAC</span>", gk_html)
+        self.assertNotIn("<span>SHO</span>", gk_html)
+        self.assertNotIn("<span>PAS</span>", gk_html)
+        self.assertNotIn("<span>DRI</span>", gk_html)
+        self.assertNotIn("<span>DEF</span>", gk_html)
+        self.assertNotIn("<span>PHY</span>", gk_html)
+        self.assertEqual(gk_html.count('class="mgl-card-stat"'), 6)

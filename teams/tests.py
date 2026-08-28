@@ -17,7 +17,7 @@ from teams.official_sl1 import (
 
 class OfficialSuperLeagueOneClubTests(TestCase):
     def test_migration_creates_exactly_the_14_official_clubs(self):
-        league = League.objects.get(short_name="SL1")
+        league = League.objects.get(short_name="PL")
         clubs = list(Team.objects.filter(league=league).order_by("name"))
         self.assertEqual(len(clubs), 14)
         self.assertEqual(
@@ -43,7 +43,7 @@ class OfficialSuperLeagueOneClubTests(TestCase):
         self.assertEqual(Team.objects.count(), 14)
         arsenal.refresh_from_db()
         self.assertEqual(arsenal.tokens, Decimal("41.00"))
-        self.assertEqual(arsenal.league.short_name, "SL1")
+        self.assertEqual(arsenal.league.short_name, "PL")
         self.assertIsNone(arsenal.manager_id)
 
     def test_populate_command_does_not_duplicate_or_invent_extra_records(self):
@@ -60,7 +60,7 @@ class OfficialSuperLeagueOneClubTests(TestCase):
             stdout=StringIO(),
         )
         self.assertEqual(Team.objects.count(), 14)
-        self.assertEqual(League.objects.filter(is_active=True).count(), 1)
+        self.assertEqual(League.objects.filter(is_active=True).count(), 3)
         self.assertEqual(League.objects.filter(short_name="SL2").count(), 0)
         self.assertEqual(Fixture.objects.count(), 0)
         self.assertEqual(Player.objects.count(), 0)

@@ -88,6 +88,33 @@ def club_badge(team, size="md"):
     }
 
 
+OUTFIELD_CARD_STATS = (
+    ("PAC", "pace"),
+    ("SHO", "shooting"),
+    ("PAS", "passing"),
+    ("DRI", "dribbling"),
+    ("DEF", "defending"),
+    ("PHY", "physical"),
+)
+GK_CARD_STATS = (
+    ("DIV", "fc_gk_diving"),
+    ("HAN", "fc_gk_handling"),
+    ("KIC", "fc_gk_kicking"),
+    ("REF", "fc_gk_reflexes"),
+    ("SPE", "fc_gk_speed"),
+    ("POS", "fc_gk_positioning"),
+)
+
+
+def card_stat_rows(player):
+    pairs = GK_CARD_STATS if (getattr(player, "position", "") or "").upper() == "GK" else OUTFIELD_CARD_STATS
+    rows = []
+    for label, field in pairs:
+        value = getattr(player, field, None)
+        rows.append({"label": label, "value": "—" if value is None else value})
+    return rows
+
+
 @register.inclusion_tag("mgl/includes/player_card.html")
 def player_card(player, size="standard", linked=True):
     size = size or "standard"
@@ -96,6 +123,7 @@ def player_card(player, size="standard", linked=True):
         "size": size,
         "linked": linked,
         "face_url": card_face_src(player, size),
+        "card_stats": card_stat_rows(player),
     }
 
 
@@ -149,6 +177,38 @@ def card_name(player):
         latin.append(char)
     cleaned = "".join(latin).strip(" -") or name
     return " ".join(cleaned.split()).upper()
+
+
+@register.filter
+def time_left(ends_at):
+    from django.utils import timezone
+
+    if not ends_at:
+        return "—"
+    remaining = ends_at - timezone.now()
+    total = int(remaining.total_seconds())
+    if total <= 0:
+        return "Expired"
+    days, rem = divmod(total, 86400)
+    hours, rem = divmod(rem, 3600)
+    minutes, seconds = divmod(rem, 60)
+    if days:
+        return f"{days:02d}d {hours:02d}h {minutes:02d}m"
+    return f"{hours:02d}h {minutes:02d}m {seconds:02d}s"
+
+
+@register.filter
+def wait_left(delta):
+    if delta is None:
+        return "Available"
+    total = int(delta.total_seconds())
+    if total <= 0:
+        return "Available"
+    hours, rem = divmod(total, 3600)
+    minutes, seconds = divmod(rem, 60)
+    if hours:
+        return f"{hours}h {minutes:02d}m"
+    return f"{minutes}m {seconds:02d}s"
 
 
 @register.filter

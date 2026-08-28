@@ -69,12 +69,6 @@ NAV_DROPDOWNS = (
                 "style": "sub",
             },
             {
-                "label": "MLS",
-                "url_name": "competition_page",
-                "url_kwargs": {"slug": "mls"},
-                "style": "sub",
-            },
-            {
                 "label": "CUPS",
                 "url_name": "competition_page",
                 "url_kwargs": {"slug": "cups"},
@@ -112,9 +106,14 @@ COMPETITIONS = {
     "premier-league": "Premier League",
     "championship": "Championship",
     "league-one": "League One",
-    "mls": "MLS",
     "cups": "Cups",
     "waiting-room": "Waiting Room League",
+}
+
+LIVE_COMPETITION_SLUGS = {
+    "premier-league": "PL",
+    "championship": "CH",
+    "league-one": "L1",
 }
 
 

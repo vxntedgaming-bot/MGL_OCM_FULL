@@ -1,4 +1,5 @@
 {% extends "core/base.html" %}
+{% load mgl_ui %}
 
 {% block title %}Manager Profile — MGL{% endblock %}
 
@@ -7,50 +8,126 @@
     <div class="section-heading">
         <div>
             <div class="eyebrow">MANAGER PROFILE</div>
-            <h2>{{ manager.display_name|upper }}</h2>
-            <p>{{ manager.gamertag }} · {{ manager.status }}</p>
+            <h1>{{ manager.display_name|upper }}</h1>
+            <p>{{ manager.user.username }} · {{ manager.gamertag }}</p>
         </div>
         <span class="section-line"></span>
     </div>
 
-    <div class="overview-grid">
-        <div class="overview-stat">
-            <span>TOKEN BALANCE</span>
-            <strong>{{ mgl_token_balance|default:manager.tokens }}</strong>
-            <small>{% if mgl_has_club %}CLUB TREASURY{% else %}PERSONAL TOKENS{% endif %}</small>
+    <div class="mgl-profile-hero">
+        <div class="mgl-profile-identity">
+            <div class="mgl-profile-avatar" aria-hidden="true">{{ manager.display_name|slice:":1"|upper }}</div>
+            <div>
+                <div class="eyebrow">MGL MANAGER</div>
+                <h2>{{ manager.display_name }}</h2>
+                <p>{{ manager.status }} · {{ manager.user.username }}</p>
+                <p class="mgl-help">Gamertag {{ manager.gamertag }}{% if manager.preferred_team %} · Preferred club {{ manager.preferred_team }}{% endif %}</p>
+            </div>
         </div>
-        {% if career %}
-        <div class="overview-stat">
-            <span>WINS</span>
-            <strong>{{ career.wins }}</strong>
+        <div class="overview-grid mgl-profile-stats">
+            <div class="overview-stat">
+                <span>CURRENT CLUB</span>
+                {% if team %}
+                    <strong class="mgl-info-club">{% team_logo team "sm" %} {{ team.short_name }}</strong>
+                    <small>{{ team.name }}{% if team.league %} · {{ team.league.name }}{% endif %}</small>
+                {% else %}
+                    <strong>—</strong>
+                    <small>NO CLUB ASSIGNED</small>
+                {% endif %}
+            </div>
+            <div class="overview-stat">
+                <span>TOKEN BALANCE</span>
+                <strong>{{ token_balance }}</strong>
+                <small>PERSONAL · FOLLOWS THIS ACCOUNT</small>
+            </div>
+            <div class="overview-stat">
+                <span>HOLIDAY STATUS</span>
+                <strong>No data yet</strong>
+                <small>NOT RECORDED IN MGL</small>
+            </div>
         </div>
-        <div class="overview-stat">
-            <span>TROPHIES</span>
-            <strong>{{ career.trophies }}</strong>
-        </div>
-        <div class="overview-stat">
-            <span>MANAGER OF THE WEEK</span>
-            <strong>{{ career.manager_of_week }}</strong>
-        </div>
-        {% endif %}
     </div>
 </section>
 
 <section class="mgl-section">
     <div class="section-heading">
         <div>
+            <div class="eyebrow">MGL CAREER</div>
+            <h2>RECORD</h2>
+        </div>
+    </div>
+    {% if career and played %}
+        <div class="overview-grid">
+            <div class="overview-stat"><span>WINS</span><strong>{{ career.wins }}</strong></div>
+            <div class="overview-stat"><span>DRAWS</span><strong>{{ career.draws }}</strong></div>
+            <div class="overview-stat"><span>LOSSES</span><strong>{{ career.losses }}</strong></div>
+            <div class="overview-stat"><span>WIN RATE</span><strong>{{ win_rate }}%</strong><small>{{ played }} MATCHES</small></div>
+            <div class="overview-stat"><span>GOALS FOR</span><strong>{% if team %}{{ goals_for }}{% else %}No data yet{% endif %}</strong></div>
+            <div class="overview-stat"><span>GOALS AGAINST</span><strong>{% if team %}{{ goals_against }}{% else %}No data yet{% endif %}</strong></div>
+            <div class="overview-stat"><span>TROPHIES</span><strong>{{ career.trophies }}</strong></div>
+            <div class="overview-stat"><span>MANAGER OF THE WEEK</span><strong>{{ career.manager_of_week }}</strong></div>
+        </div>
+    {% else %}
+        {% include "mgl/includes/empty_state.html" with title="NO DATA YET" body="Wins, draws, losses and goal records appear after official MGL match statistics are submitted and approved." %}
+    {% endif %}
+</section>
+
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
             <div class="eyebrow">HONOURS</div>
-            <h2>TROPHIES</h2>
+            <h2>TROPHY / CUP HISTORY</h2>
         </div>
     </div>
     <div class="dashboard-panel">
         {% for trophy in trophies %}
             <div class="table-row">
                 <strong>{{ trophy.name }}</strong>
-                <span>{{ trophy.season }}</span>
+                <span>{{ trophy.season|default:"—" }}</span>
+                <small>{{ trophy.awarded_at|date:"d M Y" }}</small>
             </div>
         {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO TROPHIES YET" body="League titles, cups and awards will be recorded here as seasons are completed." %}
+            {% include "mgl/includes/empty_state.html" with title="NO DATA YET" body="League titles, cups and awards will be recorded here as seasons are completed." %}
+        {% endfor %}
+    </div>
+</section>
+
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">MANAGER HISTORY</div>
+            <h2>CLUB SPELLS</h2>
+            <p>Previous jobs stay on this profile when you leave a club. Token balance is not reset.</p>
+        </div>
+    </div>
+    <div class="dashboard-panel">
+        {% for spell in spells %}
+            <div class="table-row">
+                <strong class="mgl-info-club">{% team_logo spell.team "xs" %} {{ spell.team.name }}</strong>
+                <span>{{ spell.started_at|date:"d M Y" }} — {% if spell.ended_at %}{{ spell.ended_at|date:"d M Y" }}{% else %}CURRENT JOB{% endif %}</span>
+            </div>
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with title="NO DATA YET" body="Club appointments will appear here after you take a job." %}
+        {% endfor %}
+    </div>
+</section>
+
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">JOB APPLICATIONS</div>
+            <h2>APPLICATION RECORD</h2>
+        </div>
+    </div>
+    <div class="dashboard-panel">
+        {% for app in applications %}
+            <div class="table-row">
+                <strong>{{ app.team.name }}</strong>
+                <span>{{ app.status }}</span>
+                <small>{{ app.created_at|date:"d M Y" }}</small>
+            </div>
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with title="NO DATA YET" body="Job Centre applications will be listed here." %}
         {% endfor %}
     </div>
 </section>

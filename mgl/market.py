@@ -1,14 +1,30 @@
 from decimal import Decimal
+from datetime import timedelta
 
 from django.db import transaction
 from django.utils import timezone
 
 from auctions.models import AuctionBid, PlayerAuction, TokenTransaction
+from managers.models import ManagerApplication
 from players.models import Player
 from teams.models import Team
 
 from .models import MarketTransaction, NewsPost, PlayerListing, PlayerOwnershipHistory
 from .services import assign_player, create_news, manager_for_user
+
+
+AUCTION_DURATION_CHOICES = (
+    (30, "30 minutes"),
+    (60, "60 minutes"),
+    (90, "90 minutes"),
+    (120, "120 minutes"),
+    (180, "180 minutes"),
+    (720, "12 hours"),
+)
+AUCTION_DURATIONS_MINUTES = tuple(minutes for minutes, _label in AUCTION_DURATION_CHOICES)
+MAX_AUCTION_MINUTES = 720
+MANAGER_AUCTION_LIMIT = 3
+MANAGER_AUCTION_WINDOW = timedelta(hours=24)
 
 
 def club_for_user(user):
@@ -18,13 +34,46 @@ def club_for_user(user):
 
 
 def token_balance_for_user(user):
-    team = club_for_user(user)
-    if team is not None:
-        return team.tokens
     manager = manager_for_user(user)
     if manager:
         return manager.tokens
     return Decimal("0.00")
+
+
+def lock_manager(manager):
+    return ManagerApplication.objects.select_for_update().get(pk=manager.pk)
+
+
+def debit_manager_tokens(manager, amount, reason, auction=None):
+    amount = Decimal(str(amount))
+    manager = lock_manager(manager)
+    if manager.tokens < amount:
+        raise ValueError("You do not have enough tokens.")
+    manager.tokens = Decimal(manager.tokens) - amount
+    manager.save(update_fields=["tokens"])
+    record_token_transaction(
+        manager,
+        -int(amount),
+        TokenTransaction.DEBIT,
+        reason,
+        auction=auction,
+    )
+    return manager
+
+
+def credit_manager_tokens(manager, amount, reason, auction=None):
+    amount = Decimal(str(amount))
+    manager = lock_manager(manager)
+    manager.tokens = Decimal(manager.tokens) + amount
+    manager.save(update_fields=["tokens"])
+    record_token_transaction(
+        manager,
+        int(amount),
+        TokenTransaction.CREDIT,
+        reason,
+        auction=auction,
+    )
+    return manager
 
 
 def lock_team(team):
@@ -32,6 +81,7 @@ def lock_team(team):
 
 
 def debit_team_tokens(team, amount):
+    """Deprecated club-treasury helper kept for unread legacy rows."""
     team = lock_team(team)
     amount = Decimal(str(amount))
     if team.tokens < amount:
@@ -66,6 +116,102 @@ def record_token_transaction(manager, amount, transaction_type, description, auc
         description=description,
         auction=auction,
     )
+
+
+def parse_auction_duration(value):
+    try:
+        minutes = int(value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("Choose a valid auction length.") from exc
+    if minutes not in AUCTION_DURATIONS_MINUTES or minutes > MAX_AUCTION_MINUTES:
+        raise ValueError("Auction length must be 30–180 minutes or 12 hours.")
+    return minutes
+
+
+def _assert_no_live_auction(player):
+    if PlayerAuction.objects.filter(
+        player=player,
+        status__in=[PlayerAuction.PENDING, PlayerAuction.LIVE],
+    ).exists():
+        raise ValueError("This player already has an active auction.")
+    if PlayerListing.objects.filter(
+        player=player,
+        status__in=[PlayerListing.PENDING, PlayerListing.LIVE],
+    ).exists():
+        raise ValueError("This player is listed on the transfer market.")
+
+
+def manager_auctions_in_window(manager, now=None):
+    now = now or timezone.now()
+    return PlayerAuction.objects.filter(
+        listed_by_manager=manager,
+        listing_kind=PlayerAuction.CLUB,
+        created_at__gte=now - MANAGER_AUCTION_WINDOW,
+    )
+
+
+@transaction.atomic
+def create_free_agent_auction(player, user, duration_minutes, starting_bid=1):
+    minutes = parse_auction_duration(duration_minutes)
+    player = Player.objects.select_for_update().get(pk=player.pk)
+    if not player.is_free_agent or player.mgl_team_id:
+        raise ValueError("Only unassigned free agents can be released to auction by an admin.")
+    _assert_no_live_auction(player)
+    now = timezone.now()
+    return PlayerAuction.objects.create(
+        player=player,
+        created_by=user,
+        starting_bid=max(1, int(starting_bid or 1)),
+        minimum_increment=1,
+        starts_at=now,
+        ends_at=now + timedelta(minutes=minutes),
+        status=PlayerAuction.LIVE,
+        listing_kind=PlayerAuction.FREE_AGENT,
+        listed_by_manager=None,
+        origin_team=None,
+        duration_minutes=minutes,
+    )
+
+
+@transaction.atomic
+def create_manager_auction(player, manager, duration_minutes, starting_bid=1):
+    minutes = parse_auction_duration(duration_minutes)
+    team = club_for_user(manager.user)
+    if not team:
+        raise ValueError("You must manage a club to auction a player.")
+    player = Player.objects.select_for_update().get(pk=player.pk)
+    if player.mgl_team_id != team.id or player.is_free_agent:
+        raise ValueError("You can only auction a player who currently belongs to your club.")
+    _assert_no_live_auction(player)
+    if manager_auctions_in_window(manager).count() >= MANAGER_AUCTION_LIMIT:
+        raise ValueError("You can list at most 3 players for auction in 24 hours.")
+    now = timezone.now()
+    return PlayerAuction.objects.create(
+        player=player,
+        created_by=manager.user,
+        starting_bid=max(1, int(starting_bid or 1)),
+        minimum_increment=1,
+        starts_at=now,
+        ends_at=now + timedelta(minutes=minutes),
+        status=PlayerAuction.LIVE,
+        listing_kind=PlayerAuction.CLUB,
+        listed_by_manager=manager,
+        origin_team=team,
+        duration_minutes=minutes,
+    )
+
+
+def _restore_unsold_player(auction):
+    player = Player.objects.select_for_update().get(pk=auction.player_id)
+    if auction.listing_kind == PlayerAuction.CLUB and auction.origin_team_id:
+        player.mgl_team_id = auction.origin_team_id
+        player.is_free_agent = False
+        player.save(update_fields=["mgl_team", "is_free_agent"])
+        return player
+    player.mgl_team = None
+    player.is_free_agent = True
+    player.save(update_fields=["mgl_team", "is_free_agent"])
+    return player
 
 
 @transaction.atomic
@@ -123,6 +269,8 @@ def place_auction_bid(auction, manager, amount):
     player = Player.objects.select_for_update().get(pk=auction.player_id)
     if player.mgl_team_id == team.id:
         raise ValueError("You cannot bid on a player already at your club.")
+    if auction.listed_by_manager_id == manager.id:
+        raise ValueError("You cannot bid on your own auction.")
 
     highest_bid = (
         auction.bids.select_for_update()
@@ -144,47 +292,45 @@ def place_auction_bid(auction, manager, amount):
         .first()
     )
 
-    team = lock_team(team)
-    reserved = Decimal(previous_own.amount) if previous_own and previous_own.team_id == team.id else Decimal("0")
-    available = Decimal(team.tokens) + reserved
+    manager = lock_manager(manager)
+    reserved = Decimal(previous_own.amount) if previous_own else Decimal("0")
+    available = Decimal(manager.tokens) + reserved
     if Decimal(amount) > available:
-        raise ValueError(f"{team.name} only has {available} available tokens.")
+        raise ValueError(f"You only have {available} available tokens.")
 
     if highest_bid and highest_bid.manager_id != manager.id:
-        refund_team = highest_bid.team or club_for_user(highest_bid.manager.user)
-        if refund_team:
-            credit_team_tokens(refund_team, highest_bid.amount)
-            record_token_transaction(
-                highest_bid.manager,
-                highest_bid.amount,
-                TokenTransaction.REFUND,
-                f"Outbid refund on {auction.player.name}",
-                auction=auction,
-            )
-            record_market_transaction(
-                player=auction.player,
-                seller=None,
-                buyer=highest_bid.manager,
-                from_team=None,
-                to_team=refund_team,
-                amount=highest_bid.amount,
-                transaction_type=MarketTransaction.BID_REFUND,
-                status=MarketTransaction.COMPLETED,
-                auction=auction,
-                notes="Refunded after being outbid",
-            )
+        credit_manager_tokens(
+            highest_bid.manager,
+            highest_bid.amount,
+            f"Outbid refund on {auction.player.name}",
+            auction=auction,
+        )
+        record_market_transaction(
+            player=auction.player,
+            seller=None,
+            buyer=highest_bid.manager,
+            from_team=None,
+            to_team=None,
+            amount=highest_bid.amount,
+            transaction_type=MarketTransaction.BID_REFUND,
+            status=MarketTransaction.COMPLETED,
+            auction=auction,
+            notes="Refunded after being outbid",
+        )
         auction.bids.filter(manager=highest_bid.manager).delete()
 
     if previous_own:
-        if previous_own.team_id == team.id:
-            credit_team_tokens(team, previous_own.amount)
+        credit_manager_tokens(
+            manager,
+            previous_own.amount,
+            f"Replace bid on {auction.player.name}",
+            auction=auction,
+        )
         previous_own.delete()
 
-    debit_team_tokens(team, amount)
-    record_token_transaction(
+    debit_manager_tokens(
         manager,
-        -amount,
-        TokenTransaction.DEBIT,
+        amount,
         f"Bid reserve on {auction.player.name}",
         auction=auction,
     )
@@ -220,6 +366,7 @@ def settle_auction(auction, reviewer=None):
     )
 
     if not highest:
+        _restore_unsold_player(auction)
         auction.status = PlayerAuction.ENDED
         auction.save(update_fields=["status"])
         return auction, "Auction ended with no bids."
@@ -227,19 +374,42 @@ def settle_auction(auction, reviewer=None):
     winner = highest.manager
     club = highest.team or club_for_user(winner.user)
     if not club:
-        if highest.team:
-            credit_team_tokens(highest.team, highest.amount)
+        credit_manager_tokens(
+            winner,
+            highest.amount,
+            f"Auction cancelled refund on {auction.player.name}",
+            auction=auction,
+        )
+        _restore_unsold_player(auction)
         auction.status = PlayerAuction.CANCELLED
         auction.save(update_fields=["status"])
         return auction, "Winner no longer has a club. Bid refunded and auction cancelled."
 
     player = Player.objects.select_for_update().get(pk=auction.player_id)
-    assign_player(
-        player,
-        club,
-        source="AUCTION",
-        reference=f"auction:{auction.id}",
-    )
+    origin = auction.origin_team
+    if origin and player.mgl_team_id == origin.id:
+        transfer_player(
+            player,
+            origin,
+            club,
+            source="AUCTION",
+            reference=f"auction:{auction.id}",
+        )
+    else:
+        assign_player(
+            player,
+            club,
+            source="AUCTION",
+            reference=f"auction:{auction.id}",
+        )
+
+    if auction.listed_by_manager_id:
+        credit_manager_tokens(
+            auction.listed_by_manager,
+            highest.amount,
+            f"Auction sale of {player.name}",
+            auction=auction,
+        )
 
     auction.status = PlayerAuction.ENDED
     auction.winning_manager = winner
@@ -248,9 +418,9 @@ def settle_auction(auction, reviewer=None):
 
     record_market_transaction(
         player=player,
-        seller=None,
+        seller=auction.listed_by_manager,
         buyer=winner,
-        from_team=None,
+        from_team=origin,
         to_team=club,
         amount=highest.amount,
         transaction_type=MarketTransaction.AUCTION,
@@ -366,8 +536,16 @@ def buy_listed_player(listing, buyer):
     if listing.seller_id == buyer.id:
         raise ValueError("You cannot buy your own listing.")
 
-    debit_team_tokens(buyer_club, listing.asking_price)
-    credit_team_tokens(listing.team, listing.asking_price)
+    debit_manager_tokens(
+        buyer,
+        listing.asking_price,
+        f"Bought {listing.player.name} from {listing.team.name}",
+    )
+    credit_manager_tokens(
+        listing.seller,
+        listing.asking_price,
+        f"Sold {listing.player.name} to {buyer_club.name}",
+    )
 
     transfer_player(
         listing.player,
@@ -393,18 +571,6 @@ def buy_listed_player(listing, buyer):
         status=MarketTransaction.COMPLETED,
         approved_by=listing.reviewed_by,
         listing=listing,
-    )
-    record_token_transaction(
-        buyer,
-        -int(listing.asking_price),
-        TokenTransaction.DEBIT,
-        f"Bought {listing.player.name} from {listing.team.name}",
-    )
-    record_token_transaction(
-        listing.seller,
-        int(listing.asking_price),
-        TokenTransaction.CREDIT,
-        f"Sold {listing.player.name} to {buyer_club.name}",
     )
     create_news(
         NewsPost.TRANSFER,
