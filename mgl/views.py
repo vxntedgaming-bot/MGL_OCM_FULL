@@ -37,6 +37,8 @@ from .models import (
 )
 from .market import (
     AUCTION_DURATION_CHOICES,
+    MAX_ACTIVE_CLUB_LISTINGS,
+    active_market_listing_count,
     close_expired_auctions,
     club_for_user,
     create_free_agent_auction,
@@ -560,11 +562,15 @@ def release_my_player(request, player_id):
         mgl_team=team,
     )
 
-    release_player(
-        player,
-        team,
-        source="MANAGER_RELEASE",
-    )
+    try:
+        release_player(
+            player,
+            team,
+            source="MANAGER_RELEASE",
+        )
+    except ValueError as exc:
+        messages.error(request, str(exc))
+        return redirect("team_management")
 
     messages.success(
         request,
@@ -830,12 +836,27 @@ def team_management(request):
         auction.player_id: auction
         for auction in PlayerAuction.objects.filter(
             player_id__in=[player.id for player in players],
-            status=PlayerAuction.LIVE,
+            status__in=[PlayerAuction.PENDING, PlayerAuction.LIVE],
         )
     }
     for player in players:
         player.current_listing = listings.get(player.id)
         player.current_auction = live_auctions.get(player.id)
+
+    listing_action = (request.GET.get("list") or "").strip().lower()
+    listing_player = None
+    if listing_action in {"transfer", "auction", "release"}:
+        try:
+            listing_id = int(request.GET.get("player") or 0)
+        except (TypeError, ValueError):
+            listing_id = 0
+        listing_player = next((player for player in players if player.id == listing_id), None)
+        if listing_player is None:
+            messages.error(request, "You can only manage players who belong to your club.")
+            return redirect("team_management")
+        if listing_action != "release" and (listing_player.current_listing or listing_player.current_auction):
+            messages.error(request, "This player is already listed.")
+            return redirect("team_management")
 
     gk = {"GK"}
     defence = {"CB", "LB", "RB", "LWB", "RWB"}
@@ -866,6 +887,10 @@ def team_management(request):
             "squad_groups": squad_groups,
             "token_balance": token_balance_for_user(request.user),
             "auction_durations": AUCTION_DURATION_CHOICES,
+            "market_listing_count": active_market_listing_count(team),
+            "market_listing_limit": MAX_ACTIVE_CLUB_LISTINGS,
+            "listing_action": listing_action if listing_player else "",
+            "listing_player": listing_player,
         },
     )
 
@@ -1287,7 +1312,7 @@ def list_player_for_auction(request, player_id):
             player,
             manager,
             request.POST.get("duration"),
-            request.POST.get("starting_bid") or 1,
+            request.POST.get("starting_bid"),
         )
         messages.success(request, f"{player.name} is now in auction.")
     except ValueError as exc:
@@ -1304,7 +1329,7 @@ def auction_free_agent(request, player_id):
             player,
             request.user,
             request.POST.get("duration"),
-            request.POST.get("starting_bid") or 1,
+            request.POST.get("starting_bid"),
         )
         messages.success(
             request,

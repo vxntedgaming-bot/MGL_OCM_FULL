@@ -3,6 +3,7 @@ from decimal import Decimal
 from django.db import transaction
 from django.utils import timezone
 
+from auctions.models import PlayerAuction
 from managers.models import ManagerApplication
 from players.models import Player
 
@@ -10,6 +11,7 @@ from .models import (
     ApprovalStatus,
     ManagerCareerStat,
     NewsPost,
+    PlayerListing,
     PlayerOwnershipHistory,
     RewardTransaction,
 )
@@ -151,6 +153,17 @@ def release_player(player, team, source="MANAGER_RELEASE"):
 
     if player.mgl_team_id != team.id:
         raise ValueError("This player does not belong to this team.")
+
+    if PlayerListing.objects.filter(
+        player=player,
+        status__in=[PlayerListing.PENDING, PlayerListing.LIVE],
+    ).exists():
+        raise ValueError("This player cannot be released while listed for transfer.")
+    if PlayerAuction.objects.filter(
+        player=player,
+        status__in=[PlayerAuction.PENDING, PlayerAuction.LIVE],
+    ).exists():
+        raise ValueError("This player cannot be released while in an auction.")
 
     PlayerOwnershipHistory.objects.create(
         player=player,

@@ -186,11 +186,10 @@ class AuctionWorkflowTests(TestCase):
     def test_manager_auction_limit_is_server_side(self):
         extras = [
             Player.objects.create(name=f"Extra {i}", position="ST", overall=64, mgl_team=self.team_a, is_free_agent=False)
-            for i in range(3)
+            for i in range(6)
         ]
-        create_manager_auction(extras[0], self.mgr_a, 30)
-        create_manager_auction(extras[1], self.mgr_a, 30)
-        create_manager_auction(extras[2], self.mgr_a, 30)
+        for extra in extras:
+            create_manager_auction(extra, self.mgr_a, 30)
         with self.assertRaises(ValueError):
             create_manager_auction(self.owned, self.mgr_a, 30)
 

@@ -41,7 +41,7 @@ def transfer_market(request):
     close_expired_auctions()
     auctions = (
         PlayerAuction.objects.filter(status=PlayerAuction.LIVE)
-        .select_related("player", "player__mgl_team", "winning_manager")
+        .select_related("player", "player__mgl_team", "winning_manager", "listed_by_manager", "origin_team")
         .order_by("ends_at")
     )
     listings = (

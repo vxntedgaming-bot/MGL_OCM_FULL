@@ -23,8 +23,10 @@ AUCTION_DURATION_CHOICES = (
 )
 AUCTION_DURATIONS_MINUTES = tuple(minutes for minutes, _label in AUCTION_DURATION_CHOICES)
 MAX_AUCTION_MINUTES = 720
-MANAGER_AUCTION_LIMIT = 3
-MANAGER_AUCTION_WINDOW = timedelta(hours=24)
+MAX_ACTIVE_CLUB_LISTINGS = 6
+MIN_AUCTION_STARTING_BID = 0
+MAX_AUCTION_STARTING_BID = 10
+MARKET_SLOT_MESSAGE = "Your club already has 6 active market listings."
 
 
 def club_for_user(user):
@@ -128,6 +130,53 @@ def parse_auction_duration(value):
     return minutes
 
 
+def parse_auction_starting_bid(value):
+    if value is None or str(value).strip() == "":
+        raise ValueError("Enter a starting bid between 0 and 10 tokens.")
+    try:
+        amount = Decimal(str(value).strip())
+    except Exception as exc:
+        raise ValueError("Enter a starting bid between 0 and 10 tokens.") from exc
+    if amount != amount.to_integral_value():
+        raise ValueError("Starting bid must be a whole number from 0 to 10 tokens.")
+    amount = int(amount)
+    if amount < MIN_AUCTION_STARTING_BID or amount > MAX_AUCTION_STARTING_BID:
+        raise ValueError("Starting bid must be between 0 and 10 tokens.")
+    return amount
+
+
+def parse_asking_price(value):
+    if value is None or str(value).strip() == "":
+        raise ValueError("Enter a starting transfer price.")
+    try:
+        price = Decimal(str(value).strip())
+    except Exception as exc:
+        raise ValueError("Enter a valid token asking price.") from exc
+    if price <= 0:
+        raise ValueError("Asking price must be greater than zero.")
+    return price
+
+
+def active_market_listing_count(team):
+    if team is None:
+        return 0
+    transfers = PlayerListing.objects.filter(
+        team=team,
+        status__in=[PlayerListing.PENDING, PlayerListing.LIVE],
+    ).count()
+    auctions = PlayerAuction.objects.filter(
+        origin_team=team,
+        listing_kind=PlayerAuction.CLUB,
+        status__in=[PlayerAuction.PENDING, PlayerAuction.LIVE],
+    ).count()
+    return transfers + auctions
+
+
+def assert_club_listing_capacity(team):
+    if active_market_listing_count(team) >= MAX_ACTIVE_CLUB_LISTINGS:
+        raise ValueError(MARKET_SLOT_MESSAGE)
+
+
 def _assert_no_live_auction(player):
     if PlayerAuction.objects.filter(
         player=player,
@@ -141,15 +190,6 @@ def _assert_no_live_auction(player):
         raise ValueError("This player is listed on the transfer market.")
 
 
-def manager_auctions_in_window(manager, now=None):
-    now = now or timezone.now()
-    return PlayerAuction.objects.filter(
-        listed_by_manager=manager,
-        listing_kind=PlayerAuction.CLUB,
-        created_at__gte=now - MANAGER_AUCTION_WINDOW,
-    )
-
-
 @transaction.atomic
 def create_free_agent_auction(player, user, duration_minutes, starting_bid=1):
     minutes = parse_auction_duration(duration_minutes)
@@ -157,11 +197,12 @@ def create_free_agent_auction(player, user, duration_minutes, starting_bid=1):
     if not player.is_free_agent or player.mgl_team_id:
         raise ValueError("Only unassigned free agents can be released to auction by an admin.")
     _assert_no_live_auction(player)
+    bid = parse_auction_starting_bid(starting_bid)
     now = timezone.now()
     return PlayerAuction.objects.create(
         player=player,
         created_by=user,
-        starting_bid=max(1, int(starting_bid or 1)),
+        starting_bid=bid,
         minimum_increment=1,
         starts_at=now,
         ends_at=now + timedelta(minutes=minutes),
@@ -183,13 +224,13 @@ def create_manager_auction(player, manager, duration_minutes, starting_bid=1):
     if player.mgl_team_id != team.id or player.is_free_agent:
         raise ValueError("You can only auction a player who currently belongs to your club.")
     _assert_no_live_auction(player)
-    if manager_auctions_in_window(manager).count() >= MANAGER_AUCTION_LIMIT:
-        raise ValueError("You can list at most 3 players for auction in 24 hours.")
+    assert_club_listing_capacity(team)
+    bid = parse_auction_starting_bid(starting_bid)
     now = timezone.now()
     return PlayerAuction.objects.create(
         player=player,
         created_by=manager.user,
-        starting_bid=max(1, int(starting_bid or 1)),
+        starting_bid=bid,
         minimum_increment=1,
         starts_at=now,
         ends_at=now + timedelta(minutes=minutes),
@@ -459,25 +500,9 @@ def list_player_for_sale(player, manager, asking_price):
     if player.mgl_team_id != team.id:
         raise ValueError("You can only sell a player who belongs to your club.")
 
-    try:
-        price = Decimal(str(asking_price))
-    except Exception as exc:
-        raise ValueError("Enter a valid token asking price.") from exc
-
-    if price <= 0:
-        raise ValueError("Asking price must be greater than zero.")
-
-    if PlayerListing.objects.filter(
-        player=player,
-        status__in=[PlayerListing.PENDING, PlayerListing.LIVE],
-    ).exists():
-        raise ValueError("This player is already listed.")
-
-    if PlayerAuction.objects.filter(
-        player=player,
-        status__in=[PlayerAuction.PENDING, PlayerAuction.LIVE],
-    ).exists():
-        raise ValueError("This player is currently in an auction.")
+    price = parse_asking_price(asking_price)
+    _assert_no_live_auction(player)
+    assert_club_listing_capacity(team)
 
     return PlayerListing.objects.create(
         player=player,

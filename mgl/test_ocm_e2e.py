@@ -130,7 +130,7 @@ class OcmEndToEndTests(TestCase):
         hub = self.client.get(reverse("manager_hub"))
         self.assertContains(hub, "AFC")
         squad = self.client.get(reverse("team_management"))
-        self.assertContains(squad, "Player X")
+        self.assertContains(squad, "PLAYER X")
         self.assertContains(squad, "20")
         self.assertNotContains(squad, "250")
 

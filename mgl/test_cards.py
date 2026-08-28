@@ -136,10 +136,13 @@ class PlayerCardAndBadgeTests(TestCase):
         self.client.login(username="carduser", password="test-pass-123")
         squad = self.client.get(reverse("team_management"))
         self.assertEqual(squad.status_code, 200)
-        self.assertContains(squad, "Gold Striker")
+        self.assertContains(squad, "GOLD STRIKER")
         self.assertContains(squad, "mgl/cards/gold_card.png")
-        self.assertContains(squad, "SELL A PLAYER")
+        self.assertContains(squad, "TRANSFER LISTED")
         self.assertContains(squad, "WITHDRAW")
+        self.assertNotContains(squad, "SELL A PLAYER")
+        self.assertNotContains(squad, "LIST FOR SALE")
+        self.assertNotContains(squad, "TOKEN ASKING PRICE")
         return listing
 
     def test_card_stats_put_abbreviation_above_value_in_six_columns(self):

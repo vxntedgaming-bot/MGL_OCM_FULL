@@ -1,8 +1,6 @@
 from django.contrib import admin, messages
-from django.utils import timezone
-from datetime import timedelta
 
-from mgl.market import settle_auction
+from mgl.market import create_free_agent_auction, settle_auction
 from players.models import Player
 
 from .models import PlayerAuction, AuctionBid, TokenTransaction
@@ -31,15 +29,16 @@ def release_players_to_auction(modeladmin, request, queryset):
             skipped += 1
             continue
 
-        PlayerAuction.objects.create(
-            player=player,
-            created_by=request.user,
-            starting_bid=1,
-            minimum_increment=1,
-            starts_at=timezone.now(),
-            ends_at=timezone.now() + timedelta(hours=24),
-            status=PlayerAuction.LIVE,
-        )
+        try:
+            create_free_agent_auction(
+                player,
+                request.user,
+                720,
+                starting_bid=1,
+            )
+        except ValueError:
+            skipped += 1
+            continue
 
         created += 1
 
