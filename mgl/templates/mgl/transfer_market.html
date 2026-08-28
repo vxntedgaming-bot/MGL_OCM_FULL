@@ -33,7 +33,7 @@
         <div class="overview-stat">
             <span>FREE AGENTS</span>
             <strong>{{ free_agent_count }}</strong>
-            <small>UNSOLD AUCTIONS</small>
+            <small>AVAILABLE TO SIGN</small>
         </div>
     </div>
 </section>
@@ -59,7 +59,7 @@
                     {% elif auction.player.mgl_team %}
                         {{ auction.player.mgl_team.name }}
                     {% else %}
-                        UNASSIGNED
+                        <span class="mgl-status-badge mgl-status-badge--{{ auction.player|market_status_slug }}">{{ auction.player|market_status_label }}</span>
                     {% endif %}
                     · {{ auction.player.overall }} OVR · {{ auction.player.position }}
                 </p>

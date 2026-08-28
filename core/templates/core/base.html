@@ -10,15 +10,16 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'core/css/mgl.css' %}">
+    <link rel="stylesheet" href="{% static 'core/css/mgl-theme.css' %}">
     <link rel="icon" href="{% static 'core/img/mgl-logo.png' %}">
 </head>
-<body>
+<body class="{% block body_class %}{% endblock %}">
 <header class="mgl-header">
     <div class="mgl-header-inner">
         <a href="{% url 'home' %}" class="mgl-logo">
             <img src="{% static 'core/img/mgl-logo.png' %}" alt="MetaGamingLeague" class="mgl-logo-img">
             <span class="mgl-logo-text">
-                METAGAMINGLEAGUE
+                META GAMING LEAGUE
                 <span>ONLINE CAREER MODE</span>
             </span>
         </a>
@@ -29,45 +30,18 @@
             <span></span>
             <span></span>
         </label>
+        <label for="mgl-nav-toggle" class="mgl-nav-backdrop" aria-hidden="true"></label>
 
         <nav class="mgl-nav" id="mgl-site-nav">
             <a href="{% url 'home' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'home' %}is-active{% endif %}">HOME</a>
-            {% if user.is_authenticated %}
-                <a href="{% url 'manager_hub' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'manager_hub' %}is-active{% endif %}">MY HUB</a>
-            {% endif %}
-            {% for menu in mgl_nav_dropdowns %}
-                <div class="mgl-nav-dropdown" data-nav-dropdown="{{ menu.id }}">
-                    <button
-                        type="button"
-                        class="mgl-nav-trigger {% if menu.is_current %}is-active{% endif %}"
-                        data-nav-trigger
-                        aria-expanded="false"
-                        aria-haspopup="true"
-                        aria-controls="mgl-nav-menu-{{ menu.id }}"
-                        id="mgl-nav-trigger-{{ menu.id }}"
-                    >
-                        <span>{{ menu.label }}</span>
-                        <span class="mgl-nav-chevron" aria-hidden="true">
-                            <svg viewBox="0 0 12 8" focusable="false">
-                                <path d="M1 1.5 L6 6.5 L11 1.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
-                            </svg>
-                        </span>
-                    </button>
-                    <div class="mgl-nav-menu" id="mgl-nav-menu-{{ menu.id }}" role="menu" aria-labelledby="mgl-nav-trigger-{{ menu.id }}" aria-hidden="true">
-                        {% for item in menu.items %}
-                            <a
-                                href="{{ item.url }}"
-                                class="mgl-nav-item{% if item.style %} mgl-nav-item--{{ item.style }}{% endif %}{% if item.is_current %} is-current{% endif %}{% if item.divider %} has-divider{% endif %}"
-                                role="menuitem"
-                            >
-                                <span class="mgl-nav-item-label">{% if item.style == "sub" %}<span class="mgl-nav-dash">—</span> {% endif %}{{ item.label }}</span>
-                                {% if item.badge %}<span class="mgl-nav-badge">{{ item.badge }}</span>{% endif %}
-                            </a>
-                        {% endfor %}
-                    </div>
-                </div>
-            {% endfor %}
-            <a href="{% url 'job_centre' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'job_centre' %}is-active{% endif %}">JOB CENTRE</a>
+            <a href="{% url 'fixture_list' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'fixture_list' %}is-active{% endif %}">FIXTURES</a>
+            {% for menu in mgl_nav_dropdowns %}{% if menu.id == "leagues" %}{% include "core/includes/nav_dropdown.html" %}{% endif %}{% endfor %}
+            {% for menu in mgl_nav_dropdowns %}{% if menu.id == "stats" %}{% include "core/includes/nav_dropdown.html" %}{% endif %}{% endfor %}
+            <a href="{% url 'leagues_page' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'leagues_page' or request.resolver_match.url_name == 'competition_page' %}is-active{% endif %}">TEAMS</a>
+            {% for menu in mgl_nav_dropdowns %}{% if menu.id == "market" %}{% include "core/includes/nav_dropdown.html" %}{% endif %}{% endfor %}
+            <a href="{% url 'job_centre' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'job_centre' %}is-active{% endif %}">JOBS</a>
+            <a href="{% url 'home' %}#mgl-news" class="mgl-nav-link">NEWS</a>
+            {% for menu in mgl_nav_dropdowns %}{% if menu.id == "my-team" %}{% include "core/includes/nav_dropdown.html" %}{% endif %}{% endfor %}
             {% if mgl_is_control %}
                 <a href="{% url 'control_centre' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'control_centre' %}is-active{% endif %}">CONTROL</a>
             {% endif %}
@@ -76,20 +50,26 @@
                     <a href="{% url 'manager_profile' %}" class="mgl-nav-link">PROFILE</a>
                 {% else %}
                     <a href="{% url 'manager_login' %}" class="mgl-nav-link">LOGIN</a>
-                    <a href="{% url 'manager_register' %}" class="mgl-nav-link">JOIN THE LEAGUE</a>
+                    <a href="{% url 'manager_register' %}" class="mgl-nav-link">JOIN</a>
                 {% endif %}
             </div>
         </nav>
 
         <div class="mgl-header-actions">
             {% if user.is_authenticated %}
-                <a href="{% url 'manager_profile' %}" class="header-button">PROFILE</a>
+                <a href="{% url 'manager_profile' %}" class="header-button mgl-header-account">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5 19a7 7 0 0 1 14 0"/></svg>
+                    ACCOUNT
+                </a>
                 <form method="post" action="{% url 'manager_logout' %}" class="mgl-logout-form">
                     {% csrf_token %}
                     <button type="submit" class="header-button">LOGOUT</button>
                 </form>
             {% else %}
-                <a href="{% url 'manager_login' %}" class="header-button header-button-solid">LOGIN</a>
+                <a href="{% url 'manager_login' %}" class="header-button header-button-solid mgl-header-account">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5 19a7 7 0 0 1 14 0"/></svg>
+                    LOGIN
+                </a>
             {% endif %}
         </div>
     </div>
@@ -109,32 +89,29 @@
 </main>
 
 <footer class="mgl-footer">
-    <div class="mgl-footer-inner">
+    <div class="mgl-footer-inner mgl-footer-bar">
         <div class="mgl-footer-brand">
             <img src="{% static 'core/img/mgl-logo.png' %}" alt="MGL" class="mgl-logo-img">
-            <strong>MetaGamingLeague</strong>
+            <strong>Meta Gaming League</strong>
             <p>Online Career Mode</p>
         </div>
-        <div>
-            <strong>EXPLORE</strong>
-            <p><a href="{% url 'home' %}">Home</a></p>
-            <p><a href="{% url 'leagues_page' %}">Leagues</a></p>
-            <p><a href="{% url 'fixture_list' %}">Fixtures</a></p>
-            <p><a href="{% url 'transfer_market' %}">Market</a></p>
+        <div class="mgl-footer-social">
+            <a href="#" aria-label="X / Twitter">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 3h3.1l-6.8 7.8L22 21h-6.2l-4.9-6.4L5.4 21H2.2l7.3-8.4L2 3h6.3l4.4 5.8L17.5 3Zm-1.1 16.2h1.7L7.7 4.7H5.9l10.5 14.5Z"/></svg>
+            </a>
+            <a href="#" aria-label="Discord">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.3 5.2A18 18 0 0 0 14.8 4l-.2.4a16.4 16.4 0 0 1 4 1.5 16.2 16.2 0 0 0-12.2 0 16 16 0 0 1 3.9-1.5L10.1 4A18 18 0 0 0 4.7 5.2C2.1 9.1 1.4 12.8 1.7 16.5A18.4 18.4 0 0 0 7.3 19l.7-1.2a11.8 11.8 0 0 1-1.9-.9l.4-.3a13.3 13.3 0 0 0 11 0l.4.3a12 12 0 0 1-1.9.9l.7 1.2a18.4 18.4 0 0 0 5.6-2.5c.5-4.3-.7-8-2-11.3ZM8.7 14.6c-.8 0-1.5-.8-1.5-1.7s.7-1.7 1.5-1.7 1.5.8 1.5 1.7-.6 1.7-1.5 1.7Zm6.6 0c-.8 0-1.5-.8-1.5-1.7s.7-1.7 1.5-1.7 1.5.8 1.5 1.7-.7 1.7-1.5 1.7Z"/></svg>
+            </a>
+            <a href="#" aria-label="YouTube">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 12.2s0-3.2-.4-4.6c-.2-.9-.9-1.6-1.8-1.8C19.2 5.4 12 5.4 12 5.4s-7.2 0-8.8.4c-.9.2-1.6.9-1.8 1.8C1 9 1 12.2 1 12.2s0 3.2.4 4.6c.2.9.9 1.6 1.8 1.8 1.6.4 8.8.4 8.8.4s7.2 0 8.8-.4c.9-.2 1.6-.9 1.8-1.8.4-1.4.4-4.6.4-4.6ZM9.8 15.5v-6.6l6.3 3.3-6.3 3.3Z"/></svg>
+            </a>
+            <a href="#" aria-label="Instagram">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="4" width="16" height="16" rx="5"/><circle cx="12" cy="12" r="3.5"/><circle cx="17.2" cy="6.8" r="0.8" fill="currentColor" stroke="none"/></svg>
+            </a>
         </div>
-        <div>
-            <strong>COMPETE</strong>
-            <p><a href="{% url 'stats_page' %}">Stats</a></p>
-            <p><a href="{% url 'job_centre' %}">Job Centre</a></p>
-            <p><a href="{% url 'home' %}#mgl-how">Rules</a></p>
-            <p><a href="{% url 'home' %}#mgl-about">About</a></p>
-        </div>
-        <div>
-            <strong>COMMUNITY</strong>
-            <p><a href="#">Discord</a></p>
-            <p><a href="#">YouTube</a></p>
-            <p><a href="#">X / Twitter</a></p>
-            <p><a href="#">Twitch</a></p>
+        <div class="mgl-footer-partners">
+            <span>EA FC 26</span>
+            <span>MGL</span>
         </div>
     </div>
     <div class="mgl-footer-copy">© MetaGamingLeague. All rights reserved.</div>

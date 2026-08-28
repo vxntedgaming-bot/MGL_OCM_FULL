@@ -4,6 +4,8 @@ Django site and Discord outbox bot for MetaGamingLeague Online Career Mode: mana
 
 This tree is the existing MGL project (not a rewrite).
 
+Presentation lives in `core/templates/core/base.html`, `core/static/core/css/mgl.css`, and the overlay design system `core/static/core/css/mgl-theme.css`. Inner pages inherit header, footer, cards, badges, tables, and mobile navigation from that base. Player market states stay visually distinct: **UNASSIGNED**, **AUCTION**, and **FREE AGENT**.
+
 ## Local development
 
 ```bash

@@ -8,7 +8,11 @@
         <div>
             <div class="eyebrow">LEAGUE OFFICE</div>
             <h2>OWNER / ADMIN CONTROL</h2>
-            <p>Approve managers, listings and club applications. Clubs and squads are never deleted when a manager leaves.</p>
+            <p>
+                Signed in as
+                <span class="mgl-role-badge mgl-role-badge--{{ user.role|lower }}">{{ user.role }}</span>.
+                Approve managers, listings and club applications. Clubs and squads are never deleted when a manager leaves.
+            </p>
         </div>
         <a href="{% url 'club_management_admin' %}" class="view-all">CLUBS →</a>
     </div>

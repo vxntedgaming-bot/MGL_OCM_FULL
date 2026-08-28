@@ -4,22 +4,23 @@
 ========================================================= */
 
 :root {
-    --bg: #050608;
-    --bg-soft: #0a0c10;
-    --panel: #10131a;
-    --panel-hover: #161b24;
+    --bg: #000000;
+    --bg-soft: #070707;
+    --panel: #121212;
+    --panel-hover: #1a1a1a;
     --border: rgba(255, 255, 255, 0.08);
-    --orange: #ff7a18;
-    --orange-light: #ff9638;
-    --orange-dark: #c95700;
-    --text: #f5f6f8;
-    --muted: #8b909a;
-    --muted-light: #c4c7ce;
+    --orange: #ff5c00;
+    --orange-light: #ff7a24;
+    --orange-dark: #c44700;
+    --text: #ffffff;
+    --muted: #a0a0a0;
+    --muted-light: #d4d4d4;
     --success: #8cff3d;
-    --container: 1180px;
-    --header-h: 78px;
+    --container: 1240px;
+    --header-h: 72px;
     --font-display: "Barlow Condensed", "Arial Narrow", sans-serif;
     --font-body: "Manrope", Arial, Helvetica, sans-serif;
+    --glow: 0 0 18px rgba(255, 92, 0, 0.45);
 }
 
 * {
