@@ -1,0 +1,2 @@
+[deploy]
+releaseCommand = "python manage.py migrate --noinput && python manage.py populate_super_league_1"
