@@ -243,6 +243,16 @@ class AuctionWorkflowTests(TestCase):
         self.assertEqual(self.mgr_b.tokens, Decimal("20.00"))
         self.assertGreaterEqual(self.mgr_b.tokens, 0)
 
+    def test_bid_and_settle_locks_do_not_join_nullable_fks(self):
+        import inspect
+
+        from mgl import market
+
+        bid_src = inspect.getsource(market.place_auction_bid)
+        settle_src = inspect.getsource(market.settle_auction)
+        self.assertNotIn('select_related("manager", "team")', bid_src)
+        self.assertNotIn("winning_manager__user", settle_src)
+
 
 class StatsHubTests(TestCase):
     def setUp(self):

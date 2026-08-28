@@ -313,9 +313,10 @@ def place_auction_bid(auction, manager, amount):
     if auction.listed_by_manager_id == manager.id:
         raise ValueError("You cannot bid on your own auction.")
 
+    # PostgreSQL rejects SELECT FOR UPDATE with select_related() on nullable FKs
+    # (AuctionBid.team, PlayerAuction.winning_manager). Lock the bid rows only.
     highest_bid = (
         auction.bids.select_for_update()
-        .select_related("manager", "team")
         .order_by("-amount", "-created_at")
         .first()
     )
@@ -391,11 +392,7 @@ def place_auction_bid(auction, manager, amount):
 
 @transaction.atomic
 def settle_auction(auction, reviewer=None):
-    auction = PlayerAuction.objects.select_for_update().select_related(
-        "player",
-        "winning_manager",
-        "winning_manager__user",
-    ).get(pk=auction.pk)
+    auction = PlayerAuction.objects.select_for_update().get(pk=auction.pk)
 
     if auction.status != PlayerAuction.LIVE:
         return auction, "Auction is no longer live."
