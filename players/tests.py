@@ -7,7 +7,7 @@ from django.core.management import call_command
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from players.fc26_faces import card_face_src, sofifa_url_for_size
+from players.fc26_faces import card_face_src, sofifa_url_for_size, sofifa_variant_urls
 from players.models import Player
 
 
@@ -186,6 +186,61 @@ class PlayerFaceDisplayTests(TestCase):
         bare = Player.objects.create(name="No Face", overall=50, position="CB")
         missing = self.client.get(reverse("player_face_image", args=[bare.pk]))
         self.assertEqual(missing.status_code, 404)
+
+    def test_sofifa_year_variants_stay_on_the_same_player_path(self):
+        urls = sofifa_variant_urls(SALAH_FACE, "120")
+        self.assertEqual(urls[0], SALAH_FACE)
+        self.assertIn("https://cdn.sofifa.net/players/209/331/25_120.png", urls)
+        self.assertTrue(all("/209/331/" in url for url in urls))
+        self.assertFalse(any("/233/988/" in url for url in urls))
+
+    @override_settings(MEDIA_ROOT="/tmp/mgl-face-year-fallback-media")
+    def test_proxy_uses_same_id_older_sofifa_year_when_26_is_missing(self):
+        png = b"\x89PNG\r\n\x1a\n" + b"year25"
+        player = Player.objects.create(
+            name="Abdelkarim Hassan",
+            fc27_id="239861",
+            position="LB",
+            overall=73,
+            player_face_url="https://cdn.sofifa.net/players/239/861/26_120.png",
+            image_url="https://cdn.sofifa.net/players/239/861/26_120.png",
+        )
+        stored = player.player_face_url
+
+        def fake_fetch(url, attempts=3):
+            if url.endswith("/239/861/25_120.png"):
+                return png
+            return None
+
+        with patch("players.fc26_faces.fetch_sofifa_png", side_effect=fake_fetch):
+            response = self.client.get(reverse("player_face_image", args=[player.pk]))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, png)
+        player.refresh_from_db()
+        self.assertEqual(player.player_face_url, stored)
+        self.assertEqual(player.fc27_id, "239861")
+        self.assertEqual(player.overall, 73)
+        self.assertEqual(player.position, "LB")
+        self.assertEqual(Player.objects.filter(fc27_id="239861").count(), 1)
+
+    @override_settings(MEDIA_ROOT="/tmp/mgl-face-missing-media")
+    def test_proxy_stays_404_when_this_player_has_no_sofifa_portrait(self):
+        player = Player.objects.create(
+            name="Vágner Norteiro",
+            fc27_id="233988",
+            position="RB",
+            overall=69,
+            player_face_url="https://cdn.sofifa.net/players/233/988/26_120.png",
+        )
+        with patch("players.fc26_faces.fetch_sofifa_png", return_value=None):
+            response = self.client.get(reverse("player_face_image", args=[player.pk]))
+        self.assertEqual(response.status_code, 404)
+        player.refresh_from_db()
+        self.assertEqual(
+            player.player_face_url,
+            "https://cdn.sofifa.net/players/233/988/26_120.png",
+        )
+        self.assertEqual(Player.objects.filter(name="Vágner Norteiro").count(), 1)
 
 
 class Fc26DisplayNameTests(TestCase):
