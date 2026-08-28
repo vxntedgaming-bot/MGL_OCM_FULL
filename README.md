@@ -33,18 +33,27 @@ Optional player import (FC26 CSV is already in the repo). Every imported player 
 python manage.py populate_super_league_1
 ```
 
-That command creates the 14 official Premier League clubs if missing and imports `fc26_players_mgl.csv` **without** assigning anyone to an MGL club. `fc27_club` is FC26 reference data only. It does not reset tokens, managers, fixtures, or history.
+That command creates the 14 official Premier League clubs if missing and imports `fc26_players_mgl.csv` **without** assigning anyone to an MGL club. `fc27_club` is FC26 reference data only. It does not reset tokens, managers, fixtures, or history. Assign the approved starting 26s with `apply_starting_squads` (dry-run first).
 
 Player market states:
 
-- **UNASSIGNED** — unused FC26 pool. No club, not in auction, not a Free Agent.
-- **AUCTION** — admin released the player into the existing auction system.
-- **FREE AGENT** — an unassigned auction closed with **no bids** (or a club released the player).
-- **CLUB PLAYER** — a manager won the auction, or another existing signing path assigned the player.
+- **UNASSIGNED** — unused FC26 pool. No club, not in auction, not a Free Agent. These players are not available to sign.
+- **AUCTION** — owner/admin released an unassigned player into the existing auction system.
+- **FREE AGENT** — an unassigned auction closed with **no bids**, or a club manager released their own player. Eligible managers can sign them for **0 TKN**.
+- **CLUB PLAYER** — belongs to an MGL club (starting squad, auction win, free-agent signing, transfer, or scout).
 
-Only an owner/admin can move UNASSIGNED → AUCTION. Managers receive HTTP 403 if they POST the release endpoint.
+Only an owner/admin can move UNASSIGNED → AUCTION. Managers receive HTTP 403 if they POST the unassigned-release endpoint. A no-bid auction becomes a Free Agent. A manager can only release players on their own club; that player becomes a Free Agent with no auction.
 
-Do **not** run `generate_balanced_squads`. It is disabled. Dry-run a balanced 14×26 starting auction pool (64–70 OVR, exact position shape, equal total OVR) without writing players:
+Do **not** run `generate_balanced_squads`. It is disabled. Official 14×26 starting squads use the approved allocation (seed `20260828`, 1,741 OVR per club). Dry-run first; `--apply` writes club assignments only:
+
+```bash
+python manage.py apply_starting_squads
+python manage.py apply_starting_squads --apply
+```
+
+That command does not change ratings, FC26 IDs, faces, club treasuries, or manager balances, and does not create auctions. After a successful apply: 364 club players, remaining FC26 players UNASSIGNED, 0 Free Agents, 0 auctions.
+
+Optional: dry-run a *new* balanced pool (does not write, does not replace the approved allocation):
 
 ```bash
 python manage.py propose_starting_auction_pool --seed 20260828 --attempts 120

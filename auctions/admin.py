@@ -1,4 +1,5 @@
 from django.contrib import admin, messages
+from django.core.exceptions import PermissionDenied
 
 from mgl.market import create_free_agent_auction, settle_auction
 from players.models import Player
@@ -36,7 +37,7 @@ def release_players_to_auction(modeladmin, request, queryset):
                 720,
                 starting_bid=1,
             )
-        except ValueError:
+        except (ValueError, PermissionDenied):
             skipped += 1
             continue
 

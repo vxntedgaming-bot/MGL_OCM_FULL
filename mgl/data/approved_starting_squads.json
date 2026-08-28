@@ -1,0 +1,2292 @@
+{
+  "seed": 20260828,
+  "target_total_ovr": 1741,
+  "players_per_club": 26,
+  "club_count": 14,
+  "min_ovr": 64,
+  "max_ovr": 70,
+  "shape": {
+    "GK": 2,
+    "CB": 4,
+    "RB": 2,
+    "LB": 2,
+    "CDM": 2,
+    "CM": 2,
+    "CAM": 2,
+    "RM": 2,
+    "LM": 2,
+    "ST": 2,
+    "LW": 2,
+    "RW": 2
+  },
+  "squads": [
+    {
+      "club_name": "Real Madrid",
+      "short_name": "RMA",
+      "players": [
+        {
+          "position": "GK",
+          "overall": 70,
+          "name": "Daniel Iversen",
+          "fc27_id": "228410"
+        },
+        {
+          "position": "GK",
+          "overall": 64,
+          "name": "Tom Opitz",
+          "fc27_id": "79024"
+        },
+        {
+          "position": "CB",
+          "overall": 70,
+          "name": "Zhu Chenjie",
+          "fc27_id": "245041"
+        },
+        {
+          "position": "CB",
+          "overall": 67,
+          "name": "Guðlaugur Pálsson",
+          "fc27_id": "190640"
+        },
+        {
+          "position": "CB",
+          "overall": 67,
+          "name": "Ivan Näsberg",
+          "fc27_id": "216114"
+        },
+        {
+          "position": "CB",
+          "overall": 64,
+          "name": "Sebastián Pereira",
+          "fc27_id": "247013"
+        },
+        {
+          "position": "RB",
+          "overall": 69,
+          "name": "Otar Kakabadze",
+          "fc27_id": "235005"
+        },
+        {
+          "position": "RB",
+          "overall": 64,
+          "name": "Jakob Voelkerling Persson",
+          "fc27_id": "253369"
+        },
+        {
+          "position": "LB",
+          "overall": 70,
+          "name": "Tim Leibold",
+          "fc27_id": "221201"
+        },
+        {
+          "position": "LB",
+          "overall": 64,
+          "name": "Mathías Suárez",
+          "fc27_id": "71108"
+        },
+        {
+          "position": "CDM",
+          "overall": 70,
+          "name": "Jordi Quintillà",
+          "fc27_id": "210619"
+        },
+        {
+          "position": "CDM",
+          "overall": 64,
+          "name": "Miguel Vegas",
+          "fc27_id": "70756"
+        },
+        {
+          "position": "CM",
+          "overall": 70,
+          "name": "Mert Yandaş",
+          "fc27_id": "240837"
+        },
+        {
+          "position": "CM",
+          "overall": 64,
+          "name": "Sverre Sandal",
+          "fc27_id": "279739"
+        },
+        {
+          "position": "CAM",
+          "overall": 70,
+          "name": "Willum Willumsson",
+          "fc27_id": "270578"
+        },
+        {
+          "position": "CAM",
+          "overall": 64,
+          "name": "Johan Beltrán",
+          "fc27_id": "77141"
+        },
+        {
+          "position": "RM",
+          "overall": 70,
+          "name": "Francisco Pizzini",
+          "fc27_id": "214971"
+        },
+        {
+          "position": "RM",
+          "overall": 64,
+          "name": "Emmanuel Ekong",
+          "fc27_id": "271923"
+        },
+        {
+          "position": "LM",
+          "overall": 70,
+          "name": "Ousseynou Niang",
+          "fc27_id": "74963"
+        },
+        {
+          "position": "LM",
+          "overall": 64,
+          "name": "Brison Fernandes",
+          "fc27_id": "271900"
+        },
+        {
+          "position": "ST",
+          "overall": 70,
+          "name": "Sergi Guardiola",
+          "fc27_id": "229624"
+        },
+        {
+          "position": "ST",
+          "overall": 64,
+          "name": "Flavio Russo",
+          "fc27_id": "74504"
+        },
+        {
+          "position": "LW",
+          "overall": 70,
+          "name": "Robert Taylor",
+          "fc27_id": "239944"
+        },
+        {
+          "position": "LW",
+          "overall": 64,
+          "name": "Axel Kayombo",
+          "fc27_id": "278730"
+        },
+        {
+          "position": "RW",
+          "overall": 70,
+          "name": "Rodney Redes",
+          "fc27_id": "253250"
+        },
+        {
+          "position": "RW",
+          "overall": 64,
+          "name": "Ramiro Degregorio",
+          "fc27_id": "276603"
+        }
+      ]
+    },
+    {
+      "club_name": "Barcelona",
+      "short_name": "BAR",
+      "players": [
+        {
+          "position": "GK",
+          "overall": 70,
+          "name": "Martin Delavallée",
+          "fc27_id": "269795"
+        },
+        {
+          "position": "GK",
+          "overall": 64,
+          "name": "Harry Tyrer",
+          "fc27_id": "268631"
+        },
+        {
+          "position": "CB",
+          "overall": 70,
+          "name": "Virgil Ghiță",
+          "fc27_id": "248105"
+        },
+        {
+          "position": "CB",
+          "overall": 67,
+          "name": "Nicolás Zalazar",
+          "fc27_id": "236670"
+        },
+        {
+          "position": "CB",
+          "overall": 67,
+          "name": "Stipe Vulikić",
+          "fc27_id": "270655"
+        },
+        {
+          "position": "CB",
+          "overall": 64,
+          "name": "Fernando Román",
+          "fc27_id": "267491"
+        },
+        {
+          "position": "RB",
+          "overall": 70,
+          "name": "Fabien Centonze",
+          "fc27_id": "229971"
+        },
+        {
+          "position": "RB",
+          "overall": 64,
+          "name": "Valentín Pezzolesi",
+          "fc27_id": "74371"
+        },
+        {
+          "position": "LB",
+          "overall": 69,
+          "name": "Kenneth Paal",
+          "fc27_id": "228120"
+        },
+        {
+          "position": "LB",
+          "overall": 64,
+          "name": "Oscar Schönfelder",
+          "fc27_id": "257051"
+        },
+        {
+          "position": "CDM",
+          "overall": 70,
+          "name": "Denis Odoi",
+          "fc27_id": "185349"
+        },
+        {
+          "position": "CDM",
+          "overall": 64,
+          "name": "Maciej Ambrosiewicz",
+          "fc27_id": "239731"
+        },
+        {
+          "position": "CM",
+          "overall": 70,
+          "name": "Vincent Marchetti",
+          "fc27_id": "228774"
+        },
+        {
+          "position": "CM",
+          "overall": 64,
+          "name": "Juan Meza",
+          "fc27_id": "79821"
+        },
+        {
+          "position": "CAM",
+          "overall": 70,
+          "name": "Sanaldo Caiado",
+          "fc27_id": "230377"
+        },
+        {
+          "position": "CAM",
+          "overall": 64,
+          "name": "Jonas Oehmichen",
+          "fc27_id": "264168"
+        },
+        {
+          "position": "RM",
+          "overall": 70,
+          "name": "Moses Usor",
+          "fc27_id": "271092"
+        },
+        {
+          "position": "RM",
+          "overall": 64,
+          "name": "Luca D'Andrea",
+          "fc27_id": "271482"
+        },
+        {
+          "position": "LM",
+          "overall": 70,
+          "name": "Ken Sema",
+          "fc27_id": "213750"
+        },
+        {
+          "position": "LM",
+          "overall": 64,
+          "name": "Maximiliano Añasco",
+          "fc27_id": "274010"
+        },
+        {
+          "position": "ST",
+          "overall": 70,
+          "name": "Mohamed Bamba",
+          "fc27_id": "277216"
+        },
+        {
+          "position": "ST",
+          "overall": 64,
+          "name": "David Mokwa",
+          "fc27_id": "76133"
+        },
+        {
+          "position": "LW",
+          "overall": 70,
+          "name": "Carlos Forbs",
+          "fc27_id": "277426"
+        },
+        {
+          "position": "LW",
+          "overall": 64,
+          "name": "Joshua Endres",
+          "fc27_id": "243883"
+        },
+        {
+          "position": "RW",
+          "overall": 70,
+          "name": "Mouhamed Belkheir",
+          "fc27_id": "245565"
+        },
+        {
+          "position": "RW",
+          "overall": 64,
+          "name": "Drilon Hazrollaj",
+          "fc27_id": "78778"
+        }
+      ]
+    },
+    {
+      "club_name": "Atletico Madrid",
+      "short_name": "ATM",
+      "players": [
+        {
+          "position": "GK",
+          "overall": 69,
+          "name": "Amigo Gomis",
+          "fc27_id": "201976"
+        },
+        {
+          "position": "GK",
+          "overall": 64,
+          "name": "Ernesto Hernández",
+          "fc27_id": "221463"
+        },
+        {
+          "position": "CB",
+          "overall": 69,
+          "name": "Tobias Mølgaard",
+          "fc27_id": "243886"
+        },
+        {
+          "position": "CB",
+          "overall": 68,
+          "name": "Manuel Maranda",
+          "fc27_id": "233435"
+        },
+        {
+          "position": "CB",
+          "overall": 67,
+          "name": "Jakob Kiilerich",
+          "fc27_id": "239813"
+        },
+        {
+          "position": "CB",
+          "overall": 64,
+          "name": "Emin Grozdanic",
+          "fc27_id": "272941"
+        },
+        {
+          "position": "RB",
+          "overall": 70,
+          "name": "Ali Majrashi",
+          "fc27_id": "242506"
+        },
+        {
+          "position": "RB",
+          "overall": 64,
+          "name": "Kelvin Abrefa",
+          "fc27_id": "265645"
+        },
+        {
+          "position": "LB",
+          "overall": 69,
+          "name": "Kostiantyn Vivcharenko",
+          "fc27_id": "271542"
+        },
+        {
+          "position": "LB",
+          "overall": 64,
+          "name": "Luke Garbutt",
+          "fc27_id": "192319"
+        },
+        {
+          "position": "CDM",
+          "overall": 70,
+          "name": "Josip Mišić",
+          "fc27_id": "231007"
+        },
+        {
+          "position": "CDM",
+          "overall": 64,
+          "name": "Theofanis Bakoulas",
+          "fc27_id": "74117"
+        },
+        {
+          "position": "CM",
+          "overall": 70,
+          "name": "Oliver Abildgaard",
+          "fc27_id": "229082"
+        },
+        {
+          "position": "CM",
+          "overall": 64,
+          "name": "Karol Knap",
+          "fc27_id": "262825"
+        },
+        {
+          "position": "CAM",
+          "overall": 70,
+          "name": "Ola Solbakken",
+          "fc27_id": "242090"
+        },
+        {
+          "position": "CAM",
+          "overall": 64,
+          "name": "Mika Baur",
+          "fc27_id": "266446"
+        },
+        {
+          "position": "RM",
+          "overall": 70,
+          "name": "Kieran Dowell",
+          "fc27_id": "226401"
+        },
+        {
+          "position": "RM",
+          "overall": 65,
+          "name": "Abdulaziz Noor",
+          "fc27_id": "270460"
+        },
+        {
+          "position": "LM",
+          "overall": 70,
+          "name": "Hugo Bolin",
+          "fc27_id": "272931"
+        },
+        {
+          "position": "LM",
+          "overall": 65,
+          "name": "Kamil Lukoszek",
+          "fc27_id": "276877"
+        },
+        {
+          "position": "ST",
+          "overall": 70,
+          "name": "Ignacio Pussetto",
+          "fc27_id": "219536"
+        },
+        {
+          "position": "ST",
+          "overall": 64,
+          "name": "Bautista Tomatis",
+          "fc27_id": "77120"
+        },
+        {
+          "position": "LW",
+          "overall": 70,
+          "name": "Ibrahim Salah",
+          "fc27_id": "270828"
+        },
+        {
+          "position": "LW",
+          "overall": 64,
+          "name": "Greg Kiltie",
+          "fc27_id": "220872"
+        },
+        {
+          "position": "RW",
+          "overall": 69,
+          "name": "Bakery Jatta",
+          "fc27_id": "234640"
+        },
+        {
+          "position": "RW",
+          "overall": 64,
+          "name": "Jean Castillo",
+          "fc27_id": "259979"
+        }
+      ]
+    },
+    {
+      "club_name": "Manchester United",
+      "short_name": "MUN",
+      "players": [
+        {
+          "position": "GK",
+          "overall": 65,
+          "name": "Fang Jingqi",
+          "fc27_id": "221798"
+        },
+        {
+          "position": "GK",
+          "overall": 65,
+          "name": "Thomas Gillier",
+          "fc27_id": "268394"
+        },
+        {
+          "position": "CB",
+          "overall": 70,
+          "name": "Stian Gregersen",
+          "fc27_id": "216730"
+        },
+        {
+          "position": "CB",
+          "overall": 68,
+          "name": "Robin Bormuth",
+          "fc27_id": "233785"
+        },
+        {
+          "position": "CB",
+          "overall": 67,
+          "name": "Noah Eile",
+          "fc27_id": "260001"
+        },
+        {
+          "position": "CB",
+          "overall": 64,
+          "name": "Rarmani Edmonds-Green",
+          "fc27_id": "234039"
+        },
+        {
+          "position": "RB",
+          "overall": 70,
+          "name": "José Quintero",
+          "fc27_id": "231550"
+        },
+        {
+          "position": "RB",
+          "overall": 65,
+          "name": "Christ Kouadio",
+          "fc27_id": "275224"
+        },
+        {
+          "position": "LB",
+          "overall": 69,
+          "name": "Felipe Abner",
+          "fc27_id": "216755"
+        },
+        {
+          "position": "LB",
+          "overall": 65,
+          "name": "Lorenzo Libutti",
+          "fc27_id": "276001"
+        },
+        {
+          "position": "CDM",
+          "overall": 70,
+          "name": "Seo Min Woo",
+          "fc27_id": "255500"
+        },
+        {
+          "position": "CDM",
+          "overall": 64,
+          "name": "Thiago Ojeda",
+          "fc27_id": "270738"
+        },
+        {
+          "position": "CM",
+          "overall": 70,
+          "name": "Aníbal Godoy",
+          "fc27_id": "217047"
+        },
+        {
+          "position": "CM",
+          "overall": 65,
+          "name": "Kevin Holmén",
+          "fc27_id": "261099"
+        },
+        {
+          "position": "CAM",
+          "overall": 69,
+          "name": "Hugo Boumous",
+          "fc27_id": "223618"
+        },
+        {
+          "position": "CAM",
+          "overall": 64,
+          "name": "Sebastian Kerk",
+          "fc27_id": "212249"
+        },
+        {
+          "position": "RM",
+          "overall": 69,
+          "name": "Philipp Hercher",
+          "fc27_id": "229267"
+        },
+        {
+          "position": "RM",
+          "overall": 65,
+          "name": "Becket Godo",
+          "fc27_id": "271940"
+        },
+        {
+          "position": "LM",
+          "overall": 70,
+          "name": "Ianis Stoica",
+          "fc27_id": "247955"
+        },
+        {
+          "position": "LM",
+          "overall": 65,
+          "name": "Nishan Velupillay",
+          "fc27_id": "262039"
+        },
+        {
+          "position": "ST",
+          "overall": 70,
+          "name": "Fraser Hornby",
+          "fc27_id": "242965"
+        },
+        {
+          "position": "ST",
+          "overall": 64,
+          "name": "Mikaël Mandron",
+          "fc27_id": "204785"
+        },
+        {
+          "position": "LW",
+          "overall": 70,
+          "name": "John Mercado",
+          "fc27_id": "72656"
+        },
+        {
+          "position": "LW",
+          "overall": 65,
+          "name": "Salim El Jebari",
+          "fc27_id": "278590"
+        },
+        {
+          "position": "RW",
+          "overall": 69,
+          "name": "Stavros Gavriel",
+          "fc27_id": "262573"
+        },
+        {
+          "position": "RW",
+          "overall": 64,
+          "name": "Simon Stehle",
+          "fc27_id": "255789"
+        }
+      ]
+    },
+    {
+      "club_name": "Chelsea",
+      "short_name": "CHE",
+      "players": [
+        {
+          "position": "GK",
+          "overall": 65,
+          "name": "Melvin Zinga",
+          "fc27_id": "257395"
+        },
+        {
+          "position": "GK",
+          "overall": 65,
+          "name": "Théo Defourny",
+          "fc27_id": "208214"
+        },
+        {
+          "position": "CB",
+          "overall": 70,
+          "name": "Ramon Hendriks",
+          "fc27_id": "251829"
+        },
+        {
+          "position": "CB",
+          "overall": 68,
+          "name": "Enzo Roco",
+          "fc27_id": "212225"
+        },
+        {
+          "position": "CB",
+          "overall": 68,
+          "name": "Tjark Scheller",
+          "fc27_id": "278178"
+        },
+        {
+          "position": "CB",
+          "overall": 65,
+          "name": "Rick Meissen",
+          "fc27_id": "265535"
+        },
+        {
+          "position": "RB",
+          "overall": 69,
+          "name": "Glenn Bijl",
+          "fc27_id": "225720"
+        },
+        {
+          "position": "RB",
+          "overall": 65,
+          "name": "Tom Meynadier",
+          "fc27_id": "70723"
+        },
+        {
+          "position": "LB",
+          "overall": 69,
+          "name": "Lars Ritzka",
+          "fc27_id": "237884"
+        },
+        {
+          "position": "LB",
+          "overall": 65,
+          "name": "Niko Bretschneider",
+          "fc27_id": "257532"
+        },
+        {
+          "position": "CDM",
+          "overall": 70,
+          "name": "Marlinito Dias",
+          "fc27_id": "230249"
+        },
+        {
+          "position": "CDM",
+          "overall": 65,
+          "name": "Orestis Kiomourtzoglou",
+          "fc27_id": "238965"
+        },
+        {
+          "position": "CM",
+          "overall": 69,
+          "name": "Yalçın Kayan",
+          "fc27_id": "252917"
+        },
+        {
+          "position": "CM",
+          "overall": 65,
+          "name": "Mikel Rodríguez",
+          "fc27_id": "79186"
+        },
+        {
+          "position": "CAM",
+          "overall": 69,
+          "name": "Hugo Fernández",
+          "fc27_id": "248869"
+        },
+        {
+          "position": "CAM",
+          "overall": 65,
+          "name": "Cedric Harenbrock",
+          "fc27_id": "269318"
+        },
+        {
+          "position": "RM",
+          "overall": 69,
+          "name": "Tyrhys Dolan",
+          "fc27_id": "257063"
+        },
+        {
+          "position": "RM",
+          "overall": 65,
+          "name": "Rui Mendes",
+          "fc27_id": "269744"
+        },
+        {
+          "position": "LM",
+          "overall": 69,
+          "name": "Ondřej Zmrzlý",
+          "fc27_id": "71451"
+        },
+        {
+          "position": "LM",
+          "overall": 65,
+          "name": "Cristian Souza",
+          "fc27_id": "254446"
+        },
+        {
+          "position": "ST",
+          "overall": 69,
+          "name": "Faber Gil",
+          "fc27_id": "233023"
+        },
+        {
+          "position": "ST",
+          "overall": 65,
+          "name": "Ieltsin Camões",
+          "fc27_id": "77274"
+        },
+        {
+          "position": "LW",
+          "overall": 69,
+          "name": "Karl Toko Ekambi",
+          "fc27_id": "224069"
+        },
+        {
+          "position": "LW",
+          "overall": 65,
+          "name": "Fabio Baldé",
+          "fc27_id": "74102"
+        },
+        {
+          "position": "RW",
+          "overall": 69,
+          "name": "Augustine Boakye",
+          "fc27_id": "264441"
+        },
+        {
+          "position": "RW",
+          "overall": 64,
+          "name": "Marcus Mehnert",
+          "fc27_id": "233444"
+        }
+      ]
+    },
+    {
+      "club_name": "Manchester City",
+      "short_name": "MCI",
+      "players": [
+        {
+          "position": "GK",
+          "overall": 69,
+          "name": "Elias Bethke",
+          "fc27_id": "72755"
+        },
+        {
+          "position": "GK",
+          "overall": 65,
+          "name": "Daniele Padelli",
+          "fc27_id": "162297"
+        },
+        {
+          "position": "CB",
+          "overall": 70,
+          "name": "Ashley Phillips",
+          "fc27_id": "264731"
+        },
+        {
+          "position": "CB",
+          "overall": 68,
+          "name": "Bojan Kovačević",
+          "fc27_id": "74788"
+        },
+        {
+          "position": "CB",
+          "overall": 67,
+          "name": "Björn Engels",
+          "fc27_id": "210828"
+        },
+        {
+          "position": "CB",
+          "overall": 65,
+          "name": "Tanguy Zoukrou",
+          "fc27_id": "264785"
+        },
+        {
+          "position": "RB",
+          "overall": 69,
+          "name": "Nicholas Devlin",
+          "fc27_id": "204033"
+        },
+        {
+          "position": "RB",
+          "overall": 65,
+          "name": "Kealey Adamson",
+          "fc27_id": "279543"
+        },
+        {
+          "position": "LB",
+          "overall": 69,
+          "name": "Juan Infante",
+          "fc27_id": "261016"
+        },
+        {
+          "position": "LB",
+          "overall": 65,
+          "name": "Jorge Flores",
+          "fc27_id": "231335"
+        },
+        {
+          "position": "CDM",
+          "overall": 69,
+          "name": "Tamás Nikitscher",
+          "fc27_id": "276159"
+        },
+        {
+          "position": "CDM",
+          "overall": 65,
+          "name": "Gino Fechner",
+          "fc27_id": "233880"
+        },
+        {
+          "position": "CM",
+          "overall": 69,
+          "name": "Taylor Gardner-Hickman",
+          "fc27_id": "263678"
+        },
+        {
+          "position": "CM",
+          "overall": 65,
+          "name": "George Abbott",
+          "fc27_id": "74862"
+        },
+        {
+          "position": "CAM",
+          "overall": 68,
+          "name": "Juan Bauza",
+          "fc27_id": "236633"
+        },
+        {
+          "position": "CAM",
+          "overall": 65,
+          "name": "Néstor Albiach",
+          "fc27_id": "240035"
+        },
+        {
+          "position": "RM",
+          "overall": 69,
+          "name": "Kota Mizunuma",
+          "fc27_id": "232861"
+        },
+        {
+          "position": "RM",
+          "overall": 65,
+          "name": "Manvir Singh",
+          "fc27_id": "248300"
+        },
+        {
+          "position": "LM",
+          "overall": 69,
+          "name": "Blair Spittal",
+          "fc27_id": "223663"
+        },
+        {
+          "position": "LM",
+          "overall": 65,
+          "name": "Mohamed Hamdaoui",
+          "fc27_id": "223696"
+        },
+        {
+          "position": "ST",
+          "overall": 69,
+          "name": "Sandro Kulenović",
+          "fc27_id": "236413"
+        },
+        {
+          "position": "ST",
+          "overall": 65,
+          "name": "Nikolaos Vergos",
+          "fc27_id": "222540"
+        },
+        {
+          "position": "LW",
+          "overall": 69,
+          "name": "Michele Šego",
+          "fc27_id": "76461"
+        },
+        {
+          "position": "LW",
+          "overall": 65,
+          "name": "Obilor Okeke",
+          "fc27_id": "279736"
+        },
+        {
+          "position": "RW",
+          "overall": 68,
+          "name": "Elayis Tavşan",
+          "fc27_id": "262335"
+        },
+        {
+          "position": "RW",
+          "overall": 64,
+          "name": "Giulio Dalrymple",
+          "fc27_id": "279362"
+        }
+      ]
+    },
+    {
+      "club_name": "Arsenal",
+      "short_name": "ARS",
+      "players": [
+        {
+          "position": "GK",
+          "overall": 68,
+          "name": "Matías Tagliamonte",
+          "fc27_id": "238093"
+        },
+        {
+          "position": "GK",
+          "overall": 65,
+          "name": "Andreas Leitner",
+          "fc27_id": "204922"
+        },
+        {
+          "position": "CB",
+          "overall": 69,
+          "name": "Semih Güler",
+          "fc27_id": "263020"
+        },
+        {
+          "position": "CB",
+          "overall": 68,
+          "name": "Stav Lemkin",
+          "fc27_id": "277447"
+        },
+        {
+          "position": "CB",
+          "overall": 67,
+          "name": "Carlos Romaña",
+          "fc27_id": "243465"
+        },
+        {
+          "position": "CB",
+          "overall": 65,
+          "name": "Raphael Schifferl",
+          "fc27_id": "270116"
+        },
+        {
+          "position": "RB",
+          "overall": 69,
+          "name": "André Geraldes",
+          "fc27_id": "221750"
+        },
+        {
+          "position": "RB",
+          "overall": 65,
+          "name": "Andrew Lyons",
+          "fc27_id": "241543"
+        },
+        {
+          "position": "LB",
+          "overall": 69,
+          "name": "Nikolaos Athanasiou",
+          "fc27_id": "79363"
+        },
+        {
+          "position": "LB",
+          "overall": 65,
+          "name": "Hayden Cayless",
+          "fc27_id": "279441"
+        },
+        {
+          "position": "CDM",
+          "overall": 69,
+          "name": "Esteban Pavez",
+          "fc27_id": "214294"
+        },
+        {
+          "position": "CDM",
+          "overall": 65,
+          "name": "Sota Mino",
+          "fc27_id": "269424"
+        },
+        {
+          "position": "CM",
+          "overall": 69,
+          "name": "Salman Al Faraj",
+          "fc27_id": "191269"
+        },
+        {
+          "position": "CM",
+          "overall": 66,
+          "name": "Robinho",
+          "fc27_id": "79704"
+        },
+        {
+          "position": "CAM",
+          "overall": 68,
+          "name": "José Pozo",
+          "fc27_id": "218746"
+        },
+        {
+          "position": "CAM",
+          "overall": 65,
+          "name": "Rezan Çorlu",
+          "fc27_id": "225536"
+        },
+        {
+          "position": "RM",
+          "overall": 69,
+          "name": "Kevin Londoño",
+          "fc27_id": "231706"
+        },
+        {
+          "position": "RM",
+          "overall": 65,
+          "name": "Leon Dajaku",
+          "fc27_id": "246416"
+        },
+        {
+          "position": "LM",
+          "overall": 69,
+          "name": "Jonathan Benítez",
+          "fc27_id": "229209"
+        },
+        {
+          "position": "LM",
+          "overall": 65,
+          "name": "Pibe",
+          "fc27_id": "223100"
+        },
+        {
+          "position": "ST",
+          "overall": 69,
+          "name": "Yuki Ohashi",
+          "fc27_id": "245766"
+        },
+        {
+          "position": "ST",
+          "overall": 65,
+          "name": "Kacper Kostorz",
+          "fc27_id": "251368"
+        },
+        {
+          "position": "LW",
+          "overall": 69,
+          "name": "Dennis-Dorian Politic",
+          "fc27_id": "247674"
+        },
+        {
+          "position": "LW",
+          "overall": 65,
+          "name": "Eirik Andersen",
+          "fc27_id": "203368"
+        },
+        {
+          "position": "RW",
+          "overall": 68,
+          "name": "Misael Sosa",
+          "fc27_id": "75964"
+        },
+        {
+          "position": "RW",
+          "overall": 65,
+          "name": "Ibrahim Said",
+          "fc27_id": "262539"
+        }
+      ]
+    },
+    {
+      "club_name": "Liverpool",
+      "short_name": "LIV",
+      "players": [
+        {
+          "position": "GK",
+          "overall": 68,
+          "name": "Lucas Bruera",
+          "fc27_id": "236608"
+        },
+        {
+          "position": "GK",
+          "overall": 65,
+          "name": "Denis Rusu",
+          "fc27_id": "248071"
+        },
+        {
+          "position": "CB",
+          "overall": 70,
+          "name": "Érik Godoy",
+          "fc27_id": "215178"
+        },
+        {
+          "position": "CB",
+          "overall": 67,
+          "name": "Jeisson Palacios",
+          "fc27_id": "226737"
+        },
+        {
+          "position": "CB",
+          "overall": 66,
+          "name": "Ivan Marconi",
+          "fc27_id": "239478"
+        },
+        {
+          "position": "CB",
+          "overall": 65,
+          "name": "Bastián Roco",
+          "fc27_id": "259518"
+        },
+        {
+          "position": "RB",
+          "overall": 69,
+          "name": "Carlos Lora",
+          "fc27_id": "259833"
+        },
+        {
+          "position": "RB",
+          "overall": 65,
+          "name": "Paweł Olkowski",
+          "fc27_id": "204687"
+        },
+        {
+          "position": "LB",
+          "overall": 68,
+          "name": "Louis Oppie",
+          "fc27_id": "276610"
+        },
+        {
+          "position": "LB",
+          "overall": 65,
+          "name": "Achraf Laâziri",
+          "fc27_id": "276747"
+        },
+        {
+          "position": "CDM",
+          "overall": 69,
+          "name": "Ryan Wintle",
+          "fc27_id": "227929"
+        },
+        {
+          "position": "CDM",
+          "overall": 65,
+          "name": "Martin Ellingsen",
+          "fc27_id": "240677"
+        },
+        {
+          "position": "CM",
+          "overall": 69,
+          "name": "Joel Fujita",
+          "fc27_id": "260464"
+        },
+        {
+          "position": "CM",
+          "overall": 66,
+          "name": "Jesper Ceesay",
+          "fc27_id": "266050"
+        },
+        {
+          "position": "CAM",
+          "overall": 68,
+          "name": "Ranteiro Alves",
+          "fc27_id": "234019"
+        },
+        {
+          "position": "CAM",
+          "overall": 65,
+          "name": "Alexander Gilbey",
+          "fc27_id": "208302"
+        },
+        {
+          "position": "RM",
+          "overall": 69,
+          "name": "Michael Ameyaw",
+          "fc27_id": "263208"
+        },
+        {
+          "position": "RM",
+          "overall": 65,
+          "name": "Josué Dorrio",
+          "fc27_id": "236735"
+        },
+        {
+          "position": "LM",
+          "overall": 69,
+          "name": "Sebastian Mailat",
+          "fc27_id": "244154"
+        },
+        {
+          "position": "LM",
+          "overall": 65,
+          "name": "Francesco Lo Celso",
+          "fc27_id": "255352"
+        },
+        {
+          "position": "ST",
+          "overall": 69,
+          "name": "Ivan Prtajin",
+          "fc27_id": "271395"
+        },
+        {
+          "position": "ST",
+          "overall": 66,
+          "name": "Mohammed Muntari",
+          "fc27_id": "268780"
+        },
+        {
+          "position": "LW",
+          "overall": 69,
+          "name": "Mohammed Kamara",
+          "fc27_id": "246827"
+        },
+        {
+          "position": "LW",
+          "overall": 66,
+          "name": "Alisson",
+          "fc27_id": "79270"
+        },
+        {
+          "position": "RW",
+          "overall": 68,
+          "name": "Juan Córdoba",
+          "fc27_id": "74351"
+        },
+        {
+          "position": "RW",
+          "overall": 65,
+          "name": "Gabriel Maioli",
+          "fc27_id": "72957"
+        }
+      ]
+    },
+    {
+      "club_name": "Tottenham",
+      "short_name": "TOT",
+      "players": [
+        {
+          "position": "GK",
+          "overall": 68,
+          "name": "Joe Gauci",
+          "fc27_id": "243917"
+        },
+        {
+          "position": "GK",
+          "overall": 67,
+          "name": "Steven-Andreas Benda",
+          "fc27_id": "241076"
+        },
+        {
+          "position": "CB",
+          "overall": 69,
+          "name": "Andrés Andrade",
+          "fc27_id": "252873"
+        },
+        {
+          "position": "CB",
+          "overall": 68,
+          "name": "Necip Uysal",
+          "fc27_id": "193945"
+        },
+        {
+          "position": "CB",
+          "overall": 66,
+          "name": "Francisco La Mantía",
+          "fc27_id": "259847"
+        },
+        {
+          "position": "CB",
+          "overall": 65,
+          "name": "Loni Laurent",
+          "fc27_id": "73086"
+        },
+        {
+          "position": "RB",
+          "overall": 68,
+          "name": "Ethan Galbraith",
+          "fc27_id": "243640"
+        },
+        {
+          "position": "RB",
+          "overall": 65,
+          "name": "Thomas James",
+          "fc27_id": "222583"
+        },
+        {
+          "position": "LB",
+          "overall": 68,
+          "name": "Niall Huggins",
+          "fc27_id": "251521"
+        },
+        {
+          "position": "LB",
+          "overall": 65,
+          "name": "Joshua Edwards",
+          "fc27_id": "72909"
+        },
+        {
+          "position": "CDM",
+          "overall": 69,
+          "name": "Stije Resink",
+          "fc27_id": "275867"
+        },
+        {
+          "position": "CDM",
+          "overall": 65,
+          "name": "Andrés Perea",
+          "fc27_id": "246047"
+        },
+        {
+          "position": "CM",
+          "overall": 69,
+          "name": "Gjivai Zechiël",
+          "fc27_id": "277483"
+        },
+        {
+          "position": "CM",
+          "overall": 66,
+          "name": "Christopher Durkin",
+          "fc27_id": "237407"
+        },
+        {
+          "position": "CAM",
+          "overall": 68,
+          "name": "Cedric Teuchert",
+          "fc27_id": "226050"
+        },
+        {
+          "position": "CAM",
+          "overall": 66,
+          "name": "Anssi Suhonen",
+          "fc27_id": "263310"
+        },
+        {
+          "position": "RM",
+          "overall": 68,
+          "name": "Iván Alejo",
+          "fc27_id": "231280"
+        },
+        {
+          "position": "RM",
+          "overall": 65,
+          "name": "Rodri Alonso",
+          "fc27_id": "270729"
+        },
+        {
+          "position": "LM",
+          "overall": 68,
+          "name": "Kevin Quevedo",
+          "fc27_id": "253549"
+        },
+        {
+          "position": "LM",
+          "overall": 66,
+          "name": "De la Rosa",
+          "fc27_id": "278404"
+        },
+        {
+          "position": "ST",
+          "overall": 69,
+          "name": "Jorge Recalde",
+          "fc27_id": "255169"
+        },
+        {
+          "position": "ST",
+          "overall": 66,
+          "name": "Jan-Luca Schuler",
+          "fc27_id": "259752"
+        },
+        {
+          "position": "LW",
+          "overall": 69,
+          "name": "Mariusz Fornalczyk",
+          "fc27_id": "257473"
+        },
+        {
+          "position": "LW",
+          "overall": 66,
+          "name": "Mathias Jørgensen",
+          "fc27_id": "243371"
+        },
+        {
+          "position": "RW",
+          "overall": 67,
+          "name": "Maximiliano Guerrero",
+          "fc27_id": "263122"
+        },
+        {
+          "position": "RW",
+          "overall": 65,
+          "name": "Giovane",
+          "fc27_id": "80283"
+        }
+      ]
+    },
+    {
+      "club_name": "Paris Saint-Germain",
+      "short_name": "PSG",
+      "players": [
+        {
+          "position": "GK",
+          "overall": 69,
+          "name": "Lukáš Zima",
+          "fc27_id": "205554"
+        },
+        {
+          "position": "GK",
+          "overall": 67,
+          "name": "William Norris",
+          "fc27_id": "223082"
+        },
+        {
+          "position": "CB",
+          "overall": 70,
+          "name": "Nicolas Wimmer",
+          "fc27_id": "262955"
+        },
+        {
+          "position": "CB",
+          "overall": 68,
+          "name": "Tarek Salman",
+          "fc27_id": "238878"
+        },
+        {
+          "position": "CB",
+          "overall": 66,
+          "name": "Sam Kersten",
+          "fc27_id": "251754"
+        },
+        {
+          "position": "CB",
+          "overall": 65,
+          "name": "Connor Taylor",
+          "fc27_id": "262731"
+        },
+        {
+          "position": "RB",
+          "overall": 68,
+          "name": "Albarrán",
+          "fc27_id": "73412"
+        },
+        {
+          "position": "RB",
+          "overall": 66,
+          "name": "Tommaso Maggioni",
+          "fc27_id": "72857"
+        },
+        {
+          "position": "LB",
+          "overall": 68,
+          "name": "Guille Bueno",
+          "fc27_id": "264440"
+        },
+        {
+          "position": "LB",
+          "overall": 65,
+          "name": "Marquinhos Cipriano",
+          "fc27_id": "244497"
+        },
+        {
+          "position": "CDM",
+          "overall": 68,
+          "name": "Leonai",
+          "fc27_id": "255684"
+        },
+        {
+          "position": "CDM",
+          "overall": 65,
+          "name": "Hianga'a Mbock",
+          "fc27_id": "251974"
+        },
+        {
+          "position": "CM",
+          "overall": 68,
+          "name": "Harrison Contreras",
+          "fc27_id": "272330"
+        },
+        {
+          "position": "CM",
+          "overall": 66,
+          "name": "Seedy Jagne",
+          "fc27_id": "259290"
+        },
+        {
+          "position": "CAM",
+          "overall": 68,
+          "name": "Edélcio Maranhesi",
+          "fc27_id": "234025"
+        },
+        {
+          "position": "CAM",
+          "overall": 66,
+          "name": "Dawid Błanik",
+          "fc27_id": "242509"
+        },
+        {
+          "position": "RM",
+          "overall": 68,
+          "name": "Edson Tortolero",
+          "fc27_id": "253579"
+        },
+        {
+          "position": "RM",
+          "overall": 65,
+          "name": "Abraham Marcus",
+          "fc27_id": "264450"
+        },
+        {
+          "position": "LM",
+          "overall": 68,
+          "name": "Luis Benítes",
+          "fc27_id": "259781"
+        },
+        {
+          "position": "LM",
+          "overall": 66,
+          "name": "Daniel Håkans",
+          "fc27_id": "271326"
+        },
+        {
+          "position": "ST",
+          "overall": 68,
+          "name": "Davis Keillor-Dunn",
+          "fc27_id": "236487"
+        },
+        {
+          "position": "ST",
+          "overall": 66,
+          "name": "Fortune Bassey",
+          "fc27_id": "266462"
+        },
+        {
+          "position": "LW",
+          "overall": 69,
+          "name": "Dominik Kother",
+          "fc27_id": "248575"
+        },
+        {
+          "position": "LW",
+          "overall": 66,
+          "name": "Saidou Alioum",
+          "fc27_id": "275056"
+        },
+        {
+          "position": "RW",
+          "overall": 67,
+          "name": "David Martínez",
+          "fc27_id": "272317"
+        },
+        {
+          "position": "RW",
+          "overall": 65,
+          "name": "Mattia Liberali",
+          "fc27_id": "74094"
+        }
+      ]
+    },
+    {
+      "club_name": "Lyon",
+      "short_name": "OL",
+      "players": [
+        {
+          "position": "GK",
+          "overall": 69,
+          "name": "Ivan Mandić",
+          "fc27_id": "79824"
+        },
+        {
+          "position": "GK",
+          "overall": 67,
+          "name": "Joseph Anang",
+          "fc27_id": "244191"
+        },
+        {
+          "position": "CB",
+          "overall": 69,
+          "name": "Adrien-Mehdi Monfray",
+          "fc27_id": "215708"
+        },
+        {
+          "position": "CB",
+          "overall": 69,
+          "name": "Stephen Eze",
+          "fc27_id": "243568"
+        },
+        {
+          "position": "CB",
+          "overall": 68,
+          "name": "Iulian Cristea",
+          "fc27_id": "248021"
+        },
+        {
+          "position": "CB",
+          "overall": 65,
+          "name": "Ousmane Kanté",
+          "fc27_id": "243867"
+        },
+        {
+          "position": "RB",
+          "overall": 68,
+          "name": "Tolikpaley Zogbé",
+          "fc27_id": "279573"
+        },
+        {
+          "position": "RB",
+          "overall": 66,
+          "name": "Alexandru Pantea",
+          "fc27_id": "256898"
+        },
+        {
+          "position": "LB",
+          "overall": 67,
+          "name": "Aziz Behich",
+          "fc27_id": "202157"
+        },
+        {
+          "position": "LB",
+          "overall": 65,
+          "name": "Boli Bolingoli",
+          "fc27_id": "215970"
+        },
+        {
+          "position": "CDM",
+          "overall": 68,
+          "name": "Matthew James",
+          "fc27_id": "186139"
+        },
+        {
+          "position": "CDM",
+          "overall": 65,
+          "name": "Johannes Geis",
+          "fc27_id": "202087"
+        },
+        {
+          "position": "CM",
+          "overall": 68,
+          "name": "Horacio Calcaterra",
+          "fc27_id": "246013"
+        },
+        {
+          "position": "CM",
+          "overall": 66,
+          "name": "Mike-Steven Bähre",
+          "fc27_id": "229477"
+        },
+        {
+          "position": "CAM",
+          "overall": 68,
+          "name": "Filip Marchwiński",
+          "fc27_id": "246649"
+        },
+        {
+          "position": "CAM",
+          "overall": 66,
+          "name": "Paul Stock",
+          "fc27_id": "276319"
+        },
+        {
+          "position": "RM",
+          "overall": 68,
+          "name": "Derensili Sanches Fernandes",
+          "fc27_id": "271511"
+        },
+        {
+          "position": "RM",
+          "overall": 65,
+          "name": "Burak Kapacak",
+          "fc27_id": "244134"
+        },
+        {
+          "position": "LM",
+          "overall": 68,
+          "name": "Gerardo Padrón",
+          "fc27_id": "274896"
+        },
+        {
+          "position": "LM",
+          "overall": 66,
+          "name": "Adam Reach",
+          "fc27_id": "204215"
+        },
+        {
+          "position": "ST",
+          "overall": 68,
+          "name": "Charles Ikwuemesi",
+          "fc27_id": "277832"
+        },
+        {
+          "position": "ST",
+          "overall": 66,
+          "name": "Corey Baird",
+          "fc27_id": "242716"
+        },
+        {
+          "position": "LW",
+          "overall": 68,
+          "name": "Witi",
+          "fc27_id": "226720"
+        },
+        {
+          "position": "LW",
+          "overall": 67,
+          "name": "Mikel Gogorza",
+          "fc27_id": "279252"
+        },
+        {
+          "position": "RW",
+          "overall": 66,
+          "name": "Ciprian Deac",
+          "fc27_id": "199572"
+        },
+        {
+          "position": "RW",
+          "overall": 65,
+          "name": "Christian Lichtenberger",
+          "fc27_id": "72542"
+        }
+      ]
+    },
+    {
+      "club_name": "Marseille",
+      "short_name": "OM",
+      "players": [
+        {
+          "position": "GK",
+          "overall": 67,
+          "name": "Péter Szappanos",
+          "fc27_id": "268099"
+        },
+        {
+          "position": "GK",
+          "overall": 66,
+          "name": "Balázs Tóth",
+          "fc27_id": "74726"
+        },
+        {
+          "position": "CB",
+          "overall": 69,
+          "name": "José Canale",
+          "fc27_id": "253238"
+        },
+        {
+          "position": "CB",
+          "overall": 69,
+          "name": "Rudy Camacho",
+          "fc27_id": "206485"
+        },
+        {
+          "position": "CB",
+          "overall": 66,
+          "name": "Lucas Lissens",
+          "fc27_id": "256082"
+        },
+        {
+          "position": "CB",
+          "overall": 65,
+          "name": "Richard Taylor",
+          "fc27_id": "252878"
+        },
+        {
+          "position": "RB",
+          "overall": 67,
+          "name": "Lucas Ahijado",
+          "fc27_id": "229894"
+        },
+        {
+          "position": "RB",
+          "overall": 66,
+          "name": "Tim Janisch",
+          "fc27_id": "275594"
+        },
+        {
+          "position": "LB",
+          "overall": 67,
+          "name": "Lenny Vallier",
+          "fc27_id": "243355"
+        },
+        {
+          "position": "LB",
+          "overall": 66,
+          "name": "Adam Aznou",
+          "fc27_id": "70448"
+        },
+        {
+          "position": "CDM",
+          "overall": 68,
+          "name": "Manuel García",
+          "fc27_id": "264733"
+        },
+        {
+          "position": "CDM",
+          "overall": 67,
+          "name": "Djibril Diani",
+          "fc27_id": "246299"
+        },
+        {
+          "position": "CM",
+          "overall": 68,
+          "name": "Idris El Mizouni",
+          "fc27_id": "246681"
+        },
+        {
+          "position": "CM",
+          "overall": 67,
+          "name": "Walter Rodríguez",
+          "fc27_id": "258875"
+        },
+        {
+          "position": "CAM",
+          "overall": 67,
+          "name": "Luuk Brouwers",
+          "fc27_id": "262397"
+        },
+        {
+          "position": "CAM",
+          "overall": 66,
+          "name": "Walid Ould-Chikh",
+          "fc27_id": "269256"
+        },
+        {
+          "position": "RM",
+          "overall": 68,
+          "name": "Alassane Ndao",
+          "fc27_id": "257821"
+        },
+        {
+          "position": "RM",
+          "overall": 65,
+          "name": "Jean Arroyo",
+          "fc27_id": "77450"
+        },
+        {
+          "position": "LM",
+          "overall": 68,
+          "name": "Tidjany Touré",
+          "fc27_id": "277070"
+        },
+        {
+          "position": "LM",
+          "overall": 67,
+          "name": "Lewis Dobbin",
+          "fc27_id": "264039"
+        },
+        {
+          "position": "ST",
+          "overall": 68,
+          "name": "Alex Millán",
+          "fc27_id": "260086"
+        },
+        {
+          "position": "ST",
+          "overall": 67,
+          "name": "Barbero",
+          "fc27_id": "255461"
+        },
+        {
+          "position": "LW",
+          "overall": 68,
+          "name": "Benjamin Old",
+          "fc27_id": "262289"
+        },
+        {
+          "position": "LW",
+          "overall": 67,
+          "name": "Lin Liangming",
+          "fc27_id": "241239"
+        },
+        {
+          "position": "RW",
+          "overall": 66,
+          "name": "Marin Šotiček",
+          "fc27_id": "73582"
+        },
+        {
+          "position": "RW",
+          "overall": 66,
+          "name": "Maurice Multhaup",
+          "fc27_id": "224662"
+        }
+      ]
+    },
+    {
+      "club_name": "Bayer Leverkusen",
+      "short_name": "B04",
+      "players": [
+        {
+          "position": "GK",
+          "overall": 66,
+          "name": "Rubén Cordano",
+          "fc27_id": "247882"
+        },
+        {
+          "position": "GK",
+          "overall": 65,
+          "name": "Joshua Griffiths",
+          "fc27_id": "252773"
+        },
+        {
+          "position": "CB",
+          "overall": 70,
+          "name": "Takuma Ominami",
+          "fc27_id": "232704"
+        },
+        {
+          "position": "CB",
+          "overall": 69,
+          "name": "Buatu",
+          "fc27_id": "209816"
+        },
+        {
+          "position": "CB",
+          "overall": 66,
+          "name": "Joel Bichsel",
+          "fc27_id": "276675"
+        },
+        {
+          "position": "CB",
+          "overall": 65,
+          "name": "Carlos Harvey",
+          "fc27_id": "259568"
+        },
+        {
+          "position": "RB",
+          "overall": 67,
+          "name": "Vegar Hedenstad",
+          "fc27_id": "186267"
+        },
+        {
+          "position": "RB",
+          "overall": 66,
+          "name": "Frank Ronstadt",
+          "fc27_id": "230047"
+        },
+        {
+          "position": "LB",
+          "overall": 67,
+          "name": "Edoardo Pieragnolo",
+          "fc27_id": "276705"
+        },
+        {
+          "position": "LB",
+          "overall": 67,
+          "name": "Jonas Auer",
+          "fc27_id": "244795"
+        },
+        {
+          "position": "CDM",
+          "overall": 67,
+          "name": "Marlon Pack",
+          "fc27_id": "196916"
+        },
+        {
+          "position": "CDM",
+          "overall": 66,
+          "name": "Ovidiu Popescu",
+          "fc27_id": "239980"
+        },
+        {
+          "position": "CM",
+          "overall": 67,
+          "name": "Elliot Lee",
+          "fc27_id": "210108"
+        },
+        {
+          "position": "CM",
+          "overall": 67,
+          "name": "Santiago González",
+          "fc27_id": "279932"
+        },
+        {
+          "position": "CAM",
+          "overall": 67,
+          "name": "Nick Bätzner",
+          "fc27_id": "257307"
+        },
+        {
+          "position": "CAM",
+          "overall": 67,
+          "name": "Nicola Mosti",
+          "fc27_id": "257768"
+        },
+        {
+          "position": "RM",
+          "overall": 68,
+          "name": "Davide Bragantini",
+          "fc27_id": "72862"
+        },
+        {
+          "position": "RM",
+          "overall": 66,
+          "name": "Pablo Sáenz",
+          "fc27_id": "70301"
+        },
+        {
+          "position": "LM",
+          "overall": 68,
+          "name": "Taha Ali",
+          "fc27_id": "260972"
+        },
+        {
+          "position": "LM",
+          "overall": 67,
+          "name": "Kenny Redondo",
+          "fc27_id": "229171"
+        },
+        {
+          "position": "ST",
+          "overall": 68,
+          "name": "Junior Arias",
+          "fc27_id": "240168"
+        },
+        {
+          "position": "ST",
+          "overall": 67,
+          "name": "Guillermo",
+          "fc27_id": "205158"
+        },
+        {
+          "position": "LW",
+          "overall": 68,
+          "name": "Bartosz Nowak",
+          "fc27_id": "235471"
+        },
+        {
+          "position": "LW",
+          "overall": 68,
+          "name": "Jan Virgili",
+          "fc27_id": "80915"
+        },
+        {
+          "position": "RW",
+          "overall": 66,
+          "name": "Bogdan Mirčetić",
+          "fc27_id": "81343"
+        },
+        {
+          "position": "RW",
+          "overall": 66,
+          "name": "Michał Król",
+          "fc27_id": "263303"
+        }
+      ]
+    },
+    {
+      "club_name": "Bayern Munich",
+      "short_name": "FCB",
+      "players": [
+        {
+          "position": "GK",
+          "overall": 66,
+          "name": "Niclas Thiede",
+          "fc27_id": "251285"
+        },
+        {
+          "position": "GK",
+          "overall": 66,
+          "name": "Quentin Beunardeau",
+          "fc27_id": "209830"
+        },
+        {
+          "position": "CB",
+          "overall": 69,
+          "name": "Di'Shon Bernard",
+          "fc27_id": "253034"
+        },
+        {
+          "position": "CB",
+          "overall": 69,
+          "name": "Szalai",
+          "fc27_id": "275644"
+        },
+        {
+          "position": "CB",
+          "overall": 66,
+          "name": "Florian-Horst Carstens",
+          "fc27_id": "245750"
+        },
+        {
+          "position": "CB",
+          "overall": 65,
+          "name": "Bill Tuiloma",
+          "fc27_id": "220886"
+        },
+        {
+          "position": "RB",
+          "overall": 67,
+          "name": "Taylan Bulut",
+          "fc27_id": "72315"
+        },
+        {
+          "position": "RB",
+          "overall": 67,
+          "name": "Valgeir Lunddal",
+          "fc27_id": "260383"
+        },
+        {
+          "position": "LB",
+          "overall": 67,
+          "name": "Cristiano Bani",
+          "fc27_id": "72859"
+        },
+        {
+          "position": "LB",
+          "overall": 67,
+          "name": "Raoul Petretta",
+          "fc27_id": "237642"
+        },
+        {
+          "position": "CDM",
+          "overall": 67,
+          "name": "Jorge Murrugarra",
+          "fc27_id": "259941"
+        },
+        {
+          "position": "CDM",
+          "overall": 65,
+          "name": "Constantin Albu",
+          "fc27_id": "262443"
+        },
+        {
+          "position": "CM",
+          "overall": 67,
+          "name": "Dylan Levitt",
+          "fc27_id": "243349"
+        },
+        {
+          "position": "CM",
+          "overall": 67,
+          "name": "Kelechi Nwakali",
+          "fc27_id": "239215"
+        },
+        {
+          "position": "CAM",
+          "overall": 67,
+          "name": "Levi Smans",
+          "fc27_id": "72893"
+        },
+        {
+          "position": "CAM",
+          "overall": 67,
+          "name": "Nicolas Galazzi",
+          "fc27_id": "264372"
+        },
+        {
+          "position": "RM",
+          "overall": 67,
+          "name": "Wilfred Onyedinma",
+          "fc27_id": "221197"
+        },
+        {
+          "position": "RM",
+          "overall": 67,
+          "name": "William Campbell",
+          "fc27_id": "73057"
+        },
+        {
+          "position": "LM",
+          "overall": 68,
+          "name": "Babatunde Akinsola",
+          "fc27_id": "275487"
+        },
+        {
+          "position": "LM",
+          "overall": 67,
+          "name": "Jacob Shaffelburg",
+          "fc27_id": "251352"
+        },
+        {
+          "position": "ST",
+          "overall": 68,
+          "name": "Javi Martón",
+          "fc27_id": "264195"
+        },
+        {
+          "position": "ST",
+          "overall": 67,
+          "name": "Sargis Adamyan",
+          "fc27_id": "218534"
+        },
+        {
+          "position": "LW",
+          "overall": 68,
+          "name": "Figueiredo",
+          "fc27_id": "81327"
+        },
+        {
+          "position": "LW",
+          "overall": 68,
+          "name": "Thomas Goiginger",
+          "fc27_id": "224271"
+        },
+        {
+          "position": "RW",
+          "overall": 66,
+          "name": "Dennis Chessa",
+          "fc27_id": "224430"
+        },
+        {
+          "position": "RW",
+          "overall": 66,
+          "name": "Eman Marković",
+          "fc27_id": "240499"
+        }
+      ]
+    }
+  ]
+}

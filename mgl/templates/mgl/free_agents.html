@@ -10,8 +10,8 @@
             <div class="eyebrow">MGL MARKET</div>
             <h2>FREE AGENTS</h2>
             <p>
-                Players who were released into auction and received no bids.
-                Unassigned FC26 players are a separate pool and are not listed here.
+                Players who went unsold at auction, or were released by a club manager.
+                Eligible managers can sign them for 0 TKN. Unassigned FC26 players are a separate pool and are not listed here.
             </p>
         </div>
         <a href="{% url 'transfer_market' %}" class="view-all">MARKET →</a>
@@ -45,9 +45,17 @@
 
     <div class="mgl-player-card-grid">
         {% for p in players %}
-            {% player_card p %}
+            <div class="mgl-squad-card">
+                {% player_card p %}
+                {% if can_sign %}
+                    <form method="post" action="{% url 'sign_free_agent' p.id %}" class="mgl-inline-form">
+                        {% csrf_token %}
+                        <button type="submit" class="primary-button">SIGN FOR 0 TKN</button>
+                    </form>
+                {% endif %}
+            </div>
         {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO PLAYERS FOUND" body="No Free Agents match that search. Unsold unassigned auctions land here after they close with no bids." %}
+            {% include "mgl/includes/empty_state.html" with title="NO PLAYERS FOUND" body="No Free Agents match that search. Unsold auctions and manager releases land here. Unassigned FC26 players are not Free Agents." %}
         {% endfor %}
     </div>
     {% if page_obj and page_obj.has_other_pages %}

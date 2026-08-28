@@ -6,6 +6,7 @@ from django.utils import timezone
 from auctions.models import PlayerAuction
 from managers.models import ManagerApplication
 from players.models import Player
+from teams.models import Team
 
 from .models import (
     ApprovalStatus,
@@ -208,6 +209,7 @@ def assign_player(player, team, source="ADMIN", reference=""):
     """
 
     player = Player.objects.select_for_update().get(pk=player.pk)
+    team = Team.objects.select_for_update().get(pk=team.pk)
 
     roster_limit = getattr(team, "roster_limit", 30) or 30
     current_size = Player.objects.filter(mgl_team=team).count()
@@ -235,3 +237,30 @@ def assign_player(player, team, source="ADMIN", reference=""):
     )
 
     return player
+
+
+@transaction.atomic
+def sign_free_agent(player, manager):
+    """Sign a Free Agent for 0 TKN onto the manager's club."""
+    from mgl.market import assert_roster_space, club_for_user
+    from mgl.player_state import player_is_in_live_auction
+
+    if manager is None or getattr(manager, "status", None) != ManagerApplication.APPROVED:
+        raise ValueError("You must be an approved manager to sign a Free Agent.")
+    team = club_for_user(manager.user)
+    if not team:
+        raise ValueError("You must manage a club to sign a Free Agent.")
+    player = Player.objects.select_for_update().get(pk=player.pk)
+    if player_is_in_live_auction(player):
+        raise ValueError("This player is in a live auction.")
+    if player.mgl_team_id:
+        raise ValueError("This player already belongs to a club.")
+    if not player.is_free_agent:
+        raise ValueError("Only Free Agents can be signed for free. Unassigned players are not Free Agents.")
+    assert_roster_space(team)
+    return assign_player(
+        player,
+        team,
+        source="FREE_AGENT",
+        reference=f"fa-sign:{manager.id}",
+    )

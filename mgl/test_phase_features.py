@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from accounts.models import User
-from auctions.models import PlayerAuction
+from auctions.models import PlayerAuction, TokenTransaction
 from leagues.models import League
 from leagues.services import ensure_premier_league
 from managers.models import ManagerApplication
@@ -20,7 +20,8 @@ from mgl.market import (
     place_auction_bid,
     settle_auction,
 )
-from mgl.models import ManagerCareerStat
+from mgl.models import ManagerCareerStat, PlayerOwnershipHistory
+from mgl.services import release_player, sign_free_agent
 from mgl.tenure import close_club_spell_for_user, open_club_spell
 from players.models import Player
 from teams.models import Team
@@ -178,6 +179,22 @@ class AuctionWorkflowTests(TestCase):
         self.assertIsNone(self.unassigned.mgl_team_id)
         self.assertEqual(Player.objects.filter(pk=self.unassigned.id).count(), 1)
 
+    def test_admin_role_can_auction_unassigned_player(self):
+        admin = _user("siteadmin", role=User.ADMIN)
+        self.client.login(username="siteadmin", password="test-pass-123")
+        response = self.client.post(
+            reverse("auction_free_agent", args=[self.unassigned.id]),
+            {"duration": "60", "starting_bid": "0"},
+        )
+        self.assertEqual(response.status_code, 302)
+        auction = PlayerAuction.objects.get(player=self.unassigned)
+        self.assertEqual(auction.created_by_id, admin.id)
+        self.assertEqual(auction.starting_bid, 0)
+        self.assertEqual(auction.duration_minutes, 60)
+        self.unassigned.refresh_from_db()
+        self.assertFalse(self.unassigned.is_free_agent)
+        self.assertIsNone(self.unassigned.mgl_team_id)
+
     def test_admin_cannot_auction_a_real_free_agent(self):
         self.client.login(username="owner", password="test-pass-123")
         response = self.client.post(
@@ -217,6 +234,7 @@ class AuctionWorkflowTests(TestCase):
         self.assertContains(response, "FREE AGENT Z")
         self.assertNotContains(response, "UNASSIGNED Z")
         self.assertNotContains(response, "RELEASE TO AUCTION")
+        self.assertContains(response, "SIGN FOR 0 TKN")
 
     def test_unassigned_page_is_admin_only_and_excludes_free_agents(self):
         self.client.login(username="seller", password="test-pass-123")
@@ -281,21 +299,86 @@ class AuctionWorkflowTests(TestCase):
         self.assertEqual(auction.status, PlayerAuction.ENDED)
 
     def test_unsold_unassigned_auction_becomes_free_agent(self):
+        tokens_before = self.mgr_b.tokens
+        tx_before = TokenTransaction.objects.count()
         auction = create_free_agent_auction(self.unassigned, self.owner, 30)
         auction.ends_at = timezone.now() - timedelta(minutes=1)
         auction.save(update_fields=["ends_at"])
-        close_expired_auctions()
+        _, message = settle_auction(auction)
+        self.assertEqual(message, "Auction ended with no bids — Player is now a Free Agent.")
         self.unassigned.refresh_from_db()
+        auction.refresh_from_db()
         self.assertTrue(self.unassigned.is_free_agent)
         self.assertIsNone(self.unassigned.mgl_team_id)
+        self.assertIsNone(auction.winning_manager_id)
+        self.assertEqual(auction.status, PlayerAuction.ENDED)
+        self.mgr_b.refresh_from_db()
+        self.assertEqual(self.mgr_b.tokens, tokens_before)
+        self.assertEqual(TokenTransaction.objects.count(), tx_before)
+        self.assertFalse(
+            PlayerOwnershipHistory.objects.filter(player=self.unassigned, source="AUCTION").exists()
+        )
+        self.client.login(username="buyer", password="test-pass-123")
+        page = self.client.get(reverse("free_agents"))
+        self.assertContains(page, "UNASSIGNED Z")
+        self.assertContains(page, "SIGN FOR 0 TKN")
 
     def test_winning_unassigned_auction_assigns_club_not_free_agent(self):
         auction = create_free_agent_auction(self.unassigned, self.owner, 30)
         place_auction_bid(auction, self.mgr_b, 4)
         settle_auction(auction)
         self.unassigned.refresh_from_db()
+        self.mgr_b.refresh_from_db()
         self.assertEqual(self.unassigned.mgl_team_id, self.team_b.id)
         self.assertFalse(self.unassigned.is_free_agent)
+        self.assertEqual(self.mgr_b.tokens, Decimal("16.00"))
+        self.assertEqual(
+            PlayerOwnershipHistory.objects.filter(
+                player=self.unassigned,
+                team=self.team_b,
+                source="AUCTION",
+            ).count(),
+            1,
+        )
+        self.assertTrue(
+            TokenTransaction.objects.filter(
+                manager=self.mgr_b,
+                auction=auction,
+                transaction_type=TokenTransaction.DEBIT,
+            ).exists()
+        )
+        again, _message = settle_auction(auction)
+        self.mgr_b.refresh_from_db()
+        self.assertEqual(self.mgr_b.tokens, Decimal("16.00"))
+        self.assertEqual(
+            PlayerOwnershipHistory.objects.filter(player=self.unassigned, source="AUCTION").count(),
+            1,
+        )
+
+    def test_manager_can_release_own_player_to_free_agents(self):
+        self.client.login(username="seller", password="test-pass-123")
+        response = self.client.post(reverse("release_my_player", args=[self.owned.id]))
+        self.assertEqual(response.status_code, 302)
+        self.owned.refresh_from_db()
+        self.assertTrue(self.owned.is_free_agent)
+        self.assertIsNone(self.owned.mgl_team_id)
+        page = self.client.get(reverse("free_agents"))
+        self.assertContains(page, "CLUB PLAYER")
+        self.assertContains(page, "SIGN FOR 0 TKN")
+
+    def test_manager_cannot_release_other_club_or_unassigned_player(self):
+        self.client.login(username="seller", password="test-pass-123")
+        other = self.client.post(reverse("release_my_player", args=[self.other.id]))
+        self.assertEqual(other.status_code, 404)
+        self.other.refresh_from_db()
+        self.assertEqual(self.other.mgl_team_id, self.team_b.id)
+        unassigned = self.client.post(reverse("release_my_player", args=[self.unassigned.id]))
+        self.assertEqual(unassigned.status_code, 404)
+        self.unassigned.refresh_from_db()
+        self.assertFalse(self.unassigned.is_free_agent)
+        self.assertIsNone(self.unassigned.mgl_team_id)
+        with self.assertRaises(ValueError):
+            release_player(self.unassigned, self.team_a)
 
     def test_cannot_bid_when_club_is_at_roster_limit(self):
         for index in range(30):
@@ -337,6 +420,97 @@ class AuctionWorkflowTests(TestCase):
         settle_src = inspect.getsource(market.settle_auction)
         self.assertNotIn('select_related("manager", "team")', bid_src)
         self.assertNotIn("winning_manager__user", settle_src)
+
+
+class FreeAgentSigningTests(TestCase):
+    def setUp(self):
+        self.league = ensure_premier_league()
+        self.user_a = _user("arsman")
+        self.user_b = _user("livman")
+        self.mgr_a = _manager(self.user_a, tokens="20.00")
+        self.mgr_b = _manager(self.user_b, tokens="20.00")
+        self.team_a = Team.objects.create(
+            name="Sign Alpha", short_name="SGA", league=self.league, manager=self.user_a
+        )
+        self.team_b = Team.objects.create(
+            name="Sign Beta", short_name="SGB", league=self.league, manager=self.user_b
+        )
+        self.fa = Player.objects.create(
+            name="Free Signing", position="ST", overall=66, is_free_agent=True
+        )
+        self.unassigned = Player.objects.create(
+            name="Still Pool", position="CM", overall=65, is_free_agent=False
+        )
+        self.client = Client(HTTP_HOST="127.0.0.1")
+
+    def test_manager_signs_free_agent_for_zero_tokens(self):
+        tokens_before = self.mgr_a.tokens
+        tx_before = TokenTransaction.objects.count()
+        signed = sign_free_agent(self.fa, self.mgr_a)
+        signed.refresh_from_db()
+        self.mgr_a.refresh_from_db()
+        self.assertEqual(signed.mgl_team_id, self.team_a.id)
+        self.assertFalse(signed.is_free_agent)
+        self.assertEqual(self.mgr_a.tokens, tokens_before)
+        self.assertEqual(TokenTransaction.objects.count(), tx_before)
+        self.assertEqual(
+            PlayerOwnershipHistory.objects.filter(
+                player=self.fa, team=self.team_a, source="FREE_AGENT"
+            ).count(),
+            1,
+        )
+        self.client.login(username="arsman", password="test-pass-123")
+        page = self.client.get(reverse("free_agents"))
+        self.assertNotContains(page, "FREE SIGNING")
+        self.assertNotContains(page, "STILL POOL")
+
+    def test_http_sign_and_second_claim_fails(self):
+        self.client.login(username="arsman", password="test-pass-123")
+        first = self.client.post(reverse("sign_free_agent", args=[self.fa.id]))
+        self.assertEqual(first.status_code, 302)
+        self.fa.refresh_from_db()
+        self.assertEqual(self.fa.mgl_team_id, self.team_a.id)
+        self.assertFalse(self.fa.is_free_agent)
+        self.client.logout()
+        self.client.login(username="livman", password="test-pass-123")
+        second = self.client.post(reverse("sign_free_agent", args=[self.fa.id]))
+        self.assertEqual(second.status_code, 302)
+        self.fa.refresh_from_db()
+        self.assertEqual(self.fa.mgl_team_id, self.team_a.id)
+        self.assertEqual(Player.objects.filter(pk=self.fa.id, mgl_team=self.team_a).count(), 1)
+        self.assertEqual(
+            PlayerOwnershipHistory.objects.filter(player=self.fa, source="FREE_AGENT").count(),
+            1,
+        )
+        with self.assertRaises(ValueError):
+            sign_free_agent(self.fa, self.mgr_b)
+
+    def test_cannot_sign_unassigned_or_exceed_roster(self):
+        with self.assertRaises(ValueError):
+            sign_free_agent(self.unassigned, self.mgr_a)
+        self.unassigned.refresh_from_db()
+        self.assertIsNone(self.unassigned.mgl_team_id)
+        self.assertFalse(self.unassigned.is_free_agent)
+        for index in range(30):
+            Player.objects.create(
+                name=f"Cap {index}",
+                position="ST",
+                overall=64,
+                mgl_team=self.team_b,
+                is_free_agent=False,
+            )
+        with self.assertRaises(ValueError):
+            sign_free_agent(self.fa, self.mgr_b)
+        self.fa.refresh_from_db()
+        self.assertTrue(self.fa.is_free_agent)
+        self.assertIsNone(self.fa.mgl_team_id)
+
+    def test_sign_get_is_not_allowed(self):
+        self.client.login(username="arsman", password="test-pass-123")
+        response = self.client.get(reverse("sign_free_agent", args=[self.fa.id]))
+        self.assertEqual(response.status_code, 405)
+        self.fa.refresh_from_db()
+        self.assertTrue(self.fa.is_free_agent)
 
 
 class StatsHubTests(TestCase):
