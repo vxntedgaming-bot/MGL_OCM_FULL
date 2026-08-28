@@ -27,23 +27,21 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-Optional player import and squad fill (FC26 CSV is already in the repo). Prefer the idempotent one-shot:
+Optional player import (FC26 CSV is already in the repo). Every imported player stays an unassigned free agent. MGL clubs start with 0 players so every club has the same opportunity:
 
 ```bash
 python manage.py populate_super_league_1
 ```
 
-That command creates the 14 official Premier League clubs if missing, imports `fc26_players_mgl.csv` without assigning MGL clubs, then runs `generate_balanced_squads --official-sl1` for empty official clubs only. It does not reset tokens, managers, fixtures, or history.
+That command creates the 14 official Premier League clubs if missing and imports `fc26_players_mgl.csv` **without** assigning anyone to an MGL club. `fc27_club` is FC26 reference data only. It does not reset tokens, managers, fixtures, or history.
 
-The same steps can still be run separately. `generate_balanced_squads` only fills clubs that currently have **no players**. It assigns 26 random FC26 players rated 64–73 and leaves the rest as free agents. It does not reset the player database.
+Do **not** run `generate_balanced_squads` for a level playing field. Squad fill is opt-in only (`populate_super_league_1 --fill-squads`) and is not used in production. Managers build squads through the existing auction and transfer market.
 
 ```bash
 python manage.py import_fc27 fc26_players_mgl.csv
 python manage.py sync_fc26_details fc26_players_raw.csv --faces-only
 python manage.py sync_fc26_details fc26_players_raw.csv --attributes-only
 python manage.py sync_fc26_names fc26_players_raw.csv
-python manage.py generate_balanced_squads --official-sl1 --dry-run
-python manage.py generate_balanced_squads --official-sl1
 python manage.py close_expired_auctions
 ```
 
@@ -142,7 +140,7 @@ export DJANGO_ALLOWED_HOSTS=ocm.example.com
 export DJANGO_CSRF_TRUSTED_ORIGINS=https://ocm.example.com
 # export DATABASE_URL=postgres://...
 python manage.py migrate
-python manage.py populate_super_league_1
+python manage.py import_fc27 fc26_players_mgl.csv
 python manage.py collectstatic --noinput
 gunicorn --config gunicorn.conf.py
 ```

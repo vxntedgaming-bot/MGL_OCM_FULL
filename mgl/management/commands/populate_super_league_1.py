@@ -19,8 +19,9 @@ CSV_NAME = "fc26_players_mgl.csv"
 
 class Command(BaseCommand):
     help = (
-        "Idempotently create the 14 official Super League 1 clubs, import the "
-        "FC26 player pool, and fill empty official clubs with 26-player squads."
+        "Idempotently create the 14 official Premier League clubs and import "
+        "the FC26 player pool as unassigned free agents. Does not assign "
+        "players to MGL clubs unless --fill-squads is passed."
     )
 
     def add_arguments(self, parser):
@@ -32,7 +33,15 @@ class Command(BaseCommand):
         parser.add_argument(
             "--skip-squads",
             action="store_true",
-            help="Do not generate starter squads.",
+            help="Deprecated. Squad fill is off by default.",
+        )
+        parser.add_argument(
+            "--fill-squads",
+            action="store_true",
+            help=(
+                "Assign 26-player 64–73 OVR squads to empty official clubs. "
+                "Off by default so every club starts equal with 0 players."
+            ),
         )
 
     def handle(self, *args, **options):
@@ -57,10 +66,11 @@ class Command(BaseCommand):
                     f"Player pool already has {existing} FC26 ids; skipping import."
                 )
             else:
-                self.stdout.write(f"Importing {csv_path.name}...")
+                self.stdout.write(f"Importing {csv_path.name} as unassigned free agents...")
                 call_command("import_fc27", str(csv_path))
 
-        if not options["skip_squads"]:
+        fill_squads = options["fill_squads"] and not options["skip_squads"]
+        if fill_squads:
             try:
                 call_command("generate_balanced_squads", official_sl1=True)
             except CommandError as exc:
@@ -68,6 +78,10 @@ class Command(BaseCommand):
                 if "already has a squad" not in message:
                     raise
                 self.stdout.write(message)
+        else:
+            self.stdout.write(
+                "Skipping squad fill. All imported players remain free agents."
+            )
 
         self._report(league)
 

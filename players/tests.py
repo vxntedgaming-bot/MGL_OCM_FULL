@@ -393,3 +393,78 @@ class PlayerDisplayNameSearchTests(TestCase):
         hakimi = self.client.get(reverse("player_profile", args=[self.hakimi.id]))
         self.assertContains(hakimi, "Achraf Hakimi")
         self.assertNotContains(hakimi, "Mouh")
+
+
+class ImportFc27UnassignedTests(TestCase):
+    def test_import_keeps_every_player_as_a_free_agent(self):
+        from decimal import Decimal
+
+        from leagues.models import League
+        from teams.models import Team
+
+        league = League.objects.create(name="Premier League", short_name="PL", season="1")
+        real = Team.objects.create(name="Real Madrid", short_name="RMA", league=league)
+        chelsea = Team.objects.create(name="Chelsea", short_name="CHE", league=league)
+        handle = NamedTemporaryFile("w", suffix=".csv", delete=False, encoding="utf-8")
+        handle.write(
+            "fc27_id,name,fc27_club,nationality,position,overall,"
+            "pace,shooting,passing,dribbling,defending,physical\n"
+        )
+        handle.write(
+            "209331,Mohamed Salah,Liverpool,Egypt,RM,91,89,87,81,88,45,75\n"
+        )
+        handle.write(
+            "239085,Erling Haaland,Manchester City,Norway,ST,91,89,93,70,81,49,88\n"
+        )
+        handle.write(
+            "231747,Kylian Mbappé,Real Madrid,France,ST,91,97,89,80,92,36,78\n"
+        )
+        handle.close()
+
+        out = StringIO()
+        call_command("import_fc27", handle.name, stdout=out)
+
+        self.assertEqual(Player.objects.count(), 3)
+        self.assertEqual(Player.objects.exclude(fc27_id="").distinct().count(), 3)
+        self.assertEqual(Player.objects.filter(mgl_team__isnull=False).count(), 0)
+        self.assertEqual(Player.objects.filter(is_free_agent=True, mgl_team__isnull=True).count(), 3)
+        mbappe = Player.objects.get(fc27_id="231747")
+        self.assertEqual(mbappe.fc27_club, "Real Madrid")
+        self.assertIsNone(mbappe.mgl_team_id)
+        self.assertTrue(mbappe.is_free_agent)
+        self.assertEqual(mbappe.overall, 91)
+        self.assertEqual(real.players.count(), 0)
+        self.assertEqual(chelsea.players.count(), 0)
+        self.assertEqual(real.tokens, Decimal("50.00"))
+        self.assertIn("3 created", out.getvalue())
+
+    def test_reimport_does_not_move_an_already_owned_player(self):
+        from leagues.models import League
+        from teams.models import Team
+
+        league = League.objects.create(name="Premier League", short_name="PL", season="1")
+        club = Team.objects.create(name="Arsenal", short_name="ARS", league=league)
+        owned = Player.objects.create(
+            name="Old Name",
+            fc27_id="209331",
+            fc27_club="Liverpool",
+            position="RM",
+            overall=90,
+            mgl_team=club,
+            is_free_agent=False,
+        )
+        handle = NamedTemporaryFile("w", suffix=".csv", delete=False, encoding="utf-8")
+        handle.write(
+            "fc27_id,name,fc27_club,nationality,position,overall,"
+            "pace,shooting,passing,dribbling,defending,physical\n"
+        )
+        handle.write(
+            "209331,Mohamed Salah,Liverpool,Egypt,RM,91,89,87,81,88,45,75\n"
+        )
+        handle.close()
+        call_command("import_fc27", handle.name, stdout=StringIO())
+        owned.refresh_from_db()
+        self.assertEqual(owned.name, "Mohamed Salah")
+        self.assertEqual(owned.overall, 91)
+        self.assertEqual(owned.mgl_team_id, club.id)
+        self.assertFalse(owned.is_free_agent)
