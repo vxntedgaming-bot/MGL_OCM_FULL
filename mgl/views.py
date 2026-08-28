@@ -1,9 +1,10 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import Q
-from django.http import Http404
+from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
@@ -47,6 +48,12 @@ from .market import (
 )
 from .nav import COMPETITIONS, LIVE_COMPETITION_SLUGS
 from .permissions import approved_manager, owner_admin_required
+from .player_state import (
+    free_agents as free_agent_qs,
+    live_auction_player_ids,
+    market_counts,
+    unassigned_players,
+)
 from .services import manager_for_user
 from .tenure import close_club_spell_for_user, open_club_spell, resign_manager_from_club
 
@@ -223,10 +230,8 @@ def home(request):
             "player_count": Player.objects.count(),
             "manager_count": club_qs.filter(manager__isnull=False).count(),
             "matches_played": matches_played_qs.count(),
-            "free_agent_count": Player.objects.filter(
-                is_free_agent=True,
-                mgl_team__isnull=True,
-            ).count(),
+            "unassigned_count": unassigned_players().count(),
+            "free_agent_count": free_agent_qs().count(),
             "live_listing_count": PlayerListing.objects.filter(
                 status=PlayerListing.LIVE
             ).count(),
@@ -585,10 +590,7 @@ def free_agents(request):
     position = request.GET.get("position", "").strip()
     min_ovr = request.GET.get("min_ovr", "").strip()
     sort = request.GET.get("sort", "-overall")
-    players = Player.objects.filter(
-        is_free_agent=True,
-        mgl_team__isnull=True,
-    )
+    players = free_agent_qs()
     if search:
         players = apply_player_search(players, search)
     if position:
@@ -616,7 +618,47 @@ def free_agents(request):
             "positions": [choice[0] for choice in Player.POSITION_CHOICES],
             "querystring": _querystring(request),
             "result_count": page.paginator.count,
+        },
+    )
+
+
+@owner_admin_required
+def unassigned_players_page(request):
+    search = request.GET.get("search", "").strip()
+    position = request.GET.get("position", "").strip()
+    min_ovr = request.GET.get("min_ovr", "").strip()
+    sort = request.GET.get("sort", "-overall")
+    players = unassigned_players()
+    if search:
+        players = apply_player_search(players, search)
+    if position:
+        players = players.filter(position=position)
+    if min_ovr.isdigit():
+        players = players.filter(overall__gte=int(min_ovr))
+    allowed_sort = {
+        "overall": "overall",
+        "-overall": "-overall",
+        "name": "name",
+        "-name": "-name",
+    }
+    players = players.order_by(allowed_sort.get(sort, "-overall"), "name")
+    page = Paginator(players, 40).get_page(request.GET.get("page"))
+    counts = market_counts()
+    return render(
+        request,
+        "mgl/unassigned_players.html",
+        {
+            "players": page,
+            "page_obj": page,
+            "search": search,
+            "selected_position": position,
+            "min_ovr": min_ovr,
+            "selected_sort": sort,
+            "positions": [choice[0] for choice in Player.POSITION_CHOICES],
+            "querystring": _querystring(request),
+            "result_count": page.paginator.count,
             "auction_durations": AUCTION_DURATION_CHOICES,
+            "market_counts": counts,
         },
     )
 
@@ -736,7 +778,11 @@ def player_database(request):
         )
 
     if club == "FA" or free_only:
-        players = players.filter(mgl_team__isnull=True)
+        players = players.filter(mgl_team__isnull=True, is_free_agent=True)
+    elif club == "UNASSIGNED":
+        players = players.filter(mgl_team__isnull=True, is_free_agent=False).exclude(
+            id__in=live_auction_player_ids()
+        )
     elif club.isdigit():
         players = players.filter(mgl_team_id=int(club))
 
@@ -1341,9 +1387,13 @@ def list_player_for_auction(request, player_id):
     return redirect("team_management")
 
 
-@owner_admin_required
+@login_required
 @require_POST
 def auction_free_agent(request, player_id):
+    if getattr(request.user, "role", None) not in [User.OWNER, User.ADMIN]:
+        return HttpResponseForbidden(
+            "Only an owner or admin can release an unassigned player to auction."
+        )
     player = get_object_or_404(Player, pk=player_id)
     try:
         auction = create_free_agent_auction(
@@ -1356,9 +1406,11 @@ def auction_free_agent(request, player_id):
             request,
             f"{player.name} is live in auction until {auction.ends_at}.",
         )
+    except PermissionDenied as exc:
+        return HttpResponseForbidden(str(exc))
     except ValueError as exc:
         messages.error(request, str(exc))
-    return redirect(request.POST.get("next") or "free_agents")
+    return redirect(request.POST.get("next") or "unassigned_players")
 
 
 def youth_academy(request):

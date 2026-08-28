@@ -2,6 +2,7 @@ from decimal import Decimal
 from io import StringIO
 
 from django.core.management import call_command
+from django.core.management.base import CommandError
 from django.test import TestCase
 
 from leagues.models import League
@@ -65,6 +66,28 @@ class OfficialSuperLeagueOneClubTests(TestCase):
         self.assertEqual(Fixture.objects.count(), 0)
         self.assertEqual(Player.objects.count(), 0)
 
+    def test_populate_default_does_not_assign_players_to_clubs(self):
+        from unittest.mock import patch
+
+        with patch(
+            "mgl.management.commands.populate_super_league_1.call_command"
+        ) as mocked_call:
+            call_command(
+                "populate_super_league_1",
+                skip_import=True,
+                stdout=StringIO(),
+            )
+
+        mocked_call.assert_not_called()
+        self.assertEqual(Player.objects.count(), 0)
+        self.assertEqual(Player.objects.filter(mgl_team__isnull=False).count(), 0)
+        official = Team.objects.filter(short_name__in=OFFICIAL_SL1_SHORT_NAMES)
+        self.assertEqual(official.count(), 14)
+        for team in official:
+            self.assertEqual(team.players.count(), 0)
+            self.assertEqual(team.tokens, Decimal("50.00"))
+            self.assertIsNone(team.manager_id)
+
     def test_official_squad_generation_skips_non_official_and_filled_clubs(self):
         official = list(Team.objects.filter(short_name__in=OFFICIAL_SL1_SHORT_NAMES))
         arsenal = Team.objects.get(short_name="ARS")
@@ -102,10 +125,10 @@ class OfficialSuperLeagueOneClubTests(TestCase):
                 is_free_agent=True,
             )
 
-        call_command("generate_balanced_squads", official_sl1=True, stdout=StringIO())
+        with self.assertRaises(CommandError):
+            call_command("generate_balanced_squads", official_sl1=True, stdout=StringIO())
 
-        self.assertEqual(arsenal.players.count(), 26)
-        self.assertTrue(all(64 <= player.overall <= 73 for player in arsenal.players.all()))
+        self.assertEqual(arsenal.players.count(), 0)
         self.assertEqual(outsider.players.count(), 0)
         self.assertEqual(
             Player.objects.filter(mgl_team=arsenal).count()

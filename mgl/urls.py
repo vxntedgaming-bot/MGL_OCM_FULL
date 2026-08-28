@@ -63,6 +63,11 @@ urlpatterns = [
     ),
 
     path(
+        "unassigned/",
+        views.unassigned_players_page,
+        name="unassigned_players",
+    ),
+    path(
         "free-agents/",
         views.free_agents,
         name="free_agents",

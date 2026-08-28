@@ -27,29 +27,47 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-Optional player import and squad fill (FC26 CSV is already in the repo). Prefer the idempotent one-shot:
+Optional player import (FC26 CSV is already in the repo). Every imported player stays **UNASSIGNED**, not a Free Agent. MGL clubs start with 0 players:
 
 ```bash
 python manage.py populate_super_league_1
 ```
 
-That command creates the 14 official Premier League clubs if missing, imports `fc26_players_mgl.csv` without assigning MGL clubs, then runs `generate_balanced_squads --official-sl1` for empty official clubs only. It does not reset tokens, managers, fixtures, or history.
+That command creates the 14 official Premier League clubs if missing and imports `fc26_players_mgl.csv` **without** assigning anyone to an MGL club. `fc27_club` is FC26 reference data only. It does not reset tokens, managers, fixtures, or history.
 
-The same steps can still be run separately. `generate_balanced_squads` only fills clubs that currently have **no players**. It assigns 26 random FC26 players rated 64–73 and leaves the rest as free agents. It does not reset the player database.
+Player market states:
+
+- **UNASSIGNED** — unused FC26 pool. No club, not in auction, not a Free Agent.
+- **AUCTION** — admin released the player into the existing auction system.
+- **FREE AGENT** — an unassigned auction closed with **no bids** (or a club released the player).
+- **CLUB PLAYER** — a manager won the auction, or another existing signing path assigned the player.
+
+Only an owner/admin can move UNASSIGNED → AUCTION. Managers receive HTTP 403 if they POST the release endpoint.
+
+Do **not** run `generate_balanced_squads`. It is disabled. Dry-run a balanced 14×26 starting auction pool (64–70 OVR, exact position shape, equal total OVR) without writing players:
+
+```bash
+python manage.py propose_starting_auction_pool --seed 20260828 --attempts 120
+```
+
+If production rows are still labelled as Free Agents by mistake, correct flags only (no assignments, no auctions):
+
+```bash
+python manage.py correct_unassigned_flags
+python manage.py correct_unassigned_flags --apply
+```
 
 ```bash
 python manage.py import_fc27 fc26_players_mgl.csv
 python manage.py sync_fc26_details fc26_players_raw.csv --faces-only
 python manage.py sync_fc26_details fc26_players_raw.csv --attributes-only
 python manage.py sync_fc26_names fc26_players_raw.csv
-python manage.py generate_balanced_squads --official-sl1 --dry-run
-python manage.py generate_balanced_squads --official-sl1
 python manage.py close_expired_auctions
 ```
 
 `--attributes-only` copies FC26 individual skills (pace/shooting/passing/dribbling/defending/physical breakdowns plus goalkeeper attributes) onto existing `Player` rows by `fc27_id` = CSV `player_id`. It also refreshes the recognised FC26 display name. It does not create or delete players and does not change MGL club, transfers, OVR, position, card ratings, faces or MGL statistics. Missing source values stay empty and the profile shows —. Re-run is safe.
 
-`--faces-only` copies `player_face_url` from `fc26_players_raw.csv` onto existing `Player` rows by `fc27_id` = CSV `player_id` (Sofifa FC26 headshots). It fills empty `player_face_url` / `image_url` only and does not overwrite URLs that are already set. Sofifa blocks hotlinking, so `{% player_card %}` loads those faces through `/mgl/players/<id>/face/` and caches the PNG under `media/player_faces/`. Missing or broken faces keep the silhouette fallback. Free agents still display **FREE AGENT**.
+`--faces-only` copies `player_face_url` from `fc26_players_raw.csv` onto existing `Player` rows by `fc27_id` = CSV `player_id` (Sofifa FC26 headshots). It fills empty `player_face_url` / `image_url` only and does not overwrite URLs that are already set. Sofifa blocks hotlinking, so `{% player_card %}` loads those faces through `/mgl/players/<id>/face/` and caches the PNG under `media/player_faces/`. Missing or broken faces keep the silhouette fallback. Cards show **UNASSIGNED**, **FREE AGENT**, **AUCTION**, or the MGL club short name.
 
 `sync_fc26_names` rewrites **only** `Player.name` on existing rows. It derives the recognised FC26 display name from `short_name` + `long_name` (so Salah, Mbappé and Hakimi, not Ghaly / Lottin / Mouh), matches by `fc27_id`, and does not create or delete players. Player search is accent-insensitive (`Mbappe` finds `Mbappé`). `convert_fc26.py` uses the same mapping when rebuilding `fc26_players_mgl.csv`.
 
@@ -65,7 +83,7 @@ python manage.py close_expired_auctions
 - MGL currently has three active divisions: **Premier League**, **Championship** and **League One**. Super League 1 was renamed in place to Premier League so existing club IDs, squads and fixtures stay attached. MLS is not an active competition.
 - Official Premier League clubs (created idempotently): Real Madrid, Barcelona, Atletico Madrid, Manchester United, Chelsea, Manchester City, Arsenal, Liverpool, Tottenham, Paris Saint-Germain, Lyon, Marseille, Bayer Leverkusen, Bayern Munich. Club treasury rows still start at 50 tokens; that figure is not the manager's personal balance.
 - Transfer currency is **tokens**. New manager sign-ups receive **20 personal tokens**. That balance belongs to the manager account and is not reset when they leave, join, or apply for a club.
-- Scouting is a **manager-wide** network (not per Bronze/Silver/Gold). Level 1 is free. Level 2 costs 18 personal tokens and Level 3 costs 25. Times are 8/10/12 hours at Level 1, 4/5/6 at Level 2, and 1/2.5/3 at Level 3. Completed scouts recruit an eligible FC26 free agent onto the manager's current club, which cannot exceed 30 players.
+- Scouting is a **manager-wide** network (not per Bronze/Silver/Gold). Level 1 is free. Level 2 costs 18 personal tokens and Level 3 costs 25. Times are 8/10/12 hours at Level 1, 4/5/6 at Level 2, and 1/2.5/3 at Level 3. Completed scouts recruit an eligible **unassigned** FC26 player onto the manager's current club, which cannot exceed 30 players.
 - Squads stay with the club if a manager leaves. Token balances stay with the manager.
 - Manager sales need owner/admin approval before they go live on `/market/`.
 - Auction bids reserve the manager's personal tokens. Being outbid refunds the previous manager automatically.
@@ -142,7 +160,7 @@ export DJANGO_ALLOWED_HOSTS=ocm.example.com
 export DJANGO_CSRF_TRUSTED_ORIGINS=https://ocm.example.com
 # export DATABASE_URL=postgres://...
 python manage.py migrate
-python manage.py populate_super_league_1
+python manage.py import_fc27 fc26_players_mgl.csv
 python manage.py collectstatic --noinput
 gunicorn --config gunicorn.conf.py
 ```

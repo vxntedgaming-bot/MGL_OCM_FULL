@@ -179,7 +179,7 @@ def eligible_players(tier, region="", position=""):
     queryset = Player.objects.filter(
         overall__gte=low,
         overall__lte=high,
-        is_free_agent=True,
+        is_free_agent=False,
         mgl_team__isnull=True,
     ).exclude(_unavailable_player_ids())
     nations = nations_for_region(region)

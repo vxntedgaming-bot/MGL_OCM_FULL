@@ -97,7 +97,7 @@ def _player(**kwargs):
         "position": "ST",
         "overall": 50,
         "nationality": "France",
-        "is_free_agent": True,
+        "is_free_agent": False,
         "mgl_team": None,
     }
     defaults.update(kwargs)
@@ -328,7 +328,7 @@ class ScoutGenerationTests(TestCase):
         self.assertEqual(report.region, "south-america")
         self.assertEqual(report.position, "ST")
         other.refresh_from_db()
-        self.assertTrue(other.is_free_agent)
+        self.assertFalse(other.is_free_agent)
         self.assertIsNone(other.mgl_team_id)
 
 
@@ -367,7 +367,7 @@ class ScoutRosterLimitTests(TestCase):
         with self.assertRaisesMessage(ValueError, SQUAD_FULL_MESSAGE):
             dispatch_scout(self.manager, "BRONZE", "europe", "ST")
         self.target.refresh_from_db()
-        self.assertTrue(self.target.is_free_agent)
+        self.assertFalse(self.target.is_free_agent)
         self.assertIsNone(self.target.mgl_team_id)
         self.assertEqual(Player.objects.filter(mgl_team=self.club).count(), 30)
         self.assertEqual(Player.objects.filter(name="Last Recruit").count(), 1)
@@ -383,7 +383,7 @@ class ScoutRosterLimitTests(TestCase):
         assignment.refresh_from_db()
         self.assertEqual(assignment.status, ScoutAssignment.PENDING)
         self.target.refresh_from_db()
-        self.assertTrue(self.target.is_free_agent)
+        self.assertFalse(self.target.is_free_agent)
         self.assertEqual(Player.objects.filter(mgl_team=self.club).count(), 30)
 
 

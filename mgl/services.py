@@ -17,6 +17,17 @@ from .models import (
 )
 
 
+def player_tier(overall):
+    if hasattr(overall, "overall"):
+        overall = getattr(overall, "overall", 0)
+    overall = overall or 0
+    if overall >= 75:
+        return "GOLD"
+    if overall >= 65:
+        return "SILVER"
+    return "BRONZE"
+
+
 def manager_for_user(user):
     if not user or not user.is_authenticated:
         return None

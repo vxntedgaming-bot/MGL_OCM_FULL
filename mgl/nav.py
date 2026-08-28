@@ -20,6 +20,7 @@ NAV_DROPDOWNS = (
             "transfer_history",
             "transfer_market",
             "free_agents",
+            "unassigned_players",
             "job_centre",
             "scouting",
             "youth_academy",
@@ -32,6 +33,12 @@ NAV_DROPDOWNS = (
             {"label": "TRANSFERS", "url_name": "transfer_history"},
             {"label": "TRANSFER MARKET", "url_name": "transfer_market", "divider": True},
             {"label": "FREE AGENTS", "url_name": "free_agents", "divider": True},
+            {
+                "label": "UNASSIGNED PLAYERS",
+                "url_name": "unassigned_players",
+                "divider": True,
+                "control_only": True,
+            },
             {"label": "RECRUITMENT DRIVE", "url_name": "job_centre", "divider": True},
             {"label": "SCOUTING", "url_name": "scouting", "divider": True},
             {
@@ -138,10 +145,18 @@ def nav_dropdowns_for_request(request):
     match = getattr(request, "resolver_match", None)
     url_name = getattr(match, "url_name", "") or ""
     kwargs = getattr(match, "kwargs", None) or {}
+    user = getattr(request, "user", None)
+    is_control = bool(
+        user is not None
+        and getattr(user, "is_authenticated", False)
+        and getattr(user, "role", None) in ("OWNER", "ADMIN")
+    )
     menus = []
     for menu in NAV_DROPDOWNS:
         items = []
         for item in menu["items"]:
+            if item.get("control_only") and not is_control:
+                continue
             items.append(
                 {
                     "label": item["label"],

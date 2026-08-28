@@ -9,7 +9,7 @@
         <div>
             <div class="eyebrow">FC26 PLAYER POOL</div>
             <h1>PLAYER DATABASE</h1>
-            <p>Browse the official MGL player pool as Bronze, Silver and Gold cards. Unassigned players are free agents.</p>
+            <p>Browse the official MGL player pool as Bronze, Silver and Gold cards. Unassigned players, Free Agents, auction players and club players are separate states.</p>
         </div>
         <span class="section-line"></span>
     </div>
@@ -18,6 +18,7 @@
         <input type="search" name="search" value="{{ search }}" placeholder="Search players...">
         <select name="club">
             <option value="">All clubs</option>
+            <option value="UNASSIGNED" {% if selected_club == "UNASSIGNED" %}selected{% endif %}>Unassigned</option>
             <option value="FA" {% if selected_club == "FA" %}selected{% endif %}>Free agents</option>
             {% for club in clubs %}
                 <option value="{{ club.id }}" {% if selected_club == club.id|stringformat:"s" %}selected{% endif %}>{{ club.name }}</option>

@@ -11,7 +11,7 @@
         <p>
             {{ player.position }}
             · {{ player.overall }} OVR
-            · {% if player.mgl_team %}{{ player.mgl_team.name }}{% else %}FREE AGENT{% endif %}
+            · {% if player.mgl_team %}{{ player.mgl_team.name }}{% else %}{{ player|market_status_label }}{% endif %}
         </p>
     </div>
 
@@ -74,7 +74,7 @@
                     <span>CLUB</span>
                     <strong class="mgl-info-club">
                         {% team_logo player.mgl_team "sm" %}
-                        {% if player.mgl_team %}{{ player.mgl_team.name }}{% else %}FREE AGENT{% endif %}
+                        {% if player.mgl_team %}{{ player.mgl_team.name }}{% else %}{{ player|market_status_label }}{% endif %}
                     </strong>
                 </div>
                 <div class="mgl-info-box">

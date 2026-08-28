@@ -1,9 +1,11 @@
 from decimal import Decimal
 from datetime import timedelta
 
+from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.utils import timezone
 
+from accounts.models import User
 from auctions.models import AuctionBid, PlayerAuction, TokenTransaction
 from managers.models import ManagerApplication
 from players.models import Player
@@ -172,6 +174,17 @@ def active_market_listing_count(team):
     return transfers + auctions
 
 
+def assert_roster_space(team, extra=1):
+    if team is None:
+        raise ValueError("You must manage a club.")
+    roster_limit = getattr(team, "roster_limit", 30) or 30
+    current_size = Player.objects.filter(mgl_team=team).count()
+    if current_size + extra > roster_limit:
+        raise ValueError(
+            f"{team.name} has reached its {roster_limit}-player roster limit."
+        )
+
+
 def assert_club_listing_capacity(team):
     if active_market_listing_count(team) >= MAX_ACTIVE_CLUB_LISTINGS:
         raise ValueError(MARKET_SLOT_MESSAGE)
@@ -192,10 +205,17 @@ def _assert_no_live_auction(player):
 
 @transaction.atomic
 def create_free_agent_auction(player, user, duration_minutes, starting_bid=1):
+    """Admin-only: release an UNASSIGNED player into the existing auction system."""
+    from mgl.player_state import is_unassigned
+
+    if getattr(user, "role", None) not in (User.OWNER, User.ADMIN):
+        raise PermissionDenied(
+            "Only an owner or admin can release an unassigned player to auction."
+        )
     minutes = parse_auction_duration(duration_minutes)
     player = Player.objects.select_for_update().get(pk=player.pk)
-    if not player.is_free_agent or player.mgl_team_id:
-        raise ValueError("Only unassigned free agents can be released to auction by an admin.")
+    if player.mgl_team_id or player.is_free_agent or not is_unassigned(player):
+        raise ValueError("Only unassigned players can be released to auction by an admin.")
     _assert_no_live_auction(player)
     bid = parse_auction_starting_bid(starting_bid)
     now = timezone.now()
@@ -298,6 +318,7 @@ def place_auction_bid(auction, manager, amount):
     team = club_for_user(manager.user)
     if not team:
         raise ValueError("You must manage a club before placing a bid.")
+    assert_roster_space(team)
 
     try:
         amount = int(amount)
@@ -425,21 +446,33 @@ def settle_auction(auction, reviewer=None):
 
     player = Player.objects.select_for_update().get(pk=auction.player_id)
     origin = auction.origin_team
-    if origin and player.mgl_team_id == origin.id:
-        transfer_player(
-            player,
-            origin,
-            club,
-            source="AUCTION",
-            reference=f"auction:{auction.id}",
+    try:
+        if origin and player.mgl_team_id == origin.id:
+            transfer_player(
+                player,
+                origin,
+                club,
+                source="AUCTION",
+                reference=f"auction:{auction.id}",
+            )
+        else:
+            assign_player(
+                player,
+                club,
+                source="AUCTION",
+                reference=f"auction:{auction.id}",
+            )
+    except ValueError as exc:
+        credit_manager_tokens(
+            winner,
+            highest.amount,
+            f"Auction cancelled refund on {auction.player.name}",
+            auction=auction,
         )
-    else:
-        assign_player(
-            player,
-            club,
-            source="AUCTION",
-            reference=f"auction:{auction.id}",
-        )
+        _restore_unsold_player(auction)
+        auction.status = PlayerAuction.CANCELLED
+        auction.save(update_fields=["status"])
+        return auction, str(exc)
 
     if auction.listed_by_manager_id:
         credit_manager_tokens(
@@ -557,6 +590,7 @@ def buy_listed_player(listing, buyer):
         raise ValueError("You already own this player.")
     if listing.seller_id == buyer.id:
         raise ValueError("You cannot buy your own listing.")
+    assert_roster_space(buyer_club)
 
     debit_manager_tokens(
         buyer,

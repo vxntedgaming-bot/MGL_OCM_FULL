@@ -224,7 +224,8 @@ class PlayerCardQaTests(TestCase):
         self.assertIn("mgl-player-card--silver", silver_html)
         self.assertIn("mgl-player-card--standard", silver_html)
         self.assertIn("<strong>70</strong>", silver_html)
-        self.assertIn("FREE AGENT", silver_html)
+        self.assertIn("UNASSIGNED", silver_html)
+        self.assertNotIn("FREE AGENT", silver_html)
         self.assertNotIn("core/img/clubs/", silver_html)
         self.assertNotIn("mgl-team-logo", silver_html)
 
@@ -232,7 +233,8 @@ class PlayerCardQaTests(TestCase):
         self.assertIn("mgl-player-card--bronze", bronze_html)
         self.assertIn("mgl-player-card--small", bronze_html)
         self.assertIn("<strong>48</strong>", bronze_html)
-        self.assertIn("FREE AGENT", bronze_html)
+        self.assertIn("UNASSIGNED", bronze_html)
+        self.assertNotIn("FREE AGENT", bronze_html)
         self.assertNotIn("core/img/clubs/", bronze_html)
 
     def test_names_positions_and_stat_order(self):

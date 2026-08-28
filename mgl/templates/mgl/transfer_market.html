@@ -9,7 +9,7 @@
         <div>
             <div class="eyebrow">MGL MARKET</div>
             <h2>TRANSFER MARKET</h2>
-            <p>Auctions, listed players and free agents. All deals use MGL tokens. The transfer window is open.</p>
+            <p>Auctions, listed club players and Free Agents. Unassigned FC26 players are a separate admin-only pool. All deals use MGL tokens.</p>
         </div>
         <span class="section-line"></span>
     </div>
@@ -26,9 +26,14 @@
             <small>ASKING PRICE</small>
         </div>
         <div class="overview-stat">
+            <span>UNASSIGNED</span>
+            <strong>{{ unassigned_count }}</strong>
+            <small>FC26 POOL</small>
+        </div>
+        <div class="overview-stat">
             <span>FREE AGENTS</span>
             <strong>{{ free_agent_count }}</strong>
-            <small>UNASSIGNED FC26 PLAYERS</small>
+            <small>UNSOLD AUCTIONS</small>
         </div>
     </div>
 </section>
@@ -54,11 +59,11 @@
                     {% elif auction.player.mgl_team %}
                         {{ auction.player.mgl_team.name }}
                     {% else %}
-                        FREE AGENT
+                        UNASSIGNED
                     {% endif %}
                     · {{ auction.player.overall }} OVR · {{ auction.player.position }}
                 </p>
-                <p>Seller: {% if auction.listed_by_manager %}{{ auction.listed_by_manager.display_name }}{% elif auction.listing_kind == "FREE_AGENT" %}Free Agents{% else %}League office{% endif %}</p>
+                <p>Seller: {% if auction.listed_by_manager %}{{ auction.listed_by_manager.display_name }}{% elif auction.listing_kind == "FREE_AGENT" %}League office{% else %}League office{% endif %}</p>
                 <div class="mgl-market-price">{{ auction.winning_bid|default:auction.starting_bid }} TKN</div>
                 <p>Starting bid: {{ auction.starting_bid }} TKN · Current bid: {% if auction.winning_bid %}{{ auction.winning_bid }} TKN{% else %}No bids yet{% endif %}</p>
                 <p>Highest bid: {% if auction.winning_manager %}{{ auction.winning_manager.display_name }}{% else %}No bids yet{% endif %}</p>
@@ -77,7 +82,7 @@
             </div>
         </article>
     {% empty %}
-        {% include "mgl/includes/empty_state.html" with kicker="AUCTIONS" title="NO LIVE AUCTIONS" body="When the league office releases a free agent into auction, managers will be able to bid tokens here." %}
+        {% include "mgl/includes/empty_state.html" with kicker="AUCTIONS" title="NO LIVE AUCTIONS" body="When the league office releases an unassigned player into auction, managers will be able to bid tokens here." %}
     {% endfor %}
 </section>
 
@@ -123,7 +128,7 @@
     <div class="section-heading">
         <div>
             <div class="eyebrow">FREE AGENTS</div>
-            <h2>UNASSIGNED PLAYERS</h2>
+            <h2>FREE AGENTS</h2>
         </div>
         <a href="{% url 'free_agents' %}" class="view-all">VIEW ALL →</a>
     </div>
@@ -131,7 +136,7 @@
         {% for player in free_agents %}
             {% player_card player "small" %}
         {% empty %}
-            {% include "mgl/includes/empty_state.html" with kicker="POOL" title="NO FREE AGENTS TO SHOW" body="Unassigned FC26 players will appear here once the player pool is imported." %}
+            {% include "mgl/includes/empty_state.html" with kicker="MARKET" title="NO FREE AGENTS TO SHOW" body="Free Agents appear here only after an unassigned auction closes with no bids." %}
         {% endfor %}
     </div>
 </section>

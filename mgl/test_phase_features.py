@@ -1,6 +1,7 @@
 from datetime import timedelta
 from decimal import Decimal
 
+from django.core.exceptions import PermissionDenied
 from django.test import Client, TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -151,6 +152,7 @@ class AuctionWorkflowTests(TestCase):
         self.team_b = Team.objects.create(name="Beta", short_name="BET", league=self.league, manager=self.user_b)
         self.owned = Player.objects.create(name="Club Player", position="ST", overall=70, mgl_team=self.team_a, is_free_agent=False)
         self.other = Player.objects.create(name="Other Club", position="CM", overall=68, mgl_team=self.team_b, is_free_agent=False)
+        self.unassigned = Player.objects.create(name="Unassigned Z", position="CB", overall=66, is_free_agent=False)
         self.fa = Player.objects.create(name="Free Agent Z", position="CB", overall=66, is_free_agent=True)
         self.client = Client(HTTP_HOST="127.0.0.1")
 
@@ -161,23 +163,80 @@ class AuctionWorkflowTests(TestCase):
         with self.assertRaises(ValueError):
             parse_auction_duration(24 * 60)
 
-    def test_admin_can_auction_free_agent(self):
+    def test_admin_can_auction_unassigned_player(self):
+        self.client.login(username="owner", password="test-pass-123")
+        response = self.client.post(
+            reverse("auction_free_agent", args=[self.unassigned.id]),
+            {"duration": "30", "starting_bid": "1"},
+        )
+        self.assertEqual(response.status_code, 302)
+        auction = PlayerAuction.objects.get(player=self.unassigned)
+        self.assertEqual(auction.listing_kind, PlayerAuction.FREE_AGENT)
+        self.assertEqual(auction.status, PlayerAuction.LIVE)
+        self.unassigned.refresh_from_db()
+        self.assertFalse(self.unassigned.is_free_agent)
+        self.assertIsNone(self.unassigned.mgl_team_id)
+        self.assertEqual(Player.objects.filter(pk=self.unassigned.id).count(), 1)
+
+    def test_admin_cannot_auction_a_real_free_agent(self):
         self.client.login(username="owner", password="test-pass-123")
         response = self.client.post(
             reverse("auction_free_agent", args=[self.fa.id]),
             {"duration": "30", "starting_bid": "1"},
         )
         self.assertEqual(response.status_code, 302)
-        auction = PlayerAuction.objects.get(player=self.fa)
-        self.assertEqual(auction.listing_kind, PlayerAuction.FREE_AGENT)
-        self.assertEqual(auction.status, PlayerAuction.LIVE)
-        self.assertEqual(Player.objects.filter(pk=self.fa.id).count(), 1)
+        self.assertFalse(PlayerAuction.objects.filter(player=self.fa).exists())
+        self.fa.refresh_from_db()
+        self.assertTrue(self.fa.is_free_agent)
+
+    def test_manager_cannot_release_unassigned_player(self):
+        self.client.login(username="seller", password="test-pass-123")
+        before_auctions = PlayerAuction.objects.count()
+        before_tokens = self.mgr_a.tokens
+        response = self.client.post(
+            reverse("auction_free_agent", args=[self.unassigned.id]),
+            {"duration": "30", "starting_bid": "1"},
+        )
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(PlayerAuction.objects.count(), before_auctions)
+        self.unassigned.refresh_from_db()
+        self.assertFalse(self.unassigned.is_free_agent)
+        self.assertIsNone(self.unassigned.mgl_team_id)
+        self.mgr_a.refresh_from_db()
+        self.assertEqual(self.mgr_a.tokens, before_tokens)
+
+    def test_python_api_rejects_manager_unassigned_auction(self):
+        with self.assertRaises(PermissionDenied):
+            create_free_agent_auction(self.unassigned, self.user_a, 30)
+        self.assertFalse(PlayerAuction.objects.filter(player=self.unassigned).exists())
+
+    def test_free_agents_page_excludes_unassigned_and_hides_release(self):
+        self.client.login(username="seller", password="test-pass-123")
+        response = self.client.get(reverse("free_agents"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "FREE AGENT Z")
+        self.assertNotContains(response, "UNASSIGNED Z")
+        self.assertNotContains(response, "RELEASE TO AUCTION")
+
+    def test_unassigned_page_is_admin_only_and_excludes_free_agents(self):
+        self.client.login(username="seller", password="test-pass-123")
+        blocked = self.client.get(reverse("unassigned_players"))
+        self.assertEqual(blocked.status_code, 302)
+        self.client.logout()
+        self.client.login(username="owner", password="test-pass-123")
+        response = self.client.get(reverse("unassigned_players"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "UNASSIGNED Z")
+        self.assertNotContains(response, "FREE AGENT Z")
+        self.assertContains(response, "RELEASE TO AUCTION")
 
     def test_manager_can_only_auction_own_players(self):
         with self.assertRaises(ValueError):
             create_manager_auction(self.other, self.mgr_a, 30)
         with self.assertRaises(ValueError):
             create_manager_auction(self.fa, self.mgr_a, 30)
+        with self.assertRaises(ValueError):
+            create_manager_auction(self.unassigned, self.mgr_a, 30)
         auction = create_manager_auction(self.owned, self.mgr_a, 60)
         self.owned.refresh_from_db()
         self.assertEqual(self.owned.mgl_team_id, self.team_a.id)
@@ -221,17 +280,43 @@ class AuctionWorkflowTests(TestCase):
         self.assertFalse(self.owned.is_free_agent)
         self.assertEqual(auction.status, PlayerAuction.ENDED)
 
-    def test_unsold_free_agent_stays_free(self):
-        auction = create_free_agent_auction(self.fa, self.owner, 30)
+    def test_unsold_unassigned_auction_becomes_free_agent(self):
+        auction = create_free_agent_auction(self.unassigned, self.owner, 30)
         auction.ends_at = timezone.now() - timedelta(minutes=1)
         auction.save(update_fields=["ends_at"])
         close_expired_auctions()
-        self.fa.refresh_from_db()
-        self.assertTrue(self.fa.is_free_agent)
-        self.assertIsNone(self.fa.mgl_team_id)
+        self.unassigned.refresh_from_db()
+        self.assertTrue(self.unassigned.is_free_agent)
+        self.assertIsNone(self.unassigned.mgl_team_id)
+
+    def test_winning_unassigned_auction_assigns_club_not_free_agent(self):
+        auction = create_free_agent_auction(self.unassigned, self.owner, 30)
+        place_auction_bid(auction, self.mgr_b, 4)
+        settle_auction(auction)
+        self.unassigned.refresh_from_db()
+        self.assertEqual(self.unassigned.mgl_team_id, self.team_b.id)
+        self.assertFalse(self.unassigned.is_free_agent)
+
+    def test_cannot_bid_when_club_is_at_roster_limit(self):
+        for index in range(30):
+            Player.objects.create(
+                name=f"Full {index}",
+                position="ST",
+                overall=64,
+                mgl_team=self.team_b,
+                is_free_agent=False,
+            )
+        auction = create_free_agent_auction(self.unassigned, self.owner, 30)
+        with self.assertRaises(ValueError):
+            place_auction_bid(auction, self.mgr_b, 3)
+        self.unassigned.refresh_from_db()
+        self.assertIsNone(self.unassigned.mgl_team_id)
+        self.assertFalse(self.unassigned.is_free_agent)
+        self.mgr_b.refresh_from_db()
+        self.assertEqual(self.mgr_b.tokens, Decimal("20.00"))
 
     def test_cannot_bid_expired_or_go_negative(self):
-        auction = create_free_agent_auction(self.fa, self.owner, 30)
+        auction = create_free_agent_auction(self.unassigned, self.owner, 30)
         auction.ends_at = timezone.now() - timedelta(seconds=5)
         auction.save(update_fields=["ends_at"])
         with self.assertRaises(ValueError):
@@ -288,11 +373,12 @@ class ControlCentreFreeAgentFilterTests(TestCase):
         self.club = Team.objects.filter(short_name="ARS").first() or Team.objects.create(
             name="Arsenal", short_name="ARS", league=self.league
         )
-        self.low = Player.objects.create(name="Filter Low", position="CB", overall=55, is_free_agent=True)
-        self.floor = Player.objects.create(name="Filter Floor", position="CM", overall=62, is_free_agent=True)
-        self.mid = Player.objects.create(name="Filter Mid", position="ST", overall=70, is_free_agent=True)
-        self.high = Player.objects.create(name="Filter High", position="ST", overall=71, is_free_agent=True)
-        self.star = Player.objects.create(name="Filter Star", position="ST", overall=88, is_free_agent=True)
+        self.low = Player.objects.create(name="Filter Low", position="CB", overall=55, is_free_agent=False)
+        self.floor = Player.objects.create(name="Filter Floor", position="CM", overall=62, is_free_agent=False)
+        self.mid = Player.objects.create(name="Filter Mid", position="ST", overall=70, is_free_agent=False)
+        self.high = Player.objects.create(name="Filter High", position="ST", overall=71, is_free_agent=False)
+        self.star = Player.objects.create(name="Filter Star", position="ST", overall=88, is_free_agent=False)
+        self.fa = Player.objects.create(name="Filter Free Agent", position="ST", overall=66, is_free_agent=True)
         self.assigned = Player.objects.create(
             name="Filter Assigned",
             position="CM",
@@ -321,8 +407,10 @@ class ControlCentreFreeAgentFilterTests(TestCase):
         self.assertNotContains(response, self.high.name)
         self.assertNotContains(response, self.star.name)
         self.assertNotContains(response, self.assigned.name)
+        self.assertNotContains(response, self.fa.name)
         self.assertEqual(self._snapshot(), before)
-        self.assertEqual(Player.objects.filter(is_free_agent=True).count(), 5)
+        self.assertEqual(Player.objects.filter(is_free_agent=True).count(), 1)
+        self.assertEqual(Player.objects.filter(is_free_agent=False, mgl_team__isnull=True).count(), 5)
         self.assertEqual(self.assigned.overall, 66)
 
     def test_all_71_plus_and_under_62_filters_are_selection_only(self):
@@ -332,6 +420,7 @@ class ControlCentreFreeAgentFilterTests(TestCase):
         self.assertContains(all_view, self.low.name)
         self.assertContains(all_view, self.mid.name)
         self.assertNotContains(all_view, self.assigned.name)
+        self.assertNotContains(all_view, self.fa.name)
 
         plus = self.client.get(reverse("control_centre"), {"ovr": "71-plus"})
         self.assertContains(plus, self.high.name)

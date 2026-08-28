@@ -6,7 +6,11 @@ from players.models import Player
 
 
 class Command(BaseCommand):
-    help = "Import or update FC27 players from a CSV file."
+    help = (
+        "Import or update FC26/FC27 players from a CSV file. "
+        "Never assigns an MGL club. New rows are unassigned (not free agents). "
+        "fc27_club is stored as FC26 reference data only."
+    )
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -91,11 +95,18 @@ class Command(BaseCommand):
                     "physical": self.number(row.get("physical")),
                     "age": self.number(row.get("age")) if "age" in row else None,
                 }
+                # FC26 club/name must never become MGL ownership.
+                defaults.pop("mgl_team", None)
+                defaults.pop("is_free_agent", None)
 
                 player, was_created = Player.objects.update_or_create(
                     fc27_id=fc27_id,
                     defaults=defaults,
                 )
+                if was_created and (player.mgl_team_id or player.is_free_agent):
+                    player.mgl_team = None
+                    player.is_free_agent = False
+                    player.save(update_fields=["mgl_team", "is_free_agent"])
 
                 if was_created:
                     created += 1
