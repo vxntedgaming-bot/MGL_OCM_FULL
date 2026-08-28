@@ -13,6 +13,7 @@ from managers.models import ManagerApplication
 from mgl.standings import build_league_table
 from players.models import Player
 from players.search import apply_player_search
+from players.fc26_attributes import attribute_groups_for_player
 from teams.models import Team
 
 from .models import (
@@ -239,6 +240,7 @@ def player_profile(request, player_id):
             "ownership_history": ownership_history,
             "totw_selections": totw_selections,
             "auction_requests": auction_requests,
+            "attribute_groups": attribute_groups_for_player(player),
         },
     )
 

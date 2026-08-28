@@ -2724,6 +2724,24 @@ textarea {
     grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+.mgl-attr-board {
+    margin-top: 36px;
+}
+
+.mgl-attr-board h2 {
+    margin: 0 0 16px;
+}
+
+.mgl-attr-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.mgl-attr-grid .mgl-attr-group {
+    margin-top: 0;
+}
+
 .mgl-attr-group h3 {
     margin: 0 0 12px;
     font-size: 20px;
@@ -2774,7 +2792,8 @@ textarea {
     .mgl-market-listing,
     .mgl-rating-grid,
     .mgl-career-grid,
-    .mgl-info-grid {
+    .mgl-info-grid,
+    .mgl-attr-grid {
         grid-template-columns: 1fr 1fr;
     }
     .mgl-filter-bar {
@@ -2788,7 +2807,8 @@ textarea {
     .mgl-market-listing,
     .mgl-rating-grid,
     .mgl-career-grid,
-    .mgl-info-grid {
+    .mgl-info-grid,
+    .mgl-attr-grid {
         grid-template-columns: 1fr;
     }
     .mgl-player-card-grid {

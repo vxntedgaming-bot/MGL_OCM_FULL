@@ -101,7 +101,14 @@ def player_card(player, size="standard", linked=True):
 
 @register.inclusion_tag("mgl/includes/player_attribute_group.html")
 def player_attribute_group(title, items):
-    visible = [row for row in (items or []) if row.get("value") not in (None, "", 0, "0")]
+    visible = []
+    for row in items or []:
+        value = row.get("value")
+        if value is None or value == "":
+            display = "—"
+        else:
+            display = value
+        visible.append({"label": row.get("label"), "value": display})
     return {"title": title, "items": visible}
 
 

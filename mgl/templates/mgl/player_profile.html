@@ -64,6 +64,12 @@
                     <strong>{{ player.weak_foot }}★</strong>
                 </div>
                 {% endif %}
+                {% if player.fc_work_rate %}
+                <div class="mgl-info-box">
+                    <span>WORK RATE</span>
+                    <strong>{{ player.fc_work_rate }}</strong>
+                </div>
+                {% endif %}
                 <div class="mgl-info-box">
                     <span>CLUB</span>
                     <strong class="mgl-info-club">
@@ -98,12 +104,17 @@
         </div>
     </div>
 
-    {% player_attribute_group "PACE" pace_details %}
-    {% player_attribute_group "SHOOTING" shooting_details %}
-    {% player_attribute_group "PASSING" passing_details %}
-    {% player_attribute_group "DRIBBLING" dribbling_details %}
-    {% player_attribute_group "DEFENDING" defending_details %}
-    {% player_attribute_group "PHYSICAL" physical_details %}
+    {% if attribute_groups %}
+    <div class="mgl-attr-board">
+        <div class="eyebrow">PLAYER ATTRIBUTES</div>
+        <h2>PLAYER ATTRIBUTES</h2>
+        <div class="mgl-attr-grid">
+            {% for group in attribute_groups %}
+                {% player_attribute_group group.title group.items %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
 
     {% player_stats_panel player %}
 
