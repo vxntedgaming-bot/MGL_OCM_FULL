@@ -86,6 +86,21 @@ class PlayerCardAndBadgeTests(TestCase):
         bronze = self.client.get(reverse("player_profile", args=[self.bronze.id]))
         self.assertContains(bronze, "mgl/cards/bronze_card.png")
 
+        self.gold.player_face_url = "https://cdn.sofifa.net/players/209/331/26_120.png"
+        self.gold.fc27_id = "209331"
+        self.gold.save(update_fields=["player_face_url", "fc27_id"])
+        gold_face = self.client.get(reverse("player_profile", args=[self.gold.id]))
+        self.assertContains(gold_face, reverse("player_face_image", args=[self.gold.id]))
+        self.assertContains(gold_face, "mgl-player-face")
+        self.assertContains(gold_face, "Arsenal")
+
+        self.silver.player_face_url = "https://cdn.sofifa.net/players/231/747/26_120.png"
+        self.silver.save(update_fields=["player_face_url"])
+        silver_face = self.client.get(reverse("player_profile", args=[self.silver.id]))
+        self.assertContains(silver_face, reverse("player_face_image", args=[self.silver.id]))
+        self.assertContains(silver_face, "FREE AGENT")
+        self.assertContains(silver_face, "onerror=")
+
     def test_player_database_filters_and_cards(self):
         self.assertEqual(self.client.get(reverse("player_database")).status_code, 302)
         self.client.login(username="carduser", password="test-pass-123")

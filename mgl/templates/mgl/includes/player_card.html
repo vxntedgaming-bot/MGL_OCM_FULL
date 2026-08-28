@@ -12,10 +12,9 @@
         <img src="{% static 'mgl/cards/bronze_card.png' %}" class="mgl-player-card-bg" alt="">
     {% endif %}
 
-    {% if player.player_face_url %}
-        <img src="{{ player.player_face_url }}" class="mgl-player-face" alt="" loading="lazy" onerror="this.style.display='none'">
-    {% elif player.image_url %}
-        <img src="{{ player.image_url }}" class="mgl-player-face" alt="" loading="lazy" onerror="this.style.display='none'">
+    {% if face_url %}
+        <img src="{{ face_url }}" class="mgl-player-face" alt="" loading="lazy" decoding="async" fetchpriority="{% if size == 'large' %}auto{% else %}low{% endif %}" referrerpolicy="no-referrer" onerror="this.style.display='none';this.removeAttribute('src');var f=this.nextElementSibling;if(f)f.hidden=false;">
+        <span class="mgl-player-face-fallback" hidden aria-hidden="true"></span>
     {% else %}
         <span class="mgl-player-face-fallback" aria-hidden="true"></span>
     {% endif %}

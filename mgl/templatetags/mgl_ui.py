@@ -1,5 +1,6 @@
 from django import template
 
+from players.fc26_faces import card_face_src
 from teams.badges import static_badge_path
 
 
@@ -89,10 +90,12 @@ def club_badge(team, size="md"):
 
 @register.inclusion_tag("mgl/includes/player_card.html")
 def player_card(player, size="standard", linked=True):
+    size = size or "standard"
     return {
         "player": player,
-        "size": size or "standard",
+        "size": size,
         "linked": linked,
+        "face_url": card_face_src(player, size),
     }
 
 

@@ -39,11 +39,13 @@ The same steps can still be run separately. `generate_balanced_squads` only fill
 
 ```bash
 python manage.py import_fc27 fc26_players_mgl.csv
-python manage.py sync_fc26_details fc26_players_raw.csv
+python manage.py sync_fc26_details fc26_players_raw.csv --faces-only
 python manage.py generate_balanced_squads --official-sl1 --dry-run
 python manage.py generate_balanced_squads --official-sl1
 python manage.py close_expired_auctions
 ```
+
+`--faces-only` copies `player_face_url` from `fc26_players_raw.csv` onto existing `Player` rows by `fc27_id` = CSV `player_id` (Sofifa FC26 headshots). It fills empty `player_face_url` / `image_url` only and does not overwrite URLs that are already set. Sofifa blocks hotlinking, so `{% player_card %}` loads those faces through `/mgl/players/<id>/face/` and caches the PNG under `media/player_faces/`. Missing or broken faces keep the silhouette fallback. Free agents still display **FREE AGENT**.
 
 - Site: http://127.0.0.1:8000/
 - Django admin: http://127.0.0.1:8000/admin/

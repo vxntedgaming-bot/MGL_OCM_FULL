@@ -1,4 +1,5 @@
 from django.urls import path
+from players.fc26_faces import player_face_image
 from . import views
 from . import market_views as views_market
 
@@ -36,6 +37,12 @@ urlpatterns = [
         "players/",
         views.player_database,
         name="player_database",
+    ),
+
+    path(
+        "players/<int:player_id>/face/",
+        player_face_image,
+        name="player_face_image",
     ),
 
     path(
