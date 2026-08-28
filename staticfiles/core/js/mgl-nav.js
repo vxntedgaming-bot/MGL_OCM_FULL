@@ -57,6 +57,16 @@
     }
   });
 
+  nav.addEventListener("click", function (event) {
+    const link = event.target.closest("a");
+    if (!link) return;
+    const toggle = document.getElementById("mgl-nav-toggle");
+    if (toggle && window.matchMedia("(max-width: 1100px)").matches) {
+      toggle.checked = false;
+      closeAll();
+    }
+  });
+
   document.addEventListener("click", function (event) {
     if (!event.target.closest("[data-nav-dropdown]")) closeAll();
   });
