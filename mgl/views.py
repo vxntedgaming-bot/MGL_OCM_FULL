@@ -107,7 +107,7 @@ def home(request):
         .select_related("mgl_team")
         .order_by("-goals", "name")[:5]
     )
-    table = build_league_table(league)[:10]
+    table = build_league_table(league)
     club_qs = Team.objects.all()
     showcase_clubs = []
     if league:
