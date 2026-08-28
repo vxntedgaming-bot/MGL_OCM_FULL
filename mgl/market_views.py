@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Avg, Count, Q, Sum
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 from auctions.models import PlayerAuction
@@ -35,6 +36,45 @@ from .permissions import approved_manager, owner_admin_required
 from .services import manager_for_user
 from .standings import build_league_table
 from .tenure import open_club_spell
+
+# Admin-only selection filter over the existing Free Agent pool.
+# Does not create a second pool, change ratings, or toggle is_free_agent.
+FREE_AGENT_OVR_FILTERS = (
+    ("all", "All"),
+    ("62-70", "62–70 OVR"),
+    ("71+", "71+ OVR"),
+    ("under-62", "Under 62 OVR"),
+)
+FREE_AGENT_OVR_FILTER_KEYS = {key for key, _label in FREE_AGENT_OVR_FILTERS}
+DEFAULT_FREE_AGENT_OVR_FILTER = "62-70"
+CONTROL_FREE_AGENT_LIMIT = 40
+
+
+def parse_free_agent_ovr_filter(value):
+    value = (value or "").strip()
+    if value in FREE_AGENT_OVR_FILTER_KEYS:
+        return value
+    return DEFAULT_FREE_AGENT_OVR_FILTER
+
+
+def apply_free_agent_ovr_filter(queryset, ovr_filter):
+    if ovr_filter == "62-70":
+        return queryset.filter(overall__gte=62, overall__lte=70)
+    if ovr_filter == "71+":
+        return queryset.filter(overall__gte=71)
+    if ovr_filter == "under-62":
+        return queryset.filter(overall__lt=62)
+    return queryset
+
+
+def control_centre_redirect(request):
+    ovr = parse_free_agent_ovr_filter(
+        request.POST.get("ovr") or request.GET.get("ovr")
+    )
+    url = reverse("control_centre")
+    if ovr:
+        url = f"{url}?ovr={ovr}"
+    return redirect(url)
 
 
 def transfer_market(request):
@@ -253,7 +293,7 @@ def control_approve_manager(request, application_id):
         )
     except ValueError as exc:
         messages.error(request, str(exc))
-    return redirect("control_centre")
+    return control_centre_redirect(request)
 
 
 @owner_admin_required
@@ -265,7 +305,7 @@ def control_reject_manager(request, application_id):
         messages.success(request, f"{application.display_name} was rejected.")
     except ValueError as exc:
         messages.error(request, str(exc))
-    return redirect("control_centre")
+    return control_centre_redirect(request)
 
 
 @owner_admin_required
@@ -283,10 +323,11 @@ def control_centre(request):
     recent_activity = MarketTransaction.objects.select_related(
         "player", "seller", "buyer"
     ).order_by("-created_at")[:20]
-    free_agents = (
-        Player.objects.filter(is_free_agent=True, mgl_team__isnull=True)
-        .order_by("-overall", "name")[:40]
-    )
+    ovr_filter = parse_free_agent_ovr_filter(request.GET.get("ovr"))
+    free_agent_pool = Player.objects.filter(is_free_agent=True, mgl_team__isnull=True)
+    filtered_free_agents = apply_free_agent_ovr_filter(free_agent_pool, ovr_filter)
+    free_agent_match_count = filtered_free_agents.count()
+    free_agents = filtered_free_agents.order_by("-overall", "name")[:CONTROL_FREE_AGENT_LIMIT]
     return render(
         request,
         "mgl/control_centre.html",
@@ -301,6 +342,11 @@ def control_centre(request):
                 "player", "seller", "buyer", "from_team", "to_team"
             )[:30],
             "free_agents": free_agents,
+            "free_agent_ovr_filter": ovr_filter,
+            "free_agent_ovr_filters": FREE_AGENT_OVR_FILTERS,
+            "free_agent_match_count": free_agent_match_count,
+            "free_agent_total_count": free_agent_pool.count(),
+            "control_next": f"{reverse('control_centre')}?ovr={ovr_filter}",
             "auction_durations": AUCTION_DURATION_CHOICES,
         },
     )
@@ -315,7 +361,7 @@ def control_approve_listing(request, listing_id):
         messages.success(request, f"{listing.player.name} is now live on the transfer market.")
     except ValueError as exc:
         messages.error(request, str(exc))
-    return redirect("control_centre")
+    return control_centre_redirect(request)
 
 
 @owner_admin_required
@@ -327,7 +373,7 @@ def control_reject_listing(request, listing_id):
         messages.success(request, "Listing rejected.")
     except ValueError as exc:
         messages.error(request, str(exc))
-    return redirect("control_centre")
+    return control_centre_redirect(request)
 
 
 @owner_admin_required
@@ -336,7 +382,7 @@ def control_close_auction(request, auction_id):
     auction = get_object_or_404(PlayerAuction, pk=auction_id)
     _, message = settle_auction(auction, reviewer=request.user)
     messages.success(request, message)
-    return redirect("control_centre")
+    return control_centre_redirect(request)
 
 
 @owner_admin_required
@@ -352,11 +398,11 @@ def control_approve_job(request, application_id):
     team = application.team
     if team.manager_id:
         messages.error(request, f"{team.name} already has a manager.")
-        return redirect("control_centre")
+        return control_centre_redirect(request)
     new_manager = application.manager.user
     if club_for_user(new_manager):
         messages.error(request, "That manager already has a club.")
-        return redirect("control_centre")
+        return control_centre_redirect(request)
     team.manager = new_manager
     team.save(update_fields=["manager"])
     open_club_spell(application.manager, team)
@@ -368,7 +414,7 @@ def control_approve_job(request, application_id):
         request,
         f"{new_manager.username} is now manager of {team.name}. Token balance stays with the manager.",
     )
-    return redirect("control_centre")
+    return control_centre_redirect(request)
 
 
 @owner_admin_required
@@ -389,4 +435,4 @@ def control_reject_job(request, application_id):
         request,
         f"{application.manager.display_name}'s application for {application.team.name} was rejected.",
     )
-    return redirect("control_centre")
+    return control_centre_redirect(request)
