@@ -1,10 +1,10 @@
 from io import StringIO
 from pathlib import Path
-from tempfile import NamedTemporaryFile
+from tempfile import NamedTemporaryFile, TemporaryDirectory
 from unittest.mock import patch
 
 from django.core.management import call_command
-from django.test import TestCase, override_settings
+from django.test import TestCase
 from django.urls import reverse
 
 from players.fc26_faces import (
@@ -172,7 +172,6 @@ class PlayerFaceDisplayTests(TestCase):
             "https://cdn.sofifa.net/players/209/331/26_60.png",
         )
 
-    @override_settings(MEDIA_ROOT="/tmp/mgl-face-test-media")
     def test_face_proxy_serves_cached_png_and_rejects_unknown_hosts(self):
         png = b"\x89PNG\r\n\x1a\n" + b"cached"
         player = Player.objects.create(
@@ -182,18 +181,20 @@ class PlayerFaceDisplayTests(TestCase):
             overall=91,
             player_face_url=MBAPPE_FACE,
         )
-        with patch("players.fc26_faces.fetch_sofifa_png", return_value=png):
-            response = self.client.get(reverse("player_face_image", args=[player.pk]))
-            head = self.client.head(reverse("player_face_image", args=[player.pk]))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response["Content-Type"], "image/png")
-        self.assertEqual(response.content, png)
-        self.assertEqual(head.status_code, 200)
-        self.assertEqual(head["Content-Type"], "image/png")
+        with TemporaryDirectory() as media:
+            with self.settings(MEDIA_ROOT=media):
+                with patch("players.fc26_faces.fetch_sofifa_png", return_value=png):
+                    response = self.client.get(reverse("player_face_image", args=[player.pk]))
+                    head = self.client.head(reverse("player_face_image", args=[player.pk]))
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response["Content-Type"], "image/png")
+                self.assertEqual(response.content, png)
+                self.assertEqual(head.status_code, 200)
+                self.assertEqual(head["Content-Type"], "image/png")
 
-        bare = Player.objects.create(name="No Face", overall=50, position="CB")
-        missing = self.client.get(reverse("player_face_image", args=[bare.pk]))
-        self.assertEqual(missing.status_code, 404)
+                bare = Player.objects.create(name="No Face", overall=50, position="CB")
+                missing = self.client.get(reverse("player_face_image", args=[bare.pk]))
+                self.assertEqual(missing.status_code, 404)
 
     def test_sofifa_year_variants_stay_on_the_same_player_path(self):
         urls = sofifa_variant_urls(SALAH_FACE, "120")
@@ -213,7 +214,6 @@ class PlayerFaceDisplayTests(TestCase):
         self.assertFalse(any("/080/985/" in url for url in urls))
         self.assertFalse(any("/233/988/" in url for url in urls))
 
-    @override_settings(MEDIA_ROOT="/tmp/mgl-face-year-fallback-media")
     def test_proxy_uses_same_id_older_sofifa_year_when_26_is_missing(self):
         png = b"\x89PNG\r\n\x1a\n" + b"year25"
         player = Player.objects.create(
@@ -231,8 +231,10 @@ class PlayerFaceDisplayTests(TestCase):
                 return png
             return None
 
-        with patch("players.fc26_faces.fetch_sofifa_png", side_effect=fake_fetch):
-            response = self.client.get(reverse("player_face_image", args=[player.pk]))
+        with TemporaryDirectory() as media:
+            with self.settings(MEDIA_ROOT=media):
+                with patch("players.fc26_faces.fetch_sofifa_png", side_effect=fake_fetch):
+                    response = self.client.get(reverse("player_face_image", args=[player.pk]))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, png)
         player.refresh_from_db()
@@ -242,7 +244,6 @@ class PlayerFaceDisplayTests(TestCase):
         self.assertEqual(player.position, "LB")
         self.assertEqual(Player.objects.filter(fc27_id="239861").count(), 1)
 
-    @override_settings(MEDIA_ROOT="/tmp/mgl-face-missing-media")
     def test_proxy_stays_404_when_this_player_has_no_sofifa_portrait(self):
         player = Player.objects.create(
             name="Vágner Norteiro",
@@ -251,16 +252,18 @@ class PlayerFaceDisplayTests(TestCase):
             overall=69,
             player_face_url="https://cdn.sofifa.net/players/233/988/26_120.png",
         )
-        with patch("players.fc26_faces.fetch_sofifa_png", return_value=None) as fetch:
-            response = self.client.get(reverse("player_face_image", args=[player.pk]))
-            self.assertEqual(response.status_code, 404)
-            first_calls = fetch.call_count
-            again = self.client.get(reverse("player_face_image", args=[player.pk]))
-        self.assertEqual(again.status_code, 404)
-        self.assertGreater(first_calls, 0)
-        self.assertEqual(fetch.call_count, first_calls)
-        fetched_ids = {sofifa_id_from_url(call.args[0]) for call in fetch.call_args_list}
-        self.assertEqual(fetched_ids, {233988})
+        with TemporaryDirectory() as media:
+            with self.settings(MEDIA_ROOT=media):
+                with patch("players.fc26_faces.fetch_sofifa_png", return_value=None) as fetch:
+                    response = self.client.get(reverse("player_face_image", args=[player.pk]))
+                    self.assertEqual(response.status_code, 404)
+                    first_calls = fetch.call_count
+                    again = self.client.get(reverse("player_face_image", args=[player.pk]))
+                self.assertEqual(again.status_code, 404)
+                self.assertGreater(first_calls, 0)
+                self.assertEqual(fetch.call_count, first_calls)
+                fetched_ids = {sofifa_id_from_url(call.args[0]) for call in fetch.call_args_list}
+                self.assertEqual(fetched_ids, {233988})
         player.refresh_from_db()
         self.assertEqual(
             player.player_face_url,
