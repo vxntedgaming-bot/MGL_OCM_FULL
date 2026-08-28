@@ -1,5 +1,5 @@
 {% extends "core/base.html" %}
-{% load static %}
+{% load static mgl_ui %}
 
 {% block title %}Job Centre — MGL{% endblock %}
 
@@ -22,11 +22,7 @@
     <div class="mgl-club-grid">
     {% for team in vacant_clubs %}
         <article class="mgl-club-card mgl-job-card">
-            {% if team.logo %}
-                <img src="{{ team.logo.url }}" alt="{{ team.name }}">
-            {% else %}
-                <div class="mgl-club-mark">{{ team.short_name }}</div>
-            {% endif %}
+            {% team_logo team "lg" %}
             <strong>{{ team.name }}</strong>
             <span>{{ team.league.name }} · {{ team.players.all|length }} / {{ team.roster_limit }}</span>
             <b>{{ team.tokens }} TKN</b>
@@ -58,7 +54,7 @@
     <div class="dashboard-panel">
         {% for app in my_applications %}
             <div class="table-row">
-                <strong>{{ app.team.name }}</strong>
+                <strong class="mgl-info-club">{% team_logo app.team "xs" %} {{ app.team.name }}</strong>
                 <span>{{ app.status }}</span>
                 <small>{{ app.created_at|date:"d M Y" }}</small>
             </div>

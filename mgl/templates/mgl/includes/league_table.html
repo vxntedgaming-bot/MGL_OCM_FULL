@@ -1,3 +1,4 @@
+{% load mgl_ui %}
 <div class="panel-heading">
     <span>SUPER LEAGUE 1</span>
     <b>TABLE</b>
@@ -19,7 +20,7 @@
     {% for row in table %}
     <div class="mgl-standings">
         <span>{{ row.position|stringformat:"02d" }}</span>
-        <strong>{{ row.team.name }}</strong>
+        <strong class="mgl-standings-club">{% team_logo row.team "xs" %} {{ row.team.name }}</strong>
         <span>{{ row.played }}</span>
         <span class="mgl-standings-wide">{{ row.wins }}</span>
         <span class="mgl-standings-wide">{{ row.draws }}</span>

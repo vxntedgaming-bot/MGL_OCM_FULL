@@ -1,4 +1,5 @@
 {% extends "core/base.html" %}
+{% load mgl_ui %}
 
 {% block title %}Player Auctions — MGL{% endblock %}
 
@@ -18,22 +19,21 @@
     </div>
 
     {% for auction in auctions %}
-        <div class="dashboard-panel" style="margin-bottom:16px">
-            <div class="panel-heading">
-                <span>{{ auction.player.name }} · {{ auction.player.position }} · {{ auction.player.overall }} OVR</span>
-                <b>{{ auction.winning_bid|default:auction.starting_bid }} TKN</b>
+        <article class="mgl-market-listing">
+            {% player_card auction.player "small" %}
+            <div class="mgl-market-meta">
+                <h3>{{ auction.player.name }}</h3>
+                <p>{{ auction.player.position }} · {{ auction.player.overall }} OVR</p>
+                <div class="mgl-market-price">{{ auction.winning_bid|default:auction.starting_bid }} TKN</div>
+                <p>Highest bidder: {% if auction.winning_manager %}{{ auction.winning_manager.display_name }}{% else %}No bids yet{% endif %}</p>
+                <form method="post" action="{% url 'place_bid' auction.id %}" class="mgl-inline-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.path }}">
+                    <input type="number" name="amount" min="1" placeholder="Bid tokens" required>
+                    <button type="submit" class="primary-button">PLACE BID</button>
+                </form>
             </div>
-            <div class="table-row">
-                <span>Highest bidder</span>
-                <strong>{% if auction.winning_manager %}{{ auction.winning_manager.display_name }}{% else %}No bids yet{% endif %}</strong>
-            </div>
-            <form method="post" action="{% url 'place_bid' auction.id %}" class="mgl-inline-form">
-                {% csrf_token %}
-                <input type="hidden" name="next" value="{{ request.path }}">
-                <input type="number" name="amount" min="1" placeholder="Bid tokens" required>
-                <button type="submit" class="primary-button">PLACE BID</button>
-            </form>
-        </div>
+        </article>
     {% empty %}
         {% include "mgl/includes/empty_state.html" with kicker="AUCTIONS" title="NO LIVE AUCTIONS" body="There are currently no live player auctions. The league office can release free agents into auction from admin." %}
     {% endfor %}

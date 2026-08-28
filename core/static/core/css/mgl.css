@@ -98,6 +98,8 @@ textarea {
     height: 46px;
     object-fit: contain;
     display: block;
+    background: transparent;
+    mix-blend-mode: lighten;
 }
 
 .mgl-logo-mark {
@@ -2017,6 +2019,7 @@ textarea {
     object-fit: contain;
     margin: 8px auto 18px;
     filter: drop-shadow(0 0 28px rgba(255, 122, 24, 0.25));
+    mix-blend-mode: lighten;
 }
 
 .mgl-hero-pro h1 {
@@ -2494,6 +2497,307 @@ textarea {
 @media (max-width: 640px) {
     .mgl-card-grid {
         grid-template-columns: 1fr;
+    }
+}
+
+/* =========================================================
+   TEAM LOGOS + PLAYER CARDS
+========================================================= */
+
+.mgl-footer-brand .mgl-logo-img,
+.mgl-empty-logo,
+.mgl-auth-logo {
+    mix-blend-mode: lighten;
+}
+
+.mgl-team-logo {
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+    flex-shrink: 0;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+}
+
+.mgl-team-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.mgl-team-logo-fallback {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: var(--orange);
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    font-size: 0.55em;
+}
+
+.mgl-team-logo:has(img) .mgl-team-logo-fallback {
+    display: none;
+}
+
+.mgl-team-logo-xs { width: 20px; height: 20px; }
+.mgl-team-logo-sm { width: 28px; height: 28px; }
+.mgl-team-logo-md { width: 40px; height: 40px; }
+.mgl-team-logo-lg { width: 56px; height: 56px; }
+
+.mgl-club-card .mgl-team-logo {
+    margin: 0 auto 12px;
+}
+
+.mgl-standings-club,
+.mgl-info-club {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.mgl-player-card--small {
+    max-width: 168px;
+}
+
+.mgl-player-card--large {
+    width: min(360px, 100%);
+    margin: 0 auto;
+}
+
+.mgl-player-card-content {
+    color: #1b1408;
+    font-family: var(--font-display);
+}
+
+.mgl-player-card--silver .mgl-player-card-content {
+    color: #16161c;
+}
+
+.mgl-player-card--bronze .mgl-player-card-content {
+    color: #24160c;
+}
+
+.mgl-card-badges {
+    position: absolute;
+    top: 13%;
+    right: 11%;
+    z-index: 6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.mgl-card-flag {
+    width: 18px;
+    height: 12px;
+    object-fit: cover;
+    border: 1px solid rgba(0,0,0,0.2);
+}
+
+.mgl-player-face-fallback {
+    position: absolute;
+    z-index: 2;
+    width: 46%;
+    height: 38%;
+    left: 27%;
+    top: 16%;
+    border-radius: 50% 50% 42% 42%;
+    background:
+        radial-gradient(circle at 50% 30%, rgba(255,255,255,0.35), transparent 55%),
+        linear-gradient(180deg, rgba(0,0,0,0.18), rgba(0,0,0,0.35));
+}
+
+.mgl-filter-bar {
+    display: grid;
+    grid-template-columns: 1.4fr repeat(4, minmax(0, 1fr)) auto auto;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 28px;
+}
+
+.mgl-filter-bar input,
+.mgl-filter-bar select {
+    width: 100%;
+    min-height: 46px;
+    padding: 0 12px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+}
+
+.mgl-filter-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--muted-light);
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.mgl-market-listing {
+    display: grid;
+    grid-template-columns: 168px 1fr;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 16px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+}
+
+.mgl-market-meta h3 {
+    margin: 6px 0;
+    font-size: 26px;
+}
+
+.mgl-market-meta p {
+    margin: 6px 0;
+    color: var(--muted-light);
+}
+
+.mgl-market-price {
+    color: var(--orange);
+    font-family: var(--font-display);
+    font-size: 28px;
+    letter-spacing: 0.06em;
+}
+
+.mgl-profile-layout {
+    display: grid;
+    grid-template-columns: minmax(240px, 360px) 1fr;
+    gap: 32px;
+    align-items: start;
+}
+
+.mgl-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.mgl-info-box,
+.mgl-rating-box,
+.mgl-career-box,
+.mgl-attr-group {
+    padding: 16px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+}
+
+.mgl-info-box span,
+.mgl-rating-box span,
+.mgl-career-box span {
+    display: block;
+    color: var(--muted);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+}
+
+.mgl-info-box strong,
+.mgl-rating-box strong,
+.mgl-career-box strong {
+    display: block;
+    margin-top: 6px;
+    font-size: 18px;
+}
+
+.mgl-main-ratings,
+.mgl-stats-panel,
+.mgl-attr-group {
+    margin-top: 36px;
+}
+
+.mgl-rating-grid,
+.mgl-career-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.mgl-career-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.mgl-attr-group h3 {
+    margin: 0 0 12px;
+    font-size: 20px;
+}
+
+.mgl-attr-rows {
+    display: grid;
+    gap: 8px;
+}
+
+.mgl-attr-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 14px;
+}
+
+.mgl-squad-note {
+    margin: 28px 0 8px;
+    color: var(--muted-light);
+    font-size: 14px;
+}
+
+.mgl-squad-card {
+    display: grid;
+    gap: 10px;
+}
+
+.mgl-squad-card .secondary-button {
+    width: 100%;
+}
+
+.mgl-history {
+    margin-top: 36px;
+}
+
+.mgl-history-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+@media (max-width: 980px) {
+    .mgl-filter-bar,
+    .mgl-profile-layout,
+    .mgl-market-listing,
+    .mgl-rating-grid,
+    .mgl-career-grid,
+    .mgl-info-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .mgl-filter-bar {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .mgl-filter-bar,
+    .mgl-profile-layout,
+    .mgl-market-listing,
+    .mgl-rating-grid,
+    .mgl-career-grid,
+    .mgl-info-grid {
+        grid-template-columns: 1fr;
+    }
+    .mgl-player-card-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .match-row,
+    .result-row,
+    .mgl-standings {
+        overflow-x: auto;
     }
 }
 

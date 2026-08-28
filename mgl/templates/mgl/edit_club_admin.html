@@ -1,4 +1,5 @@
 {% extends "core/base.html" %}
+{% load mgl_ui %}
 
 {% block title %}Edit Club — MGL{% endblock %}
 
@@ -11,6 +12,7 @@
             <div class="eyebrow">OWNER / ADMIN</div>
             <h1>EDIT CLUB</h1>
             <p>{{ team.name }}</p>
+            <div style="margin-top:12px">{% team_logo team "lg" %}</div>
         </div>
 
         <span class="section-line"></span>

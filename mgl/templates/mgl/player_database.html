@@ -1,4 +1,5 @@
 {% extends "core/base.html" %}
+{% load mgl_ui %}
 
 {% block title %}Player Database — MGL{% endblock %}
 
@@ -8,25 +9,50 @@
         <div>
             <div class="eyebrow">FC26 PLAYER POOL</div>
             <h1>PLAYER DATABASE</h1>
-            <p>Browse the MGL player pool. Unassigned players are free agents.</p>
+            <p>Browse the official MGL player pool as Bronze, Silver and Gold cards. Unassigned players are free agents.</p>
         </div>
         <span class="section-line"></span>
     </div>
 
-    <form method="get" class="mgl-inline-form" style="margin-bottom:24px">
-        <input type="search" name="search" value="{{ search }}" placeholder="Search name, club or position">
+    <form method="get" class="mgl-filter-bar">
+        <input type="search" name="search" value="{{ search }}" placeholder="Search name, club, nationality or position">
+        <select name="club">
+            <option value="">All clubs</option>
+            <option value="FA" {% if selected_club == "FA" %}selected{% endif %}>Free agents</option>
+            {% for club in clubs %}
+                <option value="{{ club.id }}" {% if selected_club == club.id|stringformat:"s" %}selected{% endif %}>{{ club.name }}</option>
+            {% endfor %}
+        </select>
+        <select name="position">
+            <option value="">All positions</option>
+            {% for pos in positions %}
+                <option value="{{ pos }}" {% if selected_position == pos %}selected{% endif %}>{{ pos }}</option>
+            {% endfor %}
+        </select>
         <select name="tier">
             <option value="">All tiers</option>
             <option value="GOLD" {% if selected_tier == "GOLD" %}selected{% endif %}>Gold</option>
             <option value="SILVER" {% if selected_tier == "SILVER" %}selected{% endif %}>Silver</option>
             <option value="BRONZE" {% if selected_tier == "BRONZE" %}selected{% endif %}>Bronze</option>
         </select>
-        <button type="submit" class="primary-button">SEARCH</button>
+        <input type="number" name="rating_min" min="1" max="99" value="{{ rating_min }}" placeholder="Min OVR">
+        <input type="number" name="rating_max" min="1" max="99" value="{{ rating_max }}" placeholder="Max OVR">
+        <select name="sort">
+            <option value="-overall" {% if selected_sort == "-overall" %}selected{% endif %}>Rating high–low</option>
+            <option value="overall" {% if selected_sort == "overall" %}selected{% endif %}>Rating low–high</option>
+            <option value="name" {% if selected_sort == "name" %}selected{% endif %}>Name A–Z</option>
+            <option value="-name" {% if selected_sort == "-name" %}selected{% endif %}>Name Z–A</option>
+        </select>
+        <label class="mgl-filter-check">
+            <input type="checkbox" name="free" value="1" {% if free_only %}checked{% endif %}>
+            Free agents
+        </label>
+        <button type="submit" class="primary-button">FILTER</button>
     </form>
 
     <div class="mgl-player-card-grid">
         {% for player in players %}
-            {% include "mgl/includes/player_card.html" with player=player %}
+            {% player_card player %}
         {% empty %}
             {% include "mgl/includes/empty_state.html" with title="NO PLAYERS FOUND" body="Try another search, or import the FC26 player pool if this database is empty." %}
         {% endfor %}
@@ -35,11 +61,11 @@
     {% if page_obj and page_obj.has_other_pages %}
         <div class="mgl-pagination">
             {% if page_obj.has_previous %}
-                <a href="?page={{ page_obj.previous_page_number }}&search={{ search }}&tier={{ selected_tier }}">Previous</a>
+                <a href="?page={{ page_obj.previous_page_number }}&{{ querystring }}">Previous</a>
             {% endif %}
             <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
             {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}&search={{ search }}&tier={{ selected_tier }}">Next</a>
+                <a href="?page={{ page_obj.next_page_number }}&{{ querystring }}">Next</a>
             {% endif %}
         </div>
     {% endif %}

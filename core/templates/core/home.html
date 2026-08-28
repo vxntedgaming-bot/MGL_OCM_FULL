@@ -1,5 +1,5 @@
 {% extends "core/base.html" %}
-{% load static %}
+{% load static mgl_ui %}
 
 {% block title %}MGL – MetaGamingLeague{% endblock %}
 
@@ -152,11 +152,7 @@
     <div class="mgl-club-grid">
         {% for team in showcase_clubs %}
             <article class="mgl-club-card">
-                {% if team.logo %}
-                    <img src="{{ team.logo.url }}" alt="{{ team.name }}">
-                {% else %}
-                    <div class="mgl-club-mark">{{ team.short_name }}</div>
-                {% endif %}
+                {% team_logo team "lg" %}
                 <strong>{{ team.name }}</strong>
                 <span>{% if team.manager %}{{ team.manager.username }}{% else %}MANAGER VACANT{% endif %}</span>
             </article>
@@ -186,7 +182,7 @@
         {% for row in recent_transfers %}
             <div class="table-row">
                 <strong>{{ row.player.name|default:"Token movement" }}</strong>
-                <span>{{ row.from_team.short_name|default:"FA" }} → {{ row.to_team.short_name|default:"—" }}</span>
+                <span class="mgl-info-club">{% team_logo row.from_team "xs" %} {{ row.from_team.short_name|default:"FA" }} → {% team_logo row.to_team "xs" %} {{ row.to_team.short_name|default:"—" }}</span>
                 <b>{{ row.amount }} TKN</b>
             </div>
         {% empty %}
@@ -209,9 +205,9 @@
             {% for fixture in upcoming %}
             <div class="match-row">
                 <span class="match-date">{% if fixture.scheduled_at %}{{ fixture.scheduled_at|date:"d M"|upper }}{% else %}TBC{% endif %}</span>
-                <strong>{{ fixture.home_team.name }}</strong>
+                <strong class="mgl-standings-club">{% team_logo fixture.home_team "xs" %} {{ fixture.home_team.name }}</strong>
                 <span class="vs">VS</span>
-                <strong>{{ fixture.away_team.name }}</strong>
+                <strong class="mgl-standings-club">{% team_logo fixture.away_team "xs" %} {{ fixture.away_team.name }}</strong>
             </div>
             {% empty %}
             {% include "mgl/includes/empty_state.html" with kicker="UPCOMING FIXTURES" title="NO FIXTURES HAVE BEEN RELEASED YET" body="No upcoming fixtures have been released. Fixtures will appear here once the MGL schedule is published." %}
@@ -222,9 +218,9 @@
             {% for fixture in recent_results %}
             <div class="result-row">
                 <span class="result-win">FT</span>
-                <strong>{{ fixture.home_team.name }}</strong>
+                <strong class="mgl-standings-club">{% team_logo fixture.home_team "xs" %} {{ fixture.home_team.name }}</strong>
                 <b>{% if fixture.home_goals != None and fixture.away_goals != None %}{{ fixture.home_goals }} - {{ fixture.away_goals }}{% else %}—{% endif %}</b>
-                <strong>{{ fixture.away_team.name }}</strong>
+                <strong class="mgl-standings-club">{% team_logo fixture.away_team "xs" %} {{ fixture.away_team.name }}</strong>
             </div>
             {% empty %}
             {% include "mgl/includes/empty_state.html" with title="NO APPROVED RESULTS YET" body="Official results will appear here after admins approve submitted matches." %}

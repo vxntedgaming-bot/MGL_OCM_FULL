@@ -1,4 +1,5 @@
 {% extends "core/base.html" %}
+{% load mgl_ui %}
 
 {% block title %}Stats — MGL{% endblock %}
 
@@ -46,7 +47,7 @@
             {% for row in recent_transfers %}
                 <div class="table-row">
                     <strong>{{ row.player.name|default:"Token movement" }}</strong>
-                    <span>{{ row.from_team.short_name|default:"FA" }} → {{ row.to_team.short_name|default:"—" }}</span>
+                    <span class="mgl-info-club">{% team_logo row.from_team "xs" %} {{ row.from_team.short_name|default:"FA" }} → {% team_logo row.to_team "xs" %} {{ row.to_team.short_name|default:"—" }}</span>
                     <b>{{ row.amount }} TKN</b>
                 </div>
             {% empty %}

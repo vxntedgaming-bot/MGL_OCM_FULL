@@ -1,688 +1,141 @@
 {% extends "core/base.html" %}
-{% load static %}
+{% load mgl_ui %}
 
 {% block title %}{{ player.name }} — MGL{% endblock %}
 
 {% block content %}
-
-<style>
-.mgl-profile {
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.mgl-profile-header {
-    margin-bottom: 30px;
-}
-
-.mgl-profile-layout {
-    display: grid;
-    grid-template-columns: 430px 1fr;
-    gap: 45px;
-    align-items: start;
-}
-
-/* PLAYER CARD */
-
-.mgl-profile-card {
-    position: relative;
-    width: 430px;
-    aspect-ratio: .72;
-    overflow: hidden;
-}
-
-.mgl-profile-card-bg {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: fill;
-}
-
-.mgl-profile-card-content {
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    color: #111;
-}
-
-/* These positions sit on top of the supplied card artwork */
-
-.mgl-profile-rating {
-    position: absolute;
-    top: 11%;
-    left: 14%;
-    text-align: center;
-}
-
-.mgl-profile-rating strong {
-    display: block;
-    font-size: 48px;
-    line-height: .85;
-    font-weight: 900;
-}
-
-.mgl-profile-rating span {
-    display: block;
-    margin-top: 6px;
-    font-size: 13px;
-    font-weight: 900;
-}
-
-.mgl-profile-position {
-    margin-top: 7px;
-    font-size: 16px;
-    font-weight: 900;
-}
-
-.mgl-profile-name {
-    position: absolute;
-    top: 45%;
-    left: 12%;
-    right: 12%;
-    text-align: center;
-    font-size: 25px;
-    line-height: 1;
-    font-weight: 900;
-    text-transform: uppercase;
-}
-
-.mgl-profile-fc-club {
-    position: absolute;
-    top: 51%;
-    left: 15%;
-    right: 15%;
-    text-align: center;
-    font-size: 11px;
-    font-weight: 800;
-}
-
-.mgl-profile-stats {
-    position: absolute;
-    top: 61%;
-    left: 14%;
-    right: 14%;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px 5px;
-}
-
-.mgl-profile-stat {
-    text-align: center;
-}
-
-.mgl-profile-stat strong {
-    display: block;
-    font-size: 18px;
-    font-weight: 900;
-}
-
-.mgl-profile-stat span {
-    display: block;
-    font-size: 8px;
-    margin-top: 2px;
-    font-weight: 900;
-}
-
-.mgl-profile-status {
-    position: absolute;
-    bottom: 8%;
-    left: 13%;
-    right: 13%;
-    text-align: center;
-    border-top: 1px solid rgba(0,0,0,.2);
-    padding-top: 8px;
-}
-
-.mgl-profile-status small {
-    display: block;
-    font-size: 8px;
-    letter-spacing: 1px;
-    font-weight: 900;
-}
-
-.mgl-profile-status strong {
-    display: block;
-    margin-top: 4px;
-    font-size: 11px;
-}
-
-/* PROFILE INFORMATION */
-
-.mgl-profile-info h2 {
-    margin-top: 0;
-    margin-bottom: 20px;
-}
-
-.mgl-info-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-}
-
-.mgl-info-box {
-    padding: 17px;
-    background: #151519;
-    border: 1px solid #29292f;
-}
-
-.mgl-info-box span {
-    display: block;
-    font-size: 9px;
-    letter-spacing: 1px;
-    opacity: .55;
-}
-
-.mgl-info-box strong {
-    display: block;
-    margin-top: 6px;
-    font-size: 15px;
-}
-
-/* MAIN RATINGS */
-
-.mgl-main-ratings {
-    margin-top: 35px;
-}
-
-.mgl-rating-grid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 8px;
-}
-
-.mgl-rating-box {
-    text-align: center;
-    padding: 15px 5px;
-    background: #151519;
-    border: 1px solid #29292f;
-}
-
-.mgl-rating-box strong {
-    display: block;
-    font-size: 24px;
-}
-
-.mgl-rating-box span {
-    display: block;
-    margin-top: 4px;
-    font-size: 9px;
-    opacity: .55;
-}
-
-/* MGL CAREER */
-
-.mgl-career {
-    margin-top: 35px;
-}
-
-.mgl-career-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-}
-
-.mgl-career-box {
-    padding: 18px;
-    background: #151519;
-    border: 1px solid #29292f;
-    text-align: center;
-}
-
-.mgl-career-box strong {
-    display: block;
-    font-size: 25px;
-}
-
-.mgl-career-box span {
-    display: block;
-    margin-top: 5px;
-    font-size: 9px;
-    opacity: .55;
-}
-
-/* HISTORY */
-
-.mgl-history {
-    margin-top: 35px;
-}
-
-.mgl-history-row {
-    display: flex;
-    justify-content: space-between;
-    gap: 20px;
-    padding: 15px 0;
-    border-bottom: 1px solid #29292f;
-}
-
-.mgl-history-row strong {
-    font-size: 14px;
-}
-
-.mgl-history-row span {
-    font-size: 11px;
-    opacity: .6;
-}
-
-.mgl-empty {
-    opacity: .5;
-    padding: 20px 0;
-}
-
-/* MOBILE */
-
-@media(max-width:900px) {
-    .mgl-profile-layout {
-        grid-template-columns: 1fr;
-    }
-
-    .mgl-profile-card {
-        width: min(430px, 100%);
-        margin: 0 auto;
-    }
-
-    .mgl-profile-info {
-        margin-top: 10px;
-    }
-}
-
-@media(max-width:600px) {
-    .mgl-rating-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-
-    .mgl-career-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .mgl-info-grid {
-        grid-template-columns: 1fr;
-    }
-}
-</style>
-
-
 <section class="mgl-section mgl-profile">
-
     <div class="mgl-profile-header">
-
-        <div class="eyebrow">MGL PLAYER PROFILE</div>
-
+        <div class="eyebrow">PLAYER PROFILE</div>
         <h1>{{ player.name }}</h1>
-
         <p>
-            {{ player.position }} · {{ player.overall }} OVR
-            · {{ player.fc27_club|default:"FC Club Unknown" }}
+            {{ player.position }}
+            · {{ player.overall }} OVR
+            · {% if player.mgl_team %}{{ player.mgl_team.name }}{% else %}FREE AGENT{% endif %}
         </p>
-
     </div>
-
-
-    <!-- CARD + INFORMATION -->
 
     <div class="mgl-profile-layout">
-
-
-        <!-- PLAYER CARD -->
-
-        <div>
-
-            <div class="mgl-profile-card">
-
-                {% if player.overall >= 75 %}
-
-                    <img
-                        src="{% static 'mgl/cards/gold_card.png' %}"
-                        class="mgl-profile-card-bg"
-                        alt="Gold player card"
-                    >
-
-                {% elif player.overall >= 65 %}
-
-                    <img
-                        src="{% static 'mgl/cards/silver_card.png' %}"
-                        class="mgl-profile-card-bg"
-                        alt="Silver player card"
-                    >
-
-                {% else %}
-
-                    <img
-                        src="{% static 'mgl/cards/bronze_card.png' %}"
-                        class="mgl-profile-card-bg"
-                        alt="Bronze player card"
-                    >
-
-                {% endif %}
-
-
-                <div class="mgl-profile-card-content">
-
-                    <div class="mgl-profile-rating">
-
-                        <strong>{{ player.overall }}</strong>
-
-                        <span>OVR</span>
-
-                        <div class="mgl-profile-position">
-                            {{ player.position }}
-                        </div>
-
-                    </div>
-
-
-                    <div class="mgl-profile-name">
-                        {{ player.name }}
-                    </div>
-
-
-                    <div class="mgl-profile-fc-club">
-
-                        {{ player.fc27_club|default:"FC Club Unknown" }}
-
-                    </div>
-
-
-                    <div class="mgl-profile-stats">
-
-                        <div class="mgl-profile-stat">
-                            <strong>{{ player.pace }}</strong>
-                            <span>PAC</span>
-                        </div>
-
-                        <div class="mgl-profile-stat">
-                            <strong>{{ player.shooting }}</strong>
-                            <span>SHO</span>
-                        </div>
-
-                        <div class="mgl-profile-stat">
-                            <strong>{{ player.passing }}</strong>
-                            <span>PAS</span>
-                        </div>
-
-                        <div class="mgl-profile-stat">
-                            <strong>{{ player.dribbling }}</strong>
-                            <span>DRI</span>
-                        </div>
-
-                        <div class="mgl-profile-stat">
-                            <strong>{{ player.defending }}</strong>
-                            <span>DEF</span>
-                        </div>
-
-                        <div class="mgl-profile-stat">
-                            <strong>{{ player.physical }}</strong>
-                            <span>PHY</span>
-                        </div>
-
-                    </div>
-
-
-                    <div class="mgl-profile-status">
-
-                        <small>MGL STATUS</small>
-
-                        <strong>
-
-                            {% if player.mgl_team %}
-
-                                {{ player.mgl_team.name }}
-
-                            {% else %}
-
-                                FREE AGENT
-
-                            {% endif %}
-
-                        </strong>
-
-                    </div>
-
-                </div>
-
-            </div>
-
+        <div class="mgl-profile-card-wrap">
+            {% player_card player size="large" linked=False %}
         </div>
-
-
-        <!-- PLAYER INFORMATION -->
 
         <div class="mgl-profile-info">
-
             <div class="eyebrow">PLAYER INFORMATION</div>
-
             <h2>{{ player.name }}</h2>
-
-
             <div class="mgl-info-grid">
-
-                <div class="mgl-info-box">
-                    <span>OVERALL</span>
-                    <strong>{{ player.overall }}</strong>
-                </div>
-
-                <div class="mgl-info-box">
-                    <span>POSITION</span>
-                    <strong>{{ player.position }}</strong>
-                </div>
-
-                <div class="mgl-info-box">
-                    <span>AGE</span>
-                    <strong>{{ player.age|default:"N/A" }}</strong>
-                </div>
-
+                {% if player.nationality %}
                 <div class="mgl-info-box">
                     <span>NATIONALITY</span>
-                    <strong>{{ player.nationality|default:"N/A" }}</strong>
+                    <strong>{{ player.nationality }}</strong>
                 </div>
-
+                {% endif %}
                 <div class="mgl-info-box">
-                    <span>ORIGINAL FC CLUB</span>
-                    <strong>{{ player.fc27_club|default:"N/A" }}</strong>
+                    <span>POSITION</span>
+                    <strong>{{ player.position|default:"—" }}</strong>
                 </div>
-
+                {% if player.height_cm %}
+                <div class="mgl-info-box">
+                    <span>HEIGHT</span>
+                    <strong>{{ player.height_cm }} cm</strong>
+                </div>
+                {% endif %}
+                {% if player.weight_kg %}
+                <div class="mgl-info-box">
+                    <span>WEIGHT</span>
+                    <strong>{{ player.weight_kg }} kg</strong>
+                </div>
+                {% endif %}
+                {% if player.preferred_foot %}
+                <div class="mgl-info-box">
+                    <span>PREFERRED FOOT</span>
+                    <strong>{{ player.preferred_foot }}</strong>
+                </div>
+                {% endif %}
+                {% if player.skill_moves %}
+                <div class="mgl-info-box">
+                    <span>SKILL MOVES</span>
+                    <strong>{{ player.skill_moves }}★</strong>
+                </div>
+                {% endif %}
+                {% if player.weak_foot %}
+                <div class="mgl-info-box">
+                    <span>WEAK FOOT</span>
+                    <strong>{{ player.weak_foot }}★</strong>
+                </div>
+                {% endif %}
+                <div class="mgl-info-box">
+                    <span>CLUB</span>
+                    <strong class="mgl-info-club">
+                        {% team_logo player.mgl_team "sm" %}
+                        {% if player.mgl_team %}{{ player.mgl_team.name }}{% else %}FREE AGENT{% endif %}
+                    </strong>
+                </div>
                 <div class="mgl-info-box">
                     <span>CARD TIER</span>
-
-                    <strong>
-
-                        {% if player.overall >= 75 %}
-                            GOLD
-                        {% elif player.overall >= 65 %}
-                            SILVER
-                        {% else %}
-                            BRONZE
-                        {% endif %}
-
-                    </strong>
-
+                    <strong>{{ player|player_tier }}</strong>
                 </div>
-
+                {% if player.age %}
                 <div class="mgl-info-box">
-                    <span>MGL CLUB</span>
-
-                    <strong>
-
-                        {% if player.mgl_team %}
-                            {{ player.mgl_team.name }}
-                        {% else %}
-                            FREE AGENT
-                        {% endif %}
-
-                    </strong>
-
+                    <span>AGE</span>
+                    <strong>{{ player.age }}</strong>
                 </div>
-
-                <div class="mgl-info-box">
-                    <span>FC27 ID</span>
-                    <strong>{{ player.fc27_id|default:"N/A" }}</strong>
-                </div>
-
+                {% endif %}
             </div>
-
         </div>
-
     </div>
-
-
-    <!-- MAIN RATINGS -->
 
     <div class="mgl-main-ratings">
-
-        <div class="eyebrow">FC ATTRIBUTES</div>
-
+        <div class="eyebrow">ATTRIBUTES</div>
+        <h2>PAC · SHO · PAS · DRI · DEF · PHY</h2>
         <div class="mgl-rating-grid">
-
-            <div class="mgl-rating-box">
-                <strong>{{ player.pace }}</strong>
-                <span>PAC</span>
-            </div>
-
-            <div class="mgl-rating-box">
-                <strong>{{ player.shooting }}</strong>
-                <span>SHO</span>
-            </div>
-
-            <div class="mgl-rating-box">
-                <strong>{{ player.passing }}</strong>
-                <span>PAS</span>
-            </div>
-
-            <div class="mgl-rating-box">
-                <strong>{{ player.dribbling }}</strong>
-                <span>DRI</span>
-            </div>
-
-            <div class="mgl-rating-box">
-                <strong>{{ player.defending }}</strong>
-                <span>DEF</span>
-            </div>
-
-            <div class="mgl-rating-box">
-                <strong>{{ player.physical }}</strong>
-                <span>PHY</span>
-            </div>
-
+            <div class="mgl-rating-box"><strong>{{ player.pace }}</strong><span>PAC</span></div>
+            <div class="mgl-rating-box"><strong>{{ player.shooting }}</strong><span>SHO</span></div>
+            <div class="mgl-rating-box"><strong>{{ player.passing }}</strong><span>PAS</span></div>
+            <div class="mgl-rating-box"><strong>{{ player.dribbling }}</strong><span>DRI</span></div>
+            <div class="mgl-rating-box"><strong>{{ player.defending }}</strong><span>DEF</span></div>
+            <div class="mgl-rating-box"><strong>{{ player.physical }}</strong><span>PHY</span></div>
         </div>
-
     </div>
 
+    {% player_attribute_group "PACE" pace_details %}
+    {% player_attribute_group "SHOOTING" shooting_details %}
+    {% player_attribute_group "PASSING" passing_details %}
+    {% player_attribute_group "DRIBBLING" dribbling_details %}
+    {% player_attribute_group "DEFENDING" defending_details %}
+    {% player_attribute_group "PHYSICAL" physical_details %}
 
-    <!-- MGL CAREER -->
-
-    <div class="mgl-career">
-
-        <div class="eyebrow">MGL CAREER</div>
-
-        <div class="mgl-career-grid">
-
-            <div class="mgl-career-box">
-                <strong>{{ player.appearances }}</strong>
-                <span>APPEARANCES</span>
-            </div>
-
-            <div class="mgl-career-box">
-                <strong>{{ player.goals }}</strong>
-                <span>GOALS</span>
-            </div>
-
-            <div class="mgl-career-box">
-                <strong>{{ player.assists }}</strong>
-                <span>ASSISTS</span>
-            </div>
-
-            <div class="mgl-career-box">
-                <strong>{{ player.average_rating }}</strong>
-                <span>AVERAGE RATING</span>
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- OWNERSHIP HISTORY -->
+    {% player_stats_panel player %}
 
     <div class="mgl-history">
-
         <div class="eyebrow">MGL OWNERSHIP HISTORY</div>
-
         {% for history in ownership_history %}
-
             <div class="mgl-history-row">
-
-                <strong>
-
-                    {% if history.team %}
-                        {{ history.team.name }}
-                    {% else %}
-                        FREE AGENT
-                    {% endif %}
-
+                <strong class="mgl-info-club">
+                    {% team_logo history.team "xs" %}
+                    {% if history.team %}{{ history.team.name }}{% else %}FREE AGENT{% endif %}
                 </strong>
-
-                <span>
-
-                    {{ history.source }}
-
-                    ·
-
-                    {{ history.created_at|date:"d M Y" }}
-
-                </span>
-
+                <span>{{ history.source }} · {{ history.created_at|date:"d M Y" }}</span>
             </div>
-
         {% empty %}
-
-            <div class="mgl-empty">
-                No MGL ownership history yet.
-            </div>
-
+            {% include "mgl/includes/empty_state.html" with title="NO OWNERSHIP HISTORY YET" body="Club moves will be listed here after official transfers." %}
         {% endfor %}
-
     </div>
-
-
-    <!-- TEAM OF THE WEEK -->
 
     <div class="mgl-history">
-
         <div class="eyebrow">TEAM OF THE WEEK</div>
-
         {% for selection in totw_selections %}
-
             <div class="mgl-history-row">
-
-                <strong>
-                    {{ selection.totw.week_start }}
-                </strong>
-
-                <span>
-                    {{ selection.slot }}
-                </span>
-
+                <strong>{{ selection.totw.week_start }}</strong>
+                <span>{{ selection.slot }}</span>
             </div>
-
         {% empty %}
-
-            <div class="mgl-empty">
-                No Team of the Week selections yet.
-            </div>
-
+            {% include "mgl/includes/empty_state.html" with title="NO TEAM OF THE WEEK SELECTIONS YET" body="TOTW appearances will be recorded here when the league office publishes a team." %}
         {% endfor %}
-
     </div>
 
-
-    <a
-        href="{% url 'player_database' %}"
-        class="secondary-button"
-        style="display:inline-block;margin-top:30px;"
-    >
+    <a href="{% url 'player_database' %}" class="secondary-button" style="display:inline-flex;margin-top:30px;">
         ← BACK TO PLAYER DATABASE
     </a>
-
 </section>
-
 {% endblock %}

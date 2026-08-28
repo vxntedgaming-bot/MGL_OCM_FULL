@@ -38,12 +38,12 @@ def transfer_market(request):
     close_expired_auctions()
     auctions = (
         PlayerAuction.objects.filter(status=PlayerAuction.LIVE)
-        .select_related("player", "winning_manager")
+        .select_related("player", "player__mgl_team", "winning_manager")
         .order_by("ends_at")
     )
     listings = (
         PlayerListing.objects.filter(status=PlayerListing.LIVE)
-        .select_related("player", "team", "seller")
+        .select_related("player", "player__mgl_team", "team", "seller")
         .order_by("-created_at")
     )
     free_agent_count = Player.objects.filter(is_free_agent=True, mgl_team__isnull=True).count()

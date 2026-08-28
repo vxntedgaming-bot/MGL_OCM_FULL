@@ -594,26 +594,58 @@ def manager_profile(request):
 def player_database(request):
     tier = request.GET.get("tier", "").upper()
     search = request.GET.get("search", "").strip()
+    club = request.GET.get("club", "").strip()
+    position = request.GET.get("position", "").strip()
+    rating_min = request.GET.get("rating_min", "").strip()
+    rating_max = request.GET.get("rating_max", "").strip()
+    sort = request.GET.get("sort", "-overall")
+    free_only = request.GET.get("free") == "1"
 
-    players = Player.objects.all()
+    players = Player.objects.select_related("mgl_team")
 
     if tier == "GOLD":
         players = players.filter(overall__gte=75)
     elif tier == "SILVER":
-        players = players.filter(overall__gte=65, overall__lte=74)
+        players = players.filter(overall__gte=65, overall__lt=75)
     elif tier == "BRONZE":
-        players = players.filter(overall__gte=63, overall__lte=64)
+        players = players.filter(overall__lt=65)
 
     if search:
         players = players.filter(
-            Q(name__icontains=search) |
-            Q(fc27_club__icontains=search) |
-            Q(position__icontains=search)
+            Q(name__icontains=search)
+            | Q(fc27_club__icontains=search)
+            | Q(position__icontains=search)
+            | Q(nationality__icontains=search)
+            | Q(mgl_team__name__icontains=search)
+            | Q(mgl_team__short_name__icontains=search)
         )
 
-    players = players.order_by("-overall", "name")
+    if club == "FA" or free_only:
+        players = players.filter(mgl_team__isnull=True)
+    elif club.isdigit():
+        players = players.filter(mgl_team_id=int(club))
+
+    if position:
+        players = players.filter(position=position)
+
+    if rating_min.isdigit():
+        players = players.filter(overall__gte=int(rating_min))
+    if rating_max.isdigit():
+        players = players.filter(overall__lte=int(rating_max))
+
+    allowed_sort = {
+        "overall": "overall",
+        "-overall": "-overall",
+        "name": "name",
+        "-name": "-name",
+    }
+    order = allowed_sort.get(sort, "-overall")
+    players = players.order_by(order, "name")
+
     paginator = Paginator(players, 24)
     page = paginator.get_page(request.GET.get("page"))
+    query = request.GET.copy()
+    query.pop("page", None)
 
     return render(
         request,
@@ -623,6 +655,15 @@ def player_database(request):
             "page_obj": page,
             "selected_tier": tier,
             "search": search,
+            "selected_club": club,
+            "selected_position": position,
+            "rating_min": rating_min,
+            "rating_max": rating_max,
+            "selected_sort": sort,
+            "free_only": free_only,
+            "clubs": Team.objects.order_by("name"),
+            "positions": [choice[0] for choice in Player.POSITION_CHOICES],
+            "querystring": query.urlencode(),
         },
     )
 
@@ -678,7 +719,7 @@ def team_management(request):
         )
 
     players = list(
-        team.players.all().order_by(
+        team.players.select_related("mgl_team").order_by(
             "position",
             "-overall",
             "name",
@@ -697,6 +738,24 @@ def team_management(request):
     for player in players:
         player.current_listing = listings.get(player.id)
 
+    gk = {"GK"}
+    defence = {"CB", "LB", "RB", "LWB", "RWB"}
+    midfield = {"CDM", "CM", "CAM", "LM", "RM"}
+    attack = {"LW", "RW", "ST", "CF"}
+    squad_groups = [
+        ("GOALKEEPERS", [player for player in players if player.position in gk]),
+        ("DEFENDERS", [player for player in players if player.position in defence]),
+        ("MIDFIELDERS", [player for player in players if player.position in midfield]),
+        ("FORWARDS", [player for player in players if player.position in attack]),
+    ]
+    ungrouped = [
+        player
+        for player in players
+        if player.position not in gk | defence | midfield | attack
+    ]
+    if ungrouped:
+        squad_groups.append(("SQUAD", ungrouped))
+
     return render(
         request,
         "mgl/team_management.html",
@@ -705,6 +764,7 @@ def team_management(request):
             "players": players,
             "total_ovr": total_ovr,
             "available_spaces": available_spaces,
+            "squad_groups": squad_groups,
         },
     )
 

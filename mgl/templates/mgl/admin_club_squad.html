@@ -1,4 +1,5 @@
 {% extends "core/base.html" %}
+{% load mgl_ui %}
 
 {% block title %}{{ team.name }} Squad — MGL{% endblock %}
 
@@ -9,7 +10,7 @@
     <div class="section-heading">
         <div>
             <div class="eyebrow">OWNER / ADMIN</div>
-            <h1>{{ team.name|upper }} SQUAD</h1>
+            <h1 class="mgl-info-club">{% team_logo team "md" %} {{ team.name|upper }} SQUAD</h1>
             <p>
                 {{ team.short_name }}
                 ·
@@ -62,32 +63,15 @@
             <span>FULL SQUAD</span>
         </div>
 
-        {% for player in players %}
-        <div class="table-row">
-            <div>
-                <strong>{{ player.name }}</strong>
-                <small>
-                    {{ player.position }}
-                    ·
-                    {{ player.overall }} OVR
-                </small>
-            </div>
-
-            <span>
-                {% if player.card_tier %}
-                    {{ player.card_tier }}
-                {% else %}
-                    {{ player.calculated_tier }}
-                {% endif %}
-            </span>
-
-            <a href="{% url 'player_profile' player.id %}">
-                PROFILE →
-            </a>
+        {% if players %}
+        <div class="mgl-player-card-grid" style="padding:20px">
+            {% for player in players %}
+                {% player_card player "small" %}
+            {% endfor %}
         </div>
-        {% empty %}
+        {% else %}
             {% include "mgl/includes/empty_state.html" with title="THIS CLUB CURRENTLY HAS NO PLAYERS" body="This club currently has no players. Generate a 26-player 64–73 squad with generate_balanced_squads once the FC26 pool is imported." %}
-        {% endfor %}
+        {% endif %}
 
     </div>
 

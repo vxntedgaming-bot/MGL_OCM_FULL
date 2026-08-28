@@ -1,103 +1,65 @@
-{% load static %}
-
+{% load static mgl_ui %}
+{% with tier=player|player_tier %}
+{% if linked %}
 <a href="{% url 'player_profile' player.id %}" class="mgl-player-card-link">
+{% endif %}
+<article class="mgl-player-card mgl-player-card--{{ size|default:'standard' }} mgl-player-card--{{ tier|lower }}">
+    {% if tier == "GOLD" %}
+        <img src="{% static 'mgl/cards/gold_card.png' %}" class="mgl-player-card-bg" alt="">
+    {% elif tier == "SILVER" %}
+        <img src="{% static 'mgl/cards/silver_card.png' %}" class="mgl-player-card-bg" alt="">
+    {% else %}
+        <img src="{% static 'mgl/cards/bronze_card.png' %}" class="mgl-player-card-bg" alt="">
+    {% endif %}
 
-    <article class="mgl-player-card">
+    {% if player.player_face_url %}
+        <img src="{{ player.player_face_url }}" class="mgl-player-face" alt="" loading="lazy" onerror="this.style.display='none'">
+    {% elif player.image_url %}
+        <img src="{{ player.image_url }}" class="mgl-player-face" alt="" loading="lazy" onerror="this.style.display='none'">
+    {% else %}
+        <span class="mgl-player-face-fallback" aria-hidden="true"></span>
+    {% endif %}
 
-        {% if player.overall >= 75 %}
-            <img
-                src="{% static 'mgl/cards/gold_card.png' %}"
-                class="mgl-player-card-bg"
-                alt=""
-            >
-        {% elif player.overall >= 65 %}
-            <img
-                src="{% static 'mgl/cards/silver_card.png' %}"
-                class="mgl-player-card-bg"
-                alt=""
-            >
-        {% else %}
-            <img
-                src="{% static 'mgl/cards/bronze_card.png' %}"
-                class="mgl-player-card-bg"
-                alt=""
-            >
-        {% endif %}
-
-        {# PLAYER FACE #}
-        {% if player.player_face_url %}
-            <img
-                src="{{ player.player_face_url }}"
-                class="mgl-player-face"
-                alt="{{ player.name }}"
-                loading="lazy"
-                onerror="this.style.display='none';"
-            >
-        {% endif %}
-
-        <div class="mgl-player-card-content">
-
-            {# RATING + POSITION #}
-            <div class="mgl-card-top">
-
-                <div class="mgl-card-rating">
-                    <strong>{{ player.overall }}</strong>
-                    <span>OVR</span>
-                </div>
-
-                <div class="mgl-card-position">
-                    {{ player.position }}
-                </div>
-
+    <div class="mgl-player-card-content">
+        <div class="mgl-card-top">
+            <div class="mgl-card-rating">
+                <strong>{{ player.overall }}</strong>
+                <span>OVR</span>
             </div>
-
-            {# PLAYER NAME #}
-            <div class="mgl-card-name">
-                {{ player.name }}
-            </div>
-
-            {# ORIGINAL FC CLUB #}
-            <div class="mgl-card-club">
-                {{ player.fc27_club|default:"FC Club N/A" }}
-            </div>
-
-            {# SIX MAIN ATTRIBUTES #}
-            <div class="mgl-card-stats">
-
-                <div class="mgl-card-stat">
-                    <strong>{{ player.pace }}</strong>
-                    <span>PAC</span>
-                </div>
-
-                <div class="mgl-card-stat">
-                    <strong>{{ player.shooting }}</strong>
-                    <span>SHO</span>
-                </div>
-
-                <div class="mgl-card-stat">
-                    <strong>{{ player.passing }}</strong>
-                    <span>PAS</span>
-                </div>
-
-                <div class="mgl-card-stat">
-                    <strong>{{ player.dribbling }}</strong>
-                    <span>DRI</span>
-                </div>
-
-                <div class="mgl-card-stat">
-                    <strong>{{ player.defending }}</strong>
-                    <span>DEF</span>
-                </div>
-
-                <div class="mgl-card-stat">
-                    <strong>{{ player.physical }}</strong>
-                    <span>PHY</span>
-                </div>
-
-            </div>
-
+            <div class="mgl-card-position">{{ player.position }}</div>
         </div>
 
-    </article>
+        <div class="mgl-card-badges">
+            {% if player.nationality %}
+                {% with iso=player.nationality|flag_code %}
+                    {% if iso %}
+                        <img class="mgl-card-flag" src="https://flagcdn.com/w40/{{ iso }}.png" alt="{{ player.nationality }}" loading="lazy" onerror="this.style.display='none'">
+                    {% endif %}
+                {% endwith %}
+            {% endif %}
+            {% team_logo player.mgl_team "xs" %}
+        </div>
 
+        <div class="mgl-card-name">{{ player|card_name }}</div>
+        <div class="mgl-card-club">
+            {% if player.mgl_team %}
+                {{ player.mgl_team.short_name }}
+            {% else %}
+                FREE AGENT
+            {% endif %}
+        </div>
+
+        <div class="mgl-card-stats">
+            <div class="mgl-card-stat"><strong>{{ player.pace }}</strong><span>PAC</span></div>
+            <div class="mgl-card-stat"><strong>{{ player.shooting }}</strong><span>SHO</span></div>
+            <div class="mgl-card-stat"><strong>{{ player.passing }}</strong><span>PAS</span></div>
+            <div class="mgl-card-stat"><strong>{{ player.dribbling }}</strong><span>DRI</span></div>
+            <div class="mgl-card-stat"><strong>{{ player.defending }}</strong><span>DEF</span></div>
+            <div class="mgl-card-stat"><strong>{{ player.physical }}</strong><span>PHY</span></div>
+        </div>
+    </div>
+</article>
+{% if linked %}
 </a>
+{% endif %}
+{% endwith %}

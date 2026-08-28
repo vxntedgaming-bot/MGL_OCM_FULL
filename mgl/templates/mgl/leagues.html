@@ -1,5 +1,5 @@
 {% extends "core/base.html" %}
-{% load static %}
+{% load static mgl_ui %}
 
 {% block title %}Super League 1 — MGL{% endblock %}
 
@@ -43,11 +43,7 @@
         <div class="mgl-club-grid">
             {% for team in league.teams.all %}
                 <article class="mgl-club-card">
-                    {% if team.logo %}
-                        <img src="{{ team.logo.url }}" alt="{{ team.name }}">
-                    {% else %}
-                        <div class="mgl-club-mark">{{ team.short_name }}</div>
-                    {% endif %}
+                    {% team_logo team "lg" %}
                     <strong>{{ team.name }}</strong>
                     <span>{% if team.manager %}{{ team.manager.username }}{% else %}VACANT{% endif %}</span>
                     <b>{{ team.tokens }} TKN</b>

@@ -1,0 +1,11 @@
+{% load static %}
+{% if team %}
+<span class="mgl-team-logo mgl-team-logo-{{ size|default:'md' }}" title="{{ team.name }}">
+    {% if team.logo %}
+        <img src="{{ team.logo.url }}" alt="{{ team.name }}" loading="lazy" onerror="this.remove()">
+    {% elif badge_static %}
+        <img src="{% static badge_static %}" alt="{{ team.name }}" loading="lazy" onerror="this.remove()">
+    {% endif %}
+    <span class="mgl-team-logo-fallback" aria-hidden="true">{{ team.short_name }}</span>
+</span>
+{% endif %}

@@ -1,4 +1,5 @@
 {% extends "core/base.html" %}
+{% load mgl_ui %}
 
 {% block title %}Free Agents — MGL{% endblock %}
 
@@ -13,14 +14,9 @@
         <a href="{% url 'transfer_market' %}" class="view-all">MARKET →</a>
     </div>
 
-    <div class="dashboard-panel">
+    <div class="mgl-player-card-grid">
         {% for p in players %}
-            <div class="table-row">
-                <strong><a href="{% url 'player_profile' p.id %}">{{ p.name }}</a></strong>
-                <span>{{ p.position }}</span>
-                <span>{{ p.overall }}</span>
-                <span>{{ p.calculated_tier }}</span>
-            </div>
+            {% player_card p %}
         {% empty %}
             {% include "mgl/includes/empty_state.html" with title="NO FREE AGENTS" body="Unassigned FC26 players will show here. The player pool is never reset when clubs are populated." %}
         {% endfor %}

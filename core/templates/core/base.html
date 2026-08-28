@@ -38,6 +38,9 @@
             <a href="{% url 'leagues_page' %}" class="{% if request.resolver_match.url_name == 'leagues_page' %}is-active{% endif %}">LEAGUES</a>
             <a href="{% url 'fixture_list' %}" class="{% if request.resolver_match.url_name == 'fixture_list' %}is-active{% endif %}">FIXTURES</a>
             <a href="{% url 'transfer_market' %}" class="{% if request.resolver_match.url_name == 'transfer_market' %}is-active{% endif %}">MARKET</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'player_database' %}" class="{% if request.resolver_match.url_name == 'player_database' %}is-active{% endif %}">PLAYERS</a>
+            {% endif %}
             <a href="{% url 'stats_page' %}" class="{% if request.resolver_match.url_name == 'stats_page' %}is-active{% endif %}">STATS</a>
             <a href="{% url 'job_centre' %}" class="{% if request.resolver_match.url_name == 'job_centre' %}is-active{% endif %}">JOB CENTRE</a>
             {% if mgl_is_control %}
