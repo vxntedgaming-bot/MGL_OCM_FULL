@@ -315,16 +315,17 @@ class PlayerDisplayNameSearchTests(TestCase):
     def test_player_database_search_is_accent_insensitive(self):
         self.client.login(username="namesearch", password="test-pass-123")
         cases = [
-            ("Salah", "Mohamed Salah", "Ghaly"),
-            ("Mbappe", "Kylian Mbappé", "Lottin"),
-            ("Mbappé", "Kylian Mbappé", "Lottin"),
-            ("Hakimi", "Achraf Hakimi", "Mouh"),
+            ("Salah", "MOHAMED SALAH", "Ghaly"),
+            ("Mbappe", "KYLIAN MBAPPÉ", "Lottin"),
+            ("Mbappé", "KYLIAN MBAPPÉ", "Lottin"),
+            ("Hakimi", "ACHRAF HAKIMI", "Mouh"),
         ]
         for query, expected, old_name in cases:
             response = self.client.get(reverse("player_database"), {"search": query})
             self.assertEqual(response.status_code, 200, query)
             self.assertContains(response, expected)
             self.assertNotContains(response, old_name)
+            self.assertContains(response, "mgl-player-card")
 
     def test_profile_uses_recognised_display_name(self):
         self.client.login(username="namesearch", password="test-pass-123")
