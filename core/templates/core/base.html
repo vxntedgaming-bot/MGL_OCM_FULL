@@ -47,9 +47,11 @@
                         id="mgl-nav-trigger-{{ menu.id }}"
                     >
                         <span>{{ menu.label }}</span>
-                        <svg class="mgl-nav-chevron" viewBox="0 0 12 8" aria-hidden="true" focusable="false">
-                            <path d="M1 1.5 L6 6.5 L11 1.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
-                        </svg>
+                        <span class="mgl-nav-chevron" aria-hidden="true">
+                            <svg viewBox="0 0 12 8" focusable="false">
+                                <path d="M1 1.5 L6 6.5 L11 1.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                        </span>
                     </button>
                     <div class="mgl-nav-menu" id="mgl-nav-menu-{{ menu.id }}" role="menu" aria-labelledby="mgl-nav-trigger-{{ menu.id }}" aria-hidden="true">
                         {% for item in menu.items %}

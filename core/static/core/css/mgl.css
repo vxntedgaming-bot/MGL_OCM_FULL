@@ -182,10 +182,18 @@ textarea {
 }
 
 .mgl-nav-chevron {
+    display: inline-flex;
     width: 10px;
     height: 8px;
     flex-shrink: 0;
+    transform-origin: 50% 50%;
     transition: transform .15s ease;
+}
+
+.mgl-nav-chevron svg {
+    display: block;
+    width: 10px;
+    height: 8px;
 }
 
 .mgl-nav-dropdown.is-open .mgl-nav-chevron {
