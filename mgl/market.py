@@ -278,6 +278,7 @@ def _restore_unsold_player(auction):
 @transaction.atomic
 def transfer_player(player, from_team, to_team, source="TRANSFER", reference=""):
     player = Player.objects.select_for_update().get(pk=player.pk)
+    to_team = Team.objects.select_for_update().get(pk=to_team.pk)
 
     if from_team and player.mgl_team_id != from_team.id:
         raise ValueError("This player does not belong to the selling club.")
@@ -428,7 +429,9 @@ def settle_auction(auction, reviewer=None):
         _restore_unsold_player(auction)
         auction.status = PlayerAuction.ENDED
         auction.save(update_fields=["status"])
-        return auction, "Auction ended with no bids."
+        if auction.listing_kind == PlayerAuction.CLUB and auction.origin_team_id:
+            return auction, "Auction ended with no bids."
+        return auction, "Auction ended with no bids — Player is now a Free Agent."
 
     winner = highest.manager
     club = highest.team or club_for_user(winner.user)

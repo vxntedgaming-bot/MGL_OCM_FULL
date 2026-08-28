@@ -70,7 +70,7 @@
             {% endfor %}
         </div>
         {% else %}
-            {% include "mgl/includes/empty_state.html" with title="THIS CLUB CURRENTLY HAS NO PLAYERS" body="This club currently has no players. Generate a 26-player 64–73 squad with generate_balanced_squads once the FC26 pool is imported." %}
+            {% include "mgl/includes/empty_state.html" with title="THIS CLUB CURRENTLY HAS NO PLAYERS" body="This club currently has no players. Official starting squads are assigned with apply_starting_squads. Do not run generate_balanced_squads." %}
         {% endif %}
 
     </div>

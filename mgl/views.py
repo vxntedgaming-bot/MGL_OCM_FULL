@@ -618,8 +618,30 @@ def free_agents(request):
             "positions": [choice[0] for choice in Player.POSITION_CHOICES],
             "querystring": _querystring(request),
             "result_count": page.paginator.count,
+            "can_sign": bool(club_for_user(request.user)),
         },
     )
+
+
+@login_required
+@require_POST
+def sign_free_agent_view(request, player_id):
+    from .services import sign_free_agent
+
+    manager = approved_manager(request.user)
+    if not manager:
+        messages.error(request, "You must be an approved manager to sign a Free Agent.")
+        return redirect("free_agents")
+    player = get_object_or_404(Player, pk=player_id)
+    try:
+        sign_free_agent(player, manager)
+        messages.success(
+            request,
+            f"{player.name} signed for 0 TKN.",
+        )
+    except ValueError as exc:
+        messages.error(request, str(exc))
+    return redirect("free_agents")
 
 
 @owner_admin_required

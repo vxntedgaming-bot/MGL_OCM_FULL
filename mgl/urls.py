@@ -72,6 +72,11 @@ urlpatterns = [
         views.free_agents,
         name="free_agents",
     ),
+    path(
+        "free-agents/<int:player_id>/sign/",
+        views.sign_free_agent_view,
+        name="sign_free_agent",
+    ),
 
     path(
         "profile/",
