@@ -1,3 +1,3 @@
 [deploy]
-releaseCommand = "python manage.py collectstatic --noinput"
-startCommand = "gunicorn --config gunicorn.conf.py"
+releaseCommand = "true"
+startCommand = "python manage.py collectstatic --noinput && gunicorn --config gunicorn.conf.py"
