@@ -32,12 +32,21 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("--dry-run", action="store_true")
         parser.add_argument("--team-id", type=int, default=None)
+        parser.add_argument(
+            "--official-sl1",
+            action="store_true",
+            help="Only fill the 14 official Super League 1 clubs.",
+        )
 
     def handle(self, *args, **options):
         dry_run = options["dry_run"]
         teams = Team.objects.order_by("id")
         if options["team_id"]:
             teams = teams.filter(pk=options["team_id"])
+        if options["official_sl1"]:
+            from teams.official_sl1 import OFFICIAL_SL1_SHORT_NAMES
+
+            teams = teams.filter(short_name__in=OFFICIAL_SL1_SHORT_NAMES)
         teams = list(teams)
         if not teams:
             raise CommandError("No MGL teams exist.")

@@ -27,13 +27,21 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-Optional player import and squad fill (FC26 CSV is already in the repo). `generate_balanced_squads` only fills clubs that currently have **no players**. It assigns 26 random FC26 players rated 64–73 and leaves the rest as free agents. It does not reset the player database.
+Optional player import and squad fill (FC26 CSV is already in the repo). Prefer the idempotent one-shot:
+
+```bash
+python manage.py populate_super_league_1
+```
+
+That command creates the 14 official Super League 1 clubs if missing, imports `fc26_players_mgl.csv` without assigning MGL clubs, then runs `generate_balanced_squads --official-sl1` for empty official clubs only. It does not reset tokens, managers, fixtures, or history.
+
+The same steps can still be run separately. `generate_balanced_squads` only fills clubs that currently have **no players**. It assigns 26 random FC26 players rated 64–73 and leaves the rest as free agents. It does not reset the player database.
 
 ```bash
 python manage.py import_fc27 fc26_players_mgl.csv
 python manage.py sync_fc26_details fc26_players_raw.csv
-python manage.py generate_balanced_squads --dry-run
-python manage.py generate_balanced_squads
+python manage.py generate_balanced_squads --official-sl1 --dry-run
+python manage.py generate_balanced_squads --official-sl1
 python manage.py close_expired_auctions
 ```
 
@@ -47,6 +55,7 @@ python manage.py close_expired_auctions
 ## Core OCM
 
 - MGL currently has one active competition: **Super League 1**. A safe data migration associates existing clubs and fixtures with that league and marks any other league rows inactive. Do not invent Super League 2 until there are enough managers.
+- Official Super League 1 clubs (created idempotently, 50 tokens, no manager): Real Madrid, Barcelona, Atletico Madrid, Manchester United, Chelsea, Manchester City, Arsenal, Liverpool, Tottenham, Paris Saint-Germain, Lyon, Marseille, Bayer Leverkusen, Bayern Munich.
 - Transfer currency is **tokens**. New clubs start with **50 tokens**. Approved managers also start with 50 personal tokens.
 - Club treasuries, squads and history stay with the club if a manager leaves.
 - Manager sales need owner/admin approval before they go live on `/market/`.
@@ -124,6 +133,7 @@ export DJANGO_ALLOWED_HOSTS=ocm.example.com
 export DJANGO_CSRF_TRUSTED_ORIGINS=https://ocm.example.com
 # export DATABASE_URL=postgres://...
 python manage.py migrate
+python manage.py populate_super_league_1
 python manage.py collectstatic --noinput
 gunicorn --config gunicorn.conf.py
 ```

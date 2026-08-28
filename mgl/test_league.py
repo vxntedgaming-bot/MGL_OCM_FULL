@@ -64,7 +64,7 @@ class SuperLeagueOneTests(TestCase):
         self.assertEqual(club_b.league_id, sl1.id)
         self.assertEqual(club_b.tokens, Decimal("41.00"))
         self.assertEqual(Fixture.objects.get(home_team=club_a).league_id, sl1.id)
-        self.assertEqual(Team.objects.filter(league=sl1).count(), 2)
+        self.assertGreaterEqual(Team.objects.filter(league=sl1).count(), 16)
 
         page = self.client.get("/leagues/")
         self.assertContains(page, "SUPER LEAGUE 1")
@@ -98,7 +98,8 @@ class SuperLeagueOneTests(TestCase):
         TeamMatchStats.objects.create(submission=submission, team=away_club, goals=1)
 
         table = build_league_table(league)
-        self.assertEqual(len(table), 3)
+        by_id = {row["team"].id: row for row in table}
+        self.assertGreaterEqual(len(table), 17)
         self.assertEqual(table[0]["team"].id, home_club.id)
         self.assertEqual(table[0]["played"], 1)
         self.assertEqual(table[0]["wins"], 1)
@@ -106,13 +107,11 @@ class SuperLeagueOneTests(TestCase):
         self.assertEqual(table[0]["ga"], 1)
         self.assertEqual(table[0]["gd"], 1)
         self.assertEqual(table[0]["points"], 3)
-        self.assertEqual(table[1]["team"].id, idle.id)
-        self.assertEqual(table[1]["played"], 0)
-        self.assertEqual(table[1]["points"], 0)
-        self.assertEqual(table[2]["team"].id, away_club.id)
-        self.assertEqual(table[2]["played"], 1)
-        self.assertEqual(table[2]["points"], 0)
-        self.assertEqual(table[2]["gd"], -1)
+        self.assertEqual(by_id[idle.id]["played"], 0)
+        self.assertEqual(by_id[idle.id]["points"], 0)
+        self.assertEqual(by_id[away_club.id]["played"], 1)
+        self.assertEqual(by_id[away_club.id]["points"], 0)
+        self.assertEqual(by_id[away_club.id]["gd"], -1)
 
         page = self.client.get("/leagues/")
         self.assertContains(page, "Home FC")
@@ -138,9 +137,9 @@ class SuperLeagueOneTests(TestCase):
         )
         TeamMatchStats.objects.create(submission=submission, team=club, goals=1)
         table = build_league_table(league)
-        self.assertEqual(len(table), 1)
-        self.assertEqual(table[0]["played"], 0)
-        self.assertEqual(table[0]["points"], 0)
+        solo = next(row for row in table if row["team"].id == club.id)
+        self.assertEqual(solo["played"], 0)
+        self.assertEqual(solo["points"], 0)
 
     def test_manager_hub_shows_super_league_1(self):
         league = ensure_super_league_1()
