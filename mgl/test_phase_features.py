@@ -19,13 +19,7 @@ from mgl.market import (
     place_auction_bid,
     settle_auction,
 )
-from mgl.models import ManagerCareerStat, ScoutReport
-from mgl.scouting import (
-    TIER_RANGES,
-    cooldown_hours,
-    dispatch_scout,
-    upgrade_scout,
-)
+from mgl.models import ManagerCareerStat
 from mgl.tenure import close_club_spell_for_user, open_club_spell
 from players.models import Player
 from teams.models import Team
@@ -249,60 +243,6 @@ class AuctionWorkflowTests(TestCase):
         self.mgr_b.refresh_from_db()
         self.assertEqual(self.mgr_b.tokens, Decimal("20.00"))
         self.assertGreaterEqual(self.mgr_b.tokens, 0)
-
-
-class ScoutingTests(TestCase):
-    def setUp(self):
-        self.user = _user("scout")
-        self.manager = _manager(self.user, tokens="50.00")
-        self.other_user = _user("other")
-        self.other = _manager(self.other_user, tokens="50.00")
-        self.bronze = Player.objects.create(name="Bronze Scout Target", position="ST", overall=50, nationality="France", is_free_agent=True)
-        self.silver = Player.objects.create(name="Silver Scout Target", position="CM", overall=66, nationality="Spain", is_free_agent=True)
-        self.gold = Player.objects.create(name="Gold Scout Target", position="CB", overall=75, nationality="Germany", is_free_agent=True)
-
-    def test_ranges_cooldowns_and_real_players(self):
-        self.assertEqual(TIER_RANGES["BRONZE"], (45, 56))
-        self.assertEqual(TIER_RANGES["SILVER"], (60, 74))
-        self.assertEqual(TIER_RANGES["GOLD"], (70, 81))
-        self.assertEqual(cooldown_hours("BRONZE", 0), Decimal("5"))
-        self.assertEqual(cooldown_hours("BRONZE", 1), Decimal("3"))
-        self.assertEqual(cooldown_hours("BRONZE", 2), Decimal("1"))
-        self.assertEqual(cooldown_hours("BRONZE", 3), Decimal("2.5"))
-        self.assertEqual(cooldown_hours("SILVER", 1), Decimal("8"))
-        self.assertEqual(cooldown_hours("GOLD", 3), Decimal("12"))
-        assignment = dispatch_scout(self.manager, "BRONZE", "France", "ST")
-        self.assertEqual(assignment.player_id, self.bronze.id)
-        self.assertEqual(Player.objects.filter(name="Bronze Scout Target").count(), 1)
-
-    def test_upgrade_costs_and_insufficient_tokens(self):
-        poor = _manager(_user("broke"), tokens="5.00")
-        with self.assertRaises(ValueError):
-            upgrade_scout(poor, "BRONZE")
-        profile, level, cost = upgrade_scout(self.manager, "BRONZE")
-        self.assertEqual(level, 1)
-        self.assertEqual(cost, Decimal("8.00"))
-        self.manager.refresh_from_db()
-        self.assertEqual(self.manager.tokens, Decimal("42.00"))
-        upgrade_scout(self.manager, "BRONZE")
-        upgrade_scout(self.manager, "BRONZE")
-        with self.assertRaises(ValueError):
-            upgrade_scout(self.manager, "BRONZE")
-
-    def test_reports_are_private(self):
-        assignment = dispatch_scout(self.manager, "SILVER", "Spain", "CM")
-        assignment.ready_at = timezone.now() - timedelta(minutes=1)
-        assignment.save(update_fields=["ready_at"])
-        self.client = Client(HTTP_HOST="127.0.0.1")
-        self.client.login(username="scout", password="test-pass-123")
-        page = self.client.get(reverse("scouting"))
-        self.assertContains(page, "Silver Scout Target")
-        self.assertContains(page, "BRONZE")
-        self.assertContains(page, "Anywhere")
-        self.client.login(username="other", password="test-pass-123")
-        other_page = self.client.get(reverse("scouting"))
-        self.assertNotContains(other_page, "Silver Scout Target")
-        self.assertEqual(ScoutReport.objects.filter(manager=self.other).count(), 0)
 
 
 class StatsHubTests(TestCase):

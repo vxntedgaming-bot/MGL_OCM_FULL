@@ -65,6 +65,7 @@ python manage.py close_expired_auctions
 - MGL currently has three active divisions: **Premier League**, **Championship** and **League One**. Super League 1 was renamed in place to Premier League so existing club IDs, squads and fixtures stay attached. MLS is not an active competition.
 - Official Premier League clubs (created idempotently): Real Madrid, Barcelona, Atletico Madrid, Manchester United, Chelsea, Manchester City, Arsenal, Liverpool, Tottenham, Paris Saint-Germain, Lyon, Marseille, Bayer Leverkusen, Bayern Munich. Club treasury rows still start at 50 tokens; that figure is not the manager's personal balance.
 - Transfer currency is **tokens**. New manager sign-ups receive **20 personal tokens**. That balance belongs to the manager account and is not reset when they leave, join, or apply for a club.
+- Scouting is a **manager-wide** network (not per Bronze/Silver/Gold). Level 1 is free. Level 2 costs 18 personal tokens and Level 3 costs 25. Times are 8/10/12 hours at Level 1, 4/5/6 at Level 2, and 1/2.5/3 at Level 3. Completed scouts recruit an eligible FC26 free agent onto the manager's current club, which cannot exceed 30 players.
 - Squads stay with the club if a manager leaves. Token balances stay with the manager.
 - Manager sales need owner/admin approval before they go live on `/market/`.
 - Auction bids reserve the manager's personal tokens. Being outbid refunds the previous manager automatically.

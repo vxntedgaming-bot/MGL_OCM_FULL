@@ -9,16 +9,55 @@
         <div>
             <div class="eyebrow">MARKET</div>
             <h1>SCOUT HEADQUARTERS</h1>
-            <p>You keep your scout level even if you leave a club. Scouts pick real FC26 players. Reports are private to this manager.</p>
+            <p>One scouting network for Bronze, Silver and Gold. Your scout level belongs to you and stays with your account if you leave a club.</p>
         </div>
         <span class="section-line"></span>
     </div>
 
     <div class="mgl-scout-hq">
         <div class="mgl-scout-hq-copy">
-            <div class="eyebrow">YOUR TOKENS</div>
-            <h2>{{ token_balance }} TKN</h2>
-            <p>Personal balance. Upgrades are sequential: Level 1 then 2 then 3.</p>
+            <div class="eyebrow">SCOUTING LEVEL</div>
+            <h2>LEVEL {{ scout_level }} / {{ max_level }}</h2>
+            <p>Current scouting times apply to every scout you send.</p>
+            <ul class="mgl-scout-times">
+                {% for row in current_times %}
+                    <li>
+                        <span>{{ row.medal }} {{ row.name }}</span>
+                        <strong>{{ row.label }}</strong>
+                    </li>
+                {% endfor %}
+            </ul>
+            <p class="mgl-scout-tokens">Personal tokens: <strong>{{ token_balance }} TKN</strong></p>
+            {% if club %}
+                <p class="mgl-help">Squad {{ roster_count }} / 30 · {{ club.name }}</p>
+            {% else %}
+                <p class="mgl-help">Take a club job before dispatching a scout. Recruits join your current roster.</p>
+            {% endif %}
+        </div>
+        <div class="mgl-scout-upgrade-panel">
+            <div class="eyebrow">UPGRADE YOUR SCOUTING NETWORK</div>
+            {% if upgrade %}
+                <h3>UPGRADE TO LEVEL {{ upgrade.level }}</h3>
+                <p>One upgrade improves Bronze, Silver &amp; Gold scouts.</p>
+                <p class="mgl-scout-upgrade-cost">{{ upgrade.cost_label }} TOKENS</p>
+                <ul class="mgl-scout-times mgl-scout-times--next">
+                    {% for row in upgrade.times %}
+                        <li>
+                            <span>{{ row.medal }} {{ row.name }}</span>
+                            <strong>{{ row.label }}</strong>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <form method="post" class="mgl-scout-upgrade">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="upgrade">
+                    <button type="submit" class="primary-button">UPGRADE TO LEVEL {{ upgrade.level }}</button>
+                </form>
+            {% else %}
+                <h3>MAX LEVEL</h3>
+                <p>LEVEL {{ scout_level }} / {{ max_level }}</p>
+                <p>Your scouting network is fully upgraded. All three scouts use the Level 3 times.</p>
+            {% endif %}
         </div>
     </div>
 </section>
@@ -28,25 +67,25 @@
         <div>
             <div class="eyebrow">DISPATCH</div>
             <h2>SEND YOUR SCOUT</h2>
+            <p>Choose a scout, a region and a position. When the wait ends, an eligible FC26 player is recruited to your club.</p>
         </div>
     </div>
+    {% if roster_full %}
+        <p class="mgl-flash-error">Your squad is full — maximum 30 players.</p>
+    {% endif %}
     <div class="mgl-scout-grid">
         {% for panel in panels %}
             <article class="mgl-scout-card mgl-scout-card--{{ panel.tier|lower }}">
                 <span class="mgl-scout-badge">{{ panel.label|upper }}</span>
-                <h3>SEASON {{ panel.label|upper }} SCOUT</h3>
+                <h3>{{ panel.label|upper }} SCOUT</h3>
                 <p class="mgl-scout-meta">
                     <span>{{ panel.range.0 }}–{{ panel.range.1 }} OVR</span>
-                    <span>{{ panel.cooldown_hours }}h wait</span>
+                    <span>{{ panel.hours_label }}</span>
                 </p>
                 <div class="mgl-scout-level">
-                    <span>LEVEL {{ panel.level }} / 3</span>
-                    <div class="mgl-scout-pips" aria-hidden="true">
-                        <i class="{% if panel.level >= 1 %}is-on{% endif %}"></i>
-                        <i class="{% if panel.level >= 2 %}is-on{% endif %}"></i>
-                        <i class="{% if panel.level >= 3 %}is-on{% endif %}"></i>
-                    </div>
-                    {% if panel.current %}
+                    {% if panel.ready %}
+                        <small>READY TO COMPLETE</small>
+                    {% elif panel.current %}
                         <small>ON ASSIGNMENT · {{ panel.remaining|wait_left }}</small>
                     {% else %}
                         <small>AVAILABLE</small>
@@ -58,10 +97,19 @@
                     <input type="hidden" name="tier" value="{{ panel.tier }}">
                     <label>
                         REGION
-                        <select name="region">
-                            <option value="">Anywhere</option>
-                            {% for nation in nationalities %}
-                                <option value="{{ nation }}">{{ nation }}</option>
+                        <select name="region" class="mgl-region-select">
+                            {% for group, items in region_menu %}
+                                {% if group %}
+                                    <optgroup label="{{ group }}">
+                                        {% for key, label in items %}
+                                            <option value="{{ key }}">{{ label }}</option>
+                                        {% endfor %}
+                                    </optgroup>
+                                {% else %}
+                                    {% for key, label in items %}
+                                        <option value="{{ key }}">{{ label }}</option>
+                                    {% endfor %}
+                                {% endif %}
                             {% endfor %}
                         </select>
                     </label>
@@ -76,16 +124,6 @@
                     </label>
                     <button type="submit" class="primary-button" {% if not panel.available %}disabled{% endif %}>DISPATCH SCOUT</button>
                 </form>
-                {% if panel.next_cost %}
-                    <form method="post" class="mgl-scout-upgrade">
-                        {% csrf_token %}
-                        <input type="hidden" name="action" value="upgrade">
-                        <input type="hidden" name="tier" value="{{ panel.tier }}">
-                        <button type="submit" class="secondary-button">UPGRADE TO LEVEL {{ panel.level|add:1 }} ({{ panel.next_cost }} TOKENS)</button>
-                    </form>
-                {% else %}
-                    <p class="mgl-help">Maximum level reached.</p>
-                {% endif %}
             </article>
         {% endfor %}
     </div>
@@ -96,7 +134,7 @@
         <div>
             <div class="eyebrow">REPORTS</div>
             <h2>RECENT SCOUT REPORTS</h2>
-            <p>Only reports from this manager. Scouted players are existing FC26 records.</p>
+            <p>Only reports from this manager. Recruited players are existing FC26 records assigned to your club.</p>
         </div>
     </div>
     <div class="mgl-report-list">
@@ -104,27 +142,23 @@
             <article class="mgl-report-row">
                 {% player_card report.player "small" %}
                 <div class="mgl-report-meta">
-                    <h3>{{ report.player.name }}</h3>
-                    <p>{{ report.player.overall }} OVR · {{ report.player.position }} · {{ report.player.nationality|default:"Unknown nation" }}</p>
+                    <p class="mgl-report-tier">{{ report.tier }} SCOUT</p>
+                    <h3><a href="{% url 'player_profile' report.player.id %}">{{ report.player.name }}</a></h3>
+                    <p>OVR {{ report.player.overall }} · {{ report.player.position }} · {{ report.player.nationality|default:"Unknown nation" }}</p>
                     <p>
-                        {{ report.tier }} · Level {{ report.level }}
-                        {% if report.region %} · {{ report.region }}{% endif %}
-                        {% if report.position %} · {{ report.position }}{% endif %}
+                        {% if report.region_display %}{{ report.region_display }}{% else %}Anywhere{% endif %}
+                        · {{ report.discovered_at|date:"d M Y H:i" }}
                     </p>
-                    <p>{{ report.discovered_at|date:"d M Y H:i" }}</p>
-                    <p>
-                        {% if report.player.mgl_team %}
-                            {{ report.player.mgl_team.name }}
-                        {% elif report.player.is_free_agent %}
-                            FREE AGENT
-                        {% else %}
-                            UNAVAILABLE
-                        {% endif %}
-                    </p>
+                    {% if report.recruited %}
+                        <p class="mgl-report-status">STATUS: ✓ RECRUITED</p>
+                        <p>CLUB: {{ report.club.name|default:report.player.mgl_team.name }}</p>
+                    {% else %}
+                        <p class="mgl-report-status">STATUS: REPORT ONLY</p>
+                    {% endif %}
                 </div>
             </article>
         {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO REPORTS YET" body="Dispatch a bronze, silver or gold scout to generate a private report from the FC26 player pool." %}
+            {% include "mgl/includes/empty_state.html" with title="NO REPORTS YET" body="Dispatch a bronze, silver or gold scout. When the wait ends, an eligible FC26 player is recruited to your club." %}
         {% endfor %}
     </div>
 </section>

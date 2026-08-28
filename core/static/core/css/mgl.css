@@ -3249,6 +3249,10 @@ textarea {
     margin-bottom: 8px;
 }
 
+.mgl-scout-hq {
+    grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+}
+
 .mgl-profile-identity {
     display: flex;
     gap: 20px;
@@ -3348,6 +3352,94 @@ textarea {
     gap: 10px;
 }
 
+.mgl-scout-times {
+    list-style: none;
+    margin: 16px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+}
+
+.mgl-scout-times li {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    color: var(--muted-light);
+}
+
+.mgl-scout-times li strong {
+    color: #fff;
+}
+
+.mgl-scout-tokens {
+    margin-top: 16px;
+}
+
+.mgl-scout-upgrade-panel {
+    padding: 20px;
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    background: linear-gradient(180deg, rgba(245, 158, 11, 0.12), rgba(255,255,255,0.02));
+}
+
+.mgl-scout-upgrade-panel h3 {
+    margin: 8px 0;
+    font-size: 28px;
+}
+
+.mgl-scout-upgrade-cost {
+    margin: 8px 0 12px;
+    color: #fbbf24;
+    letter-spacing: 0.14em;
+    font-size: 13px;
+}
+
+.mgl-region-select,
+.mgl-scout-form select {
+    width: 100%;
+    min-width: 0;
+    background: #10131a;
+    color: #f3f4f6;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+}
+
+.mgl-region-select optgroup {
+    color: #fbbf24;
+    font-weight: 700;
+    background: #0b0d12;
+    font-style: normal;
+}
+
+.mgl-region-select option {
+    color: #e5e7eb;
+    background: #12151c;
+}
+
+.mgl-report-tier {
+    margin: 0 0 4px;
+    letter-spacing: 0.14em;
+    font-size: 11px;
+    color: #fbbf24;
+}
+
+.mgl-report-status {
+    color: #86efac !important;
+    letter-spacing: 0.08em;
+}
+
+.mgl-report-meta h3 a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.mgl-flash-error {
+    margin: 0 0 16px;
+    color: #fca5a5;
+}
+
 .mgl-scout-form label {
     display: grid;
     gap: 6px;
@@ -3392,6 +3484,7 @@ textarea {
 }
 
 @media (max-width: 980px) {
+    .mgl-scout-hq,
     .mgl-scout-grid,
     .mgl-stats-grid,
     .mgl-report-row {

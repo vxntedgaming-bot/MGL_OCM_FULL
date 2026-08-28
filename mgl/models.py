@@ -309,9 +309,7 @@ class ScoutProfile(models.Model):
         on_delete=models.CASCADE,
         related_name="scout_profile",
     )
-    bronze_level = models.PositiveSmallIntegerField(default=0)
-    silver_level = models.PositiveSmallIntegerField(default=0)
-    gold_level = models.PositiveSmallIntegerField(default=0)
+    scout_level = models.PositiveSmallIntegerField(default=1)
 
 
 class ScoutAssignment(models.Model):
@@ -333,7 +331,7 @@ class ScoutAssignment(models.Model):
         related_name="scout_assignments",
     )
     tier = models.CharField(max_length=10, choices=TIER_CHOICES)
-    level = models.PositiveSmallIntegerField(default=0)
+    level = models.PositiveSmallIntegerField(default=1)
     region = models.CharField(max_length=100, blank=True)
     position = models.CharField(max_length=10, blank=True)
     player = models.ForeignKey(
@@ -374,6 +372,14 @@ class ScoutReport(models.Model):
     level = models.PositiveSmallIntegerField(default=0)
     region = models.CharField(max_length=100, blank=True)
     position = models.CharField(max_length=10, blank=True)
+    recruited = models.BooleanField(default=False)
+    club = models.ForeignKey(
+        "teams.Team",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="scout_recruits",
+    )
     discovered_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

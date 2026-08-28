@@ -1163,20 +1163,24 @@ def scouting(request):
     from mgl.scouting import (
         BRONZE,
         GOLD,
+        MAX_LEVEL,
         SILVER,
-        TIER_BASE_HOURS,
+        SQUAD_FULL_MESSAGE,
         TIER_RANGES,
-        UPGRADE_COSTS,
         complete_ready_assignments,
         cooldown_hours,
         dispatch_scout,
-        get_or_create_scout_profile,
-        level_for,
+        format_hours,
+        manager_scout_level,
+        next_upgrade,
         remaining_wait,
-        scout_nationalities,
         scout_positions,
+        scout_region_menu,
+        scout_times,
         upgrade_scout,
     )
+    from mgl.market import club_for_user
+    from mgl.regions import region_label
 
     manager = manager_for_user(request.user)
     if not manager:
@@ -1185,8 +1189,11 @@ def scouting(request):
         action = request.POST.get("action")
         try:
             if action == "upgrade":
-                profile, level, cost = upgrade_scout(manager, request.POST.get("tier"))
-                messages.success(request, f"Scout upgraded to level {level} for {cost} tokens.")
+                profile, level, cost = upgrade_scout(manager)
+                messages.success(
+                    request,
+                    f"Scouting network upgraded to Level {level} for {cost} tokens. Bronze, Silver and Gold scouts all use the new times.",
+                )
             elif action == "dispatch":
                 assignment = dispatch_scout(
                     manager,
@@ -1204,12 +1211,22 @@ def scouting(request):
             messages.error(request, str(exc))
         return redirect("scouting")
 
-    complete_ready_assignments(manager)
-    profile = get_or_create_scout_profile(manager)
+    _created, notices = complete_ready_assignments(manager)
+    for notice in notices:
+        if notice == SQUAD_FULL_MESSAGE or "enough tokens" in notice.lower():
+            messages.error(request, notice)
+        elif notice.lower().startswith("no available") or "must manage a club" in notice.lower():
+            messages.warning(request, notice)
+        else:
+            messages.success(request, notice)
+
+    scout_level = manager_scout_level(manager)
     now = timezone.now()
+    team = club_for_user(request.user)
+    roster_count = Player.objects.filter(mgl_team=team).count() if team else 0
+    roster_full = bool(team) and roster_count >= 30
     panels = []
     for tier, label in ((BRONZE, "Bronze"), (SILVER, "Silver"), (GOLD, "Gold")):
-        level = level_for(profile, tier)
         current = (
             ScoutAssignment.objects.filter(
                 manager=manager, tier=tier, status=ScoutAssignment.PENDING
@@ -1218,32 +1235,41 @@ def scouting(request):
             .first()
         )
         wait = remaining_wait(current, now=now) if current else None
-        nxt = level + 1
+        ready = bool(current) and wait is not None and wait.total_seconds() <= 0
+        hours = cooldown_hours(tier, scout_level)
         panels.append(
             {
                 "tier": tier,
                 "label": label,
                 "range": TIER_RANGES[tier],
-                "base_hours": TIER_BASE_HOURS[tier],
-                "level": level,
-                "cooldown_hours": cooldown_hours(tier, level),
-                "next_cost": UPGRADE_COSTS.get(nxt),
+                "hours": hours,
+                "hours_label": format_hours(hours),
                 "current": current,
                 "remaining": wait,
-                "available": current is None or (wait is not None and wait.total_seconds() <= 0),
+                "ready": ready,
+                "available": current is None and not roster_full,
             }
         )
-    reports = manager.scout_reports.select_related("player", "player__mgl_team")[:20]
+    reports = manager.scout_reports.select_related("player", "player__mgl_team", "club")[:20]
+    for report in reports:
+        report.region_display = region_label(report.region)
     return render(
         request,
         "mgl/scouting.html",
         {
             "manager": manager,
             "token_balance": token_balance_for_user(request.user),
+            "scout_level": scout_level,
+            "max_level": MAX_LEVEL,
+            "current_times": scout_times(scout_level),
+            "upgrade": next_upgrade(scout_level),
             "panels": panels,
-            "nationalities": scout_nationalities(),
+            "region_menu": scout_region_menu(),
             "positions": scout_positions(),
             "reports": reports,
+            "club": team,
+            "roster_count": roster_count,
+            "roster_full": roster_full,
         },
     )
 
