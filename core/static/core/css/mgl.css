@@ -785,6 +785,10 @@ button.header-button {
     border-left: 1px solid var(--border);
 }
 
+.overview-grid--hub {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
 .overview-stat {
     padding: 28px;
     min-height: 145px;
@@ -2801,6 +2805,12 @@ textarea {
     grid-template-columns: minmax(0, 1.8fr) minmax(120px, 0.8fr) minmax(90px, 0.55fr) minmax(140px, 0.9fr) auto;
 }
 
+.mgl-filter-bar--auction-ovr {
+    grid-template-columns: auto minmax(180px, 0.5fr) auto;
+    justify-content: start;
+    margin-bottom: 12px;
+}
+
 .mgl-filter-meta {
     margin: -12px 0 24px;
     color: var(--muted);
@@ -3049,8 +3059,10 @@ textarea {
 }
 
 @media (max-width: 980px) {
+    .overview-grid--hub,
     .mgl-filter-bar,
     .mgl-filter-bar--agents,
+    .mgl-filter-bar--auction-ovr,
     .mgl-profile-layout,
     .mgl-market-listing,
     .mgl-rating-grid,
@@ -3060,7 +3072,9 @@ textarea {
         grid-template-columns: 1fr 1fr;
     }
     .mgl-filter-bar,
-    .mgl-filter-bar--agents {
+    .mgl-filter-bar--agents,
+    .mgl-filter-bar--auction-ovr,
+    .overview-grid--hub {
         grid-template-columns: 1fr 1fr;
     }
 }
@@ -3068,6 +3082,7 @@ textarea {
 @media (max-width: 640px) {
     .mgl-filter-bar,
     .mgl-filter-bar--agents,
+    .mgl-filter-bar--auction-ovr,
     .mgl-profile-layout,
     .mgl-market-listing,
     .mgl-rating-grid,

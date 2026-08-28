@@ -279,3 +279,96 @@ class StatsHubTests(TestCase):
         self.assertContains(response, "Official Scorer")
         self.assertContains(response, manager.display_name)
         self.assertEqual(scorer.goals, 3)
+
+
+class ControlCentreFreeAgentFilterTests(TestCase):
+    def setUp(self):
+        self.league = ensure_premier_league()
+        self.owner = _user("owner", role=User.OWNER)
+        self.club = Team.objects.filter(short_name="ARS").first() or Team.objects.create(
+            name="Arsenal", short_name="ARS", league=self.league
+        )
+        self.low = Player.objects.create(name="Filter Low", position="CB", overall=55, is_free_agent=True)
+        self.floor = Player.objects.create(name="Filter Floor", position="CM", overall=62, is_free_agent=True)
+        self.mid = Player.objects.create(name="Filter Mid", position="ST", overall=70, is_free_agent=True)
+        self.high = Player.objects.create(name="Filter High", position="ST", overall=71, is_free_agent=True)
+        self.star = Player.objects.create(name="Filter Star", position="ST", overall=88, is_free_agent=True)
+        self.assigned = Player.objects.create(
+            name="Filter Assigned",
+            position="CM",
+            overall=66,
+            is_free_agent=False,
+            mgl_team=self.club,
+        )
+        self.client = Client(HTTP_HOST="127.0.0.1")
+        self.client.login(username="owner", password="test-pass-123")
+
+    def _snapshot(self):
+        return list(
+            Player.objects.order_by("id").values_list(
+                "id", "name", "overall", "is_free_agent", "mgl_team_id"
+            )
+        )
+
+    def test_default_filter_is_62_70_and_does_not_mutate_players(self):
+        before = self._snapshot()
+        response = self.client.get(reverse("control_centre"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "62–70 OVR")
+        self.assertContains(response, self.floor.name)
+        self.assertContains(response, self.mid.name)
+        self.assertNotContains(response, self.low.name)
+        self.assertNotContains(response, self.high.name)
+        self.assertNotContains(response, self.star.name)
+        self.assertNotContains(response, self.assigned.name)
+        self.assertEqual(self._snapshot(), before)
+        self.assertEqual(Player.objects.filter(is_free_agent=True).count(), 5)
+        self.assertEqual(self.assigned.overall, 66)
+
+    def test_all_71_plus_and_under_62_filters_are_selection_only(self):
+        before = self._snapshot()
+        all_view = self.client.get(reverse("control_centre"), {"ovr": "all"})
+        self.assertContains(all_view, self.star.name)
+        self.assertContains(all_view, self.low.name)
+        self.assertContains(all_view, self.mid.name)
+        self.assertNotContains(all_view, self.assigned.name)
+
+        plus = self.client.get(reverse("control_centre"), {"ovr": "71+"})
+        self.assertContains(plus, self.high.name)
+        self.assertContains(plus, self.star.name)
+        self.assertNotContains(plus, self.mid.name)
+        self.assertNotContains(plus, self.low.name)
+
+        under = self.client.get(reverse("control_centre"), {"ovr": "under-62"})
+        self.assertContains(under, self.low.name)
+        self.assertNotContains(under, self.floor.name)
+        self.assertNotContains(under, self.star.name)
+
+        unknown = self.client.get(reverse("control_centre"), {"ovr": "invented"})
+        self.assertContains(unknown, self.mid.name)
+        self.assertNotContains(unknown, self.star.name)
+        self.assertEqual(self._snapshot(), before)
+
+    def test_auction_from_62_70_filter_uses_existing_auction_system(self):
+        before_ratings = list(Player.objects.order_by("id").values_list("id", "overall", "is_free_agent"))
+        next_url = reverse("control_centre") + "?ovr=62-70"
+        response = self.client.post(
+            reverse("auction_free_agent", args=[self.mid.id]),
+            {
+                "duration": "30",
+                "starting_bid": "1",
+                "ovr": "62-70",
+                "next": next_url,
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("ovr=62-70", response["Location"])
+        auction = PlayerAuction.objects.get(player=self.mid)
+        self.assertEqual(auction.listing_kind, PlayerAuction.FREE_AGENT)
+        self.assertEqual(auction.status, PlayerAuction.LIVE)
+        self.assertEqual(auction.starting_bid, 1)
+        self.assertEqual(auction.duration_minutes, 30)
+        self.assertIsNone(auction.listed_by_manager_id)
+        after = list(Player.objects.order_by("id").values_list("id", "overall", "is_free_agent"))
+        self.assertEqual(after, before_ratings)
+        self.assertEqual(Player.objects.filter(pk=self.mid.id).count(), 1)

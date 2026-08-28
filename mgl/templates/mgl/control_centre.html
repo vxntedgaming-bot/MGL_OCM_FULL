@@ -82,9 +82,23 @@
         <div>
             <div class="eyebrow">AUCTIONS</div>
             <h2>RELEASE A FREE AGENT</h2>
-            <p>Choose an unassigned player and a server-side timer. Maximum length is 12 hours.</p>
+            <p>Choose an unassigned player from the existing Free Agent pool and a server-side timer. Maximum length is 12 hours. Starting bid 0–10 TKN.</p>
         </div>
     </div>
+    <form method="get" class="mgl-filter-bar mgl-filter-bar--auction-ovr" role="search">
+        <label class="mgl-filter-check" for="ovr">OVR RANGE</label>
+        <select id="ovr" name="ovr" onchange="this.form.submit()">
+            {% for key, label in free_agent_ovr_filters %}
+                <option value="{{ key }}" {% if free_agent_ovr_filter == key %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="header-button">FILTER</button>
+    </form>
+    <p class="mgl-filter-meta">
+        Showing {{ free_agents|length }} of {{ free_agent_match_count }} matching free agents
+        ({{ free_agent_total_count }} unassigned in the pool).
+        Selection only — ratings and Free Agent status are unchanged.
+    </p>
     <div class="dashboard-panel">
         {% for player in free_agents %}
             <div class="table-row">
@@ -92,6 +106,8 @@
                 <span>{{ player.position }} · {{ player.overall }} OVR</span>
                 <form method="post" action="{% url 'auction_free_agent' player.id %}" class="mgl-inline-form">
                     {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ control_next }}">
+                    <input type="hidden" name="ovr" value="{{ free_agent_ovr_filter }}">
                     <select name="duration" required>
                         {% for minutes, label in auction_durations %}
                             <option value="{{ minutes }}">{{ label }}</option>
@@ -102,7 +118,7 @@
                 </form>
             </div>
         {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO FREE AGENTS" body="There are currently no unassigned players to release into auction." %}
+            {% include "mgl/includes/empty_state.html" with title="NO FREE AGENTS IN THIS RANGE" body="No unassigned players match that OVR filter. Choose All to browse the existing Free Agent pool. Ratings are not changed." %}
         {% endfor %}
     </div>
 </section>

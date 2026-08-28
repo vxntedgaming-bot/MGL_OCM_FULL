@@ -7,7 +7,12 @@ from django.core.management import call_command
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from players.fc26_faces import card_face_src, sofifa_url_for_size, sofifa_variant_urls
+from players.fc26_faces import (
+    card_face_src,
+    sofifa_id_from_url,
+    sofifa_url_for_size,
+    sofifa_variant_urls,
+)
 from players.models import Player
 
 
@@ -179,9 +184,12 @@ class PlayerFaceDisplayTests(TestCase):
         )
         with patch("players.fc26_faces.fetch_sofifa_png", return_value=png):
             response = self.client.get(reverse("player_face_image", args=[player.pk]))
+            head = self.client.head(reverse("player_face_image", args=[player.pk]))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response["Content-Type"], "image/png")
         self.assertEqual(response.content, png)
+        self.assertEqual(head.status_code, 200)
+        self.assertEqual(head["Content-Type"], "image/png")
 
         bare = Player.objects.create(name="No Face", overall=50, position="CB")
         missing = self.client.get(reverse("player_face_image", args=[bare.pk]))
@@ -192,6 +200,17 @@ class PlayerFaceDisplayTests(TestCase):
         self.assertEqual(urls[0], SALAH_FACE)
         self.assertIn("https://cdn.sofifa.net/players/209/331/25_120.png", urls)
         self.assertTrue(all("/209/331/" in url for url in urls))
+        self.assertFalse(any("/233/988/" in url for url in urls))
+        self.assertTrue(all(sofifa_id_from_url(url) == 209331 for url in urls))
+
+    def test_sofifa_padding_variants_stay_on_the_same_numeric_id(self):
+        stored = "https://cdn.sofifa.net/players/079/985/26_120.png"
+        urls = sofifa_variant_urls(stored, "120")
+        self.assertEqual(sofifa_id_from_url(stored), 79985)
+        self.assertIn("https://cdn.sofifa.net/players/079/985/26_120.png", urls)
+        self.assertIn("https://cdn.sofifa.net/players/79/985/26_120.png", urls)
+        self.assertTrue(all(sofifa_id_from_url(url) == 79985 for url in urls))
+        self.assertFalse(any("/080/985/" in url for url in urls))
         self.assertFalse(any("/233/988/" in url for url in urls))
 
     @override_settings(MEDIA_ROOT="/tmp/mgl-face-year-fallback-media")
@@ -232,14 +251,22 @@ class PlayerFaceDisplayTests(TestCase):
             overall=69,
             player_face_url="https://cdn.sofifa.net/players/233/988/26_120.png",
         )
-        with patch("players.fc26_faces.fetch_sofifa_png", return_value=None):
+        with patch("players.fc26_faces.fetch_sofifa_png", return_value=None) as fetch:
             response = self.client.get(reverse("player_face_image", args=[player.pk]))
-        self.assertEqual(response.status_code, 404)
+            self.assertEqual(response.status_code, 404)
+            first_calls = fetch.call_count
+            again = self.client.get(reverse("player_face_image", args=[player.pk]))
+        self.assertEqual(again.status_code, 404)
+        self.assertGreater(first_calls, 0)
+        self.assertEqual(fetch.call_count, first_calls)
+        fetched_ids = {sofifa_id_from_url(call.args[0]) for call in fetch.call_args_list}
+        self.assertEqual(fetched_ids, {233988})
         player.refresh_from_db()
         self.assertEqual(
             player.player_face_url,
             "https://cdn.sofifa.net/players/233/988/26_120.png",
         )
+        self.assertEqual(player.fc27_id, "233988")
         self.assertEqual(Player.objects.filter(name="Vágner Norteiro").count(), 1)
 
 

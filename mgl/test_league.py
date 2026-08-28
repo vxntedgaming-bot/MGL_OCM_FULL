@@ -173,6 +173,9 @@ class SuperLeagueOneTests(TestCase):
         response = self.client.get(reverse("manager_hub"))
         self.assertContains(response, "PREMIER LEAGUE")
         self.assertContains(response, "HFC")
+        self.assertContains(response, "PERSONAL BALANCE")
+        self.assertContains(response, "20.00 TKN")
+        self.assertNotContains(response, "50.00 TKN")
         self.assertEqual(self.client.get(reverse("control_centre")).status_code, 302)
         self.assertEqual(
             self.client.get(reverse("control_centre"))["Location"],

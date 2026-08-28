@@ -5,9 +5,13 @@ Sofifa blocks hotlinking from other origins, so cards load faces through a
 same-origin view that fetches the stored Sofifa URL and caches the PNG.
 
 Some FC26 IDs 404 on the current `26_120.png` object even though the same
-player still has a portrait on an earlier sofifa year path. The proxy therefore
-tries this player's own ID/path across recent years before giving up.
-It never reads another player's face and never writes Player rows.
+player still has a portrait on an earlier sofifa year path, or with optional
+zero-padding on that same numeric ID. The proxy therefore tries this player's
+own ID/path across recent years before giving up.
+
+It never reads another player's face, never writes Player rows, and never
+substitutes a different FC26 ID. If Sofifa has no portrait for this ID, the
+view 404s and cards keep the silhouette.
 """
 
 import re
@@ -21,7 +25,7 @@ from django.conf import settings
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_http_methods
 
 from players.models import Player
 
@@ -40,9 +44,13 @@ SOFIFA_FETCH_HEADERS = {
 FACE_CACHE_DIRNAME = "player_faces"
 MAX_FACE_BYTES = 400_000
 ALLOWED_SIZES = {"60", "120"}
-SOFIFA_YEARS = ("26", "25", "24", "23")
+SOFIFA_YEARS = ("26", "25", "24", "23", "22", "21")
 SOFIFA_YEAR_SIZE_RE = re.compile(r"/(\d{2})_(\d+)\.png$")
+SOFIFA_PLAYER_PATH_RE = re.compile(
+    r"^/players/(\d+)/(\d+)/(\d{2})_(\d+)\.png$"
+)
 TRANSIENT_STATUS = {403, 429, 500, 502, 503}
+MISSING_TTL_SECONDS = 24 * 60 * 60
 
 
 def stored_face_url(player):
@@ -85,21 +93,67 @@ def sofifa_url_for_size(url, size):
     return url
 
 
+def sofifa_id_from_url(url):
+    """Numeric Sofifa / FC26 player ID encoded in the CDN path, or None."""
+    if not is_sofifa_face_url(url):
+        return None
+    match = SOFIFA_PLAYER_PATH_RE.match(urlparse(url).path or "")
+    if not match:
+        return None
+    try:
+        return int(match.group(1) + match.group(2))
+    except ValueError:
+        return None
+
+
+def sofifa_path_for_id(sofifa_id, year, size, padded=True):
+    """Build a cdn.sofifa.net path for this numeric ID only."""
+    ident = f"{int(sofifa_id):06d}" if padded else str(int(sofifa_id))
+    if len(ident) < 3:
+        ident = ident.zfill(3)
+    folder, rest = ident[:-3] or "0", ident[-3:]
+    return f"https://{SOFIFA_HOST}/players/{folder}/{rest}/{year}_{size}.png"
+
+
 def sofifa_variant_urls(url, size):
-    """Same player path, requested size first, then older sofifa years."""
-    primary = sofifa_url_for_size(url, size)
+    """Same player ID only: requested size, year variants, optional padding."""
+    size = str(size) if str(size) in ALLOWED_SIZES else "120"
     urls = []
-    for candidate in (primary, sofifa_url_for_size(url, "120")):
-        if candidate and candidate not in urls:
+
+    def add(candidate):
+        if (
+            candidate
+            and candidate not in urls
+            and is_sofifa_face_url(candidate)
+        ):
             urls.append(candidate)
+
+    add(sofifa_url_for_size(url, size))
+    add(sofifa_url_for_size(url, "120"))
+
+    sofifa_id = sofifa_id_from_url(url)
+    pixels = [size]
+    if "120" not in pixels:
+        pixels.append("120")
+
+    if sofifa_id is not None:
+        for padded in (True, False):
+            for year in SOFIFA_YEARS:
+                for pixel in pixels:
+                    candidate = sofifa_path_for_id(
+                        sofifa_id, year, pixel, padded=padded
+                    )
+                    if sofifa_id_from_url(candidate) == sofifa_id:
+                        add(candidate)
+        return urls
+
+    for candidate in list(urls):
         match = SOFIFA_YEAR_SIZE_RE.search(candidate or "")
         if not match:
             continue
         pixel = match.group(2)
         for year in SOFIFA_YEARS:
-            variant = SOFIFA_YEAR_SIZE_RE.sub(f"/{year}_{pixel}.png", candidate)
-            if variant not in urls:
-                urls.append(variant)
+            add(SOFIFA_YEAR_SIZE_RE.sub(f"/{year}_{pixel}.png", candidate))
     return urls
 
 
@@ -121,13 +175,29 @@ def face_cache_dir():
     return path
 
 
-def face_cache_path(player, size):
+def _face_cache_ident(player):
     ident = "".join(
         char for char in str(player.fc27_id or player.pk) if char.isalnum()
     )
-    if not ident:
-        ident = str(player.pk)
-    return face_cache_dir() / f"{ident}_{size}.png"
+    return ident or str(player.pk)
+
+
+def face_cache_path(player, size):
+    return face_cache_dir() / f"{_face_cache_ident(player)}_{size}.png"
+
+
+def face_missing_path(player, size):
+    return face_cache_dir() / f"{_face_cache_ident(player)}_{size}.missing"
+
+
+def _is_recent_missing(path):
+    if not path.exists():
+        return False
+    try:
+        age = time.time() - path.stat().st_mtime
+    except OSError:
+        return False
+    return 0 <= age < MISSING_TTL_SECONDS
 
 
 def fetch_sofifa_png(url, attempts=3):
@@ -170,22 +240,38 @@ def load_player_face_png(player, size="120"):
     cache_file = face_cache_path(player, size)
     if cache_file.exists() and cache_file.stat().st_size > 0:
         return cache_file.read_bytes(), cache_file
+    missing_file = face_missing_path(player, size)
+    if _is_recent_missing(missing_file):
+        return None, cache_file
     payload = None
     used_size = size
+    source_id = sofifa_id_from_url(source)
     for url in sofifa_variant_urls(source, size):
+        if source_id is not None and sofifa_id_from_url(url) != source_id:
+            continue
         payload = fetch_sofifa_png(url)
         if payload:
             if url.endswith("_120.png"):
                 used_size = "120"
             break
     if payload is None:
+        try:
+            missing_file.write_text("missing\n", encoding="utf-8")
+        except OSError:
+            pass
         return None, cache_file
     cache_file = face_cache_path(player, used_size)
     cache_file.write_bytes(payload)
+    try:
+        missing_file.unlink(missing_ok=True)
+        if used_size != size:
+            face_missing_path(player, used_size).unlink(missing_ok=True)
+    except OSError:
+        pass
     return payload, cache_file
 
 
-@require_GET
+@require_http_methods(["GET", "HEAD"])
 def player_face_image(request, player_id):
     player = get_object_or_404(Player, pk=player_id)
     size = request.GET.get("s", "120")
