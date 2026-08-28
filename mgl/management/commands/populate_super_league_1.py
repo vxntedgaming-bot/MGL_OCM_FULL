@@ -46,8 +46,19 @@ class Command(BaseCommand):
             csv_path = Path(settings.BASE_DIR) / CSV_NAME
             if not csv_path.exists():
                 raise CommandError(f"Missing player CSV: {csv_path}")
-            self.stdout.write(f"Importing {csv_path.name}...")
-            call_command("import_fc27", str(csv_path))
+            existing = (
+                Player.objects.exclude(fc27_id__isnull=True)
+                .exclude(fc27_id="")
+                .count()
+            )
+            expected = self._csv_row_count(csv_path)
+            if existing >= expected:
+                self.stdout.write(
+                    f"Player pool already has {existing} FC26 ids; skipping import."
+                )
+            else:
+                self.stdout.write(f"Importing {csv_path.name}...")
+                call_command("import_fc27", str(csv_path))
 
         if not options["skip_squads"]:
             try:
@@ -59,6 +70,13 @@ class Command(BaseCommand):
                 self.stdout.write(message)
 
         self._report(league)
+
+    @staticmethod
+    def _csv_row_count(csv_path):
+        import csv
+
+        with csv_path.open(encoding="utf-8-sig", newline="") as handle:
+            return sum(1 for row in csv.DictReader(handle) if (row.get("fc27_id") or "").strip())
 
     def _report(self, league):
         official = Team.objects.filter(short_name__in=OFFICIAL_SL1_SHORT_NAMES).order_by("name")
