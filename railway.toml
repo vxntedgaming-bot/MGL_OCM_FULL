@@ -1,2 +1,3 @@
 [deploy]
-releaseCommand = "python manage.py migrate --noinput && python manage.py populate_super_league_1"
+releaseCommand = "python manage.py collectstatic --noinput"
+startCommand = "gunicorn --config gunicorn.conf.py"
