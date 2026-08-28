@@ -1,5 +1,7 @@
 from decimal import Decimal
+from pathlib import Path
 
+from django.template import Context, Template
 from django.test import Client, TestCase
 from django.urls import reverse
 
@@ -7,6 +9,7 @@ from accounts.models import User
 from leagues.services import ensure_super_league_1
 from managers.models import ManagerApplication
 from mgl.models import PlayerListing
+from mgl.templatetags.mgl_ui import card_name, player_tier
 from players.models import Player
 from teams.badges import static_badge_path
 from teams.models import Team
@@ -163,3 +166,125 @@ class PlayerCardAndBadgeTests(TestCase):
         self.assertContains(bronze, "mgl-player-card--bronze")
         self.assertContains(bronze, "CB")
         self.assertContains(bronze, "mgl-card-identity")
+
+
+def render_player_card(player, size="standard"):
+    return Template(
+        "{% load mgl_ui %}{% player_card player size linked=False %}"
+    ).render(Context({"player": player, "size": size}))
+
+
+class PlayerCardQaTests(TestCase):
+    def setUp(self):
+        self.league = ensure_super_league_1()
+        self.team = Team.objects.filter(short_name="ARS").first() or Team.objects.create(
+            name="Arsenal",
+            short_name="ARS",
+            league=self.league,
+        )
+
+    def test_css_keeps_overlays_inside_shield_with_even_stat_columns(self):
+        css = Path("core/static/core/css/mgl.css").read_text(encoding="utf-8")
+        layout = css[css.rfind("PLAYER CARD COORDINATE SYSTEM") :]
+        self.assertIn("aspect-ratio: 1107 / 1536", layout)
+        self.assertIn("overflow: hidden", layout)
+        self.assertIn("grid-template-columns: repeat(6, 1fr)", layout)
+        self.assertIn("align-items: end", layout)
+        self.assertIn("text-overflow: ellipsis", layout)
+        self.assertIn("white-space: nowrap", layout)
+        self.assertIn("bottom: 14%", layout)
+        self.assertNotIn("position: fixed", layout)
+
+    def test_tier_artwork_ovr_and_sizes(self):
+        gold = Player(name="High Gold", position="ST", overall=91, mgl_team=self.team)
+        silver = Player(name="Mid Silver", position="CM", overall=70)
+        bronze = Player(name="Low Bronze", position="GK", overall=48)
+        self.assertEqual(player_tier(gold), "GOLD")
+        self.assertEqual(player_tier(silver), "SILVER")
+        self.assertEqual(player_tier(bronze), "BRONZE")
+
+        gold_html = render_player_card(gold, "large")
+        silver_html = render_player_card(silver, "standard")
+        bronze_html = render_player_card(bronze, "small")
+
+        self.assertIn("mgl/cards/gold_card.png", gold_html)
+        self.assertIn("mgl-player-card--gold", gold_html)
+        self.assertIn("mgl-player-card--large", gold_html)
+        self.assertIn("<strong>91</strong>", gold_html)
+        self.assertIn("<span>OVR</span>", gold_html)
+        self.assertIn("mgl-card-position", gold_html)
+        self.assertIn(">ST<", gold_html)
+        self.assertIn(">ARS<", gold_html)
+        self.assertIn("core/img/clubs/ARS.svg", gold_html)
+
+        self.assertIn("mgl/cards/silver_card.png", silver_html)
+        self.assertIn("mgl-player-card--silver", silver_html)
+        self.assertIn("mgl-player-card--standard", silver_html)
+        self.assertIn("<strong>70</strong>", silver_html)
+        self.assertIn("FREE AGENT", silver_html)
+        self.assertNotIn("core/img/clubs/", silver_html)
+        self.assertNotIn("mgl-team-logo", silver_html)
+
+        self.assertIn("mgl/cards/bronze_card.png", bronze_html)
+        self.assertIn("mgl-player-card--bronze", bronze_html)
+        self.assertIn("mgl-player-card--small", bronze_html)
+        self.assertIn("<strong>48</strong>", bronze_html)
+        self.assertIn("FREE AGENT", bronze_html)
+        self.assertNotIn("core/img/clubs/", bronze_html)
+
+    def test_names_positions_and_stat_order(self):
+        self.assertEqual(card_name(Player(name="Pele")), "PELE")
+        self.assertEqual(card_name(Player(name="N'Golo Kanté")), "N'GOLO KANTÉ")
+        self.assertEqual(
+            card_name(
+                Player(
+                    name="Elijah Anuoluwapo Oluwaferanmi Oluwatomi Oluwalana Ayomikulehin Adebayo"
+                )
+            ),
+            "ADEBAYO",
+        )
+
+        long_html = render_player_card(
+            Player(
+                name="Elijah Anuoluwapo Oluwaferanmi Oluwatomi Oluwalana Ayomikulehin Adebayo",
+                position="ST",
+                overall=72,
+            )
+        )
+        self.assertIn("ADEBAYO", long_html)
+        self.assertNotIn("Oluwaferanmi", long_html)
+        self.assertIn("mgl-card-identity", long_html)
+
+        accent_html = render_player_card(
+            Player(name="N'Golo Kanté", position="CDM", overall=86)
+        )
+        self.assertIn("N&#x27;GOLO KANTÉ", accent_html)
+        self.assertIn("mgl-player-card--gold", accent_html)
+
+        for position in (
+            "GK",
+            "CB",
+            "LB",
+            "RB",
+            "CM",
+            "CDM",
+            "CAM",
+            "LM",
+            "RM",
+            "LW",
+            "RW",
+            "ST",
+        ):
+            html = render_player_card(
+                Player(name=f"Pos {position}", position=position, overall=64)
+            )
+            self.assertIn(f">{position}<", html)
+            self.assertIn("mgl-player-card--bronze", html)
+            self.assertIn("<span>PAC</span>", html)
+            self.assertIn("<span>SHO</span>", html)
+            self.assertIn("<span>PAS</span>", html)
+            self.assertIn("<span>DRI</span>", html)
+            self.assertIn("<span>DEF</span>", html)
+            self.assertIn("<span>PHY</span>", html)
+            self.assertLess(html.find("<span>PAC</span>"), html.find("<span>PHY</span>"))
+            self.assertEqual(html.count('class="mgl-card-stat"'), 6)
