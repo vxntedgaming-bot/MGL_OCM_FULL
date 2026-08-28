@@ -8,12 +8,13 @@
         <div>
             <div class="eyebrow">MATCH CENTRE</div>
             <h2>{% if active_league %}{{ active_league.name|upper }} FIXTURES{% else %}FIXTURES{% endif %}</h2>
+            <p>Arrange your matches, then submit results for owner or admin approval.</p>
         </div>
         <span class="section-line"></span>
     </div>
 
     {% for f in fixtures %}
-        <div class="match-panel" style="margin-bottom:16px;padding:20px">
+        <article class="match-panel mgl-fixture-card">
             <div class="match-row">
                 <span class="match-date">{{ f.scheduled_at|date:"d M"|upper|default:"TBC" }}</span>
                 <strong>{{ f.home_team.name }}</strong>
@@ -26,7 +27,7 @@
                     <a class="primary-button" href="{% url 'submit_match' f.id %}">SUBMIT RESULT / PLAYER STATS</a>
                 {% endif %}
             {% endif %}
-        </div>
+        </article>
     {% empty %}
         {% include "mgl/includes/empty_state.html" with kicker="UPCOMING FIXTURES" title="NO FIXTURES HAVE BEEN RELEASED YET" body="Fixtures will appear here once the MGL schedule is published by the league office." %}
     {% endfor %}

@@ -1,365 +1,269 @@
 {% extends "core/base.html" %}
+{% load static %}
 
 {% block title %}MGL – MetaGamingLeague{% endblock %}
 
 {% block content %}
-
-<!-- HERO -->
-<section class="mgl-hero">
-
-    <div class="mgl-hero-main">
-
-        <div class="eyebrow">METAGAMINGLEAGUE</div>
-
-        <h1>
-            YOUR CLUB.<br>
-            <span>YOUR LEGACY.</span>
-        </h1>
-
+<section class="mgl-hero-pro">
+    <div class="mgl-hero-pitch" aria-hidden="true"></div>
+    <div class="mgl-hero-copy">
+        <div class="mgl-live-badge"><span></span> SEASON {{ active_league.season|default:"1" }} LIVE</div>
+        <img src="{% static 'core/img/mgl-logo.png' %}" alt="" class="mgl-hero-logo">
+        <h1>MGL<br><span>ONLINE CAREER MODE</span></h1>
         <p>
-            The competitive EA FC online career mode.
-            Manage your club, build your squad, compete
-            for trophies and make your mark on MGL.
+            Build your club. Manage your squad. Compete against real managers.
+            Experience EA FC online career mode with transfers, fixtures, leagues and competitive football.
         </p>
-
         <div class="hero-actions">
-            <a href="{% url 'manager_register' %}" class="primary-button">
-                JOIN MGL
-            </a>
-
-            <a href="#mgl-hub" class="secondary-button">
-                EXPLORE MGL
-            </a>
+            <a href="{% url 'manager_register' %}" class="primary-button">JOIN THE LEAGUE</a>
+            <a href="{% url 'leagues_page' %}" class="secondary-button">VIEW LEAGUES</a>
         </div>
-
     </div>
-
-    <div class="mgl-season-panel">
-
-        <div class="panel-label">CURRENT SEASON</div>
-
-        <strong>{% if active_league %}{{ active_league.name|upper }}{% else %}MGL{% endif %}</strong>
-
-        <div class="panel-status">
-            <span class="status-dot"></span>
-            LEAGUE IS LIVE
-        </div>
-
-        <div class="panel-divider"></div>
-
-        <div class="season-info">
-            <span>TRANSFER WINDOW</span>
-            <b>OPEN</b>
-        </div>
-
-    </div>
-
 </section>
 
-
-<!-- QUICK ACCESS -->
-<section class="mgl-section" id="mgl-hub">
-
-    <div class="section-heading">
+<section class="mgl-stat-strip" id="mgl-about">
+    <div class="mgl-stat-strip-inner">
         <div>
-            <div class="eyebrow">MGL HUB</div>
-            <h2>MANAGE YOUR CAREER</h2>
-        </div>
-
-        <span class="section-line"></span>
-    </div>
-
-    <div class="mgl-card-grid">
-
-        <a href="{% url 'leagues_page' %}" class="mgl-action-card featured-card">
-            <div class="card-icon">▣</div>
-            <div>
-                <small>COMPETITION</small>
-                <h3>LEAGUES</h3>
-                <p>Tables, form and title races.</p>
-            </div>
-            <span class="card-arrow">→</span>
-        </a>
-
-        <a href="{% url 'fixture_list' %}" class="mgl-action-card">
-            <div class="card-icon">◷</div>
-            <div>
-                <small>MATCH CENTRE</small>
-                <h3>FIXTURES</h3>
-                <p>Upcoming matches and results.</p>
-            </div>
-            <span class="card-arrow">→</span>
-        </a>
-
-        <a href="{% url 'transfer_market' %}" class="mgl-action-card">
-            <div class="card-icon">↔</div>
-            <div>
-                <small>TRANSFERS</small>
-                <h3>MARKET</h3>
-                <p>Live player auctions and free agents.</p>
-            </div>
-            <span class="card-arrow">→</span>
-        </a>
-
-        <a href="{% url 'player_database' %}" class="mgl-action-card">
-            <div class="card-icon">◆</div>
-            <div>
-                <small>PLAYERS</small>
-                <h3>DATABASE</h3>
-                <p>Explore the MGL player pool.</p>
-            </div>
-            <span class="card-arrow">→</span>
-        </a>
-
-        <a href="{% url 'stats_page' %}" class="mgl-action-card">
-            <div class="card-icon">▥</div>
-            <div>
-                <small>PERFORMANCE</small>
-                <h3>STATISTICS</h3>
-                <p>Goals, assists and ratings.</p>
-            </div>
-            <span class="card-arrow">→</span>
-        </a>
-
-        <a href="{% url 'job_centre' %}" class="mgl-action-card">
-            <div class="card-icon">♟</div>
-            <div>
-                <small>MANAGEMENT</small>
-                <h3>JOB CENTRE</h3>
-                <p>Find your next club.</p>
-            </div>
-            <span class="card-arrow">→</span>
-        </a>
-
-    </div>
-
-</section>
-
-
-<!-- OVERVIEW -->
-<section class="mgl-section">
-
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">MGL OVERVIEW</div>
-            <h2>THE LEAGUE AT A GLANCE</h2>
-        </div>
-
-        <span class="section-line"></span>
-    </div>
-
-    <div class="overview-grid">
-
-        <div class="overview-stat">
-            <span>ACTIVE LEAGUES</span>
-            <strong>{{ league_count|stringformat:"02d" }}</strong>
-            <small>MGL COMPETITIONS</small>
-        </div>
-
-        <div class="overview-stat">
-            <span>COMPETING CLUBS</span>
             <strong>{{ club_count }}</strong>
-            <small>MGL TEAMS</small>
+            <span>ACTIVE CLUBS</span>
         </div>
-
-        <div class="overview-stat">
-            <span>PLAYER DATABASE</span>
-            <strong>{{ player_count }}</strong>
-            <small>EA FC PLAYER POOL</small>
+        <div>
+            <strong>{{ manager_count }}</strong>
+            <span>ACTIVE MANAGERS</span>
         </div>
-
-        <div class="overview-stat">
-            <span>TRANSFER WINDOW</span>
-            <strong>OPEN</strong>
-            <small>MARKET ACTIVE</small>
+        <div>
+            <strong>{{ matches_played }}</strong>
+            <span>MATCHES PLAYED</span>
         </div>
-
+        <div>
+            <strong>SEASON {{ active_league.season|default:"1" }}</strong>
+            <span>CURRENT SEASON</span>
+        </div>
     </div>
-
 </section>
 
+<section class="mgl-section" id="mgl-how">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">GETTING STARTED</div>
+            <h2>HOW IT WORKS</h2>
+        </div>
+        <span class="section-line"></span>
+    </div>
+    <div class="mgl-step-grid">
+        <article class="mgl-step-card">
+            <div class="mgl-step-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z"/><path d="M4 20a8 8 0 0 1 16 0"/></svg>
+            </div>
+            <div class="mgl-step-num">01</div>
+            <h3>JOIN THE LEAGUE</h3>
+            <p>Create your account and apply for an available managerial position.</p>
+        </article>
+        <article class="mgl-step-card">
+            <div class="mgl-step-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/><path d="M5 7.5h14M5 16.5h14"/></svg>
+            </div>
+            <div class="mgl-step-num">02</div>
+            <h3>BUILD YOUR SQUAD</h3>
+            <p>Manage your assigned MGL club and build your squad using the official player database.</p>
+        </article>
+        <article class="mgl-step-card">
+            <div class="mgl-step-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
+            </div>
+            <div class="mgl-step-num">03</div>
+            <h3>PLAY YOUR FIXTURES</h3>
+            <p>Arrange and play your matches, then submit your results through the website.</p>
+        </article>
+        <article class="mgl-step-card">
+            <div class="mgl-step-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 7h10v10H7z"/><path d="M3 12h4M17 12h4"/><path d="M12 3v4M12 17v4"/></svg>
+            </div>
+            <div class="mgl-step-num">04</div>
+            <h3>TRADE &amp; SIGN PLAYERS</h3>
+            <p>Use the transfer market to buy, loan, release and negotiate players.</p>
+        </article>
+    </div>
+</section>
 
-<!-- MATCH CENTRE -->
 <section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">TWO SCREENS. ONE SQUAD.</div>
+            <h2>YOUR CLUB. YOUR SQUAD.</h2>
+            <p>The website mirrors the manager's official MGL squad. Build it here, then take it into EA FC.</p>
+        </div>
+    </div>
+    <div class="mgl-split">
+        <div class="mgl-split-panel">
+            <div class="eyebrow">IN EA FC</div>
+            <h3>FORMATION BOARD</h3>
+            <div class="mgl-pitch-mock">
+                <span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span>
+            </div>
+            <p>Mirror your assigned 26-player squad in Edit Team. Tactics stay yours.</p>
+        </div>
+        <div class="mgl-split-panel">
+            <div class="eyebrow">ON MGL</div>
+            <h3>SQUAD MANAGEMENT</h3>
+            <div class="mgl-squad-mock">
+                <div><b>GK</b><span>Starter pool</span><em>64–73</em></div>
+                <div><b>DEF</b><span>Back line</span><em>Official</em></div>
+                <div><b>MID</b><span>Engine room</span><em>Tokens</em></div>
+                <div><b>FWD</b><span>Attack</span><em>Market</em></div>
+            </div>
+            <p>Ratings, ownership and transfers live on the site. Clubs keep their squad if a manager leaves.</p>
+        </div>
+    </div>
+</section>
 
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">COMPETITION</div>
+            <h2>COMPETE AT THE HIGHEST LEVEL</h2>
+        </div>
+        <a href="{% url 'leagues_page' %}" class="view-all">VIEW LEAGUE TABLE →</a>
+    </div>
+    <div class="mgl-league-banner">
+        <img src="{% static 'core/img/mgl-logo.png' %}" alt="" class="mgl-logo-img">
+        <div>
+            <div class="eyebrow">ACTIVE LEAGUE</div>
+            <h3>{% if active_league %}{{ active_league.name|upper }}{% else %}SUPER LEAGUE 1{% endif %}</h3>
+            <p>{{ club_count }} official clubs currently belong to Super League 1.</p>
+        </div>
+        <a href="{% url 'leagues_page' %}" class="primary-button">VIEW LEAGUE TABLE</a>
+    </div>
+    <div class="dashboard-panel" style="margin-top:24px">
+        {% include "mgl/includes/league_table.html" %}
+    </div>
+</section>
+
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">THE GRID</div>
+            <h2>MGL CLUBS</h2>
+        </div>
+        <a href="{% url 'job_centre' %}" class="view-all">JOB CENTRE →</a>
+    </div>
+    <div class="mgl-club-grid">
+        {% for team in showcase_clubs %}
+            <article class="mgl-club-card">
+                {% if team.logo %}
+                    <img src="{{ team.logo.url }}" alt="{{ team.name }}">
+                {% else %}
+                    <div class="mgl-club-mark">{{ team.short_name }}</div>
+                {% endif %}
+                <strong>{{ team.name }}</strong>
+                <span>{% if team.manager %}{{ team.manager.username }}{% else %}MANAGER VACANT{% endif %}</span>
+            </article>
+        {% endfor %}
+    </div>
+    {% if not showcase_clubs %}
+        {% include "mgl/includes/empty_state.html" with kicker="SUPER LEAGUE 1" title="NO CLUBS IN SUPER LEAGUE 1 YET" body="Official MGL clubs will appear here once they are created in Super League 1." %}
+    {% endif %}
+</section>
+
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">WINDOW OPEN</div>
+            <h2>TRANSFER MARKET</h2>
+        </div>
+        <a href="{% url 'transfer_market' %}" class="view-all">OPEN MARKET →</a>
+    </div>
+    <div class="overview-grid">
+        <div class="overview-stat"><span>PLAYERS AVAILABLE</span><strong>{{ live_listing_count }}</strong><small>LIVE LISTINGS</small></div>
+        <div class="overview-stat"><span>FREE AGENTS</span><strong>{{ free_agent_count }}</strong><small>UNASSIGNED FC26</small></div>
+        <div class="overview-stat"><span>TRANSFER WINDOW</span><strong>OPEN</strong><small>TOKENS ONLY</small></div>
+        <div class="overview-stat"><span>PLAYER DATABASE</span><strong>{{ player_count }}</strong><small>EA FC PLAYER POOL</small></div>
+    </div>
+    <div class="dashboard-panel" style="margin-top:24px">
+        <div class="panel-heading"><span>LATEST TRANSFERS</span></div>
+        {% for row in recent_transfers %}
+            <div class="table-row">
+                <strong>{{ row.player.name|default:"Token movement" }}</strong>
+                <span>{{ row.from_team.short_name|default:"FA" }} → {{ row.to_team.short_name|default:"—" }}</span>
+                <b>{{ row.amount }} TKN</b>
+            </div>
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with kicker="MARKET" title="NO TRANSFERS YET" body="The MGL transfer market will appear here when the first official deal is completed." %}
+        {% endfor %}
+    </div>
+</section>
+
+<section class="mgl-section">
     <div class="section-heading">
         <div>
             <div class="eyebrow">MATCH CENTRE</div>
-            <h2>FIXTURES & RESULTS</h2>
+            <h2>FIXTURES &amp; RESULTS</h2>
         </div>
-
-        <a href="{% url 'fixture_list' %}" class="view-all">
-            VIEW ALL →
-        </a>
+        <a href="{% url 'fixture_list' %}" class="view-all">VIEW ALL →</a>
     </div>
-
     <div class="match-layout">
-
         <div class="match-panel">
-
-            <div class="panel-heading">
-                <span>UPCOMING FIXTURES</span>
-                <b>THIS WEEK</b>
-            </div>
-
+            <div class="panel-heading"><span>UPCOMING FIXTURES</span><b>THIS WEEK</b></div>
             {% for fixture in upcoming %}
             <div class="match-row">
-                <span class="match-date">
-                    {% if fixture.scheduled_at %}
-                        {{ fixture.scheduled_at|date:"d M"|upper }}
-                    {% else %}
-                        TBC
-                    {% endif %}
-                </span>
+                <span class="match-date">{% if fixture.scheduled_at %}{{ fixture.scheduled_at|date:"d M"|upper }}{% else %}TBC{% endif %}</span>
                 <strong>{{ fixture.home_team.name }}</strong>
                 <span class="vs">VS</span>
                 <strong>{{ fixture.away_team.name }}</strong>
-                <span class="match-time">
-                    {% if fixture.scheduled_at %}
-                        {{ fixture.scheduled_at|date:"H:i" }}
-                    {% else %}
-                        {{ fixture.status }}
-                    {% endif %}
-                </span>
             </div>
             {% empty %}
             {% include "mgl/includes/empty_state.html" with kicker="UPCOMING FIXTURES" title="NO FIXTURES HAVE BEEN RELEASED YET" body="No upcoming fixtures have been released. Fixtures will appear here once the MGL schedule is published." %}
             {% endfor %}
-
         </div>
-
-
         <div class="match-panel">
-
-            <div class="panel-heading">
-                <span>RECENT RESULTS</span>
-                <b>MGL</b>
-            </div>
-
+            <div class="panel-heading"><span>RECENT RESULTS</span><b>MGL</b></div>
             {% for fixture in recent_results %}
             <div class="result-row">
                 <span class="result-win">FT</span>
                 <strong>{{ fixture.home_team.name }}</strong>
-                <b>
-                    {% if fixture.home_goals != None and fixture.away_goals != None %}
-                        {{ fixture.home_goals }} - {{ fixture.away_goals }}
-                    {% else %}
-                        —
-                    {% endif %}
-                </b>
+                <b>{% if fixture.home_goals != None and fixture.away_goals != None %}{{ fixture.home_goals }} - {{ fixture.away_goals }}{% else %}—{% endif %}</b>
                 <strong>{{ fixture.away_team.name }}</strong>
             </div>
             {% empty %}
             {% include "mgl/includes/empty_state.html" with title="NO APPROVED RESULTS YET" body="Official results will appear here after admins approve submitted matches." %}
             {% endfor %}
-
         </div>
-
     </div>
-
 </section>
 
-
-<!-- NEWS -->
 <section class="mgl-section">
-
     <div class="section-heading">
         <div>
-            <div class="eyebrow">MGL NEWS</div>
-            <h2>LATEST UPDATES</h2>
+            <div class="eyebrow">FEED</div>
+            <h2>LATEST FROM MGL</h2>
         </div>
-
-        <span class="section-line"></span>
     </div>
-
-    <div class="dashboard-panel">
-
-        {% for post in news %}
-        <div class="table-row">
-            <span>{{ post.created_at|date:"d M Y" }}</span>
-            <strong>{{ post.title }}</strong>
-            <small>{{ post.category }}</small>
-        </div>
+    <div class="mgl-activity-list">
+        {% for item in activity %}
+        <article class="mgl-activity-card">
+            <span>{{ item.kind }}</span>
+            <strong>{{ item.title }}</strong>
+            <p>{{ item.detail }}</p>
+            {% if item.when %}<small>{{ item.when|date:"d M Y" }}</small>{% endif %}
+        </article>
         {% empty %}
         {% include "mgl/includes/empty_state.html" with title="NO PUBLISHED NEWS YET" body="No published news yet. Transfers, auctions and results will be posted here as the season develops." %}
         {% endfor %}
-
     </div>
-
 </section>
 
-
-<!-- TABLE + TOP SCORERS -->
-<section class="mgl-section">
-
-    <div class="dashboard-grid">
-
-        <div class="dashboard-panel">
-            {% include "mgl/includes/league_table.html" %}
-        </div>
-
-
-        <div class="dashboard-panel">
-
-            <div class="panel-heading">
-                <span>TOP SCORERS</span>
-                <a href="{% url 'player_database' %}">VIEW ALL →</a>
-            </div>
-
-            {% for player in top_scorers %}
-            <div class="scorer-row">
-                <span class="rank">{{ forloop.counter|stringformat:"02d" }}</span>
-                <strong>{{ player.name }}</strong>
-                <b>{{ player.goals }}</b>
-                <small>GOALS</small>
-            </div>
-            {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO GOALS HAVE BEEN APPROVED YET" body="Top scorers are calculated from approved match data only." %}
-            {% endfor %}
-
-        </div>
-
-    </div>
-
-</section>
-
-
-<!-- DISCORD -->
-<section class="discord-banner">
-
-    <div class="discord-icon">◉</div>
-
-    <div>
-        <div class="eyebrow">MGL COMMUNITY</div>
-        <h2>JOIN THE MGL DISCORD</h2>
-        <p>
-            Fixtures, transfers, announcements, results and
-            everything happening around the league.
-        </p>
-    </div>
-
-    <a href="#" class="primary-button">
-        JOIN DISCORD
-    </a>
-
-</section>
-
-
-<!-- REGISTER CTA -->
-<section class="mgl-cta">
-
+<section class="mgl-cta" id="mgl-join">
+    <img src="{% static 'core/img/mgl-logo.png' %}" alt="" class="mgl-logo-img">
     <div>
         <div class="eyebrow">YOUR CAREER STARTS HERE</div>
-        <h2>READY TO MANAGE?</h2>
-        <p>
-            Create your manager account and take control of an MGL club.
-        </p>
+        <h2>READY TO BUILD YOUR LEGACY?</h2>
+        <p>Join MGL and take control of your club.</p>
     </div>
-
-    <a href="{% url 'manager_register' %}" class="primary-button">
-        REGISTER NOW
-    </a>
-
+    <div class="hero-actions">
+        <a href="{% url 'job_centre' %}" class="primary-button">APPLY FOR A CLUB</a>
+        <a href="{% url 'leagues_page' %}" class="secondary-button">VIEW LEAGUE</a>
+    </div>
 </section>
-
 {% endblock %}

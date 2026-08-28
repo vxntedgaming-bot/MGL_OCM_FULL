@@ -1,4 +1,5 @@
 {% extends "core/base.html" %}
+{% load static %}
 
 {% block title %}Job Centre — MGL{% endblock %}
 
@@ -17,31 +18,33 @@
         {% include "mgl/includes/empty_state.html" with title="YOU ALREADY MANAGE A CLUB" body="Leave through the league office if you want to apply for a different vacant club." %}
     {% endif %}
 
+    {% if vacant_clubs %}
+    <div class="mgl-club-grid">
     {% for team in vacant_clubs %}
-        <div class="dashboard-panel" style="margin-bottom:16px">
-            <div class="panel-heading">
-                <span>{{ team.name }}</span>
-                <b>{{ team.tokens }} TKN</b>
-            </div>
-            <div class="table-row">
-                <span>League</span>
-                <strong>{{ team.league.name }}</strong>
-            </div>
-            <div class="table-row">
-                <span>Squad</span>
-                <strong>{{ team.players.count }} / {{ team.roster_limit }}</strong>
-            </div>
+        <article class="mgl-club-card mgl-job-card">
+            {% if team.logo %}
+                <img src="{{ team.logo.url }}" alt="{{ team.name }}">
+            {% else %}
+                <div class="mgl-club-mark">{{ team.short_name }}</div>
+            {% endif %}
+            <strong>{{ team.name }}</strong>
+            <span>{{ team.league.name }} · {{ team.players.all|length }} / {{ team.roster_limit }}</span>
+            <b>{{ team.tokens }} TKN</b>
             {% if user.is_authenticated and manager and not has_club %}
                 <form method="post" action="{% url 'apply_for_club' team.id %}">
                     {% csrf_token %}
                     <textarea name="message" rows="2" placeholder="Why you want this club"></textarea>
                     <button type="submit" class="primary-button">APPLY</button>
                 </form>
+            {% elif not user.is_authenticated %}
+                <a href="{% url 'manager_login' %}" class="secondary-button">LOGIN TO APPLY</a>
             {% endif %}
-        </div>
-    {% empty %}
-        {% include "mgl/includes/empty_state.html" with kicker="VACANCIES" title="NO VACANT CLUBS" body="When a manager leaves, the club stays listed here with its squad and tokens ready for a new appointment." %}
+        </article>
     {% endfor %}
+    </div>
+    {% else %}
+        {% include "mgl/includes/empty_state.html" with kicker="VACANCIES" title="NO VACANT CLUBS" body="When a manager leaves, the club stays listed here with its squad and tokens ready for a new appointment." %}
+    {% endif %}
 </section>
 
 {% if my_applications %}

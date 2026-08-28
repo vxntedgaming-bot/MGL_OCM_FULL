@@ -15,6 +15,8 @@ from players.models import Player
 from teams.models import Team
 
 from .models import (
+    ApprovalStatus,
+    ClubApplication,
     Fixture,
     MatchSubmission,
     TeamMatchStats,
@@ -106,6 +108,73 @@ def home(request):
         .order_by("-goals", "name")[:5]
     )
     table = build_league_table(league)[:10]
+    club_qs = Team.objects.all()
+    showcase_clubs = []
+    if league:
+        club_qs = Team.objects.filter(league=league)
+        showcase_clubs = list(
+            league.teams.select_related("manager").order_by("name")
+        )
+    recent_transfers = (
+        MarketTransaction.objects.filter(status=MarketTransaction.COMPLETED)
+        .select_related("player", "from_team", "to_team")
+        .order_by("-created_at")[:8]
+    )
+    matches_played_qs = Fixture.objects.filter(
+        is_released=True,
+        status="COMPLETED",
+    )
+    if league:
+        matches_played_qs = matches_played_qs.filter(league=league)
+
+    appointments = (
+        ClubApplication.objects.filter(status=ApprovalStatus.APPROVED)
+        .select_related("manager", "team")
+        .order_by("-created_at")[:6]
+    )
+    activity = []
+    for post in news:
+        activity.append(
+            {
+                "kind": post.get_category_display(),
+                "title": post.title,
+                "detail": post.category.replace("_", " ").title(),
+                "when": post.created_at,
+            }
+        )
+    for row in recent_transfers:
+        frm = row.from_team.short_name if row.from_team_id else "FA"
+        to = row.to_team.short_name if row.to_team_id else "—"
+        activity.append(
+            {
+                "kind": "TRANSFER",
+                "title": row.player.name if row.player_id else "Token movement",
+                "detail": f"{frm} → {to} · {row.amount} TKN",
+                "when": row.created_at,
+            }
+        )
+    for fixture in recent_results:
+        if fixture.home_goals is not None and fixture.away_goals is not None:
+            detail = f"{fixture.home_goals} - {fixture.away_goals}"
+        else:
+            detail = "Full time"
+        activity.append(
+            {
+                "kind": "RESULT",
+                "title": f"{fixture.home_team.name} vs {fixture.away_team.name}",
+                "detail": detail,
+                "when": fixture.scheduled_at,
+            }
+        )
+    for app in appointments:
+        activity.append(
+            {
+                "kind": "APPOINTMENT",
+                "title": f"{app.manager.display_name} appointed",
+                "detail": app.team.name,
+                "when": app.reviewed_at or app.created_at,
+            }
+        )
 
     return render(
         request,
@@ -116,8 +185,20 @@ def home(request):
             "recent_results": recent_results,
             "top_scorers": top_scorers,
             "league_count": League.objects.filter(is_active=True).count(),
-            "club_count": Team.objects.count(),
+            "club_count": club_qs.count(),
             "player_count": Player.objects.count(),
+            "manager_count": club_qs.filter(manager__isnull=False).count(),
+            "matches_played": matches_played_qs.count(),
+            "free_agent_count": Player.objects.filter(
+                is_free_agent=True,
+                mgl_team__isnull=True,
+            ).count(),
+            "live_listing_count": PlayerListing.objects.filter(
+                status=PlayerListing.LIVE
+            ).count(),
+            "recent_transfers": recent_transfers,
+            "showcase_clubs": showcase_clubs,
+            "activity": activity,
             "active_league": league,
             "table": table,
         },

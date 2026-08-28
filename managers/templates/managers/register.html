@@ -1,10 +1,12 @@
 {% extends "core/base.html" %}
+{% load static %}
 
 {% block title %}Manager Registration — MGL{% endblock %}
 
 {% block content %}
 <section class="mgl-section">
     <div class="mgl-auth-card">
+        <img src="{% static 'core/img/mgl-logo.png' %}" alt="MGL" class="mgl-auth-logo">
         <div class="eyebrow">JOIN MGL</div>
         <h1>MANAGER APPLICATION</h1>
         <p>Apply to become an official MGL manager. You receive 50 tokens once approved.</p>

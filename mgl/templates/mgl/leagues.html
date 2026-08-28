@@ -1,4 +1,5 @@
 {% extends "core/base.html" %}
+{% load static %}
 
 {% block title %}Super League 1 — MGL{% endblock %}
 
@@ -11,6 +12,17 @@
             <p>MGL currently runs one active competition. All current clubs compete here.</p>
         </div>
         <span class="section-line"></span>
+    </div>
+</section>
+
+<section class="mgl-section">
+    <div class="mgl-league-banner">
+        <img src="{% static 'core/img/mgl-logo.png' %}" alt="" class="mgl-logo-img">
+        <div>
+            <div class="eyebrow">SEASON {{ active_league.season|default:"1" }}</div>
+            <h3>SUPER LEAGUE 1</h3>
+            <p>The only live MGL competition. All current clubs compete here.</p>
+        </div>
     </div>
 </section>
 
@@ -28,17 +40,18 @@
         </div>
     </div>
     {% for league in leagues %}
-        <div class="dashboard-panel" style="margin-bottom:20px">
-            <div class="panel-heading">
-                <span>{{ league.name }}</span>
-                <b>SEASON {{ league.season }}</b>
-            </div>
+        <div class="mgl-club-grid">
             {% for team in league.teams.all %}
-                <div class="table-row">
+                <article class="mgl-club-card">
+                    {% if team.logo %}
+                        <img src="{{ team.logo.url }}" alt="{{ team.name }}">
+                    {% else %}
+                        <div class="mgl-club-mark">{{ team.short_name }}</div>
+                    {% endif %}
                     <strong>{{ team.name }}</strong>
                     <span>{% if team.manager %}{{ team.manager.username }}{% else %}VACANT{% endif %}</span>
                     <b>{{ team.tokens }} TKN</b>
-                </div>
+                </article>
             {% empty %}
                 {% include "mgl/includes/empty_state.html" with title="NO CLUBS IN SUPER LEAGUE 1 YET" body="Existing MGL clubs will appear here. They stay in Super League 1 even if a manager leaves." %}
             {% endfor %}

@@ -1,10 +1,12 @@
 {% extends "core/base.html" %}
+{% load static %}
 
 {% block title %}Application submitted — MGL{% endblock %}
 
 {% block content %}
 <section class="mgl-section">
     <div class="mgl-auth-card">
+        <img src="{% static 'core/img/mgl-logo.png' %}" alt="MGL" class="mgl-auth-logo">
         <div class="eyebrow">APPLICATION RECEIVED</div>
         <h1>YOU'RE IN THE QUEUE</h1>
         <p>An MGL Owner or Admin will review your manager application. You will be able to log in after approval and will start with 50 tokens.</p>

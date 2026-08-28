@@ -1,10 +1,12 @@
 {% extends "core/base.html" %}
+{% load static %}
 
 {% block title %}Manager Login — MGL{% endblock %}
 
 {% block content %}
 <section class="mgl-section">
     <div class="mgl-auth-card">
+        <img src="{% static 'core/img/mgl-logo.png' %}" alt="MGL" class="mgl-auth-logo">
         <div class="eyebrow">MGL ACCESS</div>
         <h1>MANAGER LOGIN</h1>
         <p>Sign in to your Online Career Mode hub, squad and transfer market.</p>

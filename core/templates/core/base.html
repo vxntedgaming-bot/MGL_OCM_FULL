@@ -5,19 +5,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>{% block title %}MGL – MetaGamingLeague{% endblock %}</title>
-
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'core/css/mgl.css' %}">
+    <link rel="icon" href="{% static 'core/img/mgl-logo.png' %}">
 </head>
-
 <body>
-
 <header class="mgl-header">
     <div class="mgl-header-inner">
-
         <a href="{% url 'home' %}" class="mgl-logo">
-            <span class="mgl-logo-mark">M</span>
+            <img src="{% static 'core/img/mgl-logo.png' %}" alt="MetaGamingLeague" class="mgl-logo-img">
             <span class="mgl-logo-text">
                 METAGAMINGLEAGUE
                 <span>ONLINE CAREER MODE</span>
@@ -32,18 +31,26 @@
         </label>
 
         <nav class="mgl-nav">
-            <a href="{% url 'home' %}">HOME</a>
+            <a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}is-active{% endif %}">HOME</a>
             {% if user.is_authenticated %}
-                <a href="{% url 'manager_hub' %}">MY HUB</a>
+                <a href="{% url 'manager_hub' %}" class="{% if request.resolver_match.url_name == 'manager_hub' %}is-active{% endif %}">MY HUB</a>
             {% endif %}
-            <a href="{% url 'leagues_page' %}">LEAGUES</a>
-            <a href="{% url 'fixture_list' %}">FIXTURES</a>
-            <a href="{% url 'transfer_market' %}">MARKET</a>
-            <a href="{% url 'stats_page' %}">STATS</a>
-            <a href="{% url 'job_centre' %}">JOB CENTRE</a>
+            <a href="{% url 'leagues_page' %}" class="{% if request.resolver_match.url_name == 'leagues_page' %}is-active{% endif %}">LEAGUES</a>
+            <a href="{% url 'fixture_list' %}" class="{% if request.resolver_match.url_name == 'fixture_list' %}is-active{% endif %}">FIXTURES</a>
+            <a href="{% url 'transfer_market' %}" class="{% if request.resolver_match.url_name == 'transfer_market' %}is-active{% endif %}">MARKET</a>
+            <a href="{% url 'stats_page' %}" class="{% if request.resolver_match.url_name == 'stats_page' %}is-active{% endif %}">STATS</a>
+            <a href="{% url 'job_centre' %}" class="{% if request.resolver_match.url_name == 'job_centre' %}is-active{% endif %}">JOB CENTRE</a>
             {% if mgl_is_control %}
-                <a href="{% url 'control_centre' %}">CONTROL</a>
+                <a href="{% url 'control_centre' %}" class="{% if request.resolver_match.url_name == 'control_centre' %}is-active{% endif %}">CONTROL</a>
             {% endif %}
+            <div class="mgl-nav-mobile-auth">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'manager_profile' %}">PROFILE</a>
+                {% else %}
+                    <a href="{% url 'manager_login' %}">LOGIN</a>
+                    <a href="{% url 'manager_register' %}">JOIN THE LEAGUE</a>
+                {% endif %}
+            </div>
         </nav>
 
         <div class="mgl-header-actions">
@@ -57,7 +64,7 @@
                     <button type="submit" class="header-button">LOGOUT</button>
                 </form>
             {% else %}
-                <a href="{% url 'manager_login' %}" class="header-button">LOGIN</a>
+                <a href="{% url 'manager_login' %}" class="header-button header-button-solid">LOGIN</a>
             {% endif %}
         </div>
     </div>
@@ -73,34 +80,39 @@
             {% endfor %}
         </div>
     {% endif %}
-
-    {% block content %}
-    {% endblock %}
+    {% block content %}{% endblock %}
 </main>
 
 <footer class="mgl-footer">
     <div class="mgl-footer-inner">
-        <div>
-            <strong>MGL</strong>
-            <p>MetaGamingLeague</p>
+        <div class="mgl-footer-brand">
+            <img src="{% static 'core/img/mgl-logo.png' %}" alt="MGL" class="mgl-logo-img">
+            <strong>MetaGamingLeague</strong>
             <p>Online Career Mode</p>
         </div>
         <div>
-            <strong>LEAGUE</strong>
-            <p>Competitive EA FC</p>
-            <p>Managers • Transfers • Fixtures</p>
+            <strong>EXPLORE</strong>
+            <p><a href="{% url 'home' %}">Home</a></p>
+            <p><a href="{% url 'leagues_page' %}">Leagues</a></p>
+            <p><a href="{% url 'fixture_list' %}">Fixtures</a></p>
+            <p><a href="{% url 'transfer_market' %}">Market</a></p>
+        </div>
+        <div>
+            <strong>COMPETE</strong>
+            <p><a href="{% url 'stats_page' %}">Stats</a></p>
+            <p><a href="{% url 'job_centre' %}">Job Centre</a></p>
+            <p><a href="{% url 'home' %}#mgl-how">Rules</a></p>
+            <p><a href="{% url 'home' %}#mgl-about">About</a></p>
         </div>
         <div>
             <strong>COMMUNITY</strong>
-            <p>Discord</p>
-            <p>News & Updates</p>
-        </div>
-        <div>
-            <strong>© MGL</strong>
-            <p>All rights reserved.</p>
+            <p><a href="#">Discord</a></p>
+            <p><a href="#">YouTube</a></p>
+            <p><a href="#">X / Twitter</a></p>
+            <p><a href="#">Twitch</a></p>
         </div>
     </div>
+    <div class="mgl-footer-copy">© MetaGamingLeague. All rights reserved.</div>
 </footer>
-
 </body>
 </html>
