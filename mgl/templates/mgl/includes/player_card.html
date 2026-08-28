@@ -39,13 +39,15 @@
             {% team_logo player.mgl_team "xs" %}
         </div>
 
-        <div class="mgl-card-name">{{ player|card_name }}</div>
-        <div class="mgl-card-club">
-            {% if player.mgl_team %}
-                {{ player.mgl_team.short_name }}
-            {% else %}
-                FREE AGENT
-            {% endif %}
+        <div class="mgl-card-identity">
+            <div class="mgl-card-name">{{ player|card_name }}</div>
+            <div class="mgl-card-club">
+                {% if player.mgl_team %}
+                    {{ player.mgl_team.short_name }}
+                {% else %}
+                    FREE AGENT
+                {% endif %}
+            </div>
         </div>
 
         <div class="mgl-card-stats">

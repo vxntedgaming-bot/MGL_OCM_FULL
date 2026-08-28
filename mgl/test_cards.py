@@ -162,3 +162,4 @@ class PlayerCardAndBadgeTests(TestCase):
         bronze = self.client.get(reverse("player_profile", args=[self.bronze.id]))
         self.assertContains(bronze, "mgl-player-card--bronze")
         self.assertContains(bronze, "CB")
+        self.assertContains(bronze, "mgl-card-identity")

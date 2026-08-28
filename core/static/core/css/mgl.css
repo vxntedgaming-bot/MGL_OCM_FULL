@@ -2803,18 +2803,46 @@ textarea {
 
 /* =========================================================
    PLAYER CARD TYPOGRAPHY — FUT-STYLE ALIGNMENT
+   PLAYER CARD COORDINATE SYSTEM
+   Overlays are positioned against the visible shield in the
+   artwork PNG (padded canvas 1107x1536), not the page.
    Faces, artwork, badges and data are unchanged.
-   Sizes use container units so small/standard/large stay even.
    ========================================================= */
 
 .mgl-player-card {
+    position: relative;
+    aspect-ratio: 1107 / 1536;
+    overflow: hidden;
     container-type: inline-size;
     container-name: mgl-player-card;
+    background: transparent;
+}
+
+.mgl-player-card .mgl-player-card-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    object-position: center;
+}
+
+.mgl-player-card .mgl-player-card-content {
+    position: absolute;
+    /* Shield bounding box inside the PNG canvas. */
+    top: 13%;
+    right: 9.5%;
+    bottom: 8%;
+    left: 9.5%;
+    z-index: 3;
+    overflow: hidden;
+    pointer-events: none;
 }
 
 .mgl-player-card .mgl-card-top {
-    left: 12%;
-    top: 12%;
+    position: absolute;
+    top: 6%;
+    left: 5%;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -2832,7 +2860,7 @@ textarea {
 
 .mgl-player-card .mgl-card-rating strong {
     font-size: 22px;
-    font-size: 13.5cqi;
+    font-size: 13cqi;
     font-weight: 900;
     line-height: 0.9;
     letter-spacing: -0.03em;
@@ -2842,7 +2870,7 @@ textarea {
 
 .mgl-player-card .mgl-card-rating span {
     font-size: 7px;
-    font-size: 3.5cqi;
+    font-size: 3.6cqi;
     font-weight: 800;
     letter-spacing: 0.14em;
     line-height: 1;
@@ -2851,7 +2879,7 @@ textarea {
 
 .mgl-player-card .mgl-card-position {
     font-size: 11px;
-    font-size: 5.4cqi;
+    font-size: 5.6cqi;
     font-weight: 800;
     letter-spacing: 0.04em;
     line-height: 1;
@@ -2859,8 +2887,12 @@ textarea {
 }
 
 .mgl-player-card .mgl-card-badges {
-    top: 12%;
-    right: 11.5%;
+    position: absolute;
+    top: 6%;
+    right: 5%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     gap: 0.35em;
     z-index: 6;
 }
@@ -2871,50 +2903,64 @@ textarea {
     flex-shrink: 0;
 }
 
-.mgl-player-card .mgl-card-name {
-    left: 14%;
-    right: 14%;
-    bottom: 21.5%;
+.mgl-player-card .mgl-card-identity {
+    position: absolute;
+    left: 10%;
+    right: 10%;
+    top: 65%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.45em;
     z-index: 5;
     text-align: center;
-    font-size: 11px;
-    font-size: 6.2cqi;
-    font-weight: 900;
-    letter-spacing: 0.06em;
-    line-height: 1;
+}
+
+.mgl-player-card .mgl-card-name,
+.mgl-player-card .mgl-card-club {
+    position: static;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    width: 100%;
+    margin: 0;
+    text-align: center;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
+.mgl-player-card .mgl-card-name {
+    font-size: 11px;
+    font-size: 6.6cqi;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    line-height: 1;
+}
+
 .mgl-player-card .mgl-card-club {
-    left: 16%;
-    right: 16%;
-    bottom: 17.2%;
-    z-index: 5;
-    text-align: center;
     font-size: 7px;
-    font-size: 3.7cqi;
+    font-size: 3.8cqi;
     font-weight: 700;
     letter-spacing: 0.1em;
     line-height: 1;
     text-transform: uppercase;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .mgl-player-card .mgl-card-stats {
-    left: 0;
-    right: 0;
-    bottom: 6.8%;
+    position: absolute;
+    left: 8%;
+    right: 8%;
+    bottom: 14%;
+    top: auto;
     z-index: 5;
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     column-gap: 0;
     row-gap: 0;
-    padding: 0 11%;
-    align-items: start;
+    padding: 0;
+    align-items: end;
     text-align: center;
 }
 
@@ -2922,7 +2968,7 @@ textarea {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: flex-end;
     gap: 0.22em;
     min-width: 0;
     margin: 0;
@@ -2940,7 +2986,7 @@ textarea {
     width: 100%;
     margin: 0;
     font-size: 6px;
-    font-size: 3.3cqi;
+    font-size: 3.8cqi;
     font-weight: 800;
     letter-spacing: 0.06em;
     line-height: 1;
@@ -2952,7 +2998,7 @@ textarea {
     width: 100%;
     margin: 0;
     font-size: 11px;
-    font-size: 5.5cqi;
+    font-size: 5.4cqi;
     font-weight: 900;
     line-height: 1;
     text-align: center;
@@ -2961,23 +3007,15 @@ textarea {
 
 @media (max-width: 750px) {
     .mgl-player-card .mgl-card-top {
-        left: 12%;
-        top: 12%;
-    }
-
-    .mgl-player-card .mgl-card-name {
-        bottom: 21.5%;
-        font-size: 6.2cqi;
-    }
-
-    .mgl-player-card .mgl-card-club {
-        bottom: 17.2%;
-        font-size: 3.7cqi;
+        left: 5%;
+        top: 6%;
     }
 
     .mgl-player-card .mgl-card-stats {
-        bottom: 6.8%;
-        padding: 0 11%;
+        left: 8%;
+        right: 8%;
+        bottom: 14%;
+        padding: 0;
     }
 }
 
