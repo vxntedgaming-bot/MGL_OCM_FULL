@@ -211,21 +211,23 @@ class AuctionWorkflowTests(TestCase):
         self.assertFalse(PlayerAuction.objects.filter(player=self.unassigned).exists())
 
     def test_free_agents_page_excludes_unassigned_and_hides_release(self):
+        self.client.login(username="seller", password="test-pass-123")
         response = self.client.get(reverse("free_agents"))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, self.fa.name)
-        self.assertNotContains(response, "Unassigned Z")
+        self.assertContains(response, "FREE AGENT Z")
+        self.assertNotContains(response, "UNASSIGNED Z")
         self.assertNotContains(response, "RELEASE TO AUCTION")
 
     def test_unassigned_page_is_admin_only_and_excludes_free_agents(self):
         self.client.login(username="seller", password="test-pass-123")
         blocked = self.client.get(reverse("unassigned_players"))
         self.assertEqual(blocked.status_code, 302)
+        self.client.logout()
         self.client.login(username="owner", password="test-pass-123")
         response = self.client.get(reverse("unassigned_players"))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Unassigned Z")
-        self.assertNotContains(response, "Free Agent Z")
+        self.assertContains(response, "UNASSIGNED Z")
+        self.assertNotContains(response, "FREE AGENT Z")
         self.assertContains(response, "RELEASE TO AUCTION")
 
     def test_manager_can_only_auction_own_players(self):
