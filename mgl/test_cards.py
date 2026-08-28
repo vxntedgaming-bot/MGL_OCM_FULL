@@ -138,3 +138,27 @@ class PlayerCardAndBadgeTests(TestCase):
         self.assertContains(squad, "SELL A PLAYER")
         self.assertContains(squad, "WITHDRAW")
         return listing
+
+    def test_card_stats_put_abbreviation_above_value_in_six_columns(self):
+        from pathlib import Path
+
+        css = Path("core/static/core/css/mgl.css").read_text(encoding="utf-8")
+        layout = css[css.rfind("PLAYER CARD TYPOGRAPHY") :]
+        self.assertIn("grid-template-columns: repeat(6, 1fr)", layout)
+        self.assertIn("container-type: inline-size", layout)
+
+        self.client.login(username="carduser", password="test-pass-123")
+        gold = self.client.get(reverse("player_profile", args=[self.gold.id]))
+        self.assertContains(gold, "<span>PAC</span><strong>81</strong>", html=False)
+        self.assertContains(gold, "<span>SHO</span><strong>82</strong>", html=False)
+        self.assertContains(gold, "<span>PHY</span><strong>72</strong>", html=False)
+        self.assertContains(gold, "mgl-player-card--gold")
+        self.assertContains(gold, "mgl-player-card--large")
+
+        silver = self.client.get(reverse("player_profile", args=[self.silver.id]))
+        self.assertContains(silver, "mgl-player-card--silver")
+        self.assertContains(silver, "FREE AGENT")
+
+        bronze = self.client.get(reverse("player_profile", args=[self.bronze.id]))
+        self.assertContains(bronze, "mgl-player-card--bronze")
+        self.assertContains(bronze, "CB")

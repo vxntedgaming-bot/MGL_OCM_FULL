@@ -2801,6 +2801,186 @@ textarea {
     }
 }
 
+/* =========================================================
+   PLAYER CARD TYPOGRAPHY — FUT-STYLE ALIGNMENT
+   Faces, artwork, badges and data are unchanged.
+   Sizes use container units so small/standard/large stay even.
+   ========================================================= */
+
+.mgl-player-card {
+    container-type: inline-size;
+    container-name: mgl-player-card;
+}
+
+.mgl-player-card .mgl-card-top {
+    left: 12%;
+    top: 12%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.18em;
+    line-height: 1;
+    z-index: 5;
+}
+
+.mgl-player-card .mgl-card-rating {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.12em;
+}
+
+.mgl-player-card .mgl-card-rating strong {
+    font-size: 22px;
+    font-size: 13.5cqi;
+    font-weight: 900;
+    line-height: 0.9;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+    margin: 0;
+}
+
+.mgl-player-card .mgl-card-rating span {
+    font-size: 7px;
+    font-size: 3.5cqi;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    line-height: 1;
+    margin: 0;
+}
+
+.mgl-player-card .mgl-card-position {
+    font-size: 11px;
+    font-size: 5.4cqi;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    margin: 0;
+}
+
+.mgl-player-card .mgl-card-badges {
+    top: 12%;
+    right: 11.5%;
+    gap: 0.35em;
+    z-index: 6;
+}
+
+.mgl-player-card .mgl-card-flag {
+    width: 8cqi;
+    height: 5.4cqi;
+    flex-shrink: 0;
+}
+
+.mgl-player-card .mgl-card-name {
+    left: 14%;
+    right: 14%;
+    bottom: 21.5%;
+    z-index: 5;
+    text-align: center;
+    font-size: 11px;
+    font-size: 6.2cqi;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mgl-player-card .mgl-card-club {
+    left: 16%;
+    right: 16%;
+    bottom: 17.2%;
+    z-index: 5;
+    text-align: center;
+    font-size: 7px;
+    font-size: 3.7cqi;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mgl-player-card .mgl-card-stats {
+    left: 0;
+    right: 0;
+    bottom: 6.8%;
+    z-index: 5;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    column-gap: 0;
+    row-gap: 0;
+    padding: 0 11%;
+    align-items: start;
+    text-align: center;
+}
+
+.mgl-player-card .mgl-card-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.22em;
+    min-width: 0;
+    margin: 0;
+    padding: 0 0.12em;
+    line-height: 1;
+    text-align: center;
+}
+
+.mgl-player-card .mgl-card-stat + .mgl-card-stat {
+    box-shadow: inset 1px 0 0 rgba(0, 0, 0, 0.18);
+}
+
+.mgl-player-card .mgl-card-stat span {
+    display: block;
+    width: 100%;
+    margin: 0;
+    font-size: 6px;
+    font-size: 3.3cqi;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    line-height: 1;
+    text-align: center;
+}
+
+.mgl-player-card .mgl-card-stat strong {
+    display: block;
+    width: 100%;
+    margin: 0;
+    font-size: 11px;
+    font-size: 5.5cqi;
+    font-weight: 900;
+    line-height: 1;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 750px) {
+    .mgl-player-card .mgl-card-top {
+        left: 12%;
+        top: 12%;
+    }
+
+    .mgl-player-card .mgl-card-name {
+        bottom: 21.5%;
+        font-size: 6.2cqi;
+    }
+
+    .mgl-player-card .mgl-card-club {
+        bottom: 17.2%;
+        font-size: 3.7cqi;
+    }
+
+    .mgl-player-card .mgl-card-stats {
+        bottom: 6.8%;
+        padding: 0 11%;
+    }
+}
+
 
 
 
