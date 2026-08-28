@@ -249,25 +249,32 @@ class PlayerCardQaTests(TestCase):
         )
         self.assertIn("KYLIAN MBAPPÉ", mbappe_html)
         self.assertNotIn("LOTTIN", mbappe_html)
-        self.assertEqual(
-            card_name(
-                Player(
-                    name="Elijah Anuoluwapo Oluwaferanmi Oluwatomi Oluwalana Ayomikulehin Adebayo"
-                )
-            ),
-            "ADEBAYO",
+        self.assertEqual(card_name(Player(name="Virgil van Dijk")), "VIRGIL VAN DIJK")
+        self.assertNotEqual(card_name(Player(name="Virgil van Dijk")), "DIJK")
+        self.assertEqual(card_name(Player(name="Kevin De Bruyne")), "KEVIN DE BRUYNE")
+        self.assertNotEqual(card_name(Player(name="Kevin De Bruyne")), "BRUYNE")
+        vvd_html = render_player_card(
+            Player(name="Virgil van Dijk", position="CB", overall=89)
         )
+        self.assertIn("VIRGIL VAN DIJK", vvd_html)
+        self.assertNotIn(">DIJK<", vvd_html)
+
+        long_name = (
+            "Elijah Anuoluwapo Oluwaferanmi Oluwatomi Oluwalana Ayomikulehin Adebayo"
+        )
+        self.assertEqual(card_name(Player(name=long_name)), long_name.upper())
+        self.assertNotEqual(card_name(Player(name=long_name)), "ADEBAYO")
 
         long_html = render_player_card(
             Player(
-                name="Elijah Anuoluwapo Oluwaferanmi Oluwatomi Oluwalana Ayomikulehin Adebayo",
+                name=long_name,
                 position="ST",
                 overall=72,
             )
         )
-        self.assertIn("ADEBAYO", long_html)
-        self.assertNotIn("Oluwaferanmi", long_html)
+        self.assertIn(long_name.upper(), long_html)
         self.assertIn("mgl-card-identity", long_html)
+        self.assertIn("text-overflow: ellipsis", Path("core/static/core/css/mgl.css").read_text(encoding="utf-8"))
 
         accent_html = render_player_card(
             Player(name="N'Golo Kanté", position="CDM", overall=86)

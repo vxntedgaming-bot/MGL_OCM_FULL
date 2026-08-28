@@ -2,6 +2,7 @@ from django.utils import timezone
 
 from accounts.models import User
 from mgl.market import club_for_user, token_balance_for_user
+from mgl.nav import nav_dropdowns_for_request
 from mgl.services import manager_for_user
 
 
@@ -20,4 +21,5 @@ def mgl_nav(request):
         "mgl_has_club": has_club,
         "mgl_token_balance": token_balance,
         "mgl_now": timezone.now(),
+        "mgl_nav_dropdowns": nav_dropdowns_for_request(request),
     }

@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import Q
+from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
@@ -33,6 +34,7 @@ from .models import (
     PlayerListing,
 )
 from .market import club_for_user, token_balance_for_user
+from .nav import COMPETITIONS
 from .permissions import owner_admin_required
 from .services import manager_for_user
 
@@ -42,6 +44,24 @@ def _post_int(post, key, default=0):
         return int(post.get(key, default))
     except (TypeError, ValueError):
         return default
+
+
+def _querystring(request):
+    query = request.GET.copy()
+    query.pop("page", None)
+    return query.urlencode()
+
+
+def _feature_page(request, title, kicker, body):
+    return render(
+        request,
+        "mgl/feature_unavailable.html",
+        {
+            "title": title,
+            "kicker": kicker,
+            "body": body,
+        },
+    )
 
 
 def mgl_index(request):
@@ -545,23 +565,41 @@ def release_my_player(request, player_id):
 
 @login_required
 def free_agents(request):
-    players = (
-        Player.objects
-        .filter(
-            is_free_agent=True,
-            mgl_team__isnull=True,
-        )
-        .order_by("-overall", "name")
+    search = request.GET.get("search", "").strip()
+    position = request.GET.get("position", "").strip()
+    min_ovr = request.GET.get("min_ovr", "").strip()
+    sort = request.GET.get("sort", "-overall")
+    players = Player.objects.filter(
+        is_free_agent=True,
+        mgl_team__isnull=True,
     )
-    from django.core.paginator import Paginator
+    if search:
+        players = apply_player_search(players, search)
+    if position:
+        players = players.filter(position=position)
+    if min_ovr.isdigit():
+        players = players.filter(overall__gte=int(min_ovr))
+    allowed_sort = {
+        "overall": "overall",
+        "-overall": "-overall",
+        "name": "name",
+        "-name": "-name",
+    }
+    players = players.order_by(allowed_sort.get(sort, "-overall"), "name")
     page = Paginator(players, 40).get_page(request.GET.get("page"))
-
     return render(
         request,
         "mgl/free_agents.html",
         {
             "players": page,
             "page_obj": page,
+            "search": search,
+            "selected_position": position,
+            "min_ovr": min_ovr,
+            "selected_sort": sort,
+            "positions": [choice[0] for choice in Player.POSITION_CHOICES],
+            "querystring": _querystring(request),
+            "result_count": page.paginator.count,
         },
     )
 
@@ -650,8 +688,6 @@ def player_database(request):
 
     paginator = Paginator(players, 24)
     page = paginator.get_page(request.GET.get("page"))
-    query = request.GET.copy()
-    query.pop("page", None)
 
     return render(
         request,
@@ -669,7 +705,8 @@ def player_database(request):
             "free_only": free_only,
             "clubs": Team.objects.order_by("name"),
             "positions": [choice[0] for choice in Player.POSITION_CHOICES],
-            "querystring": query.urlencode(),
+            "querystring": _querystring(request),
+            "result_count": page.paginator.count,
         },
     )
 
@@ -957,4 +994,106 @@ def club_squad_admin(request, team_id):
             "players": players,
             "available_spaces": max(0, team.roster_limit - len(players)),
         },
+    )
+
+
+def competition_page(request, slug):
+    name = COMPETITIONS.get(slug)
+    if not name:
+        raise Http404("Unknown competition")
+    return render(
+        request,
+        "mgl/competition.html",
+        {
+            "competition_name": name,
+            "competition_slug": slug,
+        },
+    )
+
+
+def historical_tables(request):
+    league = active_league()
+    return render(
+        request,
+        "mgl/historical_tables.html",
+        {
+            "active_league": league,
+            "table": build_league_table(league),
+        },
+    )
+
+
+def head_to_head(request):
+    return _feature_page(
+        request,
+        "Head to Head",
+        "STATS & HISTORY",
+        "Head-to-head records will appear here after official Super League 1 matches are played and approved. No exhibition results are invented.",
+    )
+
+
+def compare_players(request):
+    return _feature_page(
+        request,
+        "Compare",
+        "STATS & HISTORY",
+        "Player comparison is not live yet. Open any player profile from All Players or Free Agents to view their recognised FC26 name, card and attributes.",
+    )
+
+
+def manager_search(request):
+    search = request.GET.get("q", "").strip()
+    managers = (
+        ManagerApplication.objects.filter(status=ManagerApplication.APPROVED)
+        .select_related("user")
+        .order_by("display_name")
+    )
+    if search:
+        managers = managers.filter(
+            Q(display_name__icontains=search)
+            | Q(gamertag__icontains=search)
+            | Q(user__username__icontains=search)
+        )
+    return render(
+        request,
+        "mgl/manager_search.html",
+        {
+            "search": search,
+            "managers": managers,
+        },
+    )
+
+
+def transfer_history(request):
+    transfers = (
+        MarketTransaction.objects.filter(status=MarketTransaction.COMPLETED)
+        .select_related("player", "from_team", "to_team", "seller", "buyer")
+        .order_by("-created_at")
+    )
+    page = Paginator(transfers, 30).get_page(request.GET.get("page"))
+    return render(
+        request,
+        "mgl/transfer_history.html",
+        {
+            "transfers": page,
+            "page_obj": page,
+        },
+    )
+
+
+def scouting(request):
+    return _feature_page(
+        request,
+        "Scouting",
+        "MARKET",
+        "The scouting network is not live yet. Super League 1 clubs use the transfer market, free agents and auctions to move players.",
+    )
+
+
+def youth_academy(request):
+    return _feature_page(
+        request,
+        "Youth Academy",
+        "MARKET",
+        "Youth Academy is not live yet. The FC26 player pool already includes every registered player available to MGL.",
     )

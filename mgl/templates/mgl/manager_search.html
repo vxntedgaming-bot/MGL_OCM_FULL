@@ -1,0 +1,33 @@
+{% extends "core/base.html" %}
+
+{% block title %}Manager Search — MGL{% endblock %}
+
+{% block content %}
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">STATS &amp; HISTORY</div>
+            <h1>MANAGER SEARCH</h1>
+            <p>Search approved MGL managers by display name, gamertag or username.</p>
+        </div>
+        <span class="section-line"></span>
+    </div>
+
+    <form method="get" class="mgl-filter-bar mgl-filter-bar--agents">
+        <input type="search" name="q" value="{{ search }}" placeholder="Search managers...">
+        <button type="submit" class="primary-button">SEARCH</button>
+    </form>
+
+    <div class="dashboard-panel">
+        {% for manager in managers %}
+            <div class="table-row">
+                <strong>{{ manager.display_name }}</strong>
+                <span>{{ manager.gamertag }}</span>
+                <b>{{ manager.user.username }}</b>
+            </div>
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with title="NO MANAGERS FOUND" body="Approved managers will appear here. Pending applications are not listed." %}
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

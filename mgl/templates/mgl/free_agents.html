@@ -14,21 +14,47 @@
         <a href="{% url 'transfer_market' %}" class="view-all">MARKET →</a>
     </div>
 
+    <form method="get" class="mgl-filter-bar mgl-filter-bar--agents" role="search">
+        <input type="search" name="search" value="{{ search }}" placeholder="Search players...">
+        <select name="position">
+            <option value="">All positions</option>
+            {% for pos in positions %}
+                <option value="{{ pos }}" {% if selected_position == pos %}selected{% endif %}>{{ pos }}</option>
+            {% endfor %}
+        </select>
+        <input type="number" name="min_ovr" min="1" max="99" value="{{ min_ovr }}" placeholder="Min OVR">
+        <select name="sort">
+            <option value="-overall" {% if selected_sort == "-overall" %}selected{% endif %}>OVR (high → low)</option>
+            <option value="overall" {% if selected_sort == "overall" %}selected{% endif %}>OVR (low → high)</option>
+            <option value="name" {% if selected_sort == "name" %}selected{% endif %}>Name A–Z</option>
+            <option value="-name" {% if selected_sort == "-name" %}selected{% endif %}>Name Z–A</option>
+        </select>
+        <button type="submit" class="primary-button">SEARCH</button>
+    </form>
+    <p class="mgl-filter-meta">
+        {% if search or selected_position or min_ovr %}
+            {{ result_count }} matching free agent{{ result_count|pluralize }}
+        {% else %}
+            {{ result_count }} free agent{{ result_count|pluralize }}
+        {% endif %}
+        {% if page_obj %} · Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}{% endif %}
+    </p>
+
     <div class="mgl-player-card-grid">
         {% for p in players %}
             {% player_card p %}
         {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO FREE AGENTS" body="Unassigned FC26 players will show here. The player pool is never reset when clubs are populated." %}
+            {% include "mgl/includes/empty_state.html" with title="NO PLAYERS FOUND" body="No free agents match that search. Try another name, or clear the filters." %}
         {% endfor %}
     </div>
     {% if page_obj and page_obj.has_other_pages %}
         <div class="mgl-pagination">
             {% if page_obj.has_previous %}
-                <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                <a href="?page={{ page_obj.previous_page_number }}&{{ querystring }}">Previous</a>
             {% endif %}
             <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
             {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}">Next</a>
+                <a href="?page={{ page_obj.next_page_number }}&{{ querystring }}">Next</a>
             {% endif %}
         </div>
     {% endif %}

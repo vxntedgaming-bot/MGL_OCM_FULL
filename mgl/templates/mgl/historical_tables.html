@@ -1,0 +1,20 @@
+{% extends "core/base.html" %}
+{% load mgl_ui %}
+
+{% block title %}Historical League Tables — MGL{% endblock %}
+
+{% block content %}
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">STATS &amp; HISTORY</div>
+            <h1>HISTORICAL LEAGUE TABLES</h1>
+            <p>Previous Super League 1 seasons will appear here after they are completed. The current table is shown below.</p>
+        </div>
+        <a href="{% url 'leagues_page' %}" class="view-all">CURRENT TABLE →</a>
+    </div>
+    <div class="dashboard-panel">
+        {% include "mgl/includes/league_table.html" %}
+    </div>
+</section>
+{% endblock %}

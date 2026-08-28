@@ -1,0 +1,17 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} — MGL{% endblock %}
+
+{% block content %}
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">{{ kicker }}</div>
+            <h1>{{ title|upper }}</h1>
+        </div>
+        <span class="section-line"></span>
+    </div>
+    {% include "mgl/includes/empty_state.html" with kicker=kicker title=title|upper body=body %}
+</section>
+{% endblock %}

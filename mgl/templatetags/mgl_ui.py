@@ -140,6 +140,7 @@ def player_tier(player):
 
 @register.filter
 def card_name(player):
+    """Uppercase the stored FC26 recognised name. Do not take only the last token."""
     name = getattr(player, "name", "") or str(player)
     latin = []
     for char in name:
@@ -147,10 +148,7 @@ def card_name(player):
             break
         latin.append(char)
     cleaned = "".join(latin).strip(" -") or name
-    parts = [part for part in cleaned.replace(".", " ").split() if part]
-    if len(parts) <= 2:
-        return " ".join(parts).upper()
-    return parts[-1].upper()
+    return " ".join(cleaned.split()).upper()
 
 
 @register.filter

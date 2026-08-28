@@ -30,28 +30,51 @@
             <span></span>
         </label>
 
-        <nav class="mgl-nav">
-            <a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}is-active{% endif %}">HOME</a>
+        <nav class="mgl-nav" id="mgl-site-nav">
+            <a href="{% url 'home' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'home' %}is-active{% endif %}">HOME</a>
             {% if user.is_authenticated %}
-                <a href="{% url 'manager_hub' %}" class="{% if request.resolver_match.url_name == 'manager_hub' %}is-active{% endif %}">MY HUB</a>
+                <a href="{% url 'manager_hub' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'manager_hub' %}is-active{% endif %}">MY HUB</a>
             {% endif %}
-            <a href="{% url 'leagues_page' %}" class="{% if request.resolver_match.url_name == 'leagues_page' %}is-active{% endif %}">LEAGUES</a>
-            <a href="{% url 'fixture_list' %}" class="{% if request.resolver_match.url_name == 'fixture_list' %}is-active{% endif %}">FIXTURES</a>
-            <a href="{% url 'transfer_market' %}" class="{% if request.resolver_match.url_name == 'transfer_market' %}is-active{% endif %}">MARKET</a>
-            {% if user.is_authenticated %}
-                <a href="{% url 'player_database' %}" class="{% if request.resolver_match.url_name == 'player_database' %}is-active{% endif %}">PLAYERS</a>
-            {% endif %}
-            <a href="{% url 'stats_page' %}" class="{% if request.resolver_match.url_name == 'stats_page' %}is-active{% endif %}">STATS</a>
-            <a href="{% url 'job_centre' %}" class="{% if request.resolver_match.url_name == 'job_centre' %}is-active{% endif %}">JOB CENTRE</a>
+            {% for menu in mgl_nav_dropdowns %}
+                <div class="mgl-nav-dropdown" data-nav-dropdown="{{ menu.id }}">
+                    <button
+                        type="button"
+                        class="mgl-nav-trigger {% if menu.is_current %}is-active{% endif %}"
+                        data-nav-trigger
+                        aria-expanded="false"
+                        aria-haspopup="true"
+                        aria-controls="mgl-nav-menu-{{ menu.id }}"
+                        id="mgl-nav-trigger-{{ menu.id }}"
+                    >
+                        <span>{{ menu.label }}</span>
+                        <svg class="mgl-nav-chevron" viewBox="0 0 12 8" aria-hidden="true" focusable="false">
+                            <path d="M1 1.5 L6 6.5 L11 1.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                    </button>
+                    <div class="mgl-nav-menu" id="mgl-nav-menu-{{ menu.id }}" role="menu" aria-labelledby="mgl-nav-trigger-{{ menu.id }}" aria-hidden="true">
+                        {% for item in menu.items %}
+                            <a
+                                href="{{ item.url }}"
+                                class="mgl-nav-item{% if item.style %} mgl-nav-item--{{ item.style }}{% endif %}{% if item.is_current %} is-current{% endif %}{% if item.divider %} has-divider{% endif %}"
+                                role="menuitem"
+                            >
+                                <span class="mgl-nav-item-label">{% if item.style == "sub" %}<span class="mgl-nav-dash">—</span> {% endif %}{{ item.label }}</span>
+                                {% if item.badge %}<span class="mgl-nav-badge">{{ item.badge }}</span>{% endif %}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+            <a href="{% url 'job_centre' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'job_centre' %}is-active{% endif %}">JOB CENTRE</a>
             {% if mgl_is_control %}
-                <a href="{% url 'control_centre' %}" class="{% if request.resolver_match.url_name == 'control_centre' %}is-active{% endif %}">CONTROL</a>
+                <a href="{% url 'control_centre' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'control_centre' %}is-active{% endif %}">CONTROL</a>
             {% endif %}
             <div class="mgl-nav-mobile-auth">
                 {% if user.is_authenticated %}
-                    <a href="{% url 'manager_profile' %}">PROFILE</a>
+                    <a href="{% url 'manager_profile' %}" class="mgl-nav-link">PROFILE</a>
                 {% else %}
-                    <a href="{% url 'manager_login' %}">LOGIN</a>
-                    <a href="{% url 'manager_register' %}">JOIN THE LEAGUE</a>
+                    <a href="{% url 'manager_login' %}" class="mgl-nav-link">LOGIN</a>
+                    <a href="{% url 'manager_register' %}" class="mgl-nav-link">JOIN THE LEAGUE</a>
                 {% endif %}
             </div>
         </nav>
@@ -117,5 +140,6 @@
     </div>
     <div class="mgl-footer-copy">© MetaGamingLeague. All rights reserved.</div>
 </footer>
+<script src="{% static 'core/js/mgl-nav.js' %}"></script>
 </body>
 </html>

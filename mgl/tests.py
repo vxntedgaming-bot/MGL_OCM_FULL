@@ -142,6 +142,18 @@ class ConnectedRouteSmokeTests(PhaseAClientTestCase):
             "/login/",
             "/register/",
             "/admin/login/",
+            "/leagues/",
+            "/leagues/premier-league/",
+            "/stats/",
+            "/stats/history/",
+            "/stats/head-to-head/",
+            "/stats/compare/",
+            "/stats/managers/",
+            "/market/",
+            "/market/transfers/",
+            "/market/scouting/",
+            "/market/youth-academy/",
+            "/jobs/",
         ]:
             response = self.client.get(url)
             self.assertLess(response.status_code, 500, url)

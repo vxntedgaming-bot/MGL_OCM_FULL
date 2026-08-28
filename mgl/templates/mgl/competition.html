@@ -1,0 +1,18 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{{ competition_name }} — MGL{% endblock %}
+
+{% block content %}
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">COMPETITION</div>
+            <h1>{{ competition_name|upper }}</h1>
+            <p>This competition is not live in MGL. Super League 1 is the only active league.</p>
+        </div>
+        <a href="{% url 'leagues_page' %}" class="view-all">ALL LEAGUES →</a>
+    </div>
+    {% include "mgl/includes/empty_state.html" with kicker="NOT LIVE" title=competition_name|upper body="No table, clubs or fixtures are generated for this competition. Current clubs compete in Super League 1." %}
+</section>
+{% endblock %}

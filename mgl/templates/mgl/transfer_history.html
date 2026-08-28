@@ -1,0 +1,40 @@
+{% extends "core/base.html" %}
+{% load mgl_ui %}
+
+{% block title %}Transfers — MGL{% endblock %}
+
+{% block content %}
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">MARKET</div>
+            <h1>TRANSFERS</h1>
+            <p>Completed token movements. No cash deals and no invented history.</p>
+        </div>
+        <a href="{% url 'transfer_market' %}" class="view-all">MARKET →</a>
+    </div>
+
+    <div class="dashboard-panel">
+        {% for row in transfers %}
+            <div class="table-row">
+                <strong>{{ row.player.name|default:"Token movement" }}</strong>
+                <span class="mgl-info-club">{% team_logo row.from_team "xs" %} {{ row.from_team.short_name|default:"FA" }} → {% team_logo row.to_team "xs" %} {{ row.to_team.short_name|default:"—" }}</span>
+                <b>{{ row.amount }} TKN</b>
+            </div>
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with title="NO TRANSFERS YET" body="Completed auctions, sales and assignments will be listed here with token amounts." %}
+        {% endfor %}
+    </div>
+    {% if page_obj and page_obj.has_other_pages %}
+        <div class="mgl-pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+            {% endif %}
+            <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">Next</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

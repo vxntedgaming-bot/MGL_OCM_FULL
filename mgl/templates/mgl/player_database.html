@@ -15,7 +15,7 @@
     </div>
 
     <form method="get" class="mgl-filter-bar">
-        <input type="search" name="search" value="{{ search }}" placeholder="Search name, club, nationality or position">
+        <input type="search" name="search" value="{{ search }}" placeholder="Search players...">
         <select name="club">
             <option value="">All clubs</option>
             <option value="FA" {% if selected_club == "FA" %}selected{% endif %}>Free agents</option>
@@ -49,6 +49,10 @@
         </label>
         <button type="submit" class="primary-button">FILTER</button>
     </form>
+    <p class="mgl-filter-meta">
+        {{ result_count }} player{{ result_count|pluralize }}
+        {% if page_obj %} · Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}{% endif %}
+    </p>
 
     <div class="mgl-player-card-grid">
         {% for player in players %}
