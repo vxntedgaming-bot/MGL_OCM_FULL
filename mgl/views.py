@@ -12,6 +12,7 @@ from leagues.services import active_league
 from managers.models import ManagerApplication
 from mgl.standings import build_league_table
 from players.models import Player
+from players.search import apply_player_search
 from teams.models import Team
 
 from .models import (
@@ -611,13 +612,16 @@ def player_database(request):
         players = players.filter(overall__lt=65)
 
     if search:
-        players = players.filter(
-            Q(name__icontains=search)
-            | Q(fc27_club__icontains=search)
-            | Q(position__icontains=search)
-            | Q(nationality__icontains=search)
-            | Q(mgl_team__name__icontains=search)
-            | Q(mgl_team__short_name__icontains=search)
+        players = apply_player_search(
+            players,
+            search,
+            extra_fields=(
+                "fc27_club",
+                "position",
+                "nationality",
+                "mgl_team__name",
+                "mgl_team__short_name",
+            ),
         )
 
     if club == "FA" or free_only:

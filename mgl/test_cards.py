@@ -235,6 +235,20 @@ class PlayerCardQaTests(TestCase):
     def test_names_positions_and_stat_order(self):
         self.assertEqual(card_name(Player(name="Pele")), "PELE")
         self.assertEqual(card_name(Player(name="N'Golo Kanté")), "N'GOLO KANTÉ")
+        self.assertEqual(card_name(Player(name="Mohamed Salah")), "MOHAMED SALAH")
+        self.assertEqual(card_name(Player(name="Kylian Mbappé")), "KYLIAN MBAPPÉ")
+        self.assertEqual(card_name(Player(name="Achraf Hakimi")), "ACHRAF HAKIMI")
+
+        salah_html = render_player_card(
+            Player(name="Mohamed Salah", position="RM", overall=91)
+        )
+        self.assertIn("MOHAMED SALAH", salah_html)
+        self.assertNotIn("GHALY", salah_html)
+        mbappe_html = render_player_card(
+            Player(name="Kylian Mbappé", position="ST", overall=91)
+        )
+        self.assertIn("KYLIAN MBAPPÉ", mbappe_html)
+        self.assertNotIn("LOTTIN", mbappe_html)
         self.assertEqual(
             card_name(
                 Player(

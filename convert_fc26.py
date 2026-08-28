@@ -1,4 +1,12 @@
 import csv
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from players.fc26_names import display_name_from_row
 
 input_file = "fc26_players_raw.csv"
 output_file = "fc26_players_mgl.csv"
@@ -75,7 +83,7 @@ with open(input_file, "r", encoding="utf-8-sig", newline="") as infile:
 
             writer.writerow({
                 "fc27_id": str(row.get("player_id", "")).strip(),
-                "name": (row.get("long_name") or row.get("short_name") or "").strip(),
+                "name": display_name_from_row(row),
                 "fc27_club": (row.get("club_name") or "").strip(),
                 "nationality": (row.get("nationality_name") or "").strip(),
                 "position": primary_position,
