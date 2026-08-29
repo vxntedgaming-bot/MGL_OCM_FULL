@@ -476,7 +476,7 @@ class ManagerHubExperienceTests(TestCase):
         self.assertContains(hub, "W")
         self.assertContains(hub, 'data-nav-dropdown="my-club"')
         self.assertContains(hub, "Club Profile")
-        self.assertContains(hub, "NOTIFICATIONS")
+        self.assertContains(hub, reverse("manager_notifications"))
         self.assertContains(hub, reverse("team_management"))
         self.assertContains(hub, reverse("submit_match", args=[hub.context["outstanding"][0].id]))
         self.assertNotContains(hub, "Recruitment Drive")

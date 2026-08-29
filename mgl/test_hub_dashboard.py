@@ -101,6 +101,8 @@ class ManagerHubDashboardTests(TestCase):
         self.assertContains(response, reverse("manager_profile"))
         self.assertContains(response, reverse("manager_notifications"))
         self.assertContains(response, "1 Notification")
+        self.assertNotContains(response, "data-notify-dropdown")
+        self.assertNotContains(response, "ACTION REQUIRED")
         self.assertContains(response, f'href="{reverse("manager_profile")}"')
         self.assertContains(response, reverse("transfer_market"))
         self.assertContains(response, reverse("free_agents"))

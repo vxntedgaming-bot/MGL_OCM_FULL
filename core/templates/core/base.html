@@ -61,9 +61,6 @@
         </nav>
 
         <div class="mgl-header-actions">
-            {% if mgl_signed_in_nav %}
-                {% include "mgl/includes/notification_bar.html" %}
-            {% endif %}
             {% if discord_invite_url %}
                 <a href="{{ discord_invite_url }}" class="header-button" target="_blank" rel="noopener">{{ discord_display_text|default:"DISCORD" }}</a>
             {% endif %}
