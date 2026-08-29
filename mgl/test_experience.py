@@ -159,6 +159,7 @@ class JobCentreExperienceTests(TestCase):
         self.assertNotContains(hub, "YOUR APPLICATIONS")
         self.assertNotContains(hub, ">STATUS</h2>")
 
+        _manager(self.owner)
         _user("jobs-admin", role=User.ADMIN)
         for username in ("owner", "jobs-admin"):
             self.client.logout()
@@ -168,6 +169,8 @@ class JobCentreExperienceTests(TestCase):
             self.assertNotContains(staff_jobs, ">STATUS</h2>")
             self.assertNotContains(staff_jobs, 'class="table-row"')
 
+        self.client.logout()
+        self.client.login(username="owner", password="test-pass-123")
         control = self.client.get(reverse("control_centre"))
         self.assertContains(control, self.vacant.name)
         inbox = self.client.get(reverse("manager_notifications"))
