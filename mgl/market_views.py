@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Avg, Count, Q, Sum
@@ -27,13 +28,15 @@ from .models import (
     ClubApplication,
     ManagerCareerStat,
     MarketTransaction,
+    NewsPost,
     PlayerListing,
 )
 from managers.models import ManagerApplication
 from managers.services import STARTING_TOKENS, approve_manager_application, reject_manager_application
 
+from .job_applications import GAMES_PER_WEEK_CHOICES, parse_club_application
 from .permissions import approved_manager, owner_admin_required
-from .services import manager_for_user
+from .services import create_news, manager_for_user
 from .standings import build_league_table
 from .player_state import club_players, free_agents as free_agent_qs, market_counts, unassigned_players
 from .tenure import open_club_spell
@@ -251,6 +254,7 @@ def job_centre(request):
             "manager": manager,
             "my_applications": my_apps,
             "has_club": bool(club_for_user(request.user)),
+            "games_per_week_choices": GAMES_PER_WEEK_CHOICES,
         },
     )
 
@@ -273,15 +277,31 @@ def apply_for_club(request, team_id):
     ).exists():
         messages.info(request, f"You already have a pending application for {team.name}.")
         return redirect("job_centre")
+    payload = parse_club_application(request.POST)
+    if payload["errors"]:
+        for error in payload["errors"]:
+            messages.error(request, error)
+        return redirect("job_centre")
+    if manager.gamertag != payload["gamertag"]:
+        manager.gamertag = payload["gamertag"]
+        manager.save(update_fields=["gamertag"])
     ClubApplication.objects.create(
         manager=manager,
         team=team,
+        gamertag=payload["gamertag"],
+        discord_username=payload["discord_username"],
+        games_per_week=payload["games_per_week"],
+        referred_by=payload["referred_by"],
+        new_gen_confirmed=payload["new_gen_confirmed"],
         message=request.POST.get("message", "").strip(),
     )
     messages.success(
         request,
-        f"Application sent for {team.name}. An owner or admin will review it.",
+        f"Application sent for {team.name}. An owner or admin will review it. You have not been appointed yet.",
     )
+    invite = getattr(settings, "DISCORD_INVITE_URL", "") or ""
+    if invite:
+        return redirect(invite)
     return redirect("job_centre")
 
 
@@ -416,6 +436,14 @@ def control_approve_job(request, application_id):
     application.reviewed_at = timezone.now()
     application.reviewed_by = request.user
     application.save(update_fields=["status", "reviewed_at", "reviewed_by"])
+    from mgl.press import create_appointment_press
+
+    create_news(
+        NewsPost.MANAGER,
+        f"{application.manager.display_name} appointed",
+        f"{application.manager.display_name} has been appointed manager of {team.name}.",
+    )
+    create_appointment_press(new_manager, team)
     messages.success(
         request,
         f"{new_manager.username} is now manager of {team.name}. Token balance stays with the manager.",

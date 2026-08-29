@@ -1,0 +1,24 @@
+{% load mgl_ui %}
+<article class="mgl-press-article">
+    <div class="mgl-press-brand">MGL PRESSROOM</div>
+    <div class="mgl-press-club">
+        {% team_logo press.team "sm" %}
+        <strong>{% if press.team %}{{ press.team.name|upper }}{% else %}MGL{% endif %}</strong>
+    </div>
+    <h2>
+        {% if press.trigger == "MATCH" %}POST-MATCH PRESS CONFERENCE
+        {% elif press.trigger == "APPOINTMENT" %}NEW MANAGER PRESS CONFERENCE
+        {% elif press.trigger == "SIGNING" %}RECRUITMENT PRESS CONFERENCE
+        {% else %}MGL PRESS CONFERENCE{% endif %}
+    </h2>
+    <p class="mgl-press-meta">
+        Manager: {{ press.manager.username }}
+        {% if press.matchweek %} · Matchday {{ press.matchweek }}{% endif %}
+        · {{ press.category|title }}
+        · {{ press.approved_at|default:press.created_at|date:"d M Y" }}
+    </p>
+    <div class="mgl-press-qa">
+        <p><span>Q:</span> {{ press.question }}</p>
+        <p><span>A:</span> {{ press.answer }}</p>
+    </div>
+</article>

@@ -115,7 +115,15 @@ class OcmEndToEndTests(TestCase):
         hub = self.client.get(reverse("manager_hub"))
         self.assertEqual(hub.status_code, 200)
         self.assertContains(hub, "APPLY FOR A CLUB")
-        apply = self.client.post(reverse("apply_for_club", args=[self.club_a.id]))
+        apply = self.client.post(
+            reverse("apply_for_club", args=[self.club_a.id]),
+            {
+                "gamertag": "AlicePSN",
+                "discord_username": "alice",
+                "games_per_week": "3",
+                "new_gen_confirmed": "on",
+            },
+        )
         self.assertEqual(apply.status_code, 302)
         self.client.logout()
 

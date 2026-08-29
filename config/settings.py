@@ -234,3 +234,6 @@ AUTH_USER_MODEL = "accounts.User"
 LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
+
+# Public Discord invite. Empty means JOIN DISCORD buttons are hidden.
+DISCORD_INVITE_URL = env_str("DISCORD_INVITE_URL", "") or ""

@@ -1,0 +1,91 @@
+{% extends "core/base.html" %}
+{% load static mgl_ui %}
+
+{% block title %}{{ team.name }} — MGL{% endblock %}
+
+{% block content %}
+<section class="mgl-section">
+    <div class="mgl-club-hero">
+        {% team_logo team "lg" %}
+        <div>
+            <div class="eyebrow">{% if team.league %}{{ team.league.name|upper }}{% else %}MGL CLUB{% endif %}</div>
+            <h1>{{ team.name|upper }}</h1>
+            <p>
+                {{ team.short_name }}
+                ·
+                {% if team.manager %}Manager: {{ team.manager.username }}{% else %}Manager vacant{% endif %}
+                {% if league_position %} · {{ league_position|stringformat:"02d" }}th{% endif %}
+                · {{ players|length }}/{{ team.roster_limit }} players
+            </p>
+            <div class="mgl-hub-links">
+                <a href="{% url 'leagues_page' %}">League table</a>
+                <a href="{% url 'fixture_list' %}">Fixtures</a>
+                {% if is_own_club %}<a href="{% url 'team_management' %}">Manage squad</a>{% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="mgl-section" id="squad">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">SQUAD</div>
+            <h2>CURRENT PLAYERS</h2>
+        </div>
+    </div>
+    <div class="dashboard-panel mgl-squad-table-wrap">
+        <div class="mgl-squad-table-head">
+            <span>PLAYER</span>
+            <span>POS</span>
+            <span>OVR</span>
+        </div>
+        {% for player in players %}
+            <a href="{% url 'player_profile' player.id %}" class="mgl-squad-row">
+                <strong>{{ player.name }}</strong>
+                <span>{{ player.position }}</span>
+                <b>{{ player.overall }}</b>
+            </a>
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with title="NO PLAYERS" body="This club currently has no players assigned." %}
+        {% endfor %}
+    </div>
+    {% if players %}
+    <div class="mgl-player-card-grid" style="padding:20px 0">
+        {% for player in players %}
+            {% player_card player "small" %}
+        {% endfor %}
+    </div>
+    {% endif %}
+</section>
+
+<section class="mgl-section">
+    <div class="mgl-hub-stats">
+        <div class="dashboard-panel">
+            <div class="panel-heading"><span>FIXTURES</span></div>
+            {% for fixture in upcoming %}
+                <div class="match-row">
+                    <span class="match-date">MD {{ fixture.matchweek }}</span>
+                    <strong class="mgl-standings-club">{% team_logo fixture.home_team "xs" %} <a href="{% url 'club_page' fixture.home_team.short_name %}">{{ fixture.home_team.name }}</a></strong>
+                    <span class="vs">VS</span>
+                    <strong class="mgl-standings-club">{% team_logo fixture.away_team "xs" %} <a href="{% url 'club_page' fixture.away_team.short_name %}">{{ fixture.away_team.name }}</a></strong>
+                </div>
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with title="NO UPCOMING FIXTURES" body="Released fixtures for this club will appear here." %}
+            {% endfor %}
+        </div>
+        <div class="dashboard-panel">
+            <div class="panel-heading"><span>RESULTS</span></div>
+            {% for fixture in results %}
+                <div class="result-row">
+                    <span class="result-win">FT</span>
+                    <strong>{{ fixture.home_team.short_name }}</strong>
+                    <b>{% if fixture.home_goals != None %}{{ fixture.home_goals }}–{{ fixture.away_goals }}{% else %}—{% endif %}</b>
+                    <strong>{{ fixture.away_team.short_name }}</strong>
+                </div>
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with title="NO RESULTS YET" body="Approved results for this club will appear here." %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

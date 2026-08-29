@@ -219,7 +219,7 @@ def create_free_agent_auction(player, user, duration_minutes, starting_bid=1):
     _assert_no_live_auction(player)
     bid = parse_auction_starting_bid(starting_bid)
     now = timezone.now()
-    return PlayerAuction.objects.create(
+    auction = PlayerAuction.objects.create(
         player=player,
         created_by=user,
         starting_bid=bid,
@@ -232,6 +232,12 @@ def create_free_agent_auction(player, user, duration_minutes, starting_bid=1):
         origin_team=None,
         duration_minutes=minutes,
     )
+    create_news(
+        NewsPost.AUCTION,
+        f"{player.name} in auction",
+        f"{player.name} is now available in the MGL Auction.",
+    )
+    return auction
 
 
 @transaction.atomic
@@ -272,6 +278,11 @@ def _restore_unsold_player(auction):
     player.mgl_team = None
     player.is_free_agent = True
     player.save(update_fields=["mgl_team", "is_free_agent"])
+    create_news(
+        NewsPost.FREE_AGENT,
+        f"{player.name} is a Free Agent",
+        f"{player.name} is now available as a Free Agent after an auction received no bids.",
+    )
     return player
 
 
@@ -634,9 +645,12 @@ def buy_listed_player(listing, buyer):
     create_news(
         NewsPost.TRANSFER,
         f"{listing.player.name} transferred",
-        f"{listing.player.name} moved from {listing.team.name} to {buyer_club.name} "
-        f"for {listing.asking_price} tokens.",
+        f"{listing.player.name} has joined {buyer_club.name} from {listing.team.name} "
+        f"for {listing.asking_price} TKN.",
     )
+    from mgl.press import maybe_create_signing_press
+
+    maybe_create_signing_press(buyer.user, buyer_club)
     return listing
 
 

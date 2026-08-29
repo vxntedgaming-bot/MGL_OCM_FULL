@@ -241,7 +241,15 @@ class ManagerResignTests(TestCase):
         jobs = self.client.get(reverse("job_centre"))
         self.assertContains(jobs, "Arsenal")
         self.assertContains(jobs, "Liverpool")
-        apply = self.client.post(reverse("apply_for_club", args=[self.vacant.id]))
+        apply = self.client.post(
+            reverse("apply_for_club", args=[self.vacant.id]),
+            {
+                "gamertag": "RESIGN1",
+                "discord_username": "resign",
+                "games_per_week": "2",
+                "new_gen_confirmed": "on",
+            },
+        )
         self.assertEqual(apply.status_code, 302)
         job = self.manager.club_applications.get(team=self.vacant)
         self.client.logout()

@@ -93,6 +93,9 @@ def mgl_index(request):
 
 
 def home(request):
+    if approved_manager(request.user) and club_for_user(request.user):
+        return redirect("manager_hub")
+
     league = active_league()
     upcoming_qs = Fixture.objects.filter(
         is_released=True,
@@ -150,12 +153,8 @@ def home(request):
     )
     table = build_league_table(league)
     club_qs = Team.objects.all()
-    showcase_clubs = []
     if league:
         club_qs = Team.objects.filter(league=league)
-        showcase_clubs = list(
-            league.teams.select_related("manager").order_by("name")
-        )
     recent_transfers = (
         MarketTransaction.objects.filter(status=MarketTransaction.COMPLETED)
         .select_related("player", "from_team", "to_team")
@@ -236,7 +235,6 @@ def home(request):
                 status=PlayerListing.LIVE
             ).count(),
             "recent_transfers": recent_transfers,
-            "showcase_clubs": showcase_clubs,
             "activity": activity,
             "active_league": league,
             "table": table,
@@ -244,7 +242,6 @@ def home(request):
     )
 
 
-@login_required
 def player_profile(request, player_id):
     player = get_object_or_404(
         Player.objects.select_related("mgl_team"),
@@ -300,13 +297,62 @@ def manager_hub(request):
     )
     recent = []
     pending_actions = []
+    outstanding = []
+    recent_results = []
+    top_scorers = []
+    top_assists = []
+    squad = []
+    my_listings = []
+    league_position = None
+    table = []
 
     if team:
-        recent = (
-            Fixture.objects
-            .filter(Q(home_team=team) | Q(away_team=team))
-            .order_by("-id")[:10]
+        team_fixtures = Fixture.objects.filter(
+            Q(home_team=team) | Q(away_team=team)
+        ).select_related("home_team", "away_team", "league")
+        recent = team_fixtures.order_by("-id")[:10]
+        outstanding = list(
+            team_fixtures.filter(is_released=True, status="SCHEDULED").order_by(
+                "matchweek", "id"
+            )
         )
+        completed = list(
+            team_fixtures.filter(status="COMPLETED")
+            .prefetch_related("submission__team_stats")
+            .order_by("-matchweek", "-id")[:5]
+        )
+        for fixture in completed:
+            stats = {}
+            try:
+                stats = {
+                    row.team_id: row.goals
+                    for row in fixture.submission.team_stats.all()
+                }
+            except MatchSubmission.DoesNotExist:
+                pass
+            own = stats.get(team.id)
+            opp_id = (
+                fixture.away_team_id
+                if fixture.home_team_id == team.id
+                else fixture.home_team_id
+            )
+            opp = stats.get(opp_id)
+            if own is None or opp is None:
+                outcome = "—"
+            elif own > opp:
+                outcome = "W"
+            elif own < opp:
+                outcome = "L"
+            else:
+                outcome = "D"
+            fixture.home_goals = stats.get(fixture.home_team_id)
+            fixture.away_goals = stats.get(fixture.away_team_id)
+            fixture.outcome = outcome
+            fixture.opponent = (
+                fixture.away_team if fixture.home_team_id == team.id else fixture.home_team
+            )
+            fixture.venue = "H" if fixture.home_team_id == team.id else "A"
+            recent_results.append(fixture)
         pending_listings = PlayerListing.objects.filter(
             team=team,
             status=PlayerListing.PENDING,
@@ -319,6 +365,28 @@ def manager_hub(request):
         ).count()
         if pending_matches:
             pending_actions.append(f"{pending_matches} match result(s) waiting for approval")
+        squad = list(
+            team.players.order_by("position", "-overall", "name")
+        )
+        top_scorers = [p for p in squad if (p.goals or 0) > 0]
+        top_scorers.sort(key=lambda p: (-p.goals, p.name))
+        top_scorers = top_scorers[:5]
+        top_assists = [p for p in squad if (p.assists or 0) > 0]
+        top_assists.sort(key=lambda p: (-p.assists, p.name))
+        top_assists = top_assists[:5]
+        my_listings = list(
+            PlayerListing.objects.filter(
+                team=team,
+                status__in=[PlayerListing.PENDING, PlayerListing.LIVE],
+            )
+            .select_related("player")
+            .order_by("-created_at")[:8]
+        )
+        table = build_league_table(team.league)
+        league_position = next(
+            (row["position"] for row in table if row["team"].id == team.id),
+            None,
+        )
 
     rewards = (
         RewardTransaction.objects
@@ -331,8 +399,18 @@ def manager_hub(request):
         .select_related("player", "from_team", "to_team")
         .order_by("-created_at")[:8]
     )
+    pending_press = list(
+        PressConference.objects.filter(
+            manager=request.user,
+            status=ApprovalStatus.PENDING,
+        )
+        .select_related("team", "fixture")
+        .order_by("-created_at")[:5]
+    )
+    if pending_press:
+        pending_actions.append(f"{len(pending_press)} press conference question(s) waiting")
 
-    roster_count = team.players.count() if team else 0
+    roster_count = len(squad) if team else 0
     token_balance = token_balance_for_user(request.user)
 
     return render(
@@ -348,11 +426,20 @@ def manager_hub(request):
             "token_balance": token_balance,
             "pending_actions": pending_actions,
             "active_league": getattr(team, "league", None) or active_league(),
+            "outstanding": outstanding,
+            "outstanding_count": len(outstanding),
+            "recent_results": recent_results,
+            "top_scorers": top_scorers,
+            "top_assists": top_assists,
+            "squad": squad[:12],
+            "my_listings": my_listings,
+            "league_position": league_position,
+            "table": table[:8],
+            "pending_press": pending_press,
         },
     )
 
 
-@login_required
 def fixture_list(request):
     league = active_league()
     fixtures = (
@@ -366,7 +453,9 @@ def fixture_list(request):
     )
     if league:
         fixtures = fixtures.filter(league=league)
-    team = getattr(request.user, "managed_team", None)
+    team = None
+    if request.user.is_authenticated:
+        team = getattr(request.user, "managed_team", None)
 
     return render(
         request,
@@ -537,17 +626,25 @@ def press_conference(request, fixture_id):
         fixture=fixture,
         manager=request.user,
         defaults={
-            "question": question,
-            "answer": answer,
-            "status": "PENDING",
+            "question": question or "How pleased were you with the performance?",
+            "team": (
+                fixture.home_team
+                if request.user.id == fixture.home_team.manager_id
+                else fixture.away_team
+            ),
+            "trigger": PressConference.MATCH,
+            "matchweek": fixture.matchweek,
         },
     )
+    press = PressConference.objects.get(fixture=fixture, manager=request.user)
+    from mgl.press import publish_press_answer
 
-    messages.success(
-        request,
-        "Press conference submitted for Admin approval.",
-    )
-    return redirect("fixture_list")
+    try:
+        publish_press_answer(press, answer)
+        messages.success(request, "Your press conference is now in the MGL Pressroom.")
+    except ValueError as exc:
+        messages.error(request, str(exc))
+    return redirect("pressroom")
 
 
 @login_required

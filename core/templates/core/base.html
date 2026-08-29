@@ -37,10 +37,10 @@
             <a href="{% url 'fixture_list' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'fixture_list' %}is-active{% endif %}">FIXTURES</a>
             {% for menu in mgl_nav_dropdowns %}{% if menu.id == "leagues" %}{% include "core/includes/nav_dropdown.html" %}{% endif %}{% endfor %}
             {% for menu in mgl_nav_dropdowns %}{% if menu.id == "stats" %}{% include "core/includes/nav_dropdown.html" %}{% endif %}{% endfor %}
-            <a href="{% url 'leagues_page' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'leagues_page' or request.resolver_match.url_name == 'competition_page' %}is-active{% endif %}">TEAMS</a>
+            <a href="{% url 'clubs_index' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'clubs_index' or request.resolver_match.url_name == 'club_page' %}is-active{% endif %}">TEAMS</a>
             {% for menu in mgl_nav_dropdowns %}{% if menu.id == "market" %}{% include "core/includes/nav_dropdown.html" %}{% endif %}{% endfor %}
             <a href="{% url 'job_centre' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'job_centre' %}is-active{% endif %}">JOBS</a>
-            <a href="{% url 'home' %}#mgl-news" class="mgl-nav-link">NEWS</a>
+            <a href="{% url 'news_centre' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'news_centre' or request.resolver_match.url_name == 'live_activity' or request.resolver_match.url_name == 'pressroom' %}is-active{% endif %}">NEWS</a>
             {% for menu in mgl_nav_dropdowns %}{% if menu.id == "my-team" %}{% include "core/includes/nav_dropdown.html" %}{% endif %}{% endfor %}
             {% if mgl_is_control %}
                 <a href="{% url 'control_centre' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'control_centre' %}is-active{% endif %}">CONTROL</a>
@@ -56,6 +56,9 @@
         </nav>
 
         <div class="mgl-header-actions">
+            {% if discord_invite_url %}
+                <a href="{{ discord_invite_url }}" class="header-button" target="_blank" rel="noopener">JOIN DISCORD</a>
+            {% endif %}
             {% if user.is_authenticated %}
                 <a href="{% url 'manager_profile' %}" class="header-button mgl-header-account">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5 19a7 7 0 0 1 14 0"/></svg>
@@ -99,7 +102,7 @@
             <a href="#" aria-label="X / Twitter">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 3h3.1l-6.8 7.8L22 21h-6.2l-4.9-6.4L5.4 21H2.2l7.3-8.4L2 3h6.3l4.4 5.8L17.5 3Zm-1.1 16.2h1.7L7.7 4.7H5.9l10.5 14.5Z"/></svg>
             </a>
-            <a href="#" aria-label="Discord">
+            <a href="{% if discord_invite_url %}{{ discord_invite_url }}{% else %}#{% endif %}" {% if discord_invite_url %}target="_blank" rel="noopener"{% endif %} aria-label="Discord">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.3 5.2A18 18 0 0 0 14.8 4l-.2.4a16.4 16.4 0 0 1 4 1.5 16.2 16.2 0 0 0-12.2 0 16 16 0 0 1 3.9-1.5L10.1 4A18 18 0 0 0 4.7 5.2C2.1 9.1 1.4 12.8 1.7 16.5A18.4 18.4 0 0 0 7.3 19l.7-1.2a11.8 11.8 0 0 1-1.9-.9l.4-.3a13.3 13.3 0 0 0 11 0l.4.3a12 12 0 0 1-1.9.9l.7 1.2a18.4 18.4 0 0 0 5.6-2.5c.5-4.3-.7-8-2-11.3ZM8.7 14.6c-.8 0-1.5-.8-1.5-1.7s.7-1.7 1.5-1.7 1.5.8 1.5 1.7-.6 1.7-1.5 1.7Zm6.6 0c-.8 0-1.5-.8-1.5-1.7s.7-1.7 1.5-1.7 1.5.8 1.5 1.7-.7 1.7-1.5 1.7Z"/></svg>
             </a>
             <a href="#" aria-label="YouTube">
@@ -114,7 +117,12 @@
             <span>MGL</span>
         </div>
     </div>
-    <div class="mgl-footer-copy">© MetaGamingLeague. All rights reserved.</div>
+    <div class="mgl-footer-copy">
+        © MetaGamingLeague. All rights reserved.
+        {% if discord_invite_url %}
+            · <a href="{{ discord_invite_url }}" target="_blank" rel="noopener">MGL DISCORD</a>
+        {% endif %}
+    </div>
 </footer>
 <script src="{% static 'core/js/mgl-nav.js' %}"></script>
 </body>

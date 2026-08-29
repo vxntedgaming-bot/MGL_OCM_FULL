@@ -6,6 +6,8 @@ This tree is the existing MGL project (not a rewrite).
 
 Presentation lives in `core/templates/core/base.html`, `core/static/core/css/mgl.css`, and the overlay design system `core/static/core/css/mgl-theme.css`. Inner pages inherit header, footer, cards, badges, tables, and mobile navigation from that base. Player market states stay visually distinct: **UNASSIGNED**, **AUCTION**, and **FREE AGENT**.
 
+Assigned managers are sent from `/` to the existing Manager Hub. Public visitors keep the simplified homepage. Club squads are at `/clubs/<short_name>/`. News, Live Activity and Pressroom reuse `NewsPost` and `PressConference`. Set `DISCORD_INVITE_URL` to show JOIN DISCORD buttons; leave it empty to hide them. Do not hardcode an invite.
+
 ## Local development
 
 ```bash

@@ -7,7 +7,15 @@ NAV_DROPDOWNS = (
     {
         "id": "my-team",
         "label": "MY TEAM",
-        "current": {"team_management", "fixture_list", "submit_match", "press_conference", "manager_hub"},
+        "current": {
+            "team_management",
+            "fixture_list",
+            "submit_match",
+            "press_conference",
+            "manager_hub",
+            "pressroom",
+            "answer_press",
+        },
         "items": (
             {"label": "MANAGER HUB", "url_name": "manager_hub"},
             {"label": "TEAM MANAGEMENT", "url_name": "team_management", "divider": True},
@@ -29,6 +37,8 @@ NAV_DROPDOWNS = (
             "place_bid",
             "player_database",
             "player_profile",
+            "club_page",
+            "clubs_index",
         },
         "items": (
             {"label": "TRANSFERS", "url_name": "transfer_history"},
@@ -55,7 +65,7 @@ NAV_DROPDOWNS = (
     {
         "id": "leagues",
         "label": "TABLES",
-        "current": {"leagues_page", "competition_page"},
+        "current": {"leagues_page", "competition_page", "clubs_index", "club_page"},
         "items": (
             {"label": "ALL LEAGUES", "url_name": "leagues_page"},
             {

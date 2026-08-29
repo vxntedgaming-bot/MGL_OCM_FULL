@@ -976,3 +976,260 @@ body.mgl-auth-body .mgl-main {
         padding: 8px 10px;
     }
 }
+
+/* ----- Jobs, hub, activity, pressroom, clubs ----- */
+.mgl-job-list {
+    display: grid;
+    gap: 20px;
+}
+
+.mgl-job-apply-card {
+    background: var(--mgl-card);
+    border: 1px solid var(--mgl-line);
+    border-radius: 18px;
+    padding: 22px;
+    display: grid;
+    gap: 16px;
+}
+
+.mgl-job-apply-head {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 16px;
+    align-items: center;
+}
+
+.mgl-job-form {
+    display: grid;
+    gap: 12px;
+}
+
+.mgl-job-form label {
+    display: grid;
+    gap: 6px;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.mgl-job-form input,
+.mgl-job-form select,
+.mgl-job-form textarea {
+    width: 100%;
+    max-width: 100%;
+    background: #0c0c0c;
+    border: 1px solid var(--mgl-line);
+    color: #fff;
+    border-radius: 10px;
+    padding: 10px 12px;
+}
+
+.mgl-job-check {
+    grid-template-columns: auto 1fr;
+    align-items: start;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 14px;
+}
+
+.mgl-job-check input {
+    width: auto;
+    margin-top: 4px;
+}
+
+.mgl-league-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.mgl-league-tab {
+    border: 1px solid var(--mgl-line);
+    border-radius: 999px;
+    padding: 8px 14px;
+    color: #fff;
+    text-decoration: none;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+}
+
+.mgl-league-tab.is-active,
+.mgl-league-tab:hover {
+    border-color: var(--mgl-orange);
+    color: var(--mgl-orange);
+}
+
+.mgl-standings-club a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.mgl-standings-club a:hover {
+    color: var(--mgl-orange);
+}
+
+.mgl-hub-layout,
+.mgl-hub-stats {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 20px;
+}
+
+.mgl-hub-club {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 16px;
+    align-items: center;
+}
+
+.mgl-hub-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.mgl-hub-links a,
+.mgl-hub-links-stack a {
+    color: var(--mgl-orange);
+    text-decoration: none;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.mgl-hub-links-stack {
+    display: grid;
+    gap: 8px;
+    margin: 8px 0 16px;
+}
+
+.mgl-hub-note {
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 13px;
+}
+
+.mgl-wdl {
+    font-weight: 800;
+}
+
+.mgl-wdl-w { color: #3ddc97; }
+.mgl-wdl-d { color: #ffd166; }
+.mgl-wdl-l { color: #ff5c5c; }
+
+.mgl-club-hero {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 20px;
+    align-items: center;
+}
+
+.mgl-squad-table-wrap {
+    overflow-x: auto;
+}
+
+.mgl-squad-table-head,
+.mgl-squad-row {
+    display: grid;
+    grid-template-columns: 1fr 70px 60px;
+    gap: 10px;
+    padding: 10px 16px;
+    align-items: center;
+}
+
+.mgl-squad-row {
+    color: inherit;
+    text-decoration: none;
+    border-top: 1px solid var(--mgl-line);
+}
+
+.mgl-activity-feed,
+.mgl-activity-item {
+    display: grid;
+    gap: 14px;
+}
+
+.mgl-activity-item {
+    background: var(--mgl-card);
+    border: 1px solid var(--mgl-line);
+    border-radius: 16px;
+    padding: 18px;
+}
+
+.mgl-activity-kicker {
+    color: var(--mgl-orange);
+    letter-spacing: 0.1em;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.mgl-press-article {
+    background: var(--mgl-card);
+    border: 1px solid var(--mgl-line);
+    border-radius: 18px;
+    padding: 22px;
+    margin-bottom: 18px;
+}
+
+.mgl-press-brand {
+    color: var(--mgl-orange);
+    letter-spacing: 0.14em;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.mgl-press-club {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.mgl-press-qa span {
+    color: var(--mgl-orange);
+    font-weight: 800;
+    margin-right: 6px;
+}
+
+.mgl-press-answer {
+    display: grid;
+    gap: 10px;
+    padding: 12px 0;
+    border-top: 1px solid var(--mgl-line);
+}
+
+.mgl-press-answer textarea {
+    width: 100%;
+    background: #0c0c0c;
+    border: 1px solid var(--mgl-line);
+    color: #fff;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+@media (max-width: 768px) {
+    .mgl-hub-layout,
+    .mgl-hub-stats,
+    .mgl-job-apply-head,
+    .mgl-club-hero {
+        grid-template-columns: 1fr;
+    }
+
+    .mgl-activity-feed {
+        grid-template-columns: 1fr;
+    }
+
+    .mgl-header-actions .header-button {
+        white-space: nowrap;
+    }
+}
+
+@media (max-width: 390px) {
+    .mgl-squad-table-head,
+    .mgl-squad-row {
+        grid-template-columns: 1fr 48px 44px;
+        font-size: 13px;
+    }
+}

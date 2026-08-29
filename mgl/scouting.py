@@ -11,7 +11,8 @@ from players.models import Player
 from auctions.models import PlayerAuction
 
 from .market import club_for_user, debit_manager_tokens
-from .models import PlayerListing, ScoutAssignment, ScoutProfile, ScoutReport
+from .models import NewsPost, PlayerListing, ScoutAssignment, ScoutProfile, ScoutReport
+from .services import create_news
 from .regions import (
     REGION_MENU,
     SCOUT_POSITIONS,
@@ -308,6 +309,11 @@ def complete_ready_assignments(manager, now=None):
         )
         created.append(report)
         notices.append(f"{player.name} recruited to {team.name}.")
+        create_news(
+            NewsPost.SCOUTING,
+            f"{player.name} recruited",
+            f"{team.name} recruited {player.name} through the MGL scouting network.",
+        )
     return created, notices
 
 

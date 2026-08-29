@@ -1,0 +1,41 @@
+{% extends "core/base.html" %}
+
+{% block title %}Live Activity — MGL{% endblock %}
+
+{% block content %}
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">NEWS</div>
+            <h2>LIVE ACTIVITY</h2>
+            <p>Official MGL events after approval. Pending results and transfers do not appear here.</p>
+        </div>
+        <a href="{% url 'news_centre' %}" class="view-all">NEWSROOM →</a>
+    </div>
+    <nav class="mgl-league-tabs">
+        <a href="{% url 'news_centre' %}" class="mgl-league-tab">Latest News</a>
+        <a href="{% url 'live_activity' %}" class="mgl-league-tab is-active">Live Activity</a>
+        <a href="{% url 'pressroom' %}" class="mgl-league-tab">Pressroom</a>
+        <a href="{% url 'news_centre' %}?tab=official" class="mgl-league-tab">Official News</a>
+    </nav>
+    <div class="mgl-activity-feed">
+        {% for item in items %}
+            <article class="mgl-activity-item">
+                <div class="mgl-activity-kicker">{{ item.emoji }} {{ item.label }}</div>
+                <h3>{{ item.post.title }}</h3>
+                <p>{{ item.post.body|linebreaksbr }}</p>
+                <small>{{ item.post.created_at|date:"d M Y · H:i" }}</small>
+            </article>
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with title="NO LIVE ACTIVITY YET" body="Approved match results, transfers, auctions, appointments and signings will appear here." %}
+        {% endfor %}
+    </div>
+    {% if page.has_other_pages %}
+        <p class="mgl-pager">
+            {% if page.has_previous %}<a href="?page={{ page.previous_page_number }}">Previous</a>{% endif %}
+            <span>Page {{ page.number }} / {{ page.paginator.num_pages }}</span>
+            {% if page.has_next %}<a href="?page={{ page.next_page_number }}">Next</a>{% endif %}
+        </p>
+    {% endif %}
+</section>
+{% endblock %}

@@ -8,15 +8,22 @@
     <div class="section-heading">
         <div>
             <div class="eyebrow">COMPETITION</div>
-            <h2>MGL LEAGUES</h2>
-            <p>Premier League is the live top division. Championship and League One are open for later clubs.</p>
+            <h2>LEAGUE TABLES</h2>
+            <p>Official MGL standings. Click a club to open its squad and club page.</p>
         </div>
         <span class="section-line"></span>
     </div>
+    {% if tables %}
+    <nav class="mgl-league-tabs" aria-label="League tables">
+        {% for block in tables %}
+            <a href="#table-{{ block.league.short_name|slugify }}" class="mgl-league-tab">{{ block.league.short_name }}</a>
+        {% endfor %}
+    </nav>
+    {% endif %}
 </section>
 
 {% for block in tables %}
-<section class="mgl-section">
+<section class="mgl-section" id="table-{{ block.league.short_name|slugify }}">
     <div class="mgl-league-banner">
         <img src="{% static 'core/img/mgl-logo.png' %}" alt="" class="mgl-logo-img">
         <div>
@@ -27,17 +34,6 @@
     </div>
     <div class="dashboard-panel" style="margin-top:24px">
         {% include "mgl/includes/league_table.html" with table=block.table league=block.league %}
-    </div>
-    <div class="mgl-club-grid" style="margin-top:24px">
-        {% for team in block.league.teams.all %}
-            <article class="mgl-club-card">
-                {% team_logo team "lg" %}
-                <strong>{{ team.name }}</strong>
-                <span>{% if team.manager %}{{ team.manager.username }}{% else %}VACANT{% endif %}</span>
-            </article>
-        {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO CLUBS YET" body="This division is available. Clubs will appear here when they are assigned." %}
-        {% endfor %}
     </div>
 </section>
 {% empty %}

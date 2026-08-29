@@ -1,6 +1,14 @@
 from django.urls import include, path
 
 from mgl.market_views import job_centre, leagues_page, stats_page, transfer_market
+from mgl.site_views import (
+    answer_press,
+    club_page,
+    clubs_index,
+    live_activity,
+    news_centre,
+    pressroom,
+)
 from mgl.views import (
     compare_players,
     competition_page,
@@ -18,6 +26,12 @@ urlpatterns = [
     path("", home, name="home"),
     path("leagues/", leagues_page, name="leagues_page"),
     path("leagues/<slug:slug>/", competition_page, name="competition_page"),
+    path("clubs/", clubs_index, name="clubs_index"),
+    path("clubs/<str:short_name>/", club_page, name="club_page"),
+    path("news/", news_centre, name="news_centre"),
+    path("news/activity/", live_activity, name="live_activity"),
+    path("news/pressroom/", pressroom, name="pressroom"),
+    path("news/pressroom/<int:press_id>/answer/", answer_press, name="answer_press"),
     path("stats/", stats_page, name="stats_page"),
     path("stats/history/", historical_tables, name="historical_tables"),
     path("stats/head-to-head/", head_to_head, name="head_to_head"),

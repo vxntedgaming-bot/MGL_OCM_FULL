@@ -1,0 +1,60 @@
+{% extends "core/base.html" %}
+
+{% block title %}News — MGL{% endblock %}
+
+{% block content %}
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">NEWS</div>
+            <h2>MGL NEWSROOM</h2>
+            <p>Official news, live league activity and press conferences. Pending submissions stay off this page until they are approved.</p>
+        </div>
+        {% if discord_invite_url %}
+            <a href="{{ discord_invite_url }}" class="primary-button" target="_blank" rel="noopener">JOIN THE MGL COMMUNITY</a>
+        {% endif %}
+    </div>
+    <nav class="mgl-league-tabs" aria-label="News">
+        <a href="{% url 'news_centre' %}?tab=latest" class="mgl-league-tab {% if tab == 'latest' %}is-active{% endif %}">Latest News</a>
+        <a href="{% url 'live_activity' %}" class="mgl-league-tab {% if tab == 'activity' %}is-active{% endif %}">Live Activity</a>
+        <a href="{% url 'pressroom' %}" class="mgl-league-tab {% if tab == 'pressroom' %}is-active{% endif %}">Pressroom</a>
+        <a href="{% url 'news_centre' %}?tab=official" class="mgl-league-tab {% if tab == 'official' %}is-active{% endif %}">Official News</a>
+    </nav>
+</section>
+
+{% if tab == 'pressroom' %}
+<section class="mgl-section">
+    {% for press in press_articles %}
+        {% include "mgl/includes/press_article.html" %}
+    {% empty %}
+        {% include "mgl/includes/empty_state.html" with title="NO PRESS CONFERENCES YET" body="Answered interviews appear here after a manager submits a reply." %}
+    {% endfor %}
+</section>
+{% else %}
+<section class="mgl-section">
+    <div class="dashboard-panel">
+        {% if tab == 'official' %}
+            {% for post in official %}
+                <article class="mgl-activity-item">
+                    <small>{{ post.get_category_display }} · {{ post.created_at|date:"d M Y H:i" }}</small>
+                    <h3>{{ post.title }}</h3>
+                    <p>{{ post.body|linebreaksbr }}</p>
+                </article>
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with title="NO OFFICIAL NEWS YET" body="Approved results, transfers and league notices will appear here." %}
+            {% endfor %}
+        {% else %}
+            {% for post in latest %}
+                <article class="mgl-activity-item">
+                    <small>{{ post.get_category_display }} · {{ post.created_at|date:"d M Y H:i" }}</small>
+                    <h3>{{ post.title }}</h3>
+                    <p>{{ post.body|linebreaksbr }}</p>
+                </article>
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with title="NO PUBLISHED NEWS YET" body="No published news yet. Transfers, auctions and results will be posted here as the season develops." %}
+            {% endfor %}
+        {% endif %}
+    </div>
+</section>
+{% endif %}
+{% endblock %}

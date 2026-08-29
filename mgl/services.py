@@ -258,9 +258,18 @@ def sign_free_agent(player, manager):
     if not player.is_free_agent:
         raise ValueError("Only Free Agents can be signed for free. Unassigned players are not Free Agents.")
     assert_roster_space(team)
-    return assign_player(
+    signed = assign_player(
         player,
         team,
         source="FREE_AGENT",
         reference=f"fa-sign:{manager.id}",
     )
+    create_news(
+        NewsPost.SIGNING,
+        f"{signed.name} signed",
+        f"{manager.display_name} has signed {signed.name} from the Free Agent pool for 0 TKN.",
+    )
+    from mgl.press import maybe_create_signing_press
+
+    maybe_create_signing_press(manager.user, team)
+    return signed

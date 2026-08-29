@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.utils import timezone
 
 from accounts.models import User
@@ -22,4 +23,5 @@ def mgl_nav(request):
         "mgl_token_balance": token_balance,
         "mgl_now": timezone.now(),
         "mgl_nav_dropdowns": nav_dropdowns_for_request(request),
+        "discord_invite_url": getattr(settings, "DISCORD_INVITE_URL", "") or "",
     }

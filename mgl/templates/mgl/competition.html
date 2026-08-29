@@ -21,19 +21,6 @@
         <div class="dashboard-panel">
             {% include "mgl/includes/league_table.html" with table=table league=league %}
         </div>
-        {% if league %}
-        <div class="mgl-club-grid" style="margin-top:24px">
-            {% for team in league.teams.all %}
-                <article class="mgl-club-card">
-                    {% team_logo team "lg" %}
-                    <strong>{{ team.name }}</strong>
-                    <span>{% if team.manager %}{{ team.manager.username }}{% else %}VACANT{% endif %}</span>
-                </article>
-            {% empty %}
-                {% include "mgl/includes/empty_state.html" with title="NO CLUBS YET" body="Clubs will appear here when they are assigned to this division." %}
-            {% endfor %}
-        </div>
-        {% endif %}
     {% else %}
         {% include "mgl/includes/empty_state.html" with kicker="NOT LIVE" title=competition_name|upper body="No table, clubs or fixtures are generated for this competition." %}
     {% endif %}

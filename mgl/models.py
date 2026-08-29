@@ -70,16 +70,43 @@ class GKSave(models.Model):
         constraints=[models.UniqueConstraint(fields=["team_stats","player"],name="unique_gk_save")]
 
 class PressConference(models.Model):
-    fixture=models.ForeignKey(Fixture,on_delete=models.CASCADE,related_name="press_conferences")
+    MATCH = "MATCH"
+    SIGNING = "SIGNING"
+    APPOINTMENT = "APPOINTMENT"
+    ODD_MATCHDAY = "ODD_MATCHDAY"
+    TRIGGER_CHOICES = [
+        (MATCH, "Match"),
+        (SIGNING, "Signing"),
+        (APPOINTMENT, "Appointment"),
+        (ODD_MATCHDAY, "Odd matchday"),
+    ]
+
+    fixture=models.ForeignKey(Fixture,on_delete=models.CASCADE,related_name="press_conferences",null=True,blank=True)
+    team=models.ForeignKey("teams.Team",on_delete=models.SET_NULL,null=True,blank=True,related_name="press_conferences")
     manager=models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name="press_conferences")
+    trigger=models.CharField(max_length=20,choices=TRIGGER_CHOICES,default=MATCH)
+    category=models.CharField(max_length=40,default="performance")
+    question_key=models.CharField(max_length=80,blank=True)
     question=models.TextField()
     answer=models.TextField(blank=True)
     status=models.CharField(max_length=20,choices=ApprovalStatus.choices,default=ApprovalStatus.PENDING)
     reward=models.DecimalField(max_digits=6,decimal_places=2,default=Decimal("0.20"))
+    matchweek=models.PositiveIntegerField(null=True,blank=True)
     created_at=models.DateTimeField(auto_now_add=True)
     approved_at=models.DateTimeField(null=True,blank=True)
     class Meta:
-        constraints=[models.UniqueConstraint(fields=["fixture","manager"],name="unique_fixture_manager_press")]
+        constraints=[
+            models.UniqueConstraint(
+                fields=["fixture","manager"],
+                condition=models.Q(fixture__isnull=False),
+                name="unique_fixture_manager_press",
+            ),
+            models.UniqueConstraint(
+                fields=["manager","question_key"],
+                condition=models.Q(status="PENDING") & ~models.Q(question_key=""),
+                name="unique_pending_press_question",
+            ),
+        ]
 
 class RewardTransaction(models.Model):
     manager=models.ForeignKey("managers.ManagerApplication",on_delete=models.CASCADE,related_name="rewards")
@@ -116,7 +143,8 @@ class ManagerWeek(models.Model):
 
 class NewsPost(models.Model):
     RESULTS="RESULTS"; TRANSFER="TRANSFER"; AUCTION="AUCTION"; FREE_AGENT="FREE_AGENT"; REWARD="REWARD"; PRESS="PRESS"
-    CATEGORY_CHOICES=[(x,x.replace("_"," ").title()) for x in [RESULTS,TRANSFER,AUCTION,FREE_AGENT,REWARD,PRESS]]
+    MANAGER="MANAGER"; SIGNING="SIGNING"; SCOUTING="SCOUTING"
+    CATEGORY_CHOICES=[(x,x.replace("_"," ").title()) for x in [RESULTS,TRANSFER,AUCTION,FREE_AGENT,REWARD,PRESS,MANAGER,SIGNING,SCOUTING]]
     category=models.CharField(max_length=30,choices=CATEGORY_CHOICES)
     title=models.CharField(max_length=200)
     body=models.TextField()
@@ -271,6 +299,11 @@ class ClubApplication(models.Model):
     manager = models.ForeignKey("managers.ManagerApplication", on_delete=models.CASCADE, related_name="club_applications")
     team = models.ForeignKey("teams.Team", on_delete=models.CASCADE, related_name="club_applications")
     message = models.TextField(blank=True)
+    gamertag = models.CharField(max_length=64, blank=True)
+    discord_username = models.CharField(max_length=64, blank=True)
+    games_per_week = models.CharField(max_length=8, blank=True)
+    referred_by = models.CharField(max_length=64, blank=True)
+    new_gen_confirmed = models.BooleanField(default=False)
     status = models.CharField(max_length=20, choices=ApprovalStatus.choices, default=ApprovalStatus.PENDING)
     created_at = models.DateTimeField(auto_now_add=True)
     reviewed_at = models.DateTimeField(null=True, blank=True)

@@ -265,6 +265,11 @@ def approve_match_submission(sub, reviewer):
         discord_sent=False,
     )
 
+    from mgl.press import create_match_press_questions, maybe_create_odd_matchday_interview
+
+    create_match_press_questions(fixture, home_stats, away_stats)
+    maybe_create_odd_matchday_interview(fixture)
+
     return True, "Match approved successfully."
 
 
@@ -439,14 +444,16 @@ class PressConferenceAdmin(admin.ModelAdmin):
 
     list_display = (
         "fixture",
+        "team",
         "manager",
+        "trigger",
         "status",
-        "reward",
         "created_at",
     )
 
     list_filter = (
         "status",
+        "trigger",
     )
 
     search_fields = (
@@ -790,6 +797,6 @@ class MarketTransactionAdmin(admin.ModelAdmin):
 
 @admin.register(ClubApplication)
 class ClubApplicationAdmin(admin.ModelAdmin):
-    list_display = ("manager", "team", "status", "created_at")
+    list_display = ("manager", "team", "gamertag", "discord_username", "status", "created_at")
     list_filter = ("status",)
 

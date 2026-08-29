@@ -15,8 +15,11 @@
             in Meta Gaming League Online Career Mode.
         </p>
         <div class="hero-actions">
-            <a href="{% url 'manager_register' %}" class="primary-button">GET STARTED</a>
-            <a href="#mgl-about" class="secondary-button">LEARN MORE</a>
+            <a href="{% url 'job_centre' %}" class="primary-button">APPLY FOR A CLUB</a>
+            <a href="{% url 'leagues_page' %}" class="secondary-button">LEAGUE TABLES</a>
+            {% if discord_invite_url %}
+                <a href="{{ discord_invite_url }}" class="secondary-button" target="_blank" rel="noopener">JOIN DISCORD</a>
+            {% endif %}
         </div>
     </div>
 </section>
@@ -48,6 +51,7 @@
                     {% include "mgl/includes/empty_state.html" with title="NO PUBLISHED NEWS YET" body="No published news yet. Transfers, auctions and results will be posted here as the season develops." %}
                 {% endfor %}
             {% endfor %}
+            <p style="margin-top:16px"><a href="{% url 'news_centre' %}" class="view-all">ALL NEWS →</a></p>
         </article>
 
         <article class="mgl-home-card">
@@ -77,7 +81,7 @@
 
         <article class="mgl-home-card">
             <h2>LEAGUE TABLE</h2>
-            {% include "mgl/includes/league_table.html" with table=table|slice:":4" league=active_league %}
+            {% include "mgl/includes/league_table.html" with table=table|slice:":8" league=active_league %}
             <p style="margin-top:16px"><a href="{% url 'leagues_page' %}" class="view-all">FULL TABLE →</a></p>
         </article>
     </div>
@@ -200,99 +204,6 @@
 <section class="mgl-section">
     <div class="section-heading">
         <div>
-            <div class="eyebrow">COMPETITION</div>
-            <h2>COMPETE AT THE HIGHEST LEVEL</h2>
-        </div>
-        <a href="{% url 'leagues_page' %}" class="view-all">VIEW LEAGUE TABLE →</a>
-    </div>
-    <div class="mgl-league-banner">
-        <img src="{% static 'core/img/mgl-logo.png' %}" alt="" class="mgl-logo-img">
-        <div>
-            <div class="eyebrow">ACTIVE LEAGUE</div>
-            <h3>{% if active_league %}{{ active_league.name|upper }}{% else %}PREMIER LEAGUE{% endif %}</h3>
-            <p>{{ club_count }} official clubs currently belong to the Premier League.</p>
-        </div>
-        <a href="{% url 'leagues_page' %}" class="primary-button">VIEW LEAGUE TABLE</a>
-    </div>
-    <div class="dashboard-panel" style="margin-top:24px">
-        {% include "mgl/includes/league_table.html" with table=table league=active_league %}
-    </div>
-</section>
-
-<section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">STATISTICS</div>
-            <h2>TOP GOALSCORERS</h2>
-        </div>
-        <a href="{% url 'stats_page' %}" class="view-all">STATS HUB →</a>
-    </div>
-    <div class="dashboard-panel">
-        {% for player in top_scorers %}
-            <div class="table-row">
-                <strong>{{ player|card_name }}</strong>
-                <span class="mgl-info-club">{% if player.mgl_team %}{% team_logo player.mgl_team "xs" %} {{ player.mgl_team.short_name }}{% else %}<span class="mgl-status-badge mgl-status-badge--{{ player|market_status_slug }}">{{ player|market_status_label }}</span>{% endif %}</span>
-                <b>{{ player.goals }} GLS</b>
-            </div>
-        {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO STATISTICS AVAILABLE YET." body="Goalscorers will appear here after official results are approved." %}
-        {% endfor %}
-    </div>
-</section>
-
-<section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">THE GRID</div>
-            <h2>MGL CLUBS</h2>
-        </div>
-        <a href="{% url 'job_centre' %}" class="view-all">JOBS →</a>
-    </div>
-    <div class="mgl-club-grid">
-        {% for team in showcase_clubs %}
-            <article class="mgl-club-card">
-                {% team_logo team "lg" %}
-                <strong>{{ team.name }}</strong>
-                <span>{% if team.manager %}{{ team.manager.username }}{% else %}MANAGER VACANT{% endif %}</span>
-            </article>
-        {% endfor %}
-    </div>
-    {% if not showcase_clubs %}
-        {% include "mgl/includes/empty_state.html" with kicker="PREMIER LEAGUE" title="NO CLUBS IN THE PREMIER LEAGUE YET" body="Official MGL clubs will appear here once they are created in the Premier League." %}
-    {% endif %}
-</section>
-
-<section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">WINDOW OPEN</div>
-            <h2>TRANSFER MARKET</h2>
-        </div>
-        <a href="{% url 'transfer_market' %}" class="view-all">OPEN MARKET →</a>
-    </div>
-    <div class="overview-grid">
-        <div class="overview-stat"><span>PLAYERS AVAILABLE</span><strong>{{ live_listing_count }}</strong><small>LIVE LISTINGS</small></div>
-        <div class="overview-stat"><span>UNASSIGNED</span><strong>{{ unassigned_count }}</strong><small>FC26 POOL</small></div>
-        <div class="overview-stat"><span>FREE AGENTS</span><strong>{{ free_agent_count }}</strong><small>AVAILABLE TO SIGN</small></div>
-        <div class="overview-stat"><span>PLAYER DATABASE</span><strong>{{ player_count }}</strong><small>EA FC PLAYER POOL</small></div>
-    </div>
-    <div class="dashboard-panel" style="margin-top:24px">
-        <div class="panel-heading"><span>LATEST TRANSFERS</span></div>
-        {% for row in recent_transfers %}
-            <div class="table-row">
-                <strong>{{ row.player.name|default:"Token movement" }}</strong>
-                <span class="mgl-info-club">{% team_logo row.from_team "xs" %} {{ row.from_team.short_name|default:"FA" }} → {% team_logo row.to_team "xs" %} {{ row.to_team.short_name|default:"—" }}</span>
-                <b>{{ row.amount }} TKN</b>
-            </div>
-        {% empty %}
-            {% include "mgl/includes/empty_state.html" with kicker="MARKET" title="NO TRANSFERS YET" body="The MGL transfer market will appear here when the first official deal is completed." %}
-        {% endfor %}
-    </div>
-</section>
-
-<section class="mgl-section">
-    <div class="section-heading">
-        <div>
             <div class="eyebrow">MATCH CENTRE</div>
             <h2>FIXTURES &amp; RESULTS</h2>
         </div>
@@ -338,6 +249,9 @@
     <div class="hero-actions">
         <a href="{% url 'job_centre' %}" class="primary-button">APPLY FOR A CLUB</a>
         <a href="{% url 'leagues_page' %}" class="secondary-button">VIEW LEAGUE</a>
+        {% if discord_invite_url %}
+            <a href="{{ discord_invite_url }}" class="secondary-button" target="_blank" rel="noopener">JOIN DISCORD</a>
+        {% endif %}
     </div>
 </section>
 {% endblock %}
