@@ -86,6 +86,14 @@ class ManagerResignTests(TestCase):
         self.assertContains(page, "RESIGN FROM CLUB")
         self.assertContains(page, "ARS")
         self.assertNotContains(page, "RESIGN FROM CLUB?")
+        self.assertNotContains(page, "MANAGER HISTORY")
+        self.assertNotContains(page, "CLUB SPELLS")
+        self.assertNotContains(page, "JOB APPLICATIONS")
+        self.assertNotContains(page, "APPLICATION RECORD")
+        self.assertNotContains(page, "CURRENT JOB")
+        self.assertIsNone(page.context.get("spells"))
+        self.assertIsNone(page.context.get("applications"))
+        self.assertEqual(self.manager.club_spells.filter(team=self.club, ended_at__isnull=True).count(), 1)
 
     def test_resign_confirmation_does_not_leave_the_club(self):
         self._login()
@@ -167,9 +175,15 @@ class ManagerResignTests(TestCase):
         self.assertContains(profile, "No Club")
         self.assertContains(profile, "AVAILABLE FOR MANAGEMENT")
         self.assertContains(profile, "8.00")
-        self.assertContains(profile, "Arsenal")
-        self.assertContains(profile, "Status: Resigned")
+        self.assertNotContains(profile, "MANAGER HISTORY")
+        self.assertNotContains(profile, "CLUB SPELLS")
+        self.assertNotContains(profile, "JOB APPLICATIONS")
+        self.assertNotContains(profile, "APPLICATION RECORD")
+        self.assertNotContains(profile, "Status: Resigned")
         self.assertNotContains(profile, "RESIGN FROM CLUB")
+        spell = self.manager.club_spells.get(team=self.club)
+        self.assertIsNotNone(spell.ended_at)
+        self.assertEqual(spell.end_reason, ManagerClubSpell.RESIGNED)
 
     def test_manager_cannot_resign_another_manager(self):
         self._login("rival")

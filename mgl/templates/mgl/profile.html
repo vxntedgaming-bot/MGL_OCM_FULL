@@ -97,47 +97,6 @@
     </div>
 </section>
 
-<section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">MANAGER HISTORY</div>
-            <h2>CLUB SPELLS</h2>
-            <p>Previous jobs stay on this profile when you leave a club. Token balance is not reset.</p>
-        </div>
-    </div>
-    <div class="dashboard-panel">
-        {% for spell in spells %}
-            <div class="table-row">
-                <strong class="mgl-info-club">{% team_logo spell.team "xs" %} {{ spell.team.name }}</strong>
-                <span>Manager · {{ spell.started_at|date:"d M Y" }} — {% if spell.ended_at %}{{ spell.ended_at|date:"d M Y" }}{% else %}CURRENT JOB{% endif %}</span>
-                <small>Status: {% if not spell.ended_at %}Current job{% elif spell.end_reason %}{{ spell.get_end_reason_display }}{% else %}Ended{% endif %}</small>
-            </div>
-        {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO DATA YET" body="Club appointments will appear here after you take a job." %}
-        {% endfor %}
-    </div>
-</section>
-
-<section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">JOB APPLICATIONS</div>
-            <h2>APPLICATION RECORD</h2>
-        </div>
-    </div>
-    <div class="dashboard-panel">
-        {% for app in applications %}
-            <div class="table-row">
-                <strong>{{ app.team.name }}</strong>
-                <span>{{ app.status }}</span>
-                <small>{{ app.created_at|date:"d M Y" }}</small>
-            </div>
-        {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO DATA YET" body="Job Centre applications will be listed here." %}
-        {% endfor %}
-    </div>
-</section>
-
 {% if confirm_resign and team %}
 <div class="mgl-modal-backdrop">
     <div class="mgl-modal" role="dialog" aria-modal="true">

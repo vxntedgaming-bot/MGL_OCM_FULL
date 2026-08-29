@@ -811,8 +811,6 @@ def manager_profile(request):
     )
     team = club_for_user(request.user)
     confirm_resign = request.GET.get("resign") == "1" and team is not None
-    spells = manager.club_spells.select_related("team").order_by("-started_at")
-    applications = manager.club_applications.select_related("team").order_by("-created_at")[:12]
     played = 0
     win_rate = None
     if career:
@@ -846,8 +844,6 @@ def manager_profile(request):
             "rewards": rewards,
             "team": team,
             "token_balance": token_balance_for_user(request.user),
-            "spells": spells,
-            "applications": applications,
             "played": played,
             "win_rate": win_rate,
             "goals_for": goals_for,
