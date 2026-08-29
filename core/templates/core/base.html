@@ -39,14 +39,10 @@
                 {% for menu in mgl_nav_dropdowns %}{% include "core/includes/nav_dropdown.html" %}{% endfor %}
                 <a href="{% url 'job_centre' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'job_centre' %}is-active{% endif %}">JOBS</a>
             {% else %}
-                <a href="{% url 'fixture_list' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'fixture_list' %}is-active{% endif %}">FIXTURES</a>
                 {% for menu in mgl_nav_dropdowns %}{% if menu.id == "leagues" %}{% include "core/includes/nav_dropdown.html" %}{% endif %}{% endfor %}
                 {% for menu in mgl_nav_dropdowns %}{% if menu.id == "stats" %}{% include "core/includes/nav_dropdown.html" %}{% endif %}{% endfor %}
-                <a href="{% url 'clubs_index' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'clubs_index' or request.resolver_match.url_name == 'club_page' %}is-active{% endif %}">TEAMS</a>
-                {% for menu in mgl_nav_dropdowns %}{% if menu.id == "market" %}{% include "core/includes/nav_dropdown.html" %}{% endif %}{% endfor %}
                 <a href="{% url 'job_centre' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'job_centre' %}is-active{% endif %}">JOBS</a>
                 {% for menu in mgl_nav_dropdowns %}{% if menu.id == "news" %}{% include "core/includes/nav_dropdown.html" %}{% endif %}{% endfor %}
-                {% for menu in mgl_nav_dropdowns %}{% if menu.id == "my-team" %}{% include "core/includes/nav_dropdown.html" %}{% endif %}{% endfor %}
             {% endif %}
             {% if mgl_is_control %}
                 <a href="{% url 'control_centre' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'control_centre' or 'site_management' in request.resolver_match.url_name %}is-active{% endif %}">CONTROL</a>
@@ -56,7 +52,6 @@
                     <a href="{% url 'manager_profile' %}" class="mgl-nav-link">PROFILE</a>
                 {% else %}
                     <a href="{% url 'manager_login' %}" class="mgl-nav-link">LOGIN</a>
-                    <a href="{% url 'manager_register' %}" class="mgl-nav-link">JOIN</a>
                 {% endif %}
             </div>
         </nav>

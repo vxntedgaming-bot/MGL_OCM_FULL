@@ -83,9 +83,11 @@ class NotificationAndPressroomTests(TestCase):
         home = self.client.get("/")
         self.assertEqual(home.status_code, 200)
         self.assertNotContains(home, "data-notify-dropdown")
-        self.assertContains(home, "Recruitment Drive")
-        self.assertContains(home, "MY TEAM")
+        self.assertNotContains(home, "Recruitment Drive")
+        self.assertNotContains(home, "MY TEAM")
         self.assertNotContains(home, "MY CLUB")
+        self.assertContains(home, "JOBS")
+        self.assertContains(home, "LOGIN")
 
     def test_press_creates_one_notification_and_answer_publishes(self):
         press = create_press_question(
