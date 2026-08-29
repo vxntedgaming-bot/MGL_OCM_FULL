@@ -1,4 +1,5 @@
 {% extends "core/base.html" %}
+{% load static %}
 
 {% block title %}Submit Match — MGL{% endblock %}
 
@@ -8,66 +9,87 @@
         <div>
             <div class="eyebrow">MATCH CENTRE</div>
             <h2>{{ fixture.home_team.name }} VS {{ fixture.away_team.name }}</h2>
-            <p>Submit both teams here. The result and player stats stay pending until an owner or admin approves them.</p>
+            <p>Enter the match result. Player statistics stay pending until an owner or admin approves them. A deadline can be added later without changing this form.</p>
         </div>
         <a href="{% url 'fixture_list' %}" class="view-all">FIXTURES →</a>
     </div>
 
-    <form method="post" class="mgl-form">
+    <form method="post" class="mgl-form mgl-match-form" id="mgl-match-form">
         {% csrf_token %}
-        {% for team, players in teams %}
-            <div class="dashboard-panel" style="margin-bottom:24px;padding:24px">
+        <div class="dashboard-panel mgl-match-score" style="margin-bottom:24px;padding:24px">
+            <div class="panel-heading"><span>MATCH RESULT</span></div>
+            <p class="mgl-hub-note">{{ fixture.home_team.name }} (home) vs {{ fixture.away_team.name }} (away){% if fixture.matchweek %} · Gameweek {{ fixture.matchweek }}{% endif %}</p>
+        </div>
+        {% for side in sides %}
+            <div class="dashboard-panel mgl-match-side" style="margin-bottom:24px;padding:24px" data-prefix="{{ side.prefix }}">
                 <div class="panel-heading">
-                    <span>{% if forloop.first %}HOME{% else %}AWAY{% endif %}</span>
-                    <b>{{ team.name }}</b>
+                    <span>{{ side.label }}</span>
+                    <b>{{ side.team.name }}</b>
                 </div>
 
-                <label>Goals
-                    <input type="number" name="{% if forloop.first %}home_goals{% else %}away_goals{% endif %}" min="0" max="30">
-                </label>
-                <label>Shots
-                    <input type="number" name="{% if forloop.first %}home_shots{% else %}away_shots{% endif %}" min="0" max="100">
-                </label>
-                <label>Possession
-                    <input type="number" name="{% if forloop.first %}home_possession{% else %}away_possession{% endif %}" min="0" max="100">
-                </label>
+                <div class="mgl-match-grid">
+                    <label>Goals
+                        <input type="number" class="js-goals" name="{{ side.prefix }}_goals" min="0" max="30" value="0" required>
+                    </label>
+                    <label>Shots
+                        <input type="number" name="{{ side.prefix }}_shots" min="0" max="100" value="0">
+                    </label>
+                    <label>Possession %
+                        <input type="number" name="{{ side.prefix }}_possession" min="0" max="100" value="50">
+                    </label>
+                    <label>Yellow cards
+                        <select name="{{ side.prefix }}_yellow_cards">
+                            {% for n in card_choices %}<option value="{{ n }}">{{ n }}</option>{% endfor %}
+                        </select>
+                    </label>
+                    <label>Red cards
+                        <select name="{{ side.prefix }}_red_cards">
+                            {% for n in card_choices %}<option value="{{ n }}">{{ n }}</option>{% endfor %}
+                        </select>
+                    </label>
+                </div>
 
-                <label>Goalscorers
-                    <select multiple name="{% if forloop.first %}home_goal_players{% else %}away_goal_players{% endif %}">
-                        {% for player in players %}
-                            <option value="{{ player.id }}">{{ player.name }} — {{ player.position }}</option>
-                        {% endfor %}
-                    </select>
-                </label>
+                <h3>Goals</h3>
+                <noscript><p class="mgl-hub-note">Enable JavaScript to add a player dropdown for each goal. The server still checks every selection.</p></noscript>
+                <div class="js-goal-slots mgl-match-slots"></div>
+                <h3>Assists</h3>
+                <p class="mgl-hub-note">Leave Unassisted if nobody provided the assist.</p>
+                <div class="js-assist-slots mgl-match-slots"></div>
 
-                <label>Assists
-                    <select multiple name="{% if forloop.first %}home_assist_players{% else %}away_assist_players{% endif %}">
-                        {% for player in players %}
-                            <option value="{{ player.id }}">{{ player.name }} — {{ player.position }}</option>
-                        {% endfor %}
-                    </select>
-                </label>
+                <select class="js-player-options" hidden>
+                    {% for player in side.players %}
+                        <option value="{{ player.id }}">{{ player.name }} — {{ player.position }}</option>
+                    {% endfor %}
+                </select>
 
+                {% if side.defenders %}
                 <h3>Defender ratings (0.0–10.0)</h3>
-                {% for player in players %}
-                    {% if player.position == 'CB' or player.position == 'LB' or player.position == 'RB' or player.position == 'LWB' or player.position == 'RWB' %}
+                <div class="mgl-match-grid">
+                    {% for player in side.defenders %}
                         <label>{{ player.name }}
-                            <input type="number" step="0.1" min="0" max="10" name="{% if forloop.parentloop.first %}home_def_{{ player.id }}{% else %}away_def_{{ player.id }}{% endif %}">
+                            <input type="number" step="0.1" min="0" max="10" name="{{ side.prefix }}_def_{{ player.id }}" placeholder="e.g. 7.4">
                         </label>
-                    {% endif %}
-                {% endfor %}
+                    {% endfor %}
+                </div>
+                {% endif %}
 
-                <h3>GK saves (1–20)</h3>
-                {% for player in players %}
-                    {% if player.position == 'GK' %}
+                {% if side.keepers %}
+                <h3>Goalkeeper saves</h3>
+                <div class="mgl-match-grid">
+                    {% for player in side.keepers %}
                         <label>{{ player.name }}
-                            <input type="number" min="1" max="20" name="{% if forloop.parentloop.first %}home_save_{{ player.id }}{% else %}away_save_{{ player.id }}{% endif %}">
+                            <input type="number" min="0" max="20" name="{{ side.prefix }}_save_{{ player.id }}">
                         </label>
-                    {% endif %}
-                {% endfor %}
+                    {% endfor %}
+                </div>
+                {% endif %}
             </div>
         {% endfor %}
         <button class="primary-button" type="submit">SEND TO ADMIN APPROVAL</button>
     </form>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'core/js/mgl-match-submit.js' %}"></script>
 {% endblock %}

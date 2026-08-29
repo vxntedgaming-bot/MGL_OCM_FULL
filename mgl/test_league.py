@@ -38,7 +38,7 @@ class SuperLeagueOneTests(TestCase):
         self.assertNotContains(leagues, "href=\"/leagues/mls/\"")
         stats = self.client.get("/stats/")
         self.assertContains(stats, "TOP GOAL SCORERS")
-        self.assertContains(stats, "TOP ASSISTERS")
+        self.assertContains(stats, "TOP ASSISTS")
         self.assertContains(stats, "TOP DEFENDERS")
         self.assertContains(stats, "TOP GOALKEEPERS")
         self.assertContains(stats, "TOP MANAGERS")

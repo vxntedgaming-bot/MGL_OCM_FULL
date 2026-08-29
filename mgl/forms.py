@@ -5,7 +5,7 @@ from .models import TeamMatchStats, DefenderRating, GKSave
 class TeamStatsForm(forms.ModelForm):
     class Meta:
         model=TeamMatchStats
-        fields=["goals","shots","possession"]
+        fields=["goals","shots","possession","yellow_cards","red_cards"]
         widgets={"goals":forms.NumberInput(attrs={"min":0,"max":30}),"shots":forms.NumberInput(attrs={"min":0,"max":100}),"possession":forms.NumberInput(attrs={"min":0,"max":100})}
 
 class DefenderRatingForm(forms.ModelForm):
@@ -18,4 +18,4 @@ class GKSaveForm(forms.ModelForm):
     class Meta:
         model=GKSave
         fields=["player","saves"]
-        widgets={"saves":forms.NumberInput(attrs={"min":1,"max":20})}
+        widgets={"saves":forms.NumberInput(attrs={"min":0,"max":20})}

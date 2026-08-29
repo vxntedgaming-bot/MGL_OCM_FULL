@@ -42,6 +42,8 @@ class TeamMatchStats(models.Model):
     goals = models.PositiveSmallIntegerField(default=0, validators=[MaxValueValidator(30)])
     shots = models.PositiveSmallIntegerField(default=0, validators=[MaxValueValidator(100)])
     possession = models.PositiveSmallIntegerField(default=50, validators=[MaxValueValidator(100)])
+    yellow_cards = models.PositiveSmallIntegerField(default=0, validators=[MaxValueValidator(11)])
+    red_cards = models.PositiveSmallIntegerField(default=0, validators=[MaxValueValidator(11)])
     class Meta:
         constraints=[models.UniqueConstraint(fields=["submission","team"], name="unique_submission_team_stats")]
 
@@ -65,7 +67,7 @@ class DefenderRating(models.Model):
 class GKSave(models.Model):
     team_stats=models.ForeignKey(TeamMatchStats,on_delete=models.CASCADE,related_name="gk_saves")
     player=models.ForeignKey("players.Player",on_delete=models.CASCADE,related_name="gk_saves")
-    saves=models.PositiveSmallIntegerField(validators=[MinValueValidator(1),MaxValueValidator(20)])
+    saves=models.PositiveSmallIntegerField(validators=[MinValueValidator(0),MaxValueValidator(20)])
     class Meta:
         constraints=[models.UniqueConstraint(fields=["team_stats","player"],name="unique_gk_save")]
 

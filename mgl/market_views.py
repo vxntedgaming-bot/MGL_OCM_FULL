@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Avg, Count, Q, Sum
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
@@ -26,7 +25,6 @@ from .market import (
 from .models import (
     ApprovalStatus,
     ClubApplication,
-    ManagerCareerStat,
     MarketTransaction,
     NewsPost,
     PlayerListing,
@@ -188,51 +186,15 @@ def leagues_page(request):
 
 
 def stats_page(request):
-    top_scorers = (
-        Player.objects.filter(goals__gt=0)
-        .select_related("mgl_team")
-        .order_by("-goals", "name")[:20]
-    )
-    top_assisters = (
-        Player.objects.filter(assists__gt=0)
-        .select_related("mgl_team")
-        .order_by("-assists", "name")[:20]
-    )
-    top_defenders = (
-        Player.objects.filter(defender_ratings__team_stats__submission__status=ApprovalStatus.APPROVED)
-        .select_related("mgl_team")
-        .annotate(
-            avg_def=Avg("defender_ratings__rating"),
-            def_apps=Count("defender_ratings", distinct=True),
-        )
-        .order_by("-avg_def", "-def_apps", "name")[:20]
-    )
-    top_keepers = (
-        Player.objects.filter(gk_saves__team_stats__submission__status=ApprovalStatus.APPROVED)
-        .select_related("mgl_team")
-        .annotate(total_saves=Sum("gk_saves__saves"))
-        .order_by("-total_saves", "name")[:20]
-    )
-    top_managers = (
-        ManagerCareerStat.objects.select_related("manager", "manager__user")
-        .filter(Q(wins__gt=0) | Q(draws__gt=0) | Q(losses__gt=0) | Q(trophies__gt=0))
-        .order_by("-wins", "-trophies", "manager__display_name")[:20]
-    )
-    return render(
-        request,
-        "mgl/stats.html",
-        {
-            "top_scorers": top_scorers,
-            "top_assisters": top_assisters,
-            "top_defenders": top_defenders,
-            "top_keepers": top_keepers,
-            "top_managers": top_managers,
-            "club_count": Team.objects.count(),
-            "player_count": Player.objects.count(),
-            "unassigned_count": unassigned_players().count(),
-            "free_agent_count": free_agent_qs().count(),
-        },
-    )
+    from mgl.league_stats import render_league_stats
+
+    return render_league_stats(request, "premier-league")
+
+
+def league_stats_page(request, slug):
+    from mgl.league_stats import render_league_stats
+
+    return render_league_stats(request, slug)
 
 
 def job_centre(request):

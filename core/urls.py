@@ -1,6 +1,6 @@
 from django.urls import include, path
 
-from mgl.market_views import job_centre, leagues_page, stats_page, transfer_market
+from mgl.market_views import job_centre, league_stats_page, leagues_page, stats_page, transfer_market
 from mgl.site_views import (
     answer_press,
     club_page,
@@ -37,6 +37,7 @@ urlpatterns = [
     path("stats/head-to-head/", head_to_head, name="head_to_head"),
     path("stats/compare/", compare_players, name="compare_players"),
     path("stats/managers/", manager_search, name="manager_search"),
+    path("stats/<slug:slug>/", league_stats_page, name="league_stats"),
     path("jobs/", job_centre, name="job_centre"),
     path("market/", transfer_market, name="transfer_market"),
     path("market/transfers/", transfer_history, name="transfer_history"),

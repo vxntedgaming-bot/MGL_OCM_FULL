@@ -25,10 +25,6 @@ from .models import (
     Fixture,
     MatchSubmission,
     TeamMatchStats,
-    GoalEvent,
-    AssistEvent,
-    DefenderRating,
-    GKSave,
     PressConference,
     NewsPost,
     RewardTransaction,
@@ -490,6 +486,8 @@ def fixture_list(request):
 @login_required
 @transaction.atomic
 def submit_match(request, fixture_id):
+    from mgl.match_submit import MatchSubmitError, save_match_submission
+
     fixture = get_object_or_404(
         Fixture.objects.select_related(
             "home_team",
@@ -499,12 +497,12 @@ def submit_match(request, fixture_id):
         is_released=True,
     )
 
-    manager = manager_for_user(request.user)
+    manager = approved_manager(request.user)
 
     if not manager:
         messages.error(
             request,
-            "You must have a manager account.",
+            "You must be an approved manager to submit a result.",
         )
         return redirect("fixture_list")
 
@@ -516,7 +514,7 @@ def submit_match(request, fixture_id):
     if request.user.id not in allowed_managers:
         messages.error(
             request,
-            "Only the two managers in this fixture can submit the match.",
+            "You can only submit a result for a fixture that involves your club.",
         )
         return redirect("fixture_list")
 
@@ -528,93 +526,45 @@ def submit_match(request, fixture_id):
         return redirect("fixture_list")
 
     if request.method == "POST":
-        sub = MatchSubmission.objects.create(
-            fixture=fixture,
-            submitted_by=request.user,
-        )
-
-        for team in [fixture.home_team, fixture.away_team]:
-            prefix = "home_" if team == fixture.home_team else "away_"
-
-            ts = TeamMatchStats.objects.create(
-                submission=sub,
-                team=team,
-                goals=_post_int(request.POST, prefix + "goals", 0),
-                shots=_post_int(request.POST, prefix + "shots", 0),
-                possession=_post_int(request.POST, prefix + "possession", 50),
-            )
-
-            for pid in request.POST.getlist(prefix + "goal_players"):
-                player = get_object_or_404(
-                    Player,
-                    pk=pid,
-                    mgl_team=team,
-                )
-                GoalEvent.objects.create(
-                    team_stats=ts,
-                    player=player,
-                )
-
-            for pid in request.POST.getlist(prefix + "assist_players"):
-                player = get_object_or_404(
-                    Player,
-                    pk=pid,
-                    mgl_team=team,
-                )
-                AssistEvent.objects.create(
-                    team_stats=ts,
-                    player=player,
-                )
-
-            defenders = Player.objects.filter(
-                mgl_team=team,
-                position__in=["CB", "LB", "RB", "LWB", "RWB"],
-            )
-
-            for player in defenders:
-                value = request.POST.get(f"{prefix}def_{player.id}")
-                if value not in (None, ""):
-                    DefenderRating.objects.create(
-                        team_stats=ts,
-                        player=player,
-                        rating=value,
-                    )
-
-            keepers = Player.objects.filter(
-                mgl_team=team,
-                position="GK",
-            )
-
-            for player in keepers:
-                value = request.POST.get(f"{prefix}save_{player.id}")
-                if value not in (None, ""):
-                    GKSave.objects.create(
-                        team_stats=ts,
-                        player=player,
-                        saves=value,
-                    )
-
+        try:
+            save_match_submission(fixture, request.user, request.POST)
+        except MatchSubmitError as exc:
+            messages.error(request, str(exc))
+            return redirect("submit_match", fixture.id)
         messages.success(
             request,
-            "Match submitted to Admin for approval.",
+            "Match submitted to Admin for approval. Statistics stay unofficial until approved.",
         )
         return redirect("fixture_list")
 
-    teams = []
-    for team in [fixture.home_team, fixture.away_team]:
+    sides = []
+    for team, prefix in (
+        (fixture.home_team, "home"),
+        (fixture.away_team, "away"),
+    ):
         players = list(
-            Player.objects
-            .filter(mgl_team=team)
-            .order_by("position", "-overall", "name")
+            Player.objects.filter(mgl_team=team).order_by("position", "-overall", "name")
         )
-        teams.append((team, players))
+        defenders = [row for row in players if row.position in {"CB", "LB", "RB", "LWB", "RWB"}]
+        keepers = [row for row in players if (row.position or "").upper() == "GK"]
+        sides.append(
+            {
+                "team": team,
+                "prefix": prefix,
+                "label": "HOME" if prefix == "home" else "AWAY",
+                "players": players,
+                "defenders": defenders,
+                "keepers": keepers,
+            }
+        )
 
     return render(
         request,
         "mgl/submit_match.html",
         {
             "fixture": fixture,
-            "teams": teams,
+            "sides": sides,
+            "card_choices": range(0, 12),
         },
     )
 
@@ -1292,8 +1242,8 @@ def club_squad_admin(request, team_id):
 
 
 def competition_page(request, slug):
-    if slug == "mls":
-        raise Http404("MLS is not an active MGL competition.")
+    if slug in {"mls", "waiting-room"}:
+        raise Http404("This competition is not an active MGL division.")
     name = COMPETITIONS.get(slug)
     if not name:
         raise Http404("Unknown competition")
@@ -1342,12 +1292,7 @@ def head_to_head(request):
 
 
 def compare_players(request):
-    return _feature_page(
-        request,
-        "Compare",
-        "STATS & HISTORY",
-        "Player comparison is not live yet. Open any player profile from All Players or Free Agents to view their recognised FC26 name, card and attributes.",
-    )
+    raise Http404("Player comparison has been removed.")
 
 
 def manager_search(request):

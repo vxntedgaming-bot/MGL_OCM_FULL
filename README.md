@@ -89,7 +89,19 @@ python manage.py close_expired_auctions
 - Manager register / login: `/register/`, `/login/`
 - Manager tools: `/mgl/hub/`
 - Owner / admin control: `/mgl/control/`
-- Public pages: `/leagues/`, `/market/`, `/stats/`, `/jobs/`
+- Public pages: `/leagues/`, `/market/`, `/stats/premier-league/`, `/jobs/`
+
+Statistics are per division (`/stats/premier-league/`, `/stats/championship/`, `/stats/league-one/`) and use **approved** match submissions only. Pending results do not move the table or player leaderboards. Waiting Room League and the Compare page are not in navigation; those URLs 404.
+
+Managers submit results only for fixtures that include their club (`/mgl/fixtures/<id>/submit/`). Goal and assist player fields follow the goal count; defender ratings accept decimals 0.0–10.0; goalkeeper saves are stored on the same submission. Admin/owner approval is unchanged.
+
+If a 14-team division has no round-robin yet, create the missing 13-game single schedule locally (91 fixtures, no duplicates, no deadline):
+
+```bash
+python manage.py ensure_league_fixtures
+```
+
+Do not run that command against production. It does not delete existing fixtures or invent clubs for Championship / League One until those divisions have 14 teams.
 
 ## Core OCM
 

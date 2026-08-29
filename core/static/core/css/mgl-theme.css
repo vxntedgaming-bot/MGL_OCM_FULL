@@ -1370,3 +1370,48 @@ body.mgl-auth-body .mgl-main {
         padding: 14px;
     }
 }
+
+.mgl-match-grid,
+.mgl-match-slots {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin: 12px 0 18px;
+}
+
+.mgl-match-slots label,
+.mgl-match-grid label {
+    display: grid;
+    gap: 6px;
+}
+
+.mgl-match-form select,
+.mgl-match-form input {
+    width: 100%;
+    max-width: 100%;
+    min-height: 44px;
+    font-family: var(--font-body, "Manrope", Arial, Helvetica, sans-serif);
+    font-size: 14px;
+}
+
+.mgl-match-form .dashboard-panel,
+.mgl-stats-grid .dashboard-panel {
+    min-width: 0;
+    overflow: visible;
+}
+
+@media (max-width: 768px) {
+    .mgl-match-grid,
+    .mgl-match-slots {
+        grid-template-columns: 1fr;
+    }
+
+    .mgl-league-tabs {
+        width: 100%;
+    }
+
+    .mgl-league-tab {
+        flex: 1 1 auto;
+        text-align: center;
+    }
+}

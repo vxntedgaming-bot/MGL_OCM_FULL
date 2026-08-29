@@ -521,7 +521,7 @@ class StatsHubTests(TestCase):
         response = self.client.get(reverse("stats_page"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "TOP GOAL SCORERS")
-        self.assertContains(response, "TOP ASSISTERS")
+        self.assertContains(response, "TOP ASSISTS")
         self.assertContains(response, "TOP DEFENDERS")
         self.assertContains(response, "TOP GOALKEEPERS")
         self.assertContains(response, "TOP MANAGERS")
@@ -533,9 +533,15 @@ class StatsHubTests(TestCase):
         user = _user("boss")
         manager = _manager(user)
         ManagerCareerStat.objects.create(manager=manager, wins=4, draws=1, losses=0)
-        scorer = Player.objects.create(name="Official Scorer", position="ST", overall=70, goals=3, is_free_agent=True)
+        scorer = Player.objects.create(
+            name="Typed Scorer",
+            position="ST",
+            overall=70,
+            goals=3,
+            is_free_agent=True,
+        )
         response = self.client.get(reverse("stats_page"))
-        self.assertContains(response, "Official Scorer")
+        self.assertNotContains(response, "Typed Scorer")
         self.assertContains(response, manager.display_name)
         self.assertEqual(scorer.goals, 3)
 

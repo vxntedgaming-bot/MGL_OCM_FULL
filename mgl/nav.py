@@ -95,30 +95,34 @@ NAV_DROPDOWNS = (
                 "url_kwargs": {"slug": "cups"},
                 "divider": True,
             },
-            {
-                "label": "WAITING ROOM LEAGUE",
-                "url_name": "competition_page",
-                "url_kwargs": {"slug": "waiting-room"},
-                "divider": True,
-            },
         ),
     },
     {
         "id": "stats",
         "label": "STATISTICS",
         "current": {
-            "historical_tables",
             "stats_page",
-            "head_to_head",
-            "compare_players",
-            "manager_search",
+            "league_stats",
         },
         "items": (
-            {"label": "HISTORICAL LEAGUE TABLES", "url_name": "historical_tables"},
-            {"label": "STATS HUB", "url_name": "stats_page", "divider": True},
-            {"label": "HEAD TO HEAD", "url_name": "head_to_head", "divider": True},
-            {"label": "COMPARE", "url_name": "compare_players"},
-            {"label": "MANAGER SEARCH", "url_name": "manager_search", "divider": True},
+            {
+                "label": "Premier League Stats",
+                "url_name": "league_stats",
+                "url_kwargs": {"slug": "premier-league"},
+                "style": "sub",
+            },
+            {
+                "label": "Championship Stats",
+                "url_name": "league_stats",
+                "url_kwargs": {"slug": "championship"},
+                "style": "sub",
+            },
+            {
+                "label": "League One Stats",
+                "url_name": "league_stats",
+                "url_kwargs": {"slug": "league-one"},
+                "style": "sub",
+            },
         ),
     },
 )
@@ -164,7 +168,6 @@ MANAGER_NAV_DROPDOWNS = (
         "id": "recruitment",
         "label": "RECRUITMENT",
         "current": {
-            "stats_page",
             "scouting",
             "live_auctions",
             "place_bid",
@@ -173,8 +176,7 @@ MANAGER_NAV_DROPDOWNS = (
             "youth_academy",
         },
         "items": (
-            {"label": "STATS HUB", "url_name": "stats_page"},
-            {"label": "RECRUITMENT DRIVE", "url_name": "scouting", "divider": True},
+            {"label": "RECRUITMENT DRIVE", "url_name": "scouting"},
             {"label": "AUCTIONS", "url_name": "live_auctions", "divider": True},
             {"label": "PLAYER DATABASE", "url_name": "player_database", "divider": True},
             {
@@ -203,6 +205,31 @@ MANAGER_NAV_DROPDOWNS = (
             {"label": "PRESSROOM", "url_name": "pressroom", "divider": True},
         ),
     },
+    {
+        "id": "stats",
+        "label": "STATISTICS",
+        "current": {"stats_page", "league_stats"},
+        "items": (
+            {
+                "label": "Premier League Stats",
+                "url_name": "league_stats",
+                "url_kwargs": {"slug": "premier-league"},
+                "style": "sub",
+            },
+            {
+                "label": "Championship Stats",
+                "url_name": "league_stats",
+                "url_kwargs": {"slug": "championship"},
+                "style": "sub",
+            },
+            {
+                "label": "League One Stats",
+                "url_name": "league_stats",
+                "url_kwargs": {"slug": "league-one"},
+                "style": "sub",
+            },
+        ),
+    },
 )
 
 COMPETITIONS = {
@@ -210,7 +237,6 @@ COMPETITIONS = {
     "championship": "Championship",
     "league-one": "League One",
     "cups": "Cups",
-    "waiting-room": "Waiting Room League",
 }
 
 LIVE_COMPETITION_SLUGS = {

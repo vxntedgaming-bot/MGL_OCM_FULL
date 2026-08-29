@@ -78,24 +78,33 @@ class NavigationDropdownTests(TestCase):
         self.assertNotContains(response, reverse("unassigned_players"))
         self.assertNotContains(response, "UNASSIGNED PLAYERS")
         self.assertContains(response, "CUPS")
-        self.assertContains(response, "WAITING ROOM LEAGUE")
+        self.assertNotContains(response, "WAITING ROOM")
+        self.assertNotContains(response, "WAITING ROOM LEAGUE")
         self.assertContains(response, reverse("leagues_page"))
         self.assertContains(
             response, reverse("competition_page", kwargs={"slug": "premier-league"})
         )
-        self.assertContains(
+        self.assertNotContains(
             response, reverse("competition_page", kwargs={"slug": "waiting-room"})
         )
-        self.assertContains(response, "HISTORICAL LEAGUE TABLES")
-        self.assertContains(response, "STATS HUB")
-        self.assertContains(response, "HEAD TO HEAD")
-        self.assertContains(response, "COMPARE")
-        self.assertContains(response, "MANAGER SEARCH")
-        self.assertContains(response, reverse("historical_tables"))
-        self.assertContains(response, reverse("stats_page"))
-        self.assertContains(response, reverse("head_to_head"))
-        self.assertContains(response, reverse("compare_players"))
-        self.assertContains(response, reverse("manager_search"))
+        self.assertContains(response, "Premier League Stats")
+        self.assertContains(response, "Championship Stats")
+        self.assertContains(response, "League One Stats")
+        self.assertContains(
+            response, reverse("league_stats", kwargs={"slug": "premier-league"})
+        )
+        self.assertContains(
+            response, reverse("league_stats", kwargs={"slug": "championship"})
+        )
+        self.assertContains(
+            response, reverse("league_stats", kwargs={"slug": "league-one"})
+        )
+        self.assertNotContains(response, "STATS HUB")
+        self.assertNotContains(response, "COMPARE")
+        self.assertNotContains(response, reverse("compare_players"))
+        self.assertNotContains(response, reverse("historical_tables"))
+        self.assertNotContains(response, reverse("head_to_head"))
+        self.assertNotContains(response, reverse("manager_search"))
         self.assertNotContains(response, "Super League 2")
         self.assertIn("mgl-nav-chevron", html)
         self.assertIn('aria-expanded="false"', html)
@@ -126,17 +135,30 @@ class NavigationDropdownTests(TestCase):
         self.assertContains(response, reverse("fixture_list"))
 
     def test_stats_dropdown_pages_load(self):
-        for name in (
-            "historical_tables",
-            "stats_page",
-            "head_to_head",
-            "compare_players",
-            "manager_search",
-        ):
-            response = self.client.get(reverse(name))
-            self.assertEqual(response.status_code, 200, name)
+        for slug in ("premier-league", "championship", "league-one"):
+            response = self.client.get(
+                reverse("league_stats", kwargs={"slug": slug})
+            )
+            self.assertEqual(response.status_code, 200, slug)
             self.assertContains(response, 'data-nav-dropdown="stats"')
+            self.assertContains(response, "mgl-nav-item--sub is-current")
+            self.assertNotContains(response, "WAITING ROOM")
+            self.assertNotContains(response, "COMPARE")
             self.assertNotContains(response, "Super League 2")
+        hub = self.client.get(reverse("stats_page"))
+        self.assertEqual(hub.status_code, 200)
+        self.assertContains(hub, "PREMIER LEAGUE STATS")
+
+    def test_waiting_room_and_compare_are_gone(self):
+        waiting = self.client.get(
+            reverse("competition_page", kwargs={"slug": "waiting-room"})
+        )
+        self.assertEqual(waiting.status_code, 404)
+        compare = self.client.get(reverse("compare_players"))
+        self.assertEqual(compare.status_code, 404)
+        home = self.client.get("/")
+        self.assertNotContains(home, "WAITING ROOM")
+        self.assertNotContains(home, reverse("compare_players"))
 
     def test_context_marks_open_menu_for_request(self):
         factory = RequestFactory()
@@ -193,6 +215,10 @@ class NavigationDropdownTests(TestCase):
         self.assertContains(hub, "PROPOSE TRANSFER")
         self.assertContains(hub, "LIVE ACTIVITY")
         self.assertContains(hub, "PRESSROOM")
+        self.assertIn('data-nav-dropdown="stats"', html)
+        self.assertContains(hub, "Premier League Stats")
+        self.assertNotContains(hub, "WAITING ROOM")
+        self.assertNotContains(hub, reverse("compare_players"))
         self.assertNotContains(hub, reverse("control_centre"))
         self.assertNotContains(hub, "UNASSIGNED PLAYERS")
         self.assertNotContains(hub, 'data-nav-dropdown="my-team"')
