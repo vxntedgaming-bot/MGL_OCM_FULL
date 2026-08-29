@@ -412,7 +412,9 @@ def attach_press_briefs(items, user):
         item.is_press_brief = press is not None
         item.press_manager_name = manager_name
         item.press_pending = bool(
-            press and press.status == ApprovalStatus.PENDING
+            press
+            and press.status == ApprovalStatus.PENDING
+            and not (press.answer or "").strip()
         )
     return items
 

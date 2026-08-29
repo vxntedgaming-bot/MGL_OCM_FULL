@@ -36,6 +36,8 @@
                     <blockquote class="mgl-press-brief-q">“{{ item.press.question }}”</blockquote>
                     {% if item.press_pending %}
                         <a href="{{ item.action_url }}" class="mgl-press-brief-cta">ANSWER NOW</a>
+                    {% elif item.press and item.press.status == "PENDING" %}
+                        <p class="mgl-press-brief-label">AWAITING ADMIN APPROVAL</p>
                     {% endif %}
                     <time class="mgl-press-brief-date" datetime="{{ item.created_at|date:'c' }}">{{ item.created_at|date:"d M Y · H:i"|upper }}</time>
                 </article>
