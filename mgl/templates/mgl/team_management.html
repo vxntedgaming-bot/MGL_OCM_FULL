@@ -1,7 +1,10 @@
 {% extends "core/base.html" %}
-{% load mgl_ui %}
+{% load static mgl_ui %}
 
 {% block title %}{% if team %}{{ team.name }} — Squad{% else %}Team Management — MGL{% endif %}{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/mgl-starting-xi.css' %}">
+{% endblock %}
 
 {% block content %}
 <section class="mgl-section">
@@ -54,56 +57,13 @@
         </div>
 
         {% if players %}
-        <div class="mgl-pitch" aria-label="Squad pitch">
-            {% for label, group in squad_groups %}
-                {% if label == "FORWARDS" %}
-                <div class="mgl-pitch-row">
-                    {% for player in group|slice:":4" %}
-                        <div class="mgl-pitch-chip" title="{{ player.name }}">
-                            <b>{{ player.position }}</b>
-                            <span>{{ player|card_name }}</span>
-                        </div>
-                    {% endfor %}
-                </div>
-                {% endif %}
-            {% endfor %}
-            {% for label, group in squad_groups %}
-                {% if label == "MIDFIELDERS" %}
-                <div class="mgl-pitch-row">
-                    {% for player in group|slice:":5" %}
-                        <div class="mgl-pitch-chip" title="{{ player.name }}">
-                            <b>{{ player.position }}</b>
-                            <span>{{ player|card_name }}</span>
-                        </div>
-                    {% endfor %}
-                </div>
-                {% endif %}
-            {% endfor %}
-            {% for label, group in squad_groups %}
-                {% if label == "DEFENDERS" %}
-                <div class="mgl-pitch-row">
-                    {% for player in group|slice:":5" %}
-                        <div class="mgl-pitch-chip" title="{{ player.name }}">
-                            <b>{{ player.position }}</b>
-                            <span>{{ player|card_name }}</span>
-                        </div>
-                    {% endfor %}
-                </div>
-                {% endif %}
-            {% endfor %}
-            {% for label, group in squad_groups %}
-                {% if label == "GOALKEEPERS" %}
-                <div class="mgl-pitch-row">
-                    {% for player in group|slice:":1" %}
-                        <div class="mgl-pitch-chip" title="{{ player.name }}">
-                            <b>{{ player.position }}</b>
-                            <span>{{ player|card_name }}</span>
-                        </div>
-                    {% endfor %}
-                </div>
-                {% endif %}
-            {% endfor %}
-        </div>
+        <img
+            class="mgl-starting-xi"
+            src="{% static 'core/img/mgl-starting-xi.png' %}"
+            alt="MGL Starting XI"
+            width="1536"
+            height="1024"
+        >
         {% endif %}
 
         <div class="mgl-squad-note">
