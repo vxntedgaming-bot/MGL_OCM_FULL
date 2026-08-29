@@ -475,8 +475,8 @@ class ManagerHubExperienceTests(TestCase):
         self.assertNotContains(hub, "Other Striker")
         self.assertContains(hub, "✓")
         self.assertContains(hub, 'data-nav-dropdown="my-club"')
-        self.assertContains(hub, "CLUB PROFILE")
-        self.assertContains(hub, "RECRUITMENT DRIVE")
+        self.assertContains(hub, "Club Profile")
+        self.assertContains(hub, "Recruitment Drive")
         self.assertNotContains(hub, reverse("control_centre"))
         self.assertNotContains(hub, "UNASSIGNED PLAYERS")
 

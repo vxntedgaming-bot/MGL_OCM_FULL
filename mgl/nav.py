@@ -20,9 +20,9 @@ NAV_DROPDOWNS = (
             "answer_press",
         },
         "items": (
-            {"label": "MANAGER HUB", "url_name": "manager_hub"},
-            {"label": "TEAM MANAGEMENT", "url_name": "team_management", "divider": True},
-            {"label": "FIXTURES", "url_name": "fixture_list", "divider": True},
+            {"label": "Manager Hub", "url_name": "manager_hub"},
+            {"label": "Team Management", "url_name": "team_management", "divider": True},
+            {"label": "Fixtures", "url_name": "fixture_list", "divider": True},
         ),
     },
     {
@@ -44,25 +44,25 @@ NAV_DROPDOWNS = (
             "clubs_index",
         },
         "items": (
-            {"label": "TRANSFERS", "url_name": "transfer_history"},
-            {"label": "TRANSFER MARKET", "url_name": "transfer_market", "divider": True},
-            {"label": "FREE AGENTS", "url_name": "free_agents", "divider": True},
+            {"label": "Transfers", "url_name": "transfer_history"},
+            {"label": "Transfer Market", "url_name": "transfer_market", "divider": True},
+            {"label": "Free Agents", "url_name": "free_agents", "divider": True},
             {
-                "label": "UNASSIGNED PLAYERS",
+                "label": "Unassigned Players",
                 "url_name": "unassigned_players",
                 "divider": True,
                 "control_only": True,
             },
-            {"label": "RECRUITMENT DRIVE", "url_name": "job_centre", "divider": True},
-            {"label": "SCOUTING", "url_name": "scouting", "divider": True},
+            {"label": "Recruitment Drive", "url_name": "job_centre", "divider": True},
+            {"label": "Scouting", "url_name": "scouting", "divider": True},
             {
-                "label": "YOUTH ACADEMY",
+                "label": "Youth Academy",
                 "url_name": "youth_academy",
                 "divider": True,
                 "badge": "NEW",
             },
-            {"label": "AUCTIONS", "url_name": "live_auctions", "divider": True},
-            {"label": "ALL PLAYERS", "url_name": "player_database", "divider": True},
+            {"label": "Auctions", "url_name": "live_auctions", "divider": True},
+            {"label": "All Players", "url_name": "player_database", "divider": True},
         ),
     },
     {
@@ -70,7 +70,7 @@ NAV_DROPDOWNS = (
         "label": "TABLES",
         "current": {"leagues_page", "competition_page", "clubs_index", "club_page"},
         "items": (
-            {"label": "ALL LEAGUES", "url_name": "leagues_page"},
+            {"label": "All Leagues", "url_name": "leagues_page"},
             {
                 "label": "Premier League",
                 "url_name": "competition_page",
@@ -90,7 +90,7 @@ NAV_DROPDOWNS = (
                 "style": "sub",
             },
             {
-                "label": "CUPS",
+                "label": "Cups",
                 "url_name": "competition_page",
                 "url_kwargs": {"slug": "cups"},
                 "divider": True,
@@ -142,10 +142,10 @@ MANAGER_NAV_DROPDOWNS = (
             "manager_profile",
         },
         "items": (
-            {"label": "MANAGER HUB", "url_name": "manager_hub"},
-            {"label": "MY TEAM", "url_name": "team_management", "divider": True},
-            {"label": "FIXTURES", "url_name": "fixture_list", "divider": True},
-            {"label": "TABLES", "url_name": "leagues_page", "divider": True},
+            {"label": "Manager Hub", "url_name": "manager_hub"},
+            {"label": "My Team", "url_name": "team_management", "divider": True},
+            {"label": "Fixtures", "url_name": "fixture_list", "divider": True},
+            {"label": "Tables", "url_name": "leagues_page", "divider": True},
         ),
     },
     {
@@ -158,10 +158,10 @@ MANAGER_NAV_DROPDOWNS = (
             "team_management",
         },
         "items": (
-            {"label": "PROPOSE TRANSFER", "url_name": "team_management"},
-            {"label": "MY OFFERS", "url_name": "team_management", "divider": True},
-            {"label": "TRANSFER MARKET", "url_name": "transfer_market", "divider": True},
-            {"label": "FREE AGENTS", "url_name": "free_agents", "divider": True},
+            {"label": "Propose Transfer", "url_name": "team_management"},
+            {"label": "My Offers", "url_name": "team_management", "divider": True},
+            {"label": "Transfer Market", "url_name": "transfer_market", "divider": True},
+            {"label": "Free Agents", "url_name": "free_agents", "divider": True},
         ),
     },
     {
@@ -176,11 +176,11 @@ MANAGER_NAV_DROPDOWNS = (
             "youth_academy",
         },
         "items": (
-            {"label": "RECRUITMENT DRIVE", "url_name": "scouting"},
-            {"label": "AUCTIONS", "url_name": "live_auctions", "divider": True},
-            {"label": "PLAYER DATABASE", "url_name": "player_database", "divider": True},
+            {"label": "Recruitment Drive", "url_name": "scouting"},
+            {"label": "Auctions", "url_name": "live_auctions", "divider": True},
+            {"label": "Player Database", "url_name": "player_database", "divider": True},
             {
-                "label": "ACADEMY",
+                "label": "Academy",
                 "url_name": "youth_academy",
                 "divider": True,
                 "badge": "NEW",
@@ -199,10 +199,10 @@ MANAGER_NAV_DROPDOWNS = (
             "news_centre",
         },
         "items": (
-            {"label": "HEAD TO HEAD", "url_name": "head_to_head"},
-            {"label": "HISTORY", "url_name": "historical_tables", "divider": True},
-            {"label": "LIVE ACTIVITY", "url_name": "live_activity", "divider": True},
-            {"label": "PRESSROOM", "url_name": "pressroom", "divider": True},
+            {"label": "Head to Head", "url_name": "head_to_head"},
+            {"label": "History", "url_name": "historical_tables", "divider": True},
+            {"label": "Live Activity", "url_name": "live_activity", "divider": True},
+            {"label": "Pressroom", "url_name": "pressroom", "divider": True},
         ),
     },
     {
@@ -313,7 +313,7 @@ def nav_dropdowns_for_request(request):
         extra = {
             "my-club": [
                 {
-                    "label": "CLUB PROFILE",
+                    "label": "Club Profile",
                     "url": club_page_url(team),
                     "divider": True,
                     "style": "",

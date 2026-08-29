@@ -54,6 +54,15 @@ class DropdownStyleTests(TestCase):
         self.assertNotIn("font-family", sub)
         self.assertIn("padding-left: 28px;", sub)
 
+    def test_dropdown_item_labels_use_league_title_case(self):
+        from mgl.nav import MANAGER_NAV_DROPDOWNS, NAV_DROPDOWNS
+
+        for source in (NAV_DROPDOWNS, MANAGER_NAV_DROPDOWNS):
+            for menu in source:
+                for item in menu["items"]:
+                    label = item["label"]
+                    self.assertNotEqual(label, label.upper(), label)
+
     def test_homepage_dropdown_items_share_one_class(self):
         response = Client(HTTP_HOST="127.0.0.1").get("/")
         html = response.content.decode()
