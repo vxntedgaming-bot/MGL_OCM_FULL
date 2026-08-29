@@ -205,11 +205,13 @@ class MatchSubmitAndApprovalTests(TestCase):
         self.assertIn('name="away_goals"', html)
         home_html = html.split('data-prefix="home"', 1)[1].split('data-prefix="away"', 1)[0]
         away_html = html.split('data-prefix="away"', 1)[1]
-        self.assertIn(f'value="{self.home_st.id}"', home_html)
-        self.assertIn(f'value="{self.home_cm.id}"', home_html)
-        self.assertNotIn(f'value="{self.away_st.id}"', home_html)
-        self.assertIn(f'value="{self.away_st.id}"', away_html)
-        self.assertNotIn(f'value="{self.home_st.id}"', away_html)
+        home_select = home_html.split('class="js-player-options"', 1)[1].split("</select>", 1)[0]
+        away_select = away_html.split('class="js-player-options"', 1)[1].split("</select>", 1)[0]
+        self.assertIn(f'value="{self.home_st.id}"', home_select)
+        self.assertIn(f'value="{self.home_cm.id}"', home_select)
+        self.assertNotIn(f'value="{self.away_st.id}"', home_select)
+        self.assertIn(f'value="{self.away_st.id}"', away_select)
+        self.assertNotIn(f'value="{self.home_st.id}"', away_select)
         self.assertContains(page, f'name="home_def_{self.home_cb.id}"')
         self.assertContains(page, 'step="0.1"')
         self.assertContains(page, f'name="home_save_{self.home_gk.id}"')
