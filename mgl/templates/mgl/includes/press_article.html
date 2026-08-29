@@ -1,16 +1,14 @@
 {% load mgl_ui %}
-<article class="mgl-press-article">
-    <div class="mgl-press-brand">PRESS CONFERENCE</div>
-    <div class="mgl-press-club">
-        {% team_logo press.team "md" %}
+<article class="mgl-press-story">
+    <header class="mgl-press-story-head">
+        {% team_logo press.team "lg" %}
         <div>
-            <strong>{% if press.team %}{{ press.team.name|upper }}{% else %}MGL{% endif %}</strong>
-            <p>Manager: {{ press.manager_name|default:press.manager.username }}</p>
+            <p class="mgl-press-story-manager">{{ press.manager_name|default:press.manager.username|upper }}</p>
+            <p class="mgl-press-story-club">{% if press.team %}{{ press.team.name|upper }}{% else %}MGL{% endif %}</p>
         </div>
-    </div>
-    <div class="mgl-press-qa">
-        <p class="mgl-press-q"><span>Q:</span> {{ press.question }}</p>
-        <p class="mgl-press-a"><span>A:</span> {{ press.answer }}</p>
-    </div>
-    <time class="mgl-press-date" datetime="{{ press.approved_at|default:press.created_at|date:'c' }}">{{ press.approved_at|default:press.created_at|date:"d F Y"|upper }}</time>
+    </header>
+    <p class="mgl-press-story-label">PRESS CONFERENCE</p>
+    <blockquote class="mgl-press-story-q">“{{ press.question }}”</blockquote>
+    <div class="mgl-press-story-answer">{{ press.answer|linebreaks }}</div>
+    <time class="mgl-press-story-date" datetime="{{ press.approved_at|default:press.created_at|date:'c' }}">{{ press.approved_at|default:press.created_at|date:"d M Y"|upper }}</time>
 </article>

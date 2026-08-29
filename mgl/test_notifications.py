@@ -147,12 +147,17 @@ class NotificationAndPressroomTests(TestCase):
         self.assertEqual(unread_count_for_user(self.user_a), 0)
 
         room = self.client.get(reverse("pressroom"))
+        self.assertContains(room, "mgl-press-story")
+        self.assertContains(room, "mgl-press-story.css")
         self.assertContains(room, "ARSENAL TEST")
-        self.assertContains(room, "Manager: Kai")
+        self.assertContains(room, "KAI")
+        self.assertNotContains(room, "Manager: Kai")
         self.assertContains(room, "How pleased were you with the performance?")
         self.assertContains(room, "We controlled the game from the start.")
         self.assertContains(room, "PRESS CONFERENCE")
         self.assertNotContains(room, "YOUR QUESTIONS")
+        self.assertNotContains(room, "<span>Q:</span>")
+        self.assertNotContains(room, "<span>A:</span>")
 
         self.assertTrue(
             NewsPost.objects.filter(category=NewsPost.PRESS, published=True).exists()

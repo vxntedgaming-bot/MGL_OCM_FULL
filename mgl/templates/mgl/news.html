@@ -1,7 +1,10 @@
 {% extends "core/base.html" %}
-{% load mgl_ui %}
+{% load static mgl_ui %}
 
 {% block title %}News — MGL{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/mgl-press-story.css' %}">
+{% endblock %}
 
 {% block content %}
 <section class="mgl-section">
@@ -24,7 +27,7 @@
 </section>
 
 {% if tab == 'pressroom' %}
-<section class="mgl-section">
+<section class="mgl-section mgl-press-column">
     {% for press in press_articles %}
         {% include "mgl/includes/press_article.html" %}
     {% empty %}

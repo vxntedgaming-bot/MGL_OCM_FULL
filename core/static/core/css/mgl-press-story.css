@@ -1,0 +1,114 @@
+.mgl-press-column {
+    max-width: 1080px;
+}
+
+.mgl-press-story {
+    margin: 0 0 48px;
+    padding: 36px 4px 20px;
+    background:
+        linear-gradient(180deg, rgba(255, 122, 24, 0.035), transparent 40%),
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 27px,
+            rgba(255, 255, 255, 0.018) 28px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 27px,
+            rgba(255, 255, 255, 0.018) 28px
+        );
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.mgl-press-story-head {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 28px;
+}
+
+.mgl-press-story-manager {
+    margin: 0;
+    color: #fff;
+    font-family: "Barlow Condensed", sans-serif;
+    font-size: clamp(30px, 5vw, 46px);
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    line-height: 0.95;
+}
+
+.mgl-press-story-club {
+    margin: 8px 0 0;
+    color: var(--mgl-orange, #ff7a18);
+    font-family: "Barlow Condensed", sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+}
+
+.mgl-press-story-label {
+    margin: 0 0 18px;
+    color: var(--mgl-orange, #ff7a18);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+}
+
+.mgl-press-story-q {
+    margin: 0 0 28px;
+    padding: 0 0 0 18px;
+    border: 0;
+    border-left: 2px solid var(--mgl-orange, #ff7a18);
+    background: none;
+    color: rgba(230, 230, 230, 0.88);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(22px, 3.2vw, 32px);
+    font-style: italic;
+    font-weight: 400;
+    line-height: 1.45;
+}
+
+.mgl-press-story-answer {
+    max-width: 42rem;
+    color: #f3f3f3;
+    font-size: clamp(17px, 1.7vw, 19px);
+    line-height: 1.75;
+}
+
+.mgl-press-story-answer p {
+    margin: 0 0 1.15em;
+}
+
+.mgl-press-story-answer p:last-child {
+    margin-bottom: 0;
+}
+
+.mgl-press-story-date {
+    display: block;
+    margin-top: 32px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.42);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+}
+
+@media (max-width: 640px) {
+    .mgl-press-story {
+        margin-bottom: 36px;
+        padding: 24px 0 16px;
+    }
+
+    .mgl-press-story-head {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .mgl-press-story-q {
+        padding-left: 14px;
+    }
+}
