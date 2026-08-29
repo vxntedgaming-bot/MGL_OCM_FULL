@@ -491,3 +491,63 @@ class SiteChangeLog(models.Model):
 
     def __str__(self):
         return self.summary
+
+
+class ManagerNotification(models.Model):
+    """Per-manager inbox row. Ownership is always the recipient user."""
+
+    recipient = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="manager_notifications",
+    )
+    source_key = models.CharField(max_length=120)
+    notification_type = models.CharField(max_length=40)
+    title = models.CharField(max_length=160)
+    message = models.TextField()
+    actor = models.CharField(max_length=160, blank=True)
+    action_url = models.CharField(max_length=400, blank=True)
+    action_label = models.CharField(max_length=40, blank=True)
+    team = models.ForeignKey(
+        "teams.Team",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="manager_notifications",
+    )
+    player = models.ForeignKey(
+        "players.Player",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="manager_notifications",
+    )
+    is_action = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    read_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["recipient", "source_key"],
+                name="unique_manager_notification_key",
+            )
+        ]
+        indexes = [
+            models.Index(
+                fields=["recipient", "read_at"],
+                name="mgl_manager_recipie_419c8c_idx",
+            ),
+            models.Index(
+                fields=["recipient", "created_at"],
+                name="mgl_manager_recipie_d6cbf7_idx",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.recipient_id}:{self.source_key}"
+
+    @property
+    def is_unread(self):
+        return self.read_at is None

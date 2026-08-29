@@ -1,0 +1,39 @@
+{% extends "core/base.html" %}
+{% load mgl_ui %}
+
+{% block title %}Notifications — MGL{% endblock %}
+
+{% block content %}
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">MANAGER INBOX</div>
+            <h1>NOTIFICATIONS</h1>
+            <p>Only your account can see these. They come from real MGL actions for @{{ user.username }}{% if manager %} · {{ manager.display_name }}{% endif %}.</p>
+        </div>
+        <span class="section-line"></span>
+    </div>
+
+    <div class="mgl-inbox">
+        {% for item in notifications %}
+            <article class="mgl-notify-item{% if item.is_unread %} is-unread{% endif %}">
+                <small>{{ item.notification_type }}</small>
+                <h2>{{ item.title }}</h2>
+                <p>{{ item.message }}</p>
+                <p class="mgl-inbox-meta">
+                    {% if item.actor %}<span>From {{ item.actor }}</span>{% endif %}
+                    {% if item.team %}<span>{{ item.team.name }}</span>{% endif %}
+                    {% if item.player %}<span>{{ item.player.name }}</span>{% endif %}
+                    <span>{{ item.created_at|date:"j M Y, H:i" }}</span>
+                    <span>{% if item.is_unread %}Unread{% else %}Read{% endif %}</span>
+                </p>
+                {% if item.action_url %}
+                    <a href="{{ item.action_url }}" class="mgl-notify-cta">{{ item.action_label|default:"VIEW" }}</a>
+                {% endif %}
+            </article>
+        {% empty %}
+            <p class="mgl-notify-empty">No notifications yet. Match submissions, transfers, approvals and other MGL actions will appear here for your account only.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

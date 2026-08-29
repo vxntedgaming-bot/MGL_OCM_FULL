@@ -40,13 +40,11 @@
                     <span>{{ manager.display_name }}</span>
                 </p>
                 <div class="mgl-dash-pills">
-                    {% if mgl_notifications %}
-                        <span class="mgl-dash-pill mgl-dash-pill-alert">● {{ mgl_notifications|length }} Notification{% if mgl_notifications|length != 1 %}s{% endif %}</span>
-                    {% else %}
-                        <span class="mgl-dash-pill mgl-dash-pill-ok">✓ All Caught Up</span>
-                    {% endif %}
+                    <a href="{% url 'manager_notifications' %}" class="mgl-dash-pill {% if mgl_unread_notification_count %}mgl-dash-pill-alert{% else %}mgl-dash-pill-ok{% endif %}">
+                        {% if mgl_unread_notification_count %}● {{ mgl_unread_notification_count }} Notification{% if mgl_unread_notification_count != 1 %}s{% endif %}{% else %}Notifications{% endif %}
+                    </a>
                     {% if team %}
-                        <a class="mgl-dash-pill mgl-dash-pill-ghost" href="{% club_url team %}">Club Profile</a>
+                        <a class="mgl-dash-pill mgl-dash-pill-ghost" href="{% url 'manager_profile' %}">Club Profile</a>
                     {% endif %}
                 </div>
                 <p class="mgl-dash-balance"><span>PERSONAL BALANCE</span> {{ token_balance }} TKN</p>

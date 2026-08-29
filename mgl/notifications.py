@@ -1,18 +1,19 @@
-"""Manager/admin notifications derived from existing pending rows.
+"""Manager/admin notifications.
 
-No separate Notification model. Each source yields incomplete items;
-completing the underlying row (answer, submit, sell, approve) means the
-source no longer returns that key.
+Pending action items are still derived from live MGL rows (press, results,
+listings, control queues). Those items are persisted into ManagerNotification
+so each manager has a private inbox with read/unread state.
 
-To add a future action (for example an incoming transfer offer once a
-backend offer model exists), append a NotificationSource to
-NOTIFICATION_SOURCES. Do not invent offer rows here.
+Real MGL actions also write inbox rows through notify_user(). Do not invent
+demo notifications. To add a future pending action, append a NotificationSource
+to NOTIFICATION_SOURCES.
 """
 
 from dataclasses import dataclass
 
 from django.db.models import Q
 from django.urls import reverse
+from django.utils import timezone
 
 from accounts.models import User
 from managers.models import ManagerApplication
@@ -21,6 +22,7 @@ from mgl.models import (
     ApprovalStatus,
     ClubApplication,
     Fixture,
+    ManagerNotification,
     MatchSubmission,
     PlayerListing,
     PressConference,
@@ -35,6 +37,10 @@ class NotificationItem:
     description: str
     url: str
     cta: str = "VIEW"
+    actor: str = ""
+    created_at: object = None
+    team_id: int = None
+    player_id: int = None
 
     @property
     def complete(self):
@@ -52,6 +58,10 @@ class NotificationItem:
             "url": self.url,
             "cta": self.cta,
             "complete": self.complete,
+            "actor": self.actor,
+            "created_at": self.created_at,
+            "team_id": self.team_id,
+            "player_id": self.player_id,
         }
 
 
@@ -92,6 +102,9 @@ class PressConferenceSource(NotificationSource):
                 description=_press_copy(press),
                 url=reverse("answer_press", args=[press.pk]),
                 cta="ANSWER NOW",
+                actor="Sky Sports",
+                created_at=press.created_at,
+                team_id=press.team_id,
             )
 
 
@@ -129,6 +142,9 @@ class ResultSubmissionSource(NotificationSource):
                 ),
                 url=reverse("submit_match", args=[fixture.pk]),
                 cta="SUBMIT RESULT",
+                actor="MGL Fixtures",
+                created_at=fixture.created_at,
+                team_id=club.id,
             )
 
 
@@ -151,6 +167,10 @@ class LiveListingSource(NotificationSource):
                 ),
                 url=reverse("team_management"),
                 cta="VIEW",
+                actor=listing.team.name,
+                created_at=listing.created_at,
+                team_id=listing.team_id,
+                player_id=listing.player_id,
             )
 
 
@@ -173,10 +193,14 @@ class ControlQueueSource(NotificationSource):
                 ),
                 url=reverse("control_centre"),
                 cta="REVIEW",
+                actor=listing.team.name,
+                created_at=listing.created_at,
+                team_id=listing.team_id,
+                player_id=listing.player_id,
             )
         for submission in (
             MatchSubmission.objects.filter(status=ApprovalStatus.PENDING)
-            .select_related("fixture__home_team", "fixture__away_team")
+            .select_related("fixture__home_team", "fixture__away_team", "submitted_by")
             .order_by("-submitted_at")[:12]
         ):
             fixture = submission.fixture
@@ -190,6 +214,9 @@ class ControlQueueSource(NotificationSource):
                 ),
                 url=reverse("control_centre"),
                 cta="REVIEW",
+                actor=submission.submitted_by.username if submission.submitted_by_id else "Manager",
+                created_at=submission.submitted_at,
+                team_id=fixture.home_team_id,
             )
         for application in (
             ClubApplication.objects.filter(status=ApprovalStatus.PENDING)
@@ -206,6 +233,9 @@ class ControlQueueSource(NotificationSource):
                 ),
                 url=reverse("control_centre"),
                 cta="REVIEW",
+                actor=application.manager.display_name,
+                created_at=application.created_at,
+                team_id=application.team_id,
             )
         for application in ManagerApplication.objects.filter(
             status=ManagerApplication.PENDING
@@ -220,6 +250,7 @@ class ControlQueueSource(NotificationSource):
                 ),
                 url=reverse("control_centre"),
                 cta="REVIEW",
+                actor=application.display_name,
             )
 
 
@@ -243,3 +274,112 @@ def notifications_for_user(user):
             seen.add(item.key)
             items.append(item.as_template())
     return items
+
+
+def notify_user(
+    user,
+    *,
+    source_key,
+    notification_type,
+    title,
+    message,
+    action_url="",
+    action_label="VIEW",
+    actor="",
+    team=None,
+    player=None,
+    is_action=False,
+):
+    """Create a manager-owned inbox row. Idempotent on (recipient, source_key)."""
+    if user is None or not getattr(user, "pk", None):
+        return None
+    team_id = getattr(team, "pk", team)
+    player_id = getattr(player, "pk", player)
+    obj, _created = ManagerNotification.objects.get_or_create(
+        recipient=user,
+        source_key=source_key,
+        defaults={
+            "notification_type": notification_type,
+            "title": title,
+            "message": message,
+            "actor": actor or "",
+            "action_url": action_url or "",
+            "action_label": action_label or "VIEW",
+            "team_id": team_id,
+            "player_id": player_id,
+            "is_action": is_action,
+        },
+    )
+    return obj
+
+
+def inbox_queryset_for_user(user):
+    """Backend ownership filter. Never accept another user's id from the URL."""
+    if user is None or not getattr(user, "pk", None):
+        return ManagerNotification.objects.none()
+    return ManagerNotification.objects.filter(recipient=user).select_related(
+        "team",
+        "player",
+    )
+
+
+def sync_pending_notifications(user):
+    if user is None or not getattr(user, "is_authenticated", False):
+        return []
+    pending = notifications_for_user(user)
+    pending_keys = [row["key"] for row in pending]
+    existing = set(
+        ManagerNotification.objects.filter(
+            recipient=user,
+            source_key__in=pending_keys,
+        ).values_list("source_key", flat=True)
+    ) if pending_keys else set()
+    to_create = []
+    for row in pending:
+        if row["key"] in existing:
+            continue
+        to_create.append(
+            ManagerNotification(
+                recipient=user,
+                source_key=row["key"],
+                notification_type=row["type"],
+                title=row["title"],
+                message=row["description"],
+                actor=row.get("actor") or "",
+                action_url=row.get("url") or "",
+                action_label=row.get("cta") or "VIEW",
+                team_id=row.get("team_id"),
+                player_id=row.get("player_id"),
+                is_action=True,
+            )
+        )
+    if to_create:
+        ManagerNotification.objects.bulk_create(to_create, ignore_conflicts=True)
+    if pending_keys:
+        ManagerNotification.objects.filter(
+            recipient=user,
+            is_action=True,
+            read_at__isnull=True,
+        ).exclude(source_key__in=pending_keys).update(read_at=timezone.now())
+    else:
+        ManagerNotification.objects.filter(
+            recipient=user,
+            is_action=True,
+            read_at__isnull=True,
+        ).update(read_at=timezone.now())
+    return pending
+
+
+def unread_count_for_user(user):
+    sync_pending_notifications(user)
+    return inbox_queryset_for_user(user).filter(read_at__isnull=True).count()
+
+
+def inbox_for_user(user):
+    sync_pending_notifications(user)
+    return list(inbox_queryset_for_user(user))
+
+
+def mark_inbox_read(user):
+    now = timezone.now()
+    inbox_queryset_for_user(user).filter(read_at__isnull=True).update(read_at=now)

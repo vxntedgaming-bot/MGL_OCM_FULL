@@ -19,6 +19,11 @@ urlpatterns = [
         name="manager_hub",
     ),
     path(
+        "notifications/",
+        views.manager_notifications,
+        name="manager_notifications",
+    ),
+    path(
         "live-activity/",
         RedirectView.as_view(pattern_name="live_activity", permanent=False),
         name="live_activity_alias",

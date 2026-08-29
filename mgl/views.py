@@ -279,6 +279,30 @@ def player_profile(request, player_id):
 
 
 @login_required
+def manager_notifications(request):
+    manager = manager_for_user(request.user)
+    if not manager:
+        messages.error(
+            request,
+            "You do not have a manager account.",
+        )
+        return redirect("manager_login")
+
+    from mgl.notifications import inbox_for_user, mark_inbox_read
+
+    inbox = inbox_for_user(request.user)
+    mark_inbox_read(request.user)
+    return render(
+        request,
+        "mgl/notifications.html",
+        {
+            "manager": manager,
+            "notifications": inbox,
+        },
+    )
+
+
+@login_required
 def manager_hub(request):
     manager = manager_for_user(request.user)
 
@@ -529,6 +553,28 @@ def submit_match(request, fixture_id):
         except MatchSubmitError as exc:
             messages.error(request, str(exc))
             return redirect("submit_match", fixture.id)
+        from django.urls import reverse
+        from mgl.notifications import notify_user
+
+        opponent = (
+            fixture.away_team.manager
+            if request.user.id == fixture.home_team.manager_id
+            else fixture.home_team.manager
+        )
+        notify_user(
+            opponent,
+            source_key=f"score-submitted-{fixture.pk}",
+            notification_type="MATCH",
+            title="RESULT SUBMITTED",
+            message=(
+                f"{fixture.home_team.name} vs {fixture.away_team.name} "
+                "has been submitted and is waiting for approval."
+            ),
+            actor=request.user.username,
+            action_url=reverse("fixture_list"),
+            action_label="VIEW FIXTURES",
+            team=club_for_user(request.user),
+        )
         messages.success(
             request,
             "Match submitted to Admin for approval. Statistics stay unofficial until approved.",

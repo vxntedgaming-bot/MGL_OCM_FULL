@@ -1597,6 +1597,33 @@ body.mgl-auth-body .mgl-main {
     filter: brightness(1.08);
 }
 
+.mgl-inbox {
+    display: grid;
+    gap: 0;
+}
+
+.mgl-inbox .mgl-notify-item h2 {
+    margin: 0;
+    color: #fff;
+    font-size: 18px;
+    letter-spacing: 0.04em;
+}
+
+.mgl-inbox-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+}
+
+.mgl-inbox .mgl-notify-item.is-unread {
+    border-left: 3px solid var(--orange, #ff7a18);
+    padding-left: 12px;
+}
+
 @media (max-width: 768px) {
     .mgl-history-seasons {
         grid-template-columns: 1fr;

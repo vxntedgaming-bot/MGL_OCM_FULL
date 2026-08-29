@@ -16,6 +16,7 @@ NAV_DROPDOWNS = (
             "submit_match",
             "press_conference",
             "manager_hub",
+            "manager_notifications",
             "pressroom",
             "answer_press",
         },

@@ -17,7 +17,15 @@ from mgl.models import (
     TeamMatchStats,
 )
 from mgl.activity import activity_payloads, teams_for_post
-from mgl.notifications import NotificationItem, notifications_for_user
+from mgl.models import ManagerNotification
+from mgl.notifications import (
+    NotificationItem,
+    inbox_for_user,
+    inbox_queryset_for_user,
+    notifications_for_user,
+    notify_user,
+    unread_count_for_user,
+)
 from mgl.press import create_press_question, publish_press_answer
 from mgl.services import create_news
 from players.models import Player
@@ -362,6 +370,114 @@ class NotificationAndPressroomTests(TestCase):
         )
         self.assertFalse(item.complete)
         self.assertEqual(item.as_template()["key"], "future-offer-1")
+
+    def test_hub_notification_button_uses_unread_count_and_own_inbox(self):
+        create_press_question(
+            manager=self.user_a,
+            team=self.team_a,
+            question="How pleased were you with the performance?",
+            question_key="perf_hub",
+            category="performance",
+            trigger=PressConference.MATCH,
+        )
+        notify_user(
+            self.user_b,
+            source_key="admin-message-b",
+            notification_type="ADMIN",
+            title="CHELSEA ONLY",
+            message="This belongs to the Chelsea manager.",
+            actor="MGL Admin",
+        )
+        self.client.login(username="kai", password="test-pass-123")
+        hub = self.client.get(reverse("manager_hub"))
+        self.assertContains(hub, reverse("manager_notifications"))
+        self.assertContains(hub, "1 Notification")
+        self.assertContains(hub, f'href="{reverse("manager_profile")}"')
+        self.assertContains(hub, "Club Profile")
+
+        inbox = self.client.get(reverse("manager_notifications"))
+        self.assertEqual(inbox.status_code, 200)
+        self.assertContains(inbox, "PRESS CONFERENCE")
+        self.assertContains(inbox, "Sky Sports")
+        self.assertNotContains(inbox, "CHELSEA ONLY")
+        self.assertFalse(
+            inbox_queryset_for_user(self.user_a)
+            .filter(source_key="admin-message-b")
+            .exists()
+        )
+        self.assertEqual(
+            list(
+                inbox_queryset_for_user(self.user_a).values_list(
+                    "recipient_id", flat=True
+                )
+            ),
+            [self.user_a.id]
+            * inbox_queryset_for_user(self.user_a).count(),
+        )
+
+        hub_after = self.client.get(reverse("manager_hub"))
+        self.assertContains(hub_after, "Notifications")
+        self.assertNotContains(hub_after, "1 Notification")
+        self.assertEqual(unread_count_for_user(self.user_a), 0)
+        self.assertEqual(unread_count_for_user(self.user_b), 1)
+
+    def test_manager_cannot_open_another_managers_notifications(self):
+        notify_user(
+            self.user_a,
+            source_key="admin-message-a",
+            notification_type="ADMIN",
+            title="ARSENAL ONLY",
+            message="This belongs to the Arsenal manager.",
+            actor="MGL Admin",
+        )
+        notify_user(
+            self.user_b,
+            source_key="admin-message-b2",
+            notification_type="ADMIN",
+            title="CHELSEA ONLY",
+            message="This belongs to the Chelsea manager.",
+            actor="MGL Admin",
+        )
+        self.client.login(username="rival", password="test-pass-123")
+        page = self.client.get(reverse("manager_notifications"))
+        self.assertEqual(page.status_code, 200)
+        self.assertContains(page, "CHELSEA ONLY")
+        self.assertNotContains(page, "ARSENAL ONLY")
+        guessed = self.client.get("/mgl/notifications/%s/" % self.user_a.id)
+        self.assertEqual(guessed.status_code, 404)
+        self.assertEqual(
+            set(inbox_queryset_for_user(self.user_b).values_list("recipient_id", flat=True)),
+            {self.user_b.id},
+        )
+
+    def test_anonymous_users_cannot_open_notifications(self):
+        response = self.client.get(reverse("manager_notifications"))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/login/", response["Location"])
+
+    def test_unread_count_uses_persisted_rows_not_a_hardcoded_one(self):
+        self.assertEqual(unread_count_for_user(self.user_a), 0)
+        for index in range(5):
+            notify_user(
+                self.user_a,
+                source_key=f"admin-batch-{index}",
+                notification_type="ADMIN",
+                title=f"UPDATE {index}",
+                message="Owner decision for your club.",
+                actor="MGL Owner",
+                team=self.team_a,
+            )
+        self.assertEqual(unread_count_for_user(self.user_a), 5)
+        self.client.login(username="kai", password="test-pass-123")
+        hub = self.client.get(reverse("manager_hub"))
+        self.assertContains(hub, "5 Notifications")
+        inbox_for_user(self.user_a)
+        ManagerNotification.objects.filter(
+            recipient=self.user_a, source_key="admin-batch-0"
+        ).update(read_at=None)
+        # Opening the inbox marks the current unread rows read.
+        self.client.get(reverse("manager_notifications"))
+        self.assertEqual(unread_count_for_user(self.user_a), 0)
 
     def test_duplicate_notification_keys_are_not_repeated(self):
         press = create_press_question(

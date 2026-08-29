@@ -270,6 +270,29 @@ def approve_match_submission(sub, reviewer):
     create_match_press_questions(fixture, home_stats, away_stats)
     maybe_create_odd_matchday_interview(fixture)
 
+    from mgl.notifications import notify_user
+    from django.urls import reverse
+
+    scoreline = (
+        f"{fixture.home_team.name} {home_stats.goals}–{away_stats.goals} "
+        f"{fixture.away_team.name}"
+    )
+    for manager_user, club in (
+        (fixture.home_team.manager, fixture.home_team),
+        (fixture.away_team.manager, fixture.away_team),
+    ):
+        notify_user(
+            manager_user,
+            source_key=f"score-approved-{sub.pk}",
+            notification_type="SCORE",
+            title="RESULT APPROVED",
+            message=f"{scoreline} has been approved and is now official.",
+            actor="MGL Admin",
+            action_url=reverse("fixture_list"),
+            action_label="VIEW FIXTURES",
+            team=club,
+        )
+
     return True, "Match approved successfully."
 
 
@@ -315,6 +338,13 @@ def approve_matches(modeladmin, request, queryset):
 @admin.action(description="Reject selected match submissions")
 def reject_matches(modeladmin, request, queryset):
 
+    pending = list(
+        queryset.filter(status=ApprovalStatus.PENDING).select_related(
+            "fixture__home_team",
+            "fixture__away_team",
+            "submitted_by",
+        )
+    )
     updated = queryset.filter(
         status=ApprovalStatus.PENDING
     ).update(
@@ -322,6 +352,28 @@ def reject_matches(modeladmin, request, queryset):
         reviewed_by=request.user,
         reviewed_at=timezone.now(),
     )
+
+    from django.urls import reverse
+    from mgl.notifications import notify_user
+
+    for submission in pending:
+        fixture = submission.fixture
+        message = (
+            f"{fixture.home_team.name} vs {fixture.away_team.name} "
+            "was rejected and needs to be submitted again."
+        )
+        recipients = {submission.submitted_by, fixture.home_team.manager, fixture.away_team.manager}
+        for manager_user in recipients:
+            notify_user(
+                manager_user,
+                source_key=f"score-rejected-{submission.pk}",
+                notification_type="SCORE",
+                title="RESULT REJECTED",
+                message=message,
+                actor="MGL Admin",
+                action_url=reverse("fixture_list"),
+                action_label="VIEW FIXTURES",
+            )
 
     messages.success(
         request,
@@ -815,6 +867,37 @@ class SiteContentAdmin(admin.ModelAdmin):
     list_filter = ("section",)
     search_fields = ("key", "value")
     readonly_fields = ("updated_at",)
+
+
+from .models import ManagerNotification
+
+
+@admin.register(ManagerNotification)
+class ManagerNotificationAdmin(admin.ModelAdmin):
+    list_display = (
+        "created_at",
+        "recipient",
+        "notification_type",
+        "title",
+        "read_at",
+    )
+    list_filter = ("notification_type",)
+    search_fields = ("title", "message", "source_key", "recipient__username")
+    readonly_fields = (
+        "recipient",
+        "source_key",
+        "notification_type",
+        "title",
+        "message",
+        "actor",
+        "action_url",
+        "action_label",
+        "team",
+        "player",
+        "is_action",
+        "created_at",
+        "read_at",
+    )
 
 
 @admin.register(SiteChangeLog)

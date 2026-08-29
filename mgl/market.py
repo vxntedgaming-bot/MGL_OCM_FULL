@@ -574,6 +574,24 @@ def approve_listing(listing, reviewer):
         f"{listing.team.name} listed {listing.player.name} for {listing.asking_price} tokens.",
         team=listing.team,
     )
+    from django.urls import reverse
+    from mgl.notifications import notify_user
+
+    notify_user(
+        listing.seller.user,
+        source_key=f"listing-approved-{listing.pk}",
+        notification_type="TRANSFER",
+        title="LISTING APPROVED",
+        message=(
+            f"{listing.player.name} is now live on the transfer market "
+            f"for {listing.asking_price} TKN."
+        ),
+        actor="MGL Admin",
+        action_url=reverse("transfer_market"),
+        action_label="VIEW MARKET",
+        team=listing.team,
+        player=listing.player,
+    )
     return listing
 
 
@@ -586,6 +604,21 @@ def reject_listing(listing, reviewer):
     listing.reviewed_at = timezone.now()
     listing.reviewed_by = reviewer
     listing.save(update_fields=["status", "reviewed_at", "reviewed_by"])
+    from django.urls import reverse
+    from mgl.notifications import notify_user
+
+    notify_user(
+        listing.seller.user,
+        source_key=f"listing-rejected-{listing.pk}",
+        notification_type="TRANSFER",
+        title="LISTING REJECTED",
+        message=f"Your listing for {listing.player.name} was rejected.",
+        actor="MGL Admin",
+        action_url=reverse("team_management"),
+        action_label="VIEW SQUAD",
+        team=listing.team,
+        player=listing.player,
+    )
     return listing
 
 
@@ -655,6 +688,39 @@ def buy_listed_player(listing, buyer):
     from mgl.press import maybe_create_signing_press
 
     maybe_create_signing_press(buyer.user, buyer_club)
+    from django.urls import reverse
+    from mgl.notifications import notify_user
+
+    notify_user(
+        listing.seller.user,
+        source_key=f"transfer-sold-{listing.pk}",
+        notification_type="TRANSFER",
+        title="PLAYER SOLD",
+        message=(
+            f"{listing.player.name} has joined {buyer_club.name} "
+            f"from {listing.team.name}."
+        ),
+        actor=buyer.display_name,
+        action_url=reverse("transfer_market"),
+        action_label="VIEW MARKET",
+        team=listing.team,
+        player=listing.player,
+    )
+    notify_user(
+        buyer.user,
+        source_key=f"transfer-bought-{listing.pk}",
+        notification_type="TRANSFER",
+        title="PLAYER SIGNED",
+        message=(
+            f"{listing.player.name} has joined {buyer_club.name} "
+            f"from {listing.team.name}."
+        ),
+        actor="Transfer Market",
+        action_url=reverse("team_management"),
+        action_label="VIEW SQUAD",
+        team=buyer_club,
+        player=listing.player,
+    )
     return listing
 
 

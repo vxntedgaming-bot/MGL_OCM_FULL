@@ -407,6 +407,20 @@ def control_approve_job(request, application_id):
         team=team,
     )
     create_appointment_press(new_manager, team)
+    from django.urls import reverse
+    from mgl.notifications import notify_user
+
+    notify_user(
+        new_manager,
+        source_key=f"job-approved-{application.pk}",
+        notification_type="ADMIN",
+        title="CLUB APPOINTMENT",
+        message=f"You have been appointed as manager of {team.name}.",
+        actor="MGL Admin",
+        action_url=reverse("manager_hub"),
+        action_label="OPEN HUB",
+        team=team,
+    )
     messages.success(
         request,
         f"{new_manager.username} is now manager of {team.name}. Token balance stays with the manager.",
@@ -428,6 +442,20 @@ def control_reject_job(request, application_id):
     application.reviewed_at = timezone.now()
     application.reviewed_by = request.user
     application.save(update_fields=["status", "reviewed_at", "reviewed_by"])
+    from django.urls import reverse
+    from mgl.notifications import notify_user
+
+    notify_user(
+        application.manager.user,
+        source_key=f"job-rejected-{application.pk}",
+        notification_type="ADMIN",
+        title="CLUB APPLICATION REJECTED",
+        message=f"Your application for {application.team.name} was rejected.",
+        actor="MGL Admin",
+        action_url=reverse("job_centre"),
+        action_label="JOB CENTRE",
+        team=application.team,
+    )
     messages.success(
         request,
         f"{application.manager.display_name}'s application for {application.team.name} was rejected.",

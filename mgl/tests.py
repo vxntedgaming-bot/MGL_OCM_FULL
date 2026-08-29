@@ -169,6 +169,7 @@ class ConnectedRouteSmokeTests(PhaseAClientTestCase):
             ("player_database", []),
             ("free_agents", []),
             ("manager_profile", []),
+            ("manager_notifications", []),
             ("manager_rewards", []),
             ("live_auctions", []),
             ("club_management_admin", []),
