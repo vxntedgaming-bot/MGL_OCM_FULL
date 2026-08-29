@@ -1029,44 +1029,9 @@ def club_management_admin(request):
 
 @owner_admin_required
 def edit_club_admin(request, team_id):
-    team = get_object_or_404(
-        Team.objects.select_related("league"),
-        pk=team_id,
-    )
-
-    if request.method == "POST":
-        name = request.POST.get("name", "").strip()
-        short_name = request.POST.get("short_name", "").strip()
-
-        if not name:
-            messages.error(request, "Club name cannot be empty.")
-            return redirect("edit_club_admin", team_id=team.id)
-
-        if not short_name:
-            messages.error(request, "Short name cannot be empty.")
-            return redirect("edit_club_admin", team_id=team.id)
-
-        team.name = name
-        team.short_name = short_name
-
-        if request.FILES.get("logo"):
-            team.logo = request.FILES["logo"]
-
-        team.save()
-
-        messages.success(
-            request,
-            f"{team.name} has been updated successfully.",
-        )
-        return redirect("club_management_admin")
-
-    return render(
-        request,
-        "mgl/edit_club_admin.html",
-        {
-            "team": team,
-        },
-    )
+    """Legacy identity editor. Club display edits go through Site Management."""
+    team = get_object_or_404(Team, pk=team_id)
+    return redirect("site_management_team_edit", team_id=team.id)
 
 
 @owner_admin_required

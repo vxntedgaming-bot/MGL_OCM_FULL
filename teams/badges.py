@@ -1,7 +1,8 @@
-"""Static club-badge lookup for official Super League 1 short names.
+"""Official crest fallback keyed by a frozen Team.badge_code.
 
-Uploaded Team.logo always wins. These files are fallbacks when the
-ImageField is empty so the 14 official clubs still show a crest.
+Uploaded Team.logo always wins in {% team_logo %}.
+The editable short_name is never used to pick a crest, so renaming a club
+cannot display another club's badge.
 """
 
 from pathlib import Path
@@ -27,14 +28,24 @@ OFFICIAL_BADGE_STATIC = {
 }
 
 
+def frozen_badge_code(team):
+    """Official crest key. Never the live short_name."""
+    if team is None:
+        return ""
+    return (getattr(team, "badge_code", "") or "").strip().upper()
+
+
 def static_badge_path(team):
     if team is None:
         return ""
-    short = (getattr(team, "short_name", "") or "").upper()
-    rel = OFFICIAL_BADGE_STATIC.get(short, "")
+    if getattr(team, "logo", None):
+        return ""
+    code = frozen_badge_code(team)
+    if not code:
+        return ""
+    rel = OFFICIAL_BADGE_STATIC.get(code, "")
     if not rel:
         return ""
-    # Prefer the file only if it actually exists in this checkout.
     candidate = Path(settings.BASE_DIR) / "core" / "static" / rel
     if candidate.exists():
         return rel

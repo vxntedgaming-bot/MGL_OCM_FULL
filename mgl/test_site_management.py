@@ -2,6 +2,7 @@ from decimal import Decimal
 from io import BytesIO
 
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.template import Context, Template
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
@@ -11,6 +12,7 @@ from managers.models import ManagerApplication
 from mgl.models import Fixture, MarketTransaction, SiteChangeLog, SiteContent
 from mgl.site_cms import get_content
 from players.models import Player
+from teams.badges import static_badge_path
 from teams.models import Team
 
 
@@ -442,3 +444,185 @@ class SiteManagementTests(TestCase):
         self.assertFalse(self.club_player.is_free_agent)
         self.assertEqual(self.team.tokens, Decimal("50.00"))
         self.assertEqual(self.team.players.count(), 1)
+
+    def _render_logo(self, team):
+        return Template("{% load mgl_ui %}{% team_logo team 'md' %}").render(
+            Context({"team": team})
+        )
+
+    def _assert_identity_untouched(self, team_pk, player_pk, fixture_pk, transfer_pk):
+        self.team.refresh_from_db()
+        self.club_player.refresh_from_db()
+        self.unassigned.refresh_from_db()
+        self.free_agent.refresh_from_db()
+        self.fixture.refresh_from_db()
+        self.transfer.refresh_from_db()
+        self.assertEqual(self.team.pk, team_pk)
+        self.assertEqual(self.club_player.pk, player_pk)
+        self.assertEqual(self.club_player.mgl_team_id, team_pk)
+        self.assertFalse(self.club_player.is_free_agent)
+        self.assertIsNone(self.unassigned.mgl_team_id)
+        self.assertFalse(self.unassigned.is_free_agent)
+        self.assertIsNone(self.free_agent.mgl_team_id)
+        self.assertTrue(self.free_agent.is_free_agent)
+        self.assertEqual(self.fixture.pk, fixture_pk)
+        self.assertEqual(self.fixture.home_team_id, team_pk)
+        self.assertEqual(self.transfer.pk, transfer_pk)
+        self.assertEqual(self.transfer.from_team_id, team_pk)
+
+    def test_uploaded_logo_survives_name_and_short_name_changes(self):
+        self._login(self.owner)
+        team_pk = self.team.pk
+        player_pk = self.club_player.pk
+        fixture_pk = self.fixture.pk
+        transfer_pk = self.transfer.pk
+        upload = self.client.post(
+            reverse("site_management_team_edit", args=[self.team.id]),
+            {
+                "action": "save",
+                "name": self.team.name,
+                "short_name": self.team.short_name,
+                "description": "",
+                "logo": _png("kept.png"),
+            },
+        )
+        self.assertEqual(upload.status_code, 302)
+        self.team.refresh_from_db()
+        stored_logo = self.team.logo.name
+        self.assertTrue(stored_logo)
+
+        name_change = self.client.post(
+            reverse("site_management_team_edit", args=[self.team.id]),
+            {
+                "action": "save",
+                "name": "QA Renamed Club",
+                "short_name": self.team.short_name,
+                "description": "Updated description.",
+            },
+        )
+        self.assertEqual(name_change.status_code, 302)
+        self.team.refresh_from_db()
+        self.assertEqual(self.team.logo.name, stored_logo)
+        self.assertIn(self.team.logo.url, self._render_logo(self.team))
+        self.assertNotIn("core/img/clubs/", self._render_logo(self.team))
+
+        short_change = self.client.post(
+            reverse("site_management_team_edit", args=[self.team.id]),
+            {
+                "action": "save",
+                "name": "QA Renamed Club",
+                "short_name": "ARS",
+                "description": "Updated description.",
+            },
+        )
+        # Official Arsenal still holds ARS, so first free that code if needed.
+        if short_change.status_code != 302:
+            arsenal = Team.objects.filter(short_name__iexact="ARS").exclude(pk=self.team.pk).first()
+            self.assertIsNotNone(arsenal)
+            freed = self.client.post(
+                reverse("site_management_team_edit", args=[arsenal.id]),
+                {
+                    "action": "save",
+                    "name": arsenal.name,
+                    "short_name": "ARX",
+                    "description": arsenal.description or "",
+                },
+            )
+            self.assertEqual(freed.status_code, 302)
+            short_change = self.client.post(
+                reverse("site_management_team_edit", args=[self.team.id]),
+                {
+                    "action": "save",
+                    "name": "QA Renamed Club",
+                    "short_name": "ARS",
+                    "description": "Updated description.",
+                },
+            )
+        self.assertEqual(short_change.status_code, 302)
+        self.team.refresh_from_db()
+        self.assertEqual(self.team.logo.name, stored_logo)
+        self.assertEqual(self.team.short_name, "ARS")
+        html = self._render_logo(self.team)
+        self.assertIn(self.team.logo.url, html)
+        self.assertNotIn("core/img/clubs/ARS.svg", html)
+        self.assertTrue(SiteChangeLog.objects.filter(action="team.logo", object_id=str(team_pk)).exists())
+        self.assertTrue(SiteChangeLog.objects.filter(action="team.name", object_id=str(team_pk)).exists())
+        self.assertTrue(SiteChangeLog.objects.filter(action="team.short_name", object_id=str(team_pk)).exists())
+        self._assert_identity_untouched(team_pk, player_pk, fixture_pk, transfer_pk)
+
+    def test_changed_short_name_cannot_display_another_team_logo(self):
+        self._login(self.owner)
+        arsenal = Team.objects.filter(badge_code="ARS").first()
+        self.assertIsNotNone(arsenal)
+        self.assertEqual(static_badge_path(arsenal), "core/img/clubs/ARS.svg")
+        self.assertEqual(self.team.badge_code, "")
+        self.assertEqual(static_badge_path(self.team), "")
+
+        if arsenal.short_name.upper() == "ARS":
+            freed = self.client.post(
+                reverse("site_management_team_edit", args=[arsenal.id]),
+                {
+                    "action": "save",
+                    "name": arsenal.name,
+                    "short_name": "ARX",
+                    "description": arsenal.description or "",
+                },
+            )
+            self.assertEqual(freed.status_code, 302)
+            arsenal.refresh_from_db()
+            self.assertEqual(arsenal.short_name, "ARX")
+            self.assertEqual(arsenal.badge_code, "ARS")
+            self.assertEqual(static_badge_path(arsenal), "core/img/clubs/ARS.svg")
+
+        team_pk = self.team.pk
+        player_pk = self.club_player.pk
+        fixture_pk = self.fixture.pk
+        transfer_pk = self.transfer.pk
+        response = self.client.post(
+            reverse("site_management_team_edit", args=[self.team.id]),
+            {
+                "action": "save",
+                "name": self.team.name,
+                "short_name": "ARS",
+                "description": "",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        self.team.refresh_from_db()
+        self.assertEqual(self.team.short_name, "ARS")
+        self.assertEqual(self.team.badge_code, "")
+        self.assertEqual(static_badge_path(self.team), "")
+        html = self._render_logo(self.team)
+        self.assertNotIn("core/img/clubs/ARS.svg", html)
+        self.assertNotIn("core/img/clubs/", html)
+        self.assertIn("ARS", html)
+        self.assertTrue(SiteChangeLog.objects.filter(action="team.short_name", object_id=str(team_pk)).exists())
+        self._assert_identity_untouched(team_pk, player_pk, fixture_pk, transfer_pk)
+
+    def test_legacy_club_editor_redirects_to_site_management(self):
+        self._login(self.owner)
+        response = self.client.get(reverse("edit_club_admin", args=[self.team.id]))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response["Location"],
+            reverse("site_management_team_edit", args=[self.team.id]),
+        )
+        posted = self.client.post(
+            reverse("edit_club_admin", args=[self.team.id]),
+            {"name": "Hacked", "short_name": "HCK"},
+        )
+        self.assertEqual(posted.status_code, 302)
+        self.assertEqual(
+            posted["Location"],
+            reverse("site_management_team_edit", args=[self.team.id]),
+        )
+        self.team.refresh_from_db()
+        self.assertEqual(self.team.name, "QA Test Club")
+        self.assertEqual(self.team.short_name, "QTC")
+        control = self.client.get(reverse("control_centre"))
+        self.assertContains(control, reverse("site_management_teams"))
+        self.assertNotContains(control, reverse("edit_club_admin", args=[self.team.id]))
+        clubs = self.client.get(reverse("club_management_admin"))
+        self.assertContains(clubs, reverse("site_management_team_edit", args=[self.team.id]))
+        self.assertNotContains(clubs, reverse("edit_club_admin", args=[self.team.id]))
+        self.assertContains(clubs, "EDIT IDENTITY")

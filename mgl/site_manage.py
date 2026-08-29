@@ -134,6 +134,7 @@ def site_management_team_edit(request, team_id):
             team.name = name
             team.short_name = short_name
             team.description = description
+            # Never write badge_code, league, manager, tokens or player FKs.
             update_fields = ["name", "short_name", "description"]
             if logo_file:
                 team.logo = logo_file

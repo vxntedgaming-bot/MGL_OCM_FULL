@@ -26,6 +26,15 @@ class Team(models.Model):
         null=True,
     )
 
+    badge_code = models.CharField(
+        max_length=20,
+        blank=True,
+        help_text=(
+            "Frozen official crest key. Display fallback only. "
+            "Site Management never changes this when name or short_name is edited."
+        ),
+    )
+
     description = models.TextField(
         blank=True,
         help_text="Optional public club description. Display only; does not affect squads or fixtures.",

@@ -99,19 +99,21 @@ def club_url(team):
 
 @register.inclusion_tag("mgl/includes/team_logo.html")
 def team_logo(team, size="md"):
+    has_upload = bool(team and getattr(team, "logo", None))
     return {
         "team": team,
         "size": size or "md",
-        "badge_static": static_badge_path(team) if team else "",
+        "badge_static": "" if has_upload else (static_badge_path(team) if team else ""),
     }
 
 
 @register.inclusion_tag("mgl/includes/team_logo.html")
 def club_badge(team, size="md"):
+    has_upload = bool(team and getattr(team, "logo", None))
     return {
         "team": team,
         "size": size or "md",
-        "badge_static": static_badge_path(team) if team else "",
+        "badge_static": "" if has_upload else (static_badge_path(team) if team else ""),
     }
 
 

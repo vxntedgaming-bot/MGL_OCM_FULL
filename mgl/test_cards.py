@@ -62,9 +62,12 @@ class PlayerCardAndBadgeTests(TestCase):
             tokens=Decimal("50.00"),
         )
 
-    def test_official_badge_path_uses_short_name(self):
+    def test_official_badge_path_uses_frozen_badge_code(self):
+        self.assertEqual(self.team.badge_code, "ARS")
         self.assertEqual(static_badge_path(self.team), "core/img/clubs/ARS.svg")
         self.assertEqual(static_badge_path(None), "")
+        self.team.short_name = "XXX"
+        self.assertEqual(static_badge_path(self.team), "core/img/clubs/ARS.svg")
 
     def test_homepage_renders_club_badges(self):
         response = self.client.get("/")
