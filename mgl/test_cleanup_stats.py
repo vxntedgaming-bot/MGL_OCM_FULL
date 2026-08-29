@@ -55,9 +55,9 @@ class DropdownStyleTests(TestCase):
         self.assertIn("padding-left: 28px;", sub)
 
     def test_dropdown_item_labels_use_league_title_case(self):
-        from mgl.nav import MANAGER_NAV_DROPDOWNS, NAV_DROPDOWNS
+        from mgl.nav import NAV_DROPDOWNS, SIGNED_IN_NAV_DROPDOWNS
 
-        for source in (NAV_DROPDOWNS, MANAGER_NAV_DROPDOWNS):
+        for source in (NAV_DROPDOWNS, SIGNED_IN_NAV_DROPDOWNS):
             for menu in source:
                 for item in menu["items"]:
                     label = item["label"]

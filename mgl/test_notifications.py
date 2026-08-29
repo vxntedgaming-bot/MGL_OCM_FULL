@@ -81,7 +81,7 @@ class NotificationAndPressroomTests(TestCase):
         press = create_press_question(
             manager=self.user_a,
             team=self.team_a,
-            question="How pleased were you with your team's performance?",
+            question="How pleased were you with the performance?",
             question_key="perf_pleased",
             category="performance",
             trigger=PressConference.MATCH,
@@ -103,7 +103,7 @@ class NotificationAndPressroomTests(TestCase):
         page = self.client.get(reverse("answer_press", args=[press.pk]))
         self.assertEqual(page.status_code, 200)
         self.assertContains(page, "ANSWER PRESS QUESTION")
-        self.assertContains(page, "How pleased were you with your team's performance?")
+        self.assertContains(page, "How pleased were you with the performance?")
 
         posted = self.client.post(
             reverse("answer_press", args=[press.pk]),
@@ -122,7 +122,7 @@ class NotificationAndPressroomTests(TestCase):
         room = self.client.get(reverse("pressroom"))
         self.assertContains(room, "ARSENAL TEST")
         self.assertContains(room, "Manager: Kai")
-        self.assertContains(room, "How pleased were you with your team's performance?")
+        self.assertContains(room, "How pleased were you with the performance?")
         self.assertContains(room, "We controlled the game from the start.")
         self.assertContains(room, "PRESS CONFERENCE")
         self.assertNotContains(room, "YOUR QUESTIONS")
