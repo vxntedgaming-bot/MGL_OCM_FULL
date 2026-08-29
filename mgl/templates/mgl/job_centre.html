@@ -131,27 +131,6 @@
         {% include "mgl/includes/empty_state.html" with kicker="VACANCIES" title="NO VACANT CLUBS" body="When a manager leaves, the club stays listed here with its squad ready for a new appointment." %}
     {% endif %}
 </section>
-
-{% if my_applications %}
-<section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">YOUR APPLICATIONS</div>
-            <h2>STATUS</h2>
-            <p>{% site_text "jobs.application_instructions" %}</p>
-        </div>
-    </div>
-    <div class="dashboard-panel">
-        {% for app in my_applications %}
-            <div class="table-row">
-                <strong class="mgl-info-club">{% team_logo app.team "xs" %} {{ app.team.name }}</strong>
-                <span>{{ app.status }}</span>
-                <small>{{ app.created_at|date:"d M Y" }}</small>
-            </div>
-        {% endfor %}
-    </div>
-</section>
-{% endif %}
 {% endblock %}
 
 {% block extra_js %}

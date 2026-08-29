@@ -236,10 +236,8 @@ def job_centre(request):
         .prefetch_related("players")
         .order_by("name")
     )
-    my_apps = []
     pending_team_ids = set()
     if manager:
-        my_apps = manager.club_applications.select_related("team").order_by("-created_at")[:10]
         pending_team_ids = set(
             manager.club_applications.filter(
                 status=ApprovalStatus.PENDING
@@ -252,7 +250,6 @@ def job_centre(request):
         {
             "vacant_clubs": vacant,
             "manager": manager,
-            "my_applications": my_apps,
             "pending_team_ids": pending_team_ids,
             "has_club": bool(club_for_user(request.user)),
             "can_apply": can_apply,

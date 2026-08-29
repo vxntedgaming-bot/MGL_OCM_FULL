@@ -134,6 +134,49 @@ class JobCentreExperienceTests(TestCase):
         joined = self.client.get(reverse("job_centre") + "?join_discord=1")
         self.assertContains(joined, "https://discord.gg/Jmf29wBafP")
         self.assertContains(joined, "Application sent")
+        self.assertNotContains(joined, "YOUR APPLICATIONS")
+        self.assertNotContains(joined, ">STATUS</h2>")
+        self.assertNotContains(joined, 'class="table-row"')
+
+    def test_pending_application_does_not_render_status_bar_for_any_role(self):
+        public = self.client.get(reverse("job_centre"))
+        self.assertEqual(public.status_code, 200)
+        self.assertNotContains(public, "YOUR APPLICATIONS")
+        self.assertNotContains(public, ">STATUS</h2>")
+        self.assertNotContains(public, 'class="table-row"')
+
+        self.client.login(username="applicant", password="test-pass-123")
+        self.client.post(reverse("apply_for_club", args=[self.vacant.id]), JOB_APPLY)
+        app = ClubApplication.objects.get(manager=self.manager, team=self.vacant)
+        self.assertEqual(app.status, ApprovalStatus.PENDING)
+
+        manager_jobs = self.client.get(reverse("job_centre"))
+        self.assertNotContains(manager_jobs, "YOUR APPLICATIONS")
+        self.assertNotContains(manager_jobs, ">STATUS</h2>")
+        self.assertNotContains(manager_jobs, 'class="table-row"')
+        self.assertContains(manager_jobs, "Your application is pending Owner/Admin review.")
+        hub = self.client.get(reverse("manager_hub"))
+        self.assertNotContains(hub, "YOUR APPLICATIONS")
+        self.assertNotContains(hub, ">STATUS</h2>")
+
+        _user("jobs-admin", role=User.ADMIN)
+        for username in ("owner", "jobs-admin"):
+            self.client.logout()
+            self.client.login(username=username, password="test-pass-123")
+            staff_jobs = self.client.get(reverse("job_centre"))
+            self.assertNotContains(staff_jobs, "YOUR APPLICATIONS")
+            self.assertNotContains(staff_jobs, ">STATUS</h2>")
+            self.assertNotContains(staff_jobs, 'class="table-row"')
+
+        control = self.client.get(reverse("control_centre"))
+        self.assertContains(control, self.vacant.name)
+        inbox = self.client.get(reverse("manager_notifications"))
+        self.assertContains(inbox, "CLUB APPLICATION")
+        self.assertContains(inbox, self.vacant.name)
+        self.assertEqual(
+            ClubApplication.objects.filter(manager=self.manager, team=self.vacant).count(),
+            1,
+        )
 
     def test_application_requires_required_fields(self):
         self.client.login(username="applicant", password="test-pass-123")

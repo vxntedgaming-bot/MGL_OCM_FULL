@@ -88,6 +88,8 @@ class NotificationAndPressroomTests(TestCase):
         self.assertNotContains(home, "MY CLUB")
         self.assertContains(home, "JOBS")
         self.assertContains(home, "LOGIN")
+        self.assertNotContains(home, "YOUR APPLICATIONS")
+        self.assertNotContains(home, ">STATUS</h2>")
 
     def test_press_creates_one_notification_and_answer_publishes(self):
         press = create_press_question(
