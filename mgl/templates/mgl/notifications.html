@@ -16,21 +16,43 @@
 
     <div class="mgl-inbox">
         {% for item in notifications %}
-            <article class="mgl-notify-item{% if item.is_unread %} is-unread{% endif %}">
-                <small>{{ item.notification_type }}</small>
-                <h2>{{ item.title }}</h2>
-                <p>{{ item.message }}</p>
-                <p class="mgl-inbox-meta">
-                    {% if item.actor %}<span>From {{ item.actor }}</span>{% endif %}
-                    {% if item.team %}<span>{{ item.team.name }}</span>{% endif %}
-                    {% if item.player %}<span>{{ item.player.name }}</span>{% endif %}
-                    <span>{{ item.created_at|date:"j M Y, H:i" }}</span>
-                    <span>{% if item.is_unread %}Unread{% else %}Read{% endif %}</span>
-                </p>
-                {% if item.action_url %}
-                    <a href="{{ item.action_url }}" class="mgl-notify-cta">{{ item.action_label|default:"VIEW" }}</a>
-                {% endif %}
-            </article>
+            {% if item.is_press_brief %}
+                <article class="mgl-press-brief">
+                    <header class="mgl-press-brief-head">
+                        {% team_logo item.press.team "lg" %}
+                        <div>
+                            <p class="mgl-press-brief-manager">{{ item.press_manager_name|default:user.username|upper }}</p>
+                            <p class="mgl-press-brief-club">{% if item.press.team %}{{ item.press.team.name|upper }}{% else %}MGL{% endif %}</p>
+                        </div>
+                    </header>
+                    <p class="mgl-press-brief-kicker">PRESS CONFERENCE</p>
+                    {% if item.message %}
+                        <p class="mgl-press-brief-lead">“{{ item.message }}”</p>
+                    {% endif %}
+                    <p class="mgl-press-brief-label">PRESS CONFERENCE QUESTION</p>
+                    <blockquote class="mgl-press-brief-q">“{{ item.press.question }}”</blockquote>
+                    {% if item.press_pending %}
+                        <a href="{{ item.action_url }}" class="mgl-press-brief-cta">ANSWER NOW</a>
+                    {% endif %}
+                    <time class="mgl-press-brief-date" datetime="{{ item.created_at|date:'c' }}">{{ item.created_at|date:"d M Y · H:i"|upper }}</time>
+                </article>
+            {% else %}
+                <article class="mgl-notify-item{% if item.is_unread %} is-unread{% endif %}">
+                    <small>{{ item.notification_type }}</small>
+                    <h2>{{ item.title }}</h2>
+                    <p>{{ item.message }}</p>
+                    <p class="mgl-inbox-meta">
+                        {% if item.actor %}<span>From {{ item.actor }}</span>{% endif %}
+                        {% if item.team %}<span>{{ item.team.name }}</span>{% endif %}
+                        {% if item.player %}<span>{{ item.player.name }}</span>{% endif %}
+                        <span>{{ item.created_at|date:"j M Y, H:i" }}</span>
+                        <span>{% if item.is_unread %}Unread{% else %}Read{% endif %}</span>
+                    </p>
+                    {% if item.action_url %}
+                        <a href="{{ item.action_url }}" class="mgl-notify-cta">{{ item.action_label|default:"VIEW" }}</a>
+                    {% endif %}
+                </article>
+            {% endif %}
         {% empty %}
             <p class="mgl-notify-empty">No notifications yet. Match submissions, transfers, approvals and other MGL actions will appear here for your account only.</p>
         {% endfor %}

@@ -112,8 +112,15 @@ class NotificationAndPressroomTests(TestCase):
         self.assertNotContains(hub, "PENDING ACTIONS")
         inbox = self.client.get(reverse("manager_notifications"))
         self.assertContains(inbox, "PRESS CONFERENCE")
+        self.assertContains(inbox, "PRESS CONFERENCE QUESTION")
+        self.assertContains(inbox, "mgl-press-brief")
+        self.assertContains(inbox, "KAI")
+        self.assertContains(inbox, "ARSENAL TEST")
+        self.assertContains(inbox, "How pleased were you with the performance?")
+        self.assertContains(inbox, "Sky Sports")
         self.assertContains(inbox, "ANSWER NOW")
         self.assertContains(inbox, reverse("answer_press", args=[press.pk]))
+        self.assertContains(inbox, "mgl-team-logo")
 
         page = self.client.get(reverse("answer_press", args=[press.pk]))
         self.assertEqual(page.status_code, 200)
@@ -133,6 +140,10 @@ class NotificationAndPressroomTests(TestCase):
             row for row in notifications_for_user(self.user_a) if row["key"].startswith("press-")
         ]
         self.assertEqual(remaining, [])
+        after = self.client.get(reverse("manager_notifications"))
+        self.assertNotContains(after, "ANSWER NOW")
+        self.assertNotContains(after, reverse("answer_press", args=[press.pk]))
+        self.assertEqual(unread_count_for_user(self.user_a), 0)
 
         room = self.client.get(reverse("pressroom"))
         self.assertContains(room, "ARSENAL TEST")
@@ -427,6 +438,43 @@ class NotificationAndPressroomTests(TestCase):
         self.assertNotContains(hub_after, "1 Notification")
         self.assertEqual(unread_count_for_user(self.user_a), 0)
         self.assertEqual(unread_count_for_user(self.user_b), 1)
+
+    def test_press_brief_does_not_restyle_other_notifications(self):
+        notify_user(
+            self.user_a,
+            source_key="admin-message-plain",
+            notification_type="ADMIN",
+            title="OWNER DECISION",
+            message="Your listing needs a review.",
+            actor="MGL Admin",
+        )
+        self.client.login(username="kai", password="test-pass-123")
+        inbox = self.client.get(reverse("manager_notifications"))
+        self.assertContains(inbox, "OWNER DECISION")
+        self.assertContains(inbox, "mgl-notify-item")
+        self.assertNotContains(inbox, "mgl-press-brief")
+        self.assertNotContains(inbox, "PRESS CONFERENCE QUESTION")
+
+    def test_manager_cannot_answer_another_managers_press(self):
+        press = create_press_question(
+            manager=self.user_a,
+            team=self.team_a,
+            question="Was that the turning point?",
+            question_key="win_secret",
+            category="win",
+            trigger=PressConference.MATCH,
+        )
+        self.client.login(username="rival", password="test-pass-123")
+        forbidden = self.client.get(reverse("answer_press", args=[press.pk]))
+        self.assertEqual(forbidden.status_code, 404)
+        posted = self.client.post(
+            reverse("answer_press", args=[press.pk]),
+            {"answer": "I should not be able to answer this."},
+        )
+        self.assertEqual(posted.status_code, 404)
+        press.refresh_from_db()
+        self.assertEqual(press.status, ApprovalStatus.PENDING)
+        self.assertEqual(press.answer, "")
 
     def test_manager_cannot_open_another_managers_notifications(self):
         notify_user(

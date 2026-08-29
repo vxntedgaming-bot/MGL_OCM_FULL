@@ -301,6 +301,9 @@ def publish_press_answer(press, answer):
         f"Q: {press.question}\n\nA: {press.answer}",
         team=press.team,
     )
+    from mgl.notifications import mark_action_complete
+
+    mark_action_complete(press.manager, f"press-{press.pk}")
     return press
 
 

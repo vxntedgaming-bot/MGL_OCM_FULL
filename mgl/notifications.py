@@ -18,6 +18,7 @@ from django.utils import timezone
 from accounts.models import User
 from managers.models import ManagerApplication
 from mgl.market import club_for_user
+from mgl.services import manager_for_user
 from mgl.models import (
     ApprovalStatus,
     ClubApplication,
@@ -375,11 +376,60 @@ def unread_count_for_user(user):
     return inbox_queryset_for_user(user).filter(read_at__isnull=True).count()
 
 
+def attach_press_briefs(items, user):
+    """Attach the viewer's own PressConference rows to matching inbox items."""
+    press_ids = []
+    for item in items:
+        key = getattr(item, "source_key", "") or ""
+        if key.startswith("press-"):
+            suffix = key.split("-", 1)[1]
+            if suffix.isdigit():
+                press_ids.append(int(suffix))
+    found = {}
+    if press_ids and user is not None:
+        found = {
+            row.pk: row
+            for row in PressConference.objects.filter(
+                pk__in=press_ids,
+                manager=user,
+            ).select_related("team", "manager")
+        }
+    application = manager_for_user(user) if user is not None else None
+    manager_name = (
+        application.display_name
+        if application
+        else getattr(user, "username", "")
+    )
+    for item in items:
+        key = getattr(item, "source_key", "") or ""
+        press = None
+        if key.startswith("press-"):
+            suffix = key.split("-", 1)[1]
+            if suffix.isdigit():
+                press = found.get(int(suffix))
+        item.press = press
+        item.is_press_brief = press is not None
+        item.press_manager_name = manager_name
+        item.press_pending = bool(
+            press and press.status == ApprovalStatus.PENDING
+        )
+    return items
+
+
 def inbox_for_user(user):
     sync_pending_notifications(user)
-    return list(inbox_queryset_for_user(user))
+    return attach_press_briefs(list(inbox_queryset_for_user(user)), user)
 
 
 def mark_inbox_read(user):
     now = timezone.now()
     inbox_queryset_for_user(user).filter(read_at__isnull=True).update(read_at=now)
+
+
+def mark_action_complete(user, source_key):
+    if user is None or not source_key:
+        return
+    inbox_queryset_for_user(user).filter(
+        source_key=source_key,
+        read_at__isnull=True,
+    ).update(read_at=timezone.now())
