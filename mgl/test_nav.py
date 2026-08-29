@@ -237,6 +237,8 @@ class NavigationDropdownTests(TestCase):
         self.assertContains(hub, reverse("pressroom"))
         self.assertContains(hub, reverse("historical_tables"))
         self.assertContains(hub, reverse("manager_notifications"))
+        self.assertContains(hub, "JOBS")
+        self.assertContains(hub, reverse("job_centre"))
         self.assertNotContains(hub, "data-notify-dropdown")
         self.assertNotContains(hub, "ACTION REQUIRED")
         self.assertNotContains(hub, "Propose Transfer")

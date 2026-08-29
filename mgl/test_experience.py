@@ -155,6 +155,29 @@ class JobCentreExperienceTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertFalse(ClubApplication.objects.filter(manager=self.manager, team=other).exists())
 
+    def test_clubless_approved_manager_sees_jobs_nav_and_vacancies(self):
+        self.client.login(username="applicant", password="test-pass-123")
+        hub = self.client.get(reverse("manager_hub"))
+        self.assertEqual(hub.status_code, 200)
+        self.assertContains(hub, ">JOBS</a>")
+        self.assertContains(hub, reverse("job_centre"))
+        jobs = self.client.get(reverse("job_centre"))
+        self.assertEqual(jobs.status_code, 200)
+        self.assertContains(jobs, "mgl-nav-link is-active")
+        self.assertContains(jobs, self.vacant.name)
+        self.assertContains(jobs, "APPLY FOR")
+        self.assertNotContains(jobs, "REGISTER TO APPLY")
+        self.assertNotContains(jobs, "YOU ALREADY MANAGE A CLUB")
+
+    def test_owner_still_reaches_job_centre_and_control(self):
+        self.client.login(username="owner", password="test-pass-123")
+        jobs = self.client.get(reverse("job_centre"))
+        self.assertEqual(jobs.status_code, 200)
+        self.assertContains(jobs, ">JOBS</a>")
+        self.assertContains(jobs, reverse("job_centre"))
+        self.assertContains(jobs, reverse("control_centre"))
+        self.assertContains(jobs, self.vacant.name)
+
     def test_public_club_page_shows_squad_without_edit(self):
         player = Player.objects.create(
             name="Squad Star",
