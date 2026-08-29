@@ -303,16 +303,43 @@ def manager_hub(request):
     league_position = None
     table = []
 
+    standings_row = None
+    league_size = 0
+    form = []
+
     if team:
         team_fixtures = Fixture.objects.filter(
             Q(home_team=team) | Q(away_team=team)
-        ).select_related("home_team", "away_team", "league")
+        ).select_related(
+            "home_team",
+            "away_team",
+            "home_team__manager",
+            "away_team__manager",
+            "league",
+        )
         recent = team_fixtures.order_by("-id")[:10]
         outstanding = list(
             team_fixtures.filter(is_released=True, status="SCHEDULED").order_by(
                 "matchweek", "id"
             )
         )
+        submitted_ids = set(
+            MatchSubmission.objects.filter(
+                fixture_id__in=[fixture.id for fixture in outstanding]
+            ).values_list("fixture_id", flat=True)
+        )
+        for fixture in outstanding:
+            fixture.opponent = (
+                fixture.away_team if fixture.home_team_id == team.id else fixture.home_team
+            )
+            fixture.can_submit = (
+                request.user.id
+                in {
+                    fixture.home_team.manager_id,
+                    fixture.away_team.manager_id,
+                }
+                and fixture.id not in submitted_ids
+            )
         completed = list(
             team_fixtures.filter(status="COMPLETED")
             .prefetch_related("submission__team_stats")
@@ -369,10 +396,19 @@ def manager_hub(request):
         top_assists.sort(key=lambda p: (-p.assists, p.name))
         top_assists = top_assists[:5]
         table = build_league_table(team.league)
-        league_position = next(
-            (row["position"] for row in table if row["team"].id == team.id),
+        league_size = len(table)
+        standings_row = next(
+            (row for row in table if row["team"].id == team.id),
             None,
         )
+        league_position = (
+            standings_row["position"] if standings_row else None
+        )
+        form = [
+            fixture.outcome
+            for fixture in reversed(recent_results[:5])
+            if fixture.outcome in {"W", "D", "L"}
+        ]
 
     rewards = (
         RewardTransaction.objects
@@ -408,6 +444,9 @@ def manager_hub(request):
             "top_assists": top_assists,
             "squad": squad[:12],
             "league_position": league_position,
+            "league_size": league_size,
+            "standings_row": standings_row,
+            "form": form,
             "table": table[:8],
         },
     )

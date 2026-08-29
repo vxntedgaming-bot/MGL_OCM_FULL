@@ -1,0 +1,515 @@
+/* Manager Hub only. Loaded on /mgl/hub/. Does not restyle other pages. */
+
+.mgl-hub-page .mgl-main {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 28px 20px 64px;
+}
+
+.mgl-dash {
+    display: grid;
+    gap: 28px;
+    font-family: var(--font-body, "Manrope", Arial, Helvetica, sans-serif);
+}
+
+.mgl-dash-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.9fr);
+    gap: 0;
+    background: #10141c;
+    border: 1px solid var(--mgl-line, rgba(255, 255, 255, 0.1));
+    border-radius: 16px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
+    overflow: hidden;
+}
+
+.mgl-dash-hero-main {
+    display: flex;
+    gap: 22px;
+    align-items: center;
+    padding: 28px 28px 24px;
+}
+
+.mgl-dash-hero-badge .mgl-team-logo,
+.mgl-dash-hero-badge .mgl-team-logo-xl {
+    width: 92px;
+    height: 92px;
+}
+
+.mgl-dash-hero-badge-empty {
+    width: 92px;
+    height: 92px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--mgl-line);
+    color: var(--mgl-orange);
+    font-weight: 800;
+    letter-spacing: 0.08em;
+}
+
+.mgl-dash-eyebrow {
+    margin: 0 0 8px;
+    color: var(--mgl-orange);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.mgl-dash-hero-copy h1 {
+    margin: 0;
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    line-height: 1.05;
+}
+
+.mgl-dash-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    margin: 10px 0 14px;
+    color: rgba(255, 255, 255, 0.62);
+    font-size: 13px;
+}
+
+.mgl-dash-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.mgl-dash-pill {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    padding: 0 12px;
+    border-radius: 999px;
+    border: 1px solid var(--mgl-line);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    color: #fff;
+}
+
+.mgl-dash-pill-ok {
+    background: rgba(61, 220, 151, 0.12);
+    border-color: rgba(61, 220, 151, 0.35);
+    color: #3ddc97;
+}
+
+.mgl-dash-pill-alert {
+    background: rgba(255, 92, 0, 0.12);
+    border-color: rgba(255, 92, 0, 0.4);
+    color: var(--mgl-orange);
+}
+
+.mgl-dash-pill-ghost {
+    color: rgba(255, 255, 255, 0.78);
+}
+
+.mgl-dash-balance {
+    margin: 12px 0 0;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.mgl-dash-balance span {
+    margin-right: 6px;
+}
+
+.mgl-dash-intro {
+    margin: 10px 0 0;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 13px;
+}
+
+.mgl-dash-stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px 16px;
+    padding: 26px 24px;
+    border-left: 1px solid var(--mgl-line);
+    align-content: center;
+}
+
+.mgl-dash-stat span {
+    display: block;
+    color: rgba(255, 255, 255, 0.48);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+}
+
+.mgl-dash-stat strong {
+    display: block;
+    margin-top: 4px;
+    font-size: 28px;
+    line-height: 1.1;
+    font-weight: 800;
+}
+
+.mgl-dash-stat strong.is-accent {
+    color: var(--mgl-orange);
+}
+
+.mgl-dash-stat small {
+    display: block;
+    margin-top: 4px;
+    color: rgba(255, 255, 255, 0.42);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+}
+
+.mgl-dash-form {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.mgl-dash-form-mark {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 11px;
+    font-weight: 800;
+    background: #1a1f28;
+}
+
+.mgl-dash-form-mark.mgl-wdl-w { color: #3ddc97; }
+.mgl-dash-form-mark.mgl-wdl-d { color: #ffd166; }
+.mgl-dash-form-mark.mgl-wdl-l { color: #ff5c5c; }
+
+.mgl-dash-section,
+.mgl-dash-board {
+    display: grid;
+    gap: 14px;
+}
+
+.mgl-dash-section-head,
+.mgl-dash-panel-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.mgl-dash-section-head h2,
+.mgl-dash-panel-head h2 {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+}
+
+.mgl-dash-section-head svg,
+.mgl-dash-panel-head svg {
+    width: 16px;
+    height: 16px;
+    color: var(--mgl-orange);
+    flex: 0 0 auto;
+}
+
+.mgl-dash-section-head span {
+    flex: 1;
+    height: 1px;
+    background: var(--mgl-line);
+}
+
+.mgl-dash-panel-head a {
+    margin-left: auto;
+    color: rgba(255, 255, 255, 0.55);
+    text-decoration: none;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+}
+
+.mgl-dash-panel-head a:hover {
+    color: var(--mgl-orange);
+}
+
+.mgl-dash-grid {
+    display: grid;
+    gap: 14px;
+}
+
+.mgl-dash-grid-4 {
+    grid-template-columns: 1.4fr repeat(3, minmax(0, 1fr));
+}
+
+.mgl-dash-grid-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.mgl-dash-card {
+    position: relative;
+    min-height: 132px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 18px;
+    background: #11161f;
+    border: 1px solid var(--mgl-line);
+    border-radius: 14px;
+    color: #fff;
+    text-decoration: none;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    transition: border-color 0.18s ease, transform 0.18s ease, background 0.18s ease;
+}
+
+.mgl-dash-card:hover {
+    border-color: rgba(255, 92, 0, 0.45);
+    background: #161c27;
+    transform: translateY(-1px);
+}
+
+.mgl-dash-card-feature {
+    justify-content: space-between;
+    background:
+        linear-gradient(180deg, rgba(16, 20, 28, 0.35), rgba(16, 20, 28, 0.92)),
+        radial-gradient(circle at 80% 20%, rgba(255, 92, 0, 0.22), transparent 42%),
+        #0d1118;
+}
+
+.mgl-dash-card-quiet {
+    min-height: 110px;
+    justify-content: flex-start;
+}
+
+.mgl-dash-card-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--mgl-line);
+}
+
+.mgl-dash-card-icon svg {
+    width: 18px;
+    height: 18px;
+    color: var(--mgl-orange);
+}
+
+.mgl-dash-card strong {
+    font-size: 15px;
+    letter-spacing: 0.08em;
+}
+
+.mgl-dash-card small,
+.mgl-dash-card p {
+    display: block;
+    margin: 4px 0 0;
+    color: rgba(255, 255, 255, 0.52);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+.mgl-dash-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 7px;
+    border-radius: 999px;
+    display: grid;
+    place-items: center;
+    background: #2d6cdf;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.mgl-dash-badge-new {
+    background: var(--mgl-orange);
+}
+
+.mgl-dash-board {
+    grid-template-columns: minmax(0, 1.55fr) minmax(260px, 0.8fr);
+    align-items: start;
+}
+
+.mgl-dash-board-main,
+.mgl-dash-board-side,
+.mgl-dash-panel {
+    display: grid;
+    gap: 14px;
+}
+
+.mgl-dash-panel {
+    background: #11161f;
+    border: 1px solid var(--mgl-line);
+    border-radius: 14px;
+    padding: 18px 18px 8px;
+}
+
+.mgl-dash-note,
+.mgl-dash-empty {
+    margin: 0 0 8px;
+    color: rgba(255, 255, 255, 0.48);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.mgl-dash-empty {
+    padding: 18px 0 20px;
+    letter-spacing: 0.04em;
+    text-transform: none;
+}
+
+.mgl-dash-row,
+.mgl-dash-rank {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 0;
+    border-top: 1px solid var(--mgl-line);
+}
+
+.mgl-dash-row strong,
+.mgl-dash-rank a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.mgl-dash-rank a:hover {
+    color: var(--mgl-orange);
+}
+
+.mgl-dash-row small {
+    display: block;
+    margin-top: 3px;
+    color: rgba(255, 255, 255, 0.48);
+    font-size: 12px;
+}
+
+.mgl-dash-result {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.mgl-dash-result small {
+    width: 100%;
+    margin: 0;
+}
+
+.mgl-dash-action {
+    flex: 0 0 auto;
+    min-height: 30px;
+    padding: 0 12px;
+    border: 1px solid var(--mgl-orange);
+    border-radius: 999px;
+    color: var(--mgl-orange);
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    display: inline-flex;
+    align-items: center;
+}
+
+.mgl-dash-action:hover {
+    background: rgba(255, 92, 0, 0.12);
+}
+
+.mgl-dash-rank {
+    justify-content: flex-start;
+}
+
+.mgl-dash-rank a {
+    flex: 1;
+}
+
+.mgl-dash-rank b {
+    color: var(--mgl-orange);
+    font-size: 13px;
+}
+
+.mgl-dash-rank-n {
+    width: 22px;
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.mgl-dash-rank-n.is-gold { color: #f4c15d; }
+.mgl-dash-rank-n.is-silver { color: #c8d0d8; }
+.mgl-dash-rank-n.is-bronze { color: #d08a55; }
+
+.mgl-dash-welcome .mgl-dash-card p {
+    max-width: 36ch;
+}
+
+@media (max-width: 1100px) {
+    .mgl-dash-grid-4,
+    .mgl-dash-grid-3 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .mgl-dash-grid-4 .mgl-dash-card-feature {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 860px) {
+    .mgl-dash-hero,
+    .mgl-dash-board {
+        grid-template-columns: 1fr;
+    }
+
+    .mgl-dash-hero-main {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .mgl-dash-stats {
+        border-left: 0;
+        border-top: 1px solid var(--mgl-line);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .mgl-hub-page .mgl-main {
+        padding: 18px 14px 48px;
+    }
+
+    .mgl-dash-grid-4,
+    .mgl-dash-grid-3 {
+        grid-template-columns: 1fr;
+    }
+
+    .mgl-dash-card,
+    .mgl-dash-card-feature {
+        min-height: 118px;
+    }
+
+    .mgl-dash-hero-copy h1 {
+        font-size: 26px;
+    }
+
+    .mgl-dash-stat strong {
+        font-size: 22px;
+    }
+
+    .mgl-dash-row {
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+}
