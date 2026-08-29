@@ -1627,3 +1627,214 @@ body.mgl-auth-body .mgl-main {
     }
 }
 
+/* ----- Site Management (Control Centre) ----- */
+.sm-hub-grid,
+.sm-team-grid,
+.sm-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.sm-hub-card,
+.sm-team-card,
+.sm-section-row {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: var(--mgl-card);
+    border: 1px solid var(--mgl-line);
+    border-radius: 16px;
+    padding: 20px;
+    color: #fff;
+    text-decoration: none;
+    min-width: 0;
+}
+
+.sm-hub-card:hover,
+.sm-team-card:hover {
+    border-color: var(--mgl-orange);
+}
+
+.sm-hub-card h2,
+.sm-team-card h2,
+.sm-section-row h2 {
+    margin: 0;
+    font-size: 28px;
+    letter-spacing: 0.04em;
+}
+
+.sm-hub-card p,
+.sm-team-card p,
+.sm-section-row p,
+.sm-help,
+.sm-preview-panel p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.72);
+    overflow-wrap: anywhere;
+}
+
+.sm-team-card-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+}
+
+.sm-team-card .primary-button,
+.sm-section-row .primary-button {
+    align-self: flex-start;
+}
+
+.sm-section-list {
+    display: grid;
+    gap: 12px;
+}
+
+.sm-section-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.sm-meta {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin: 0;
+}
+
+.sm-meta dt {
+    color: var(--mgl-orange);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    font-weight: 800;
+}
+
+.sm-meta dd {
+    margin: 4px 0 0;
+}
+
+.sm-form .dashboard-panel {
+    display: grid;
+    gap: 14px;
+    min-width: 0;
+}
+
+.sm-form label {
+    display: grid;
+    gap: 8px;
+    color: #fff;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    font-weight: 800;
+}
+
+.sm-form input,
+.sm-form textarea,
+.sm-form select {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    background: #0c0c0c;
+    border: 1px solid var(--mgl-line);
+    color: #fff;
+    border-radius: 10px;
+    padding: 12px;
+    font: inherit;
+}
+
+.sm-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.sm-actions .primary-button,
+.sm-actions .secondary-button {
+    min-height: 44px;
+}
+
+.sm-preview-panel {
+    display: grid;
+    gap: 12px;
+    align-content: start;
+}
+
+.sm-preview-item h3 {
+    margin: 0 0 4px;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    color: var(--mgl-orange);
+}
+
+.sm-current {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.45);
+}
+
+.sm-logo-preview,
+.sm-league-logo {
+    width: 96px;
+    height: 96px;
+    object-fit: contain;
+}
+
+.sm-audit-row {
+    align-items: flex-start;
+}
+
+.sm-audit-row strong {
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 1024px) {
+    .sm-hub-grid,
+    .sm-team-grid,
+    .sm-form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .sm-section-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .sm-section-row .primary-button,
+    .sm-team-card .primary-button,
+    .sm-actions .primary-button,
+    .sm-actions .secondary-button {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+@media (max-width: 390px) {
+    .sm-hub-card,
+    .sm-team-card,
+    .sm-section-row,
+    .sm-form .dashboard-panel {
+        padding: 14px;
+    }
+
+    .sm-hub-card h2,
+    .sm-team-card h2 {
+        font-size: 22px;
+    }
+
+    .sm-meta {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 320px) {
+    .sm-form input,
+    .sm-form textarea {
+        font-size: 16px;
+    }
+}
+
+

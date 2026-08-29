@@ -1,0 +1,73 @@
+{% extends "core/base.html" %}
+{% load mgl_ui %}
+
+{% block title %}{{ section.label }} — Website Content{% endblock %}
+
+{% block content %}
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">WEBSITE CONTENT</div>
+            <h1>{{ section.label }}</h1>
+            <p>Preview shows the new wording. Nothing is saved until you press SAVE CHANGES.</p>
+        </div>
+        <a href="{% url 'site_management_content' %}" class="view-all">SECTIONS →</a>
+    </div>
+
+    {{ values|json_script:"sm-content-values" }}
+    <form method="post" class="sm-form" id="sm-content-form">
+        {% csrf_token %}
+        <div class="sm-form-grid">
+            <div class="dashboard-panel">
+                {% for field in fields %}
+                    <label>
+                        {{ field.label }}
+                        {% if field.kind == "long" %}
+                            <textarea name="{{ field.key }}" rows="6" data-preview-key="{{ field.key }}">{{ values|dict_get:field.key }}</textarea>
+                        {% else %}
+                            <input type="{% if field.kind == 'email' %}email{% elif field.kind == 'url' %}url{% else %}text{% endif %}" name="{{ field.key }}" value="{{ values|dict_get:field.key }}" data-preview-key="{{ field.key }}" maxlength="300">
+                        {% endif %}
+                    </label>
+                {% endfor %}
+                <div class="sm-actions">
+                    <button type="submit" name="action" value="preview" class="secondary-button">PREVIEW</button>
+                    <button type="submit" name="action" value="save" class="primary-button">SAVE CHANGES</button>
+                    <a href="{% url 'site_management_content' %}" class="secondary-button">CANCEL</a>
+                </div>
+            </div>
+            <aside class="dashboard-panel sm-preview-panel">
+                <div class="eyebrow">PREVIEW</div>
+                {% for field in fields %}
+                    <article class="sm-preview-item" data-preview-target="{{ field.key }}">
+                        <h3>{{ field.label }}</h3>
+                        <p class="sm-current">Current: {{ values|dict_get:field.key }}</p>
+                        <p class="sm-preview-value">{{ values|dict_get:field.key }}</p>
+                    </article>
+                {% endfor %}
+            </aside>
+        </div>
+    </form>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    var node = document.getElementById("sm-content-values");
+    var values = {};
+    try { values = JSON.parse(node.textContent || "{}"); } catch (err) { values = {}; }
+    function refresh() {
+        document.querySelectorAll("[data-preview-target]").forEach(function (item) {
+            var key = item.getAttribute("data-preview-target");
+            var input = document.querySelector('[data-preview-key="' + key + '"]');
+            var target = item.querySelector(".sm-preview-value");
+            if (target && input) target.textContent = input.value || "";
+        });
+    }
+    document.querySelectorAll("[data-preview-key]").forEach(function (input) {
+        input.addEventListener("input", refresh);
+    });
+    refresh();
+})();
+</script>
+{% endblock %}

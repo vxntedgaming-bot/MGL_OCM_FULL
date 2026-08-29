@@ -18,7 +18,7 @@
             <a href="{% club_url team %}" class="mgl-club-card">
                 {% team_logo team "lg" %}
                 <strong>{{ team.name }}</strong>
-                <span>{{ team.league.name }} · {% if team.manager %}{{ team.manager.username }}{% else %}VACANT{% endif %}</span>
+                <span>{{ team.league|league_label }} · {% if team.manager %}{{ team.manager.username }}{% else %}VACANT{% endif %}</span>
             </a>
         {% empty %}
             {% include "mgl/includes/empty_state.html" with title="NO CLUBS YET" body="Official MGL clubs will appear here once they are created." %}

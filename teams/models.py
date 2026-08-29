@@ -26,6 +26,11 @@ class Team(models.Model):
         null=True,
     )
 
+    description = models.TextField(
+        blank=True,
+        help_text="Optional public club description. Display only; does not affect squads or fixtures.",
+    )
+
     budget = models.DecimalField(
         max_digits=12, decimal_places=2, default=0,
         help_text="Legacy field. MGL economy uses manager tokens.",

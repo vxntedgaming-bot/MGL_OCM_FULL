@@ -1,4 +1,5 @@
 {% extends "core/base.html" %}
+{% load mgl_ui %}
 
 {% block title %}News — MGL{% endblock %}
 
@@ -8,7 +9,7 @@
         <div>
             <div class="eyebrow">NEWS</div>
             <h2>MGL NEWSROOM</h2>
-            <p>Official news, live league activity and press conferences. Pending submissions stay off this page until they are approved.</p>
+            <p>{% site_text "news.newsroom_intro" %}</p>
         </div>
         {% if discord_invite_url %}
             <a href="{{ discord_invite_url }}" class="primary-button" target="_blank" rel="noopener">JOIN THE MGL COMMUNITY</a>

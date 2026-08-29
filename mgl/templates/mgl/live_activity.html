@@ -1,4 +1,5 @@
 {% extends "core/base.html" %}
+{% load mgl_ui %}
 
 {% block title %}Live Activity — MGL{% endblock %}
 
@@ -8,7 +9,7 @@
         <div>
             <div class="eyebrow">NEWS</div>
             <h2>LIVE ACTIVITY</h2>
-            <p>Official MGL events after approval. Pending results and transfers do not appear here.</p>
+            <p>{% site_text "news.live_activity_intro" %}</p>
         </div>
         <a href="{% url 'pressroom' %}" class="view-all">PRESSROOM →</a>
     </div>

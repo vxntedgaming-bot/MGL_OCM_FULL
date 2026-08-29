@@ -9,10 +9,16 @@
     <div class="mgl-hero-copy">
         <div class="mgl-live-badge"><span></span> SEASON {{ active_league.season|default:"1" }} LIVE</div>
         <img src="{% static 'core/img/mgl-logo.png' %}" alt="" class="mgl-hero-logo">
-        <h1>COMPETE. <span>MANAGE.</span> WIN.</h1>
+        <h1>
+            {% site_text "home.hero_title" as hero_title %}
+            {% if hero_title == "COMPETE. MANAGE. WIN." %}
+                COMPETE. <span>MANAGE.</span> WIN.
+            {% else %}
+                {{ hero_title }}
+            {% endif %}
+        </h1>
         <p>
-            Build your club. Manage your squad. Compete against real managers
-            in Meta Gaming League Online Career Mode.
+            {% site_text "home.hero_subtitle" %}
         </p>
         <div class="hero-actions">
             <a href="{% url 'job_centre' %}" class="primary-button">APPLY FOR A CLUB</a>
@@ -92,7 +98,7 @@
         <div>
             <div class="eyebrow">LEAGUE LIVE UPDATES</div>
             <h2>LIVE ACTIVITY</h2>
-            <p>Official confirmed events only. Pending submissions stay off this feed.</p>
+            <p>{% site_text "home.news_intro" %}</p>
         </div>
         <a href="{% url 'live_activity' %}" class="view-all">ALL UPDATES →</a>
     </div>
@@ -110,7 +116,7 @@
         <div>
             <div class="eyebrow">ABOUT US</div>
             <h2>THE LEAGUE</h2>
-            <p>Premium competitive EA FC career football. Real managers. Official clubs. One squad across the website and the game.</p>
+            <p>{% site_text "home.about_us" %}</p>
         </div>
     </div>
     <div class="mgl-pillar-grid">
@@ -144,22 +150,22 @@
         <article class="mgl-rule">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
             <h3>MATCH</h3>
-            <p>Play your released fixture, then submit the result for league office approval.</p>
+            <p>{% site_text "rules.match_rules" %}</p>
         </article>
         <article class="mgl-rule">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/></svg>
             <h3>SQUAD</h3>
-            <p>Clubs start with 26 players and cannot exceed 30. Squads stay with the club.</p>
+            <p>{% site_text "rules.league_rules" %}</p>
         </article>
         <article class="mgl-rule">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z"/><path d="M4 20a8 8 0 0 1 16 0"/></svg>
             <h3>BEHAVIOUR</h3>
-            <p>Managers only control their own club. Releases and auctions follow the existing rules.</p>
+            <p>{% site_text "rules.manager_rules" %}</p>
         </article>
         <article class="mgl-rule">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3 4 7v6c0 5 3.4 7.8 8 9 4.6-1.2 8-4 8-9V7l-8-4Z"/></svg>
             <h3>FAIR PLAY</h3>
-            <p>Unassigned FC26 players are not free. Only a no-bid auction or a club release creates a Free Agent.</p>
+            <p>{% site_text "rules.transfer_rules" %}</p>
         </article>
     </div>
 </section>
@@ -169,7 +175,7 @@
         <div>
             <div class="eyebrow">TWO SCREENS. ONE SQUAD.</div>
             <h2>YOUR CLUB. YOUR SQUAD.</h2>
-            <p>The website mirrors the manager's official MGL squad. Build it here, then take it into EA FC.</p>
+            <p>{% site_text "home.league_intro" %}</p>
         </div>
     </div>
     <div class="mgl-split">
@@ -261,8 +267,8 @@
     <img src="{% static 'core/img/mgl-logo.png' %}" alt="" class="mgl-logo-img">
     <div>
         <div class="eyebrow">YOUR CAREER STARTS HERE</div>
-        <h2>READY TO BUILD YOUR LEGACY?</h2>
-        <p>Join MGL and take control of your club.</p>
+        <h2>{% site_text "home.join_title" %}</h2>
+        <p>{% site_text "home.join_text" %}</p>
     </div>
     <div class="hero-actions">
         <a href="{% url 'job_centre' %}" class="primary-button">APPLY FOR A CLUB</a>

@@ -8,7 +8,7 @@
     <div class="mgl-club-hero">
         {% team_logo team "lg" %}
         <div>
-            <div class="eyebrow">{% if team.league %}{{ team.league.name|upper }}{% else %}MGL CLUB{% endif %}</div>
+            <div class="eyebrow">{% if team.league %}{{ team.league|league_label|upper }}{% else %}MGL CLUB{% endif %}</div>
             <h1>{{ team.name|upper }}</h1>
             <p>
                 {{ team.short_name }}
@@ -17,6 +17,9 @@
                 {% if league_position %} · {{ league_position|stringformat:"02d" }}th{% endif %}
                 · {{ players|length }}/{{ team.roster_limit }} players
             </p>
+            {% if team.description %}
+                <p>{{ team.description }}</p>
+            {% endif %}
             <div class="mgl-hub-links">
                 <a href="{% url 'leagues_page' %}">League table</a>
                 <a href="{% url 'fixture_list' %}">Fixtures</a>

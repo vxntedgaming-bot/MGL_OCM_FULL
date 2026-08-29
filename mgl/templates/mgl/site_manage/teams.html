@@ -1,0 +1,43 @@
+{% extends "core/base.html" %}
+{% load mgl_ui %}
+
+{% block title %}Teams — Site Management{% endblock %}
+
+{% block content %}
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">SITE MANAGEMENT</div>
+            <h1>TEAMS</h1>
+            <p>Every existing club. Editing a name or logo changes display identity only. The Team ID, squad, fixtures and tokens stay attached.</p>
+        </div>
+        <a href="{% url 'site_management' %}" class="view-all">BACK →</a>
+    </div>
+    <div class="sm-team-grid">
+        {% for team in teams %}
+            <article class="sm-team-card">
+                <div class="sm-team-card-head">
+                    {% team_logo team "lg" %}
+                    <div>
+                        <h2>{{ team.name }}</h2>
+                        <p>{{ team.short_name }}{% if team.league %} · {{ team.league|league_label }}{% endif %}</p>
+                    </div>
+                </div>
+                <dl class="sm-meta">
+                    <div>
+                        <dt>Manager</dt>
+                        <dd>{% if team.manager %}{{ team.manager.username }}{% else %}Vacant{% endif %}</dd>
+                    </div>
+                    <div>
+                        <dt>Players</dt>
+                        <dd>{{ team.player_count }}</dd>
+                    </div>
+                </dl>
+                <a href="{% url 'site_management_team_edit' team.id %}" class="primary-button">EDIT</a>
+            </article>
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with title="NO CLUBS" body="Site Management cannot create clubs. Existing Team records appear here." %}
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

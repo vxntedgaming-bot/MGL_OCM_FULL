@@ -9,7 +9,7 @@
         <div>
             <div class="eyebrow">COMPETITION</div>
             <h2>LEAGUE TABLES</h2>
-            <p>Official MGL standings. Click a club to open its squad and club page.</p>
+            <p>{% site_text "leagues.page_intro" %}</p>
         </div>
         <span class="section-line"></span>
     </div>
@@ -28,8 +28,22 @@
         <img src="{% static 'core/img/mgl-logo.png' %}" alt="" class="mgl-logo-img">
         <div>
             <div class="eyebrow">SEASON {{ block.league.season|default:"1" }}</div>
-            <h3>{{ block.league.name|upper }}</h3>
-            <p>{% if block.league.short_name == "PL" %}The top active MGL competition.{% elif block.table %}Active division.{% else %}No clubs assigned yet.{% endif %}</p>
+            <h3>{{ block.league|league_label|upper }}</h3>
+            <p>
+                {% if block.league.description %}
+                    {{ block.league.description }}
+                {% elif block.league.short_name == "PL" %}
+                    {% site_text "leagues.premier_description" %}
+                {% elif block.league.short_name == "CH" %}
+                    {% site_text "leagues.championship_description" %}
+                {% elif block.league.short_name == "L1" %}
+                    {% site_text "leagues.league_one_description" %}
+                {% elif block.table %}
+                    Active division.
+                {% else %}
+                    No clubs assigned yet.
+                {% endif %}
+            </p>
         </div>
     </div>
     <div class="dashboard-panel" style="margin-top:24px">

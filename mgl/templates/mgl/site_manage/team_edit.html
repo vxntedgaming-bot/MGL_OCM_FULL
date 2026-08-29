@@ -1,0 +1,108 @@
+{% extends "core/base.html" %}
+{% load mgl_ui %}
+
+{% block title %}Edit {{ team.name }} — Site Management{% endblock %}
+
+{% block content %}
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">SITE MANAGEMENT · TEAMS</div>
+            <h1>EDIT {{ team.name|upper }}</h1>
+            <p>Team ID {{ team.id }} stays unchanged. Manager, tokens, league assignment, squad and fixtures are not edited here.</p>
+        </div>
+        <a href="{% url 'site_management_teams' %}" class="view-all">TEAMS →</a>
+    </div>
+
+    {% if errors %}
+        <div class="mgl-messages">
+            {% for error in errors %}
+                <div class="mgl-message mgl-message-error">{{ error }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" class="sm-form" id="sm-team-form">
+        {% csrf_token %}
+        <div class="sm-form-grid">
+            <div class="dashboard-panel">
+                <label>
+                    Team display name
+                    <input type="text" name="name" id="id_name" value="{{ form.name }}" maxlength="100" required>
+                </label>
+                <label>
+                    Short name
+                    <input type="text" name="short_name" id="id_short_name" value="{{ form.short_name }}" maxlength="20" required>
+                </label>
+                <label>
+                    Team description
+                    <textarea name="description" id="id_description" rows="6">{{ form.description }}</textarea>
+                </label>
+                <label>
+                    Logo
+                    <input type="file" name="logo" id="id_logo" accept="image/png,image/jpeg,image/webp,image/gif">
+                </label>
+                <p class="sm-help">PNG, JPEG, WebP or GIF. 2 MB maximum. Replacing the logo updates every existing team badge on the site.</p>
+                <div class="sm-actions">
+                    <button type="submit" name="action" value="preview" class="secondary-button">PREVIEW</button>
+                    <button type="submit" name="action" value="save" class="primary-button">SAVE CHANGES</button>
+                    <a href="{% url 'site_management_teams' %}" class="secondary-button">CANCEL</a>
+                </div>
+            </div>
+            <aside class="dashboard-panel sm-preview-panel">
+                <div class="eyebrow">PREVIEW</div>
+                <h2 id="sm-preview-name">{{ form.name }}</h2>
+                <p id="sm-preview-short">{{ form.short_name }}</p>
+                <div class="sm-logo-preview">
+                    {% if team.logo %}
+                        <img id="sm-preview-logo" src="{{ team.logo.url }}" alt="{{ team.name }}">
+                    {% else %}
+                        {% team_logo team "lg" %}
+                        <img id="sm-preview-logo" alt="" hidden>
+                    {% endif %}
+                </div>
+                <p id="sm-preview-description">{{ form.description|default:"No description." }}</p>
+                <p class="sm-help">League: {% if team.league %}{{ team.league|league_label }}{% else %}—{% endif %} · Manager: {% if team.manager %}{{ team.manager.username }}{% else %}Vacant{% endif %} · Players: {{ player_count }}</p>
+            </aside>
+        </div>
+    </form>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    var name = document.getElementById("id_name");
+    var shortName = document.getElementById("id_short_name");
+    var description = document.getElementById("id_description");
+    var logo = document.getElementById("id_logo");
+    var previewName = document.getElementById("sm-preview-name");
+    var previewShort = document.getElementById("sm-preview-short");
+    var previewDesc = document.getElementById("sm-preview-description");
+    var previewLogo = document.getElementById("sm-preview-logo");
+    function refresh() {
+        if (name && previewName) previewName.textContent = name.value || "";
+        if (shortName && previewShort) previewShort.textContent = shortName.value || "";
+        if (description && previewDesc) previewDesc.textContent = description.value || "No description.";
+    }
+    ["input", "change"].forEach(function (evt) {
+        if (name) name.addEventListener(evt, refresh);
+        if (shortName) shortName.addEventListener(evt, refresh);
+        if (description) description.addEventListener(evt, refresh);
+    });
+    if (logo && previewLogo) {
+        logo.addEventListener("change", function () {
+            var file = logo.files && logo.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function (event) {
+                previewLogo.src = event.target.result;
+                previewLogo.hidden = false;
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+    refresh();
+})();
+</script>
+{% endblock %}

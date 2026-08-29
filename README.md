@@ -89,6 +89,7 @@ python manage.py close_expired_auctions
 - Manager register / login: `/register/`, `/login/`
 - Manager tools: `/mgl/hub/`
 - Owner / admin control: `/mgl/control/`
+- Site Management (owner/admin only): `/mgl/control/site/` — clubs, leagues, website copy, Discord and site settings. Managers receive HTTP 403. Display edits do not change Team/League IDs, squads, fixtures, tokens or player states.
 - Public pages: `/leagues/`, `/market/`, `/stats/premier-league/`, `/jobs/`
 
 Statistics are per division (`/stats/premier-league/`, `/stats/championship/`, `/stats/league-one/`) and use **approved** match submissions only. Pending results do not move the table or player leaderboards. Waiting Room League and the Compare page are not in navigation; those URLs 404.

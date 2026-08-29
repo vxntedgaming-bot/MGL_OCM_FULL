@@ -1,11 +1,32 @@
 from django import template
 
 from mgl.club_urls import club_page_url as build_club_page_url
+from mgl.site_cms import get_content
 from players.fc26_faces import card_face_src
 from teams.badges import static_badge_path
 
 
 register = template.Library()
+
+
+@register.simple_tag
+def site_text(key, default=""):
+    return get_content(key, default if default != "" else None)
+
+
+@register.filter
+def dict_get(mapping, key):
+    if not mapping:
+        return ""
+    return mapping.get(key, "")
+
+
+@register.filter
+def league_label(league):
+    if not league:
+        return ""
+    display = (getattr(league, "display_name", None) or "").strip()
+    return display or getattr(league, "name", "") or ""
 
 
 NATIONALITY_ISO = {

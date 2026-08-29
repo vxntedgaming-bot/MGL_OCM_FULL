@@ -1,0 +1,27 @@
+{% extends "core/base.html" %}
+
+{% block title %}Website Content — Site Management{% endblock %}
+
+{% block content %}
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">SITE MANAGEMENT</div>
+            <h1>WEBSITE CONTENT</h1>
+            <p>Edit public wording. Player names, scores, tables, fixtures and transfers stay as database data.</p>
+        </div>
+        <a href="{% url 'site_management' %}" class="view-all">BACK →</a>
+    </div>
+    <div class="sm-section-list">
+        {% for section in sections %}
+            <article class="sm-section-row">
+                <div>
+                    <h2>{{ section.label }}</h2>
+                    <p>{{ section.fields|length }} editable field{{ section.fields|length|pluralize }}</p>
+                </div>
+                <a href="{% url 'site_management_content_section' section.id %}" class="primary-button">EDIT</a>
+            </article>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

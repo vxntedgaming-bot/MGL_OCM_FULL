@@ -11,6 +11,8 @@
             {% if team %}
                 <h1 class="mgl-info-club">{% team_logo team "lg" %} {{ team.name }}</h1>
                 <p>Team Management · {{ players|length }}/{{ team.roster_limit }} players</p>
+                {% site_text "my_club.team_intro" as team_intro %}
+                {% if team_intro %}<p>{{ team_intro }}</p>{% endif %}
             {% else %}
                 <h1>TEAM MANAGEMENT</h1>
                 <p>You are not currently assigned to a club.</p>

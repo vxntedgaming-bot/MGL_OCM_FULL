@@ -1,0 +1,44 @@
+{% extends "core/base.html" %}
+
+{% block title %}Leagues — Site Management{% endblock %}
+
+{% block content %}
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">SITE MANAGEMENT</div>
+            <h1>LEAGUES</h1>
+            <p>Edit public display information only. League IDs, clubs, fixtures and statistics are not changed here. New leagues are not created.</p>
+        </div>
+        <a href="{% url 'site_management' %}" class="view-all">BACK →</a>
+    </div>
+    <div class="sm-team-grid">
+        {% for league in leagues %}
+            <article class="sm-team-card">
+                <div class="sm-team-card-head">
+                    {% if league.logo %}
+                        <img src="{{ league.logo.url }}" alt="{{ league.public_name }}" class="sm-league-logo">
+                    {% endif %}
+                    <div>
+                        <h2>{{ league.public_name }}</h2>
+                        <p>{{ league.short_name }} · Season {{ league.season }}{% if not league.is_active %} · Inactive{% endif %}</p>
+                    </div>
+                </div>
+                <dl class="sm-meta">
+                    <div>
+                        <dt>Canonical name</dt>
+                        <dd>{{ league.name }}</dd>
+                    </div>
+                    <div>
+                        <dt>Clubs</dt>
+                        <dd>{{ league.team_count }}</dd>
+                    </div>
+                </dl>
+                <a href="{% url 'site_management_league_edit' league.id %}" class="primary-button">EDIT</a>
+            </article>
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with title="NO LEAGUES" body="Site Management cannot create leagues." %}
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

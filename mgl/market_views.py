@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
@@ -35,6 +34,7 @@ from managers.services import STARTING_TOKENS, approve_manager_application, reje
 from .job_applications import GAMES_PER_WEEK_CHOICES, parse_club_application
 from .permissions import approved_manager, owner_admin_required
 from .services import create_news, manager_for_user
+from .site_cms import resolved_discord_invite
 from .standings import build_league_table
 from .player_state import club_players, free_agents as free_agent_qs, market_counts, unassigned_players
 from .tenure import open_club_spell
@@ -261,7 +261,7 @@ def apply_for_club(request, team_id):
         request,
         f"Application sent for {team.name}. An owner or admin will review it. You have not been appointed yet.",
     )
-    invite = getattr(settings, "DISCORD_INVITE_URL", "") or ""
+    invite = resolved_discord_invite()
     if invite:
         return redirect(invite)
     return redirect("job_centre")

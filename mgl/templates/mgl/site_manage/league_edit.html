@@ -1,0 +1,96 @@
+{% extends "core/base.html" %}
+
+{% block title %}Edit {{ league.public_name }} — Site Management{% endblock %}
+
+{% block content %}
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">SITE MANAGEMENT · LEAGUES</div>
+            <h1>EDIT {{ league.public_name|upper }}</h1>
+            <p>League ID {{ league.id }} stays unchanged. Canonical name {{ league.name }} / {{ league.short_name }} is not rewritten, so existing structure jobs cannot overwrite your public label.</p>
+        </div>
+        <a href="{% url 'site_management_leagues' %}" class="view-all">LEAGUES →</a>
+    </div>
+
+    {% if errors %}
+        <div class="mgl-messages">
+            {% for error in errors %}
+                <div class="mgl-message mgl-message-error">{{ error }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" class="sm-form">
+        {% csrf_token %}
+        <div class="sm-form-grid">
+            <div class="dashboard-panel">
+                <label>
+                    League display name
+                    <input type="text" name="display_name" id="id_display_name" value="{{ form.display_name }}" maxlength="100" required>
+                </label>
+                <label>
+                    League description
+                    <textarea name="description" id="id_description" rows="6">{{ form.description }}</textarea>
+                </label>
+                <label>
+                    Display order
+                    <input type="number" name="display_order" value="{{ form.display_order }}" min="0" max="999">
+                </label>
+                <label>
+                    League logo
+                    <input type="file" name="logo" id="id_logo" accept="image/png,image/jpeg,image/webp,image/gif">
+                </label>
+                <div class="sm-actions">
+                    <button type="submit" name="action" value="preview" class="secondary-button">PREVIEW</button>
+                    <button type="submit" name="action" value="save" class="primary-button">SAVE CHANGES</button>
+                    <a href="{% url 'site_management_leagues' %}" class="secondary-button">CANCEL</a>
+                </div>
+            </div>
+            <aside class="dashboard-panel sm-preview-panel">
+                <div class="eyebrow">PREVIEW</div>
+                <h2 id="sm-preview-name">{{ form.display_name }}</h2>
+                <p>{{ league.short_name }} · {{ team_count }} clubs</p>
+                {% if league.logo %}
+                    <img id="sm-preview-logo" src="{{ league.logo.url }}" alt="" class="sm-league-logo">
+                {% else %}
+                    <img id="sm-preview-logo" alt="" class="sm-league-logo" hidden>
+                {% endif %}
+                <p id="sm-preview-description">{{ form.description|default:"No description." }}</p>
+            </aside>
+        </div>
+    </form>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    var name = document.getElementById("id_display_name");
+    var description = document.getElementById("id_description");
+    var logo = document.getElementById("id_logo");
+    var previewName = document.getElementById("sm-preview-name");
+    var previewDesc = document.getElementById("sm-preview-description");
+    var previewLogo = document.getElementById("sm-preview-logo");
+    function refresh() {
+        if (name && previewName) previewName.textContent = name.value || "";
+        if (description && previewDesc) previewDesc.textContent = description.value || "No description.";
+    }
+    if (name) name.addEventListener("input", refresh);
+    if (description) description.addEventListener("input", refresh);
+    if (logo && previewLogo) {
+        logo.addEventListener("change", function () {
+            var file = logo.files && logo.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function (event) {
+                previewLogo.src = event.target.result;
+                previewLogo.hidden = false;
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+    refresh();
+})();
+</script>
+{% endblock %}

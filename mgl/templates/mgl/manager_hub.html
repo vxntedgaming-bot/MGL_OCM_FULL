@@ -10,8 +10,10 @@
             <div class="eyebrow">MGL MANAGER HUB</div>
             <h2>WELCOME BACK, {{ manager.display_name|upper }}</h2>
             {% if team %}
-                <p>{{ team.name }} · {% if team.league %}{{ team.league.name }}{% endif %}{% if league_position %} · {{ league_position|stringformat:"02d" }}th{% endif %}</p>
+                <p>{{ team.name }} · {% if team.league %}{{ team.league|league_label }}{% endif %}{% if league_position %} · {{ league_position|stringformat:"02d" }}th{% endif %}</p>
             {% endif %}
+            {% site_text "my_club.hub_intro" as hub_intro %}
+            {% if hub_intro %}<p>{{ hub_intro }}</p>{% endif %}
         </div>
         <span class="section-line"></span>
     </div>
@@ -36,10 +38,10 @@
             <span>LEAGUE</span>
             {% if team and team.league %}
                 <strong>{{ team.league.short_name }}</strong>
-                <small>{{ team.league.name|upper }}</small>
+                <small>{{ team.league|league_label|upper }}</small>
             {% elif active_league %}
                 <strong>{{ active_league.short_name }}</strong>
-                <small>{{ active_league.name|upper }}</small>
+                <small>{{ active_league|league_label|upper }}</small>
             {% else %}
                 <strong>PL</strong>
                 <small>PREMIER LEAGUE</small>
@@ -79,7 +81,7 @@
                 {% team_logo team "lg" %}
                 <div>
                     <strong>{{ team.name }}</strong>
-                    <p>{% if team.league %}{{ team.league.name }}{% endif %} · {{ manager.display_name }}</p>
+                    <p>{% if team.league %}{{ team.league|league_label }}{% endif %} · {{ manager.display_name }}</p>
                     <div class="mgl-hub-links">
                         <a href="{% club_url team %}">Club Profile</a>
                         <a href="{% url 'fixture_list' %}">Fixtures</a>

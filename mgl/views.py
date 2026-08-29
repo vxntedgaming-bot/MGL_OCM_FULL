@@ -1215,6 +1215,7 @@ def competition_page(request, slug):
         ).prefetch_related("teams__manager").first()
         if league:
             table = build_league_table(league)
+            name = league.public_name or name
     return render(
         request,
         "mgl/competition.html",
@@ -1262,11 +1263,13 @@ def historical_tables(request):
 
 
 def head_to_head(request):
+    from mgl.site_cms import get_content
+
     return _feature_page(
         request,
         "Head to Head",
         "STATS & HISTORY",
-        "Head-to-head records will appear here after official Premier League matches are played and approved. No exhibition results are invented.",
+        get_content("community.h2h_intro"),
     )
 
 

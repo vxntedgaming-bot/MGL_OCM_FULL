@@ -130,5 +130,11 @@ def active_divisions():
             short_name__in=[PREMIER_SHORT, CHAMPIONSHIP_SHORT, LEAGUE_ONE_SHORT],
         ).prefetch_related("teams__manager")
     )
-    leagues.sort(key=lambda row: order.get(row.short_name, 9))
+    leagues.sort(
+        key=lambda row: (
+            getattr(row, "display_order", 0) or 0,
+            order.get(row.short_name, 9),
+            row.id,
+        )
+    )
     return leagues

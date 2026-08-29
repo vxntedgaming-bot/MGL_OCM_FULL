@@ -1,6 +1,6 @@
 {% load mgl_ui %}
 <div class="panel-heading">
-    <span>{% if league %}{{ league.name|upper }}{% else %}PREMIER LEAGUE{% endif %}</span>
+    <span>{% if league %}{{ league|league_label|upper }}{% else %}PREMIER LEAGUE{% endif %}</span>
     <b>TABLE</b>
 </div>
 {% if table %}

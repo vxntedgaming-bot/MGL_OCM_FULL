@@ -3,6 +3,7 @@ from django.views.generic import RedirectView
 from players.fc26_faces import player_face_image
 from . import views
 from . import market_views as views_market
+from . import site_manage as views_site
 
 
 urlpatterns = [
@@ -171,6 +172,46 @@ urlpatterns = [
     path("team/sell/<int:player_id>/", views_market.sell_player, name="sell_player"),
     path("jobs/<int:team_id>/apply/", views_market.apply_for_club, name="apply_for_club"),
     path("control/", views_market.control_centre, name="control_centre"),
+    path(
+        "control/site/",
+        views_site.site_management,
+        name="site_management",
+    ),
+    path(
+        "control/site/teams/",
+        views_site.site_management_teams,
+        name="site_management_teams",
+    ),
+    path(
+        "control/site/teams/<int:team_id>/",
+        views_site.site_management_team_edit,
+        name="site_management_team_edit",
+    ),
+    path(
+        "control/site/content/",
+        views_site.site_management_content,
+        name="site_management_content",
+    ),
+    path(
+        "control/site/content/<slug:section>/",
+        views_site.site_management_content_section,
+        name="site_management_content_section",
+    ),
+    path(
+        "control/site/settings/",
+        views_site.site_management_settings,
+        name="site_management_settings",
+    ),
+    path(
+        "control/site/leagues/",
+        views_site.site_management_leagues,
+        name="site_management_leagues",
+    ),
+    path(
+        "control/site/leagues/<int:league_id>/",
+        views_site.site_management_league_edit,
+        name="site_management_league_edit",
+    ),
     path(
         "control/managers/<int:application_id>/approve/",
         views_market.control_approve_manager,

@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.utils import timezone
 
 from accounts.models import User
@@ -6,6 +5,7 @@ from mgl.market import club_for_user, token_balance_for_user
 from mgl.nav import nav_dropdowns_for_request, uses_signed_in_nav
 from mgl.notifications import notifications_for_user
 from mgl.services import manager_for_user
+from mgl.site_cms import site_chrome
 
 
 def mgl_nav(request):
@@ -31,5 +31,5 @@ def mgl_nav(request):
         "mgl_now": timezone.now(),
         "mgl_nav_dropdowns": nav_dropdowns_for_request(request),
         "mgl_notifications": notifications,
-        "discord_invite_url": getattr(settings, "DISCORD_INVITE_URL", "") or "",
+        **site_chrome(),
     }

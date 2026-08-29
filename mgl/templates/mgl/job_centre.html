@@ -9,7 +9,7 @@
         <div>
             <div class="eyebrow">JOB CENTRE</div>
             <h2>VACANT CLUBS</h2>
-            <p>Take over an official MGL club. Inspect the squad first. Owner or admin approval is required before you are appointed.</p>
+            <p>{% site_text "jobs.page_intro" %}</p>
         </div>
         <span class="section-line"></span>
     </div>
@@ -27,7 +27,7 @@
                 <div>
                     <div class="mgl-job-status">VACANT / NO MANAGER</div>
                     <h3>{{ team.name }}</h3>
-                    <p>{{ team.league.name }}</p>
+                    <p>{{ team.league|league_label }}</p>
                     <p class="mgl-job-squad">Squad {{ team.players.all|length }} / {{ team.roster_limit }}</p>
                 </div>
             </div>
@@ -91,7 +91,7 @@
         <div>
             <div class="eyebrow">YOUR APPLICATIONS</div>
             <h2>STATUS</h2>
-            <p>Applications stay pending until an owner or admin appoints you. Submitting this form does not make you the manager.</p>
+            <p>{% site_text "jobs.application_instructions" %}</p>
         </div>
     </div>
     <div class="dashboard-panel">

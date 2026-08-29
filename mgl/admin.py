@@ -805,3 +805,32 @@ class ClubApplicationAdmin(admin.ModelAdmin):
     list_display = ("manager", "team", "gamertag", "discord_username", "status", "created_at")
     list_filter = ("status",)
 
+
+from .models import SiteChangeLog, SiteContent
+
+
+@admin.register(SiteContent)
+class SiteContentAdmin(admin.ModelAdmin):
+    list_display = ("key", "section", "updated_at", "updated_by")
+    list_filter = ("section",)
+    search_fields = ("key", "value")
+    readonly_fields = ("updated_at",)
+
+
+@admin.register(SiteChangeLog)
+class SiteChangeLogAdmin(admin.ModelAdmin):
+    list_display = ("created_at", "user", "action", "object_type", "summary")
+    list_filter = ("object_type", "action")
+    search_fields = ("summary", "object_label")
+    readonly_fields = (
+        "user",
+        "action",
+        "object_type",
+        "object_id",
+        "object_label",
+        "old_value",
+        "new_value",
+        "summary",
+        "created_at",
+    )
+

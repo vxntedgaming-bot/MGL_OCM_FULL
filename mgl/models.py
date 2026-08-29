@@ -443,3 +443,51 @@ class ScoutReport(models.Model):
 
     class Meta:
         ordering = ["-discovered_at"]
+
+
+class SiteContent(models.Model):
+    """Reusable website copy and site settings. One row per unique key."""
+
+    section = models.CharField(max_length=40)
+    key = models.CharField(max_length=80, unique=True)
+    value = models.TextField(blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="site_content_edits",
+    )
+
+    class Meta:
+        ordering = ["section", "key"]
+
+    def __str__(self):
+        return self.key
+
+
+class SiteChangeLog(models.Model):
+    """Audit trail for Site Management edits. Separate from ApprovalRequest."""
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="site_change_logs",
+    )
+    action = models.CharField(max_length=80)
+    object_type = models.CharField(max_length=40)
+    object_id = models.CharField(max_length=40, blank=True)
+    object_label = models.CharField(max_length=200, blank=True)
+    old_value = models.TextField(blank=True)
+    new_value = models.TextField(blank=True)
+    summary = models.CharField(max_length=400)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return self.summary
