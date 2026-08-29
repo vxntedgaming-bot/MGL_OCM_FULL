@@ -114,6 +114,7 @@ class NotificationAndPressroomTests(TestCase):
         self.assertContains(inbox, "PRESS CONFERENCE")
         self.assertContains(inbox, "PRESS CONFERENCE QUESTION")
         self.assertContains(inbox, "mgl-press-brief")
+        self.assertContains(inbox, "mgl-press-brief.css")
         self.assertContains(inbox, "KAI")
         self.assertContains(inbox, "ARSENAL TEST")
         self.assertContains(inbox, "How pleased were you with the performance?")
@@ -452,7 +453,7 @@ class NotificationAndPressroomTests(TestCase):
         inbox = self.client.get(reverse("manager_notifications"))
         self.assertContains(inbox, "OWNER DECISION")
         self.assertContains(inbox, "mgl-notify-item")
-        self.assertNotContains(inbox, "mgl-press-brief")
+        self.assertNotContains(inbox, 'class="mgl-press-brief"')
         self.assertNotContains(inbox, "PRESS CONFERENCE QUESTION")
 
     def test_manager_cannot_answer_another_managers_press(self):

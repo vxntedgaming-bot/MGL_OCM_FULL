@@ -1,7 +1,10 @@
 {% extends "core/base.html" %}
-{% load mgl_ui %}
+{% load static mgl_ui %}
 
 {% block title %}Notifications — MGL{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/mgl-press-brief.css' %}">
+{% endblock %}
 
 {% block content %}
 <section class="mgl-section">
