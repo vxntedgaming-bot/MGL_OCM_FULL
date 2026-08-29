@@ -25,11 +25,14 @@ def _png(name="logo.png"):
 class SiteManagementTests(TestCase):
     def setUp(self):
         self.client = Client(HTTP_HOST="127.0.0.1")
-        self.league = League.objects.create(
-            name="Premier League",
-            short_name="PL",
-            season="1",
-            is_active=True,
+        self.league = (
+            League.objects.filter(short_name="PL").order_by("id").first()
+            or League.objects.create(
+                name="Premier League",
+                short_name="PL",
+                season="1",
+                is_active=True,
+            )
         )
         self.owner = User.objects.create_user(
             username="owner",
@@ -54,8 +57,8 @@ class SiteManagementTests(TestCase):
             tokens=Decimal("50.00"),
         )
         self.team = Team.objects.create(
-            name="Bayer Leverkusen",
-            short_name="B04",
+            name="QA Test Club",
+            short_name="QTC",
             league=self.league,
             manager=self.manager_user,
             tokens=Decimal("50.00"),
@@ -84,8 +87,8 @@ class SiteManagementTests(TestCase):
             is_free_agent=True,
         )
         self.other = Team.objects.create(
-            name="Other FC",
-            short_name="OFC",
+            name="QA Other FC",
+            short_name="QOF",
             league=self.league,
             tokens=Decimal("50.00"),
         )
@@ -168,8 +171,8 @@ class SiteManagementTests(TestCase):
             reverse("site_management_team_edit", args=[self.team.id]),
             {
                 "action": "save",
-                "name": "Arsenal",
-                "short_name": "ARS",
+                "name": "QA Arsenal",
+                "short_name": "QAR",
                 "description": "North London club.",
             },
         )
@@ -184,8 +187,8 @@ class SiteManagementTests(TestCase):
         self.mgr.refresh_from_db()
 
         self.assertEqual(self.team.pk, original_pk)
-        self.assertEqual(self.team.name, "Arsenal")
-        self.assertEqual(self.team.short_name, "ARS")
+        self.assertEqual(self.team.name, "QA Arsenal")
+        self.assertEqual(self.team.short_name, "QAR")
         self.assertEqual(self.team.description, "North London club.")
         self.assertEqual(self.team.tokens, original_tokens)
         self.assertEqual(self.team.manager_id, original_manager_id)
@@ -211,7 +214,7 @@ class SiteManagementTests(TestCase):
                 object_id=str(original_pk),
             ).exists()
         )
-        self.assertIn("Arsenal", SiteChangeLog.objects.get(action="team.name").summary)
+        self.assertIn("QA Arsenal", SiteChangeLog.objects.get(action="team.name").summary)
 
     def test_team_logo_upload_keeps_primary_key(self):
         self._login(self.owner)
@@ -246,8 +249,8 @@ class SiteManagementTests(TestCase):
             },
         )
         self.team.refresh_from_db()
-        self.assertEqual(self.team.name, "Bayer Leverkusen")
-        self.assertEqual(self.team.short_name, "B04")
+        self.assertEqual(self.team.name, "QA Test Club")
+        self.assertEqual(self.team.short_name, "QTC")
 
     def test_owner_can_edit_content_and_it_appears_on_home(self):
         self._login(self.owner)
