@@ -52,7 +52,7 @@ from .player_state import (
 )
 from .services import manager_for_user
 from .tenure import close_club_spell_for_user, open_club_spell, resign_manager_from_club
-from .activity import published_activity, activity_label, activity_emoji, record_manager_departure
+from .activity import activity_payloads, published_activity, record_manager_departure
 
 
 def _post_int(post, key, default=0):
@@ -122,14 +122,7 @@ def home(request):
         .filter(published=True)
         .order_by("-created_at")[:6]
     )
-    live_feed = [
-        {
-            "post": post,
-            "label": activity_label(post),
-            "emoji": activity_emoji(post),
-        }
-        for post in published_activity()[:6]
-    ]
+    live_feed = activity_payloads(published_activity()[:6])
 
     recent_results = []
     completed = completed_qs[:5]
@@ -302,13 +295,11 @@ def manager_hub(request):
         .first()
     )
     recent = []
-    pending_actions = []
     outstanding = []
     recent_results = []
     top_scorers = []
     top_assists = []
     squad = []
-    my_listings = []
     league_position = None
     table = []
 
@@ -368,18 +359,6 @@ def manager_hub(request):
             )
             fixture.venue = "H" if fixture.home_team_id == team.id else "A"
             recent_results.append(fixture)
-        pending_listings = PlayerListing.objects.filter(
-            team=team,
-            status=PlayerListing.PENDING,
-        ).count()
-        if pending_listings:
-            pending_actions.append(f"{pending_listings} player sale(s) waiting for admin approval")
-        pending_matches = MatchSubmission.objects.filter(
-            fixture__in=Fixture.objects.filter(Q(home_team=team) | Q(away_team=team)),
-            status="PENDING",
-        ).count()
-        if pending_matches:
-            pending_actions.append(f"{pending_matches} match result(s) waiting for approval")
         squad = list(
             team.players.order_by("position", "-overall", "name")
         )
@@ -389,14 +368,6 @@ def manager_hub(request):
         top_assists = [p for p in squad if (p.assists or 0) > 0]
         top_assists.sort(key=lambda p: (-p.assists, p.name))
         top_assists = top_assists[:5]
-        my_listings = list(
-            PlayerListing.objects.filter(
-                team=team,
-                status__in=[PlayerListing.PENDING, PlayerListing.LIVE],
-            )
-            .select_related("player")
-            .order_by("-created_at")[:8]
-        )
         table = build_league_table(team.league)
         league_position = next(
             (row["position"] for row in table if row["team"].id == team.id),
@@ -414,16 +385,6 @@ def manager_hub(request):
         .select_related("player", "from_team", "to_team")
         .order_by("-created_at")[:8]
     )
-    pending_press = list(
-        PressConference.objects.filter(
-            manager=request.user,
-            status=ApprovalStatus.PENDING,
-        )
-        .select_related("team", "fixture")
-        .order_by("-created_at")[:5]
-    )
-    if pending_press:
-        pending_actions.append(f"{len(pending_press)} press conference question(s) waiting")
 
     roster_count = len(squad) if team else 0
     token_balance = token_balance_for_user(request.user)
@@ -439,7 +400,6 @@ def manager_hub(request):
             "transfers": transfers,
             "roster_count": roster_count,
             "token_balance": token_balance,
-            "pending_actions": pending_actions,
             "active_league": getattr(team, "league", None) or active_league(),
             "outstanding": outstanding,
             "outstanding_count": len(outstanding),
@@ -447,10 +407,8 @@ def manager_hub(request):
             "top_scorers": top_scorers,
             "top_assists": top_assists,
             "squad": squad[:12],
-            "my_listings": my_listings,
             "league_position": league_position,
             "table": table[:8],
-            "pending_press": pending_press,
         },
     )
 
@@ -1270,14 +1228,35 @@ def competition_page(request, slug):
     )
 
 
+HISTORY_RECORD_LABELS = (
+    "League Winner",
+    "Cup Winner",
+    "Manager of the Season",
+    "Team of the Season",
+    "Golden Boot",
+    "Top Assists",
+)
+
+
 def historical_tables(request):
     league = active_league()
+    history_seasons = [
+        {
+            "number": number,
+            "records": [
+                {"label": label, "value": "To be recorded"}
+                for label in HISTORY_RECORD_LABELS
+            ],
+        }
+        for number in (1, 2)
+    ]
     return render(
         request,
         "mgl/historical_tables.html",
         {
             "active_league": league,
             "table": build_league_table(league),
+            "history_seasons": history_seasons,
         },
     )
 

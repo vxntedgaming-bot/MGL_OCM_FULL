@@ -476,7 +476,11 @@ class ManagerHubExperienceTests(TestCase):
         self.assertContains(hub, "✓")
         self.assertContains(hub, 'data-nav-dropdown="my-club"')
         self.assertContains(hub, "Club Profile")
-        self.assertContains(hub, "Recruitment Drive")
+        self.assertContains(hub, "NOTIFICATIONS")
+        self.assertNotContains(hub, "Recruitment Drive")
+        self.assertNotContains(hub, "PLAYER RECRUITMENT")
+        self.assertNotContains(hub, "PENDING ACTIONS")
+        self.assertNotContains(hub, "Propose Transfer")
         self.assertNotContains(hub, reverse("control_centre"))
         self.assertNotContains(hub, "UNASSIGNED PLAYERS")
 

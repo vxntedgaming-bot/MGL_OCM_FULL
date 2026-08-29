@@ -1,4 +1,5 @@
 from django.urls import path
+from django.views.generic import RedirectView
 from players.fc26_faces import player_face_image
 from . import views
 from . import market_views as views_market
@@ -15,6 +16,16 @@ urlpatterns = [
         "hub/",
         views.manager_hub,
         name="manager_hub",
+    ),
+    path(
+        "live-activity/",
+        RedirectView.as_view(pattern_name="live_activity", permanent=False),
+        name="live_activity_alias",
+    ),
+    path(
+        "pressroom/",
+        RedirectView.as_view(pattern_name="pressroom", permanent=False),
+        name="pressroom_alias",
     ),
 
     # --------------------------------------------------------

@@ -1,0 +1,43 @@
+<div class="mgl-notify" data-notify-dropdown>
+    <button
+        type="button"
+        class="mgl-notify-toggle"
+        data-notify-trigger
+        aria-expanded="false"
+        aria-haspopup="true"
+        aria-controls="mgl-notify-panel"
+        id="mgl-notify-trigger"
+    >
+        <span class="mgl-notify-bell" aria-hidden="true">🔔</span>
+        <span class="mgl-notify-copy">
+            <span class="mgl-notify-kicker">NOTIFICATIONS</span>
+            {% if mgl_notifications %}
+                <span class="mgl-notify-summary">{{ mgl_notifications|length }} ACTION{% if mgl_notifications|length != 1 %}S{% endif %} REQUIRED</span>
+            {% else %}
+                <span class="mgl-notify-summary">No actions required</span>
+            {% endif %}
+        </span>
+        {% if mgl_notifications %}
+            <span class="mgl-notify-count">{{ mgl_notifications|length }}</span>
+        {% endif %}
+    </button>
+    <div class="mgl-notify-panel" id="mgl-notify-panel" role="menu" aria-labelledby="mgl-notify-trigger" hidden>
+        <div class="mgl-notify-head">
+            <strong>🔔 NOTIFICATIONS</strong>
+            {% if mgl_notifications %}
+                <span>{{ mgl_notifications|length }} ACTION{% if mgl_notifications|length != 1 %}S{% endif %} REQUIRED</span>
+            {% else %}
+                <span>No actions required.</span>
+            {% endif %}
+        </div>
+        {% for item in mgl_notifications %}
+            <article class="mgl-notify-item">
+                <small>{{ item.kind }}</small>
+                <p>{{ item.body }}</p>
+                <a href="{{ item.url }}" class="mgl-notify-cta">{{ item.cta }}</a>
+            </article>
+        {% empty %}
+            <p class="mgl-notify-empty">No actions required.</p>
+        {% endfor %}
+    </div>
+</div>

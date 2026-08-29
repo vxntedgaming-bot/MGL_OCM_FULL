@@ -7,7 +7,7 @@ from django.urls import reverse
 from accounts.models import User
 from leagues.services import ensure_super_league_1
 from managers.models import ManagerApplication
-from mgl.nav import NAV_DROPDOWNS, nav_dropdowns_for_request
+from mgl.nav import NAV_DROPDOWNS, SIGNED_IN_NAV_DROPDOWNS, nav_dropdowns_for_request
 from mgl.templatetags.mgl_ui import card_name
 from players.models import Player
 from teams.models import Team
@@ -29,11 +29,12 @@ class NavigationDropdownTests(TestCase):
         )
 
     def test_every_dropdown_item_has_a_real_url(self):
-        for menu in NAV_DROPDOWNS:
-            for item in menu["items"]:
-                url = reverse(item["url_name"], kwargs=item.get("url_kwargs") or None)
-                self.assertTrue(url.startswith("/"), item)
-                self.assertNotEqual(url, "#")
+        for source in (NAV_DROPDOWNS, SIGNED_IN_NAV_DROPDOWNS):
+            for menu in source:
+                for item in menu["items"]:
+                    url = reverse(item["url_name"], kwargs=item.get("url_kwargs") or None)
+                    self.assertTrue(url.startswith("/"), item)
+                    self.assertNotEqual(url, "#")
 
     def test_homepage_renders_all_dropdowns(self):
         response = self.client.get("/")
@@ -127,12 +128,15 @@ class NavigationDropdownTests(TestCase):
         self.assertNotContains(response, "Super League 1 is the only active league")
         self.assertNotContains(response, "Super League 2")
 
-    def test_my_team_dropdown_highlights_when_logged_in(self):
+    def test_my_club_dropdown_highlights_when_logged_in(self):
         self.client.login(username="navuser", password="test-pass-123")
         response = self.client.get(reverse("team_management"))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'data-nav-dropdown="my-team"')
+        self.assertContains(response, 'data-nav-dropdown="my-club"')
         self.assertContains(response, reverse("fixture_list"))
+        self.assertContains(response, "NOTIFICATIONS")
+        self.assertNotContains(response, 'data-nav-dropdown="my-team"')
+        self.assertNotContains(response, reverse("control_centre"))
 
     def test_stats_dropdown_pages_load(self):
         for slug in ("premier-league", "championship", "league-one"):
@@ -190,8 +194,10 @@ class NavigationDropdownTests(TestCase):
         )
         self.client.login(username="navowner", password="test-pass-123")
         owner = self.client.get("/")
-        self.assertContains(owner, reverse("unassigned_players"))
-        self.assertContains(owner, "Unassigned Players")
+        self.assertContains(owner, reverse("control_centre"))
+        self.assertContains(owner, "CONTROL")
+        self.assertNotContains(owner, reverse("unassigned_players"))
+        self.assertNotContains(owner, "Unassigned Players")
 
     def test_assigned_manager_gets_manager_nav(self):
         league = ensure_super_league_1()
@@ -207,22 +213,36 @@ class NavigationDropdownTests(TestCase):
         self.assertEqual(hub.status_code, 200)
         html = hub.content.decode()
         self.assertIn('data-nav-dropdown="my-club"', html)
-        self.assertIn('data-nav-dropdown="transfers"', html)
-        self.assertIn('data-nav-dropdown="recruitment"', html)
+        self.assertIn('data-nav-dropdown="market"', html)
         self.assertIn('data-nav-dropdown="community"', html)
+        self.assertIn('data-nav-dropdown="news"', html)
         self.assertContains(hub, "MY CLUB")
-        self.assertContains(hub, "Club Profile")
-        self.assertContains(hub, "Propose Transfer")
+        self.assertContains(hub, "MARKET")
+        self.assertContains(hub, "Scouting")
+        self.assertContains(hub, "Academy")
+        self.assertContains(hub, "Head To Head")
+        self.assertContains(hub, "History")
         self.assertContains(hub, "Live Activity")
         self.assertContains(hub, "Pressroom")
-        self.assertIn('data-nav-dropdown="stats"', html)
-        self.assertContains(hub, "Premier League Stats")
+        self.assertContains(hub, reverse("scouting"))
+        self.assertContains(hub, reverse("youth_academy"))
+        self.assertContains(hub, reverse("live_activity"))
+        self.assertContains(hub, reverse("pressroom"))
+        self.assertContains(hub, reverse("historical_tables"))
+        self.assertContains(hub, "NOTIFICATIONS")
+        self.assertNotContains(hub, "Propose Transfer")
+        self.assertNotContains(hub, "Recruitment Drive")
+        self.assertNotContains(hub, "Premier League Stats")
         self.assertNotContains(hub, "WAITING ROOM")
         self.assertNotContains(hub, reverse("compare_players"))
         self.assertNotContains(hub, reverse("control_centre"))
         self.assertNotContains(hub, "UNASSIGNED PLAYERS")
+        self.assertNotContains(hub, reverse("unassigned_players"))
         self.assertNotContains(hub, 'data-nav-dropdown="my-team"')
-        self.assertNotContains(hub, 'data-nav-dropdown="market"')
+        self.assertNotContains(hub, 'data-nav-dropdown="transfers"')
+        self.assertNotContains(hub, 'data-nav-dropdown="recruitment"')
+        self.assertNotContains(hub, 'data-nav-dropdown="stats"')
+        self.assertNotContains(hub, 'data-nav-dropdown="leagues"')
 
 
 class PlayerSearchAndCardNameTests(TestCase):

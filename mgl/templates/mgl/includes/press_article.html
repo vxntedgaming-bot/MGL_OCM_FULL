@@ -1,32 +1,16 @@
 {% load mgl_ui %}
 <article class="mgl-press-article">
-    <div class="mgl-press-brand">MGL PRESS CONFERENCE</div>
+    <div class="mgl-press-brand">PRESS CONFERENCE</div>
     <div class="mgl-press-club">
-        {% team_logo press.team "sm" %}
-        <strong>{% if press.team %}{{ press.team.name|upper }}{% else %}MGL{% endif %}</strong>
+        {% team_logo press.team "md" %}
+        <div>
+            <strong>{% if press.team %}{{ press.team.name|upper }}{% else %}MGL{% endif %}</strong>
+            <p>Manager: {{ press.manager_name|default:press.manager.username }}</p>
+        </div>
     </div>
-    <dl class="mgl-press-meta-list">
-        <div>
-            <dt>Manager</dt>
-            <dd>{{ press.manager_name|default:press.manager.username }}</dd>
-        </div>
-        <div>
-            <dt>Club</dt>
-            <dd>{% if press.team %}{{ press.team.name }}{% else %}MGL{% endif %}</dd>
-        </div>
-        {% if press.matchweek %}
-        <div>
-            <dt>Gameweek</dt>
-            <dd>{{ press.matchweek }}</dd>
-        </div>
-        {% endif %}
-        <div>
-            <dt>Published</dt>
-            <dd>{{ press.approved_at|default:press.created_at|date:"d M Y" }}</dd>
-        </div>
-    </dl>
     <div class="mgl-press-qa">
-        <p class="mgl-press-q"><span>Question</span> “{{ press.question }}”</p>
-        <p class="mgl-press-a"><span>Manager Answer</span> “{{ press.answer }}”</p>
+        <p class="mgl-press-q"><span>Q:</span> {{ press.question }}</p>
+        <p class="mgl-press-a"><span>A:</span> {{ press.answer }}</p>
     </div>
+    <time class="mgl-press-date" datetime="{{ press.approved_at|default:press.created_at|date:'c' }}">{{ press.approved_at|default:press.created_at|date:"d F Y"|upper }}</time>
 </article>

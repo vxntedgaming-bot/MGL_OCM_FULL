@@ -7,11 +7,11 @@
 <section class="mgl-section">
     <div class="section-heading">
         <div>
-            <div class="eyebrow">MGL PRESSROOM</div>
-            <h2>PRESS CONFERENCES</h2>
-            <p>Managers answer questions after matches, appointments and recruitment. Submitted answers publish here.</p>
+            <div class="eyebrow">NEWS</div>
+            <h2>PRESSROOM</h2>
+            <p>Manager interviews after they answer a press conference question. Pending questions appear in Notifications until submitted.</p>
         </div>
-        <a href="{% url 'news_centre' %}" class="view-all">NEWSROOM →</a>
+        <a href="{% url 'live_activity' %}" class="view-all">LIVE ACTIVITY →</a>
     </div>
     <nav class="mgl-league-tabs">
         <a href="{% url 'news_centre' %}" class="mgl-league-tab">Latest News</a>
@@ -20,23 +20,6 @@
         <a href="{% url 'news_centre' %}?tab=official" class="mgl-league-tab">Official News</a>
     </nav>
 </section>
-
-{% if pending %}
-<section class="mgl-section">
-    <div class="dashboard-panel">
-        <div class="panel-heading"><span>YOUR QUESTIONS</span></div>
-        {% for press in pending %}
-            <form method="post" action="{% url 'answer_press' press.id %}" class="mgl-press-answer">
-                {% csrf_token %}
-                <small>{{ press.get_trigger_display }}{% if press.team %} · {{ press.team.name }}{% endif %}</small>
-                <p>{{ press.question }}</p>
-                <textarea name="answer" rows="4" required placeholder="Your answer"></textarea>
-                <button type="submit" class="primary-button">SUBMIT ANSWER</button>
-            </form>
-        {% endfor %}
-    </div>
-</section>
-{% endif %}
 
 <section class="mgl-section">
     {% for press in page %}

@@ -32,24 +32,16 @@
 </section>
 {% else %}
 <section class="mgl-section">
-    <div class="dashboard-panel">
+    <div class="mgl-activity-feed">
         {% if tab == 'official' %}
-            {% for post in official %}
-                <article class="mgl-activity-item">
-                    <small>{{ post.get_category_display }} · {{ post.created_at|date:"d M Y H:i" }}</small>
-                    <h3>{{ post.title }}</h3>
-                    <p>{{ post.body|linebreaksbr }}</p>
-                </article>
+            {% for item in official_items %}
+                {% include "mgl/includes/activity_card.html" with show_body=True %}
             {% empty %}
                 {% include "mgl/includes/empty_state.html" with title="NO OFFICIAL NEWS YET" body="Approved results, transfers and league notices will appear here." %}
             {% endfor %}
         {% else %}
-            {% for post in latest %}
-                <article class="mgl-activity-item">
-                    <small>{{ post.get_category_display }} · {{ post.created_at|date:"d M Y H:i" }}</small>
-                    <h3>{{ post.title }}</h3>
-                    <p>{{ post.body|linebreaksbr }}</p>
-                </article>
+            {% for item in latest_items %}
+                {% include "mgl/includes/activity_card.html" with show_body=True %}
             {% empty %}
                 {% include "mgl/includes/empty_state.html" with title="NO PUBLISHED NEWS YET" body="No published news yet. Transfers, auctions and results will be posted here as the season develops." %}
             {% endfor %}

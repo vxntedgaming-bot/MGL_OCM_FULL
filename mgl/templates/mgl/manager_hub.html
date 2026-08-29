@@ -69,102 +69,53 @@
 
 {% if team %}
 <section class="mgl-section">
-    <div class="mgl-hub-layout">
-        <div>
-            <div class="dashboard-panel">
-                <div class="panel-heading">
-                    <span>MY CLUB</span>
-                    <a href="{% club_url team %}">CLUB PAGE →</a>
-                </div>
-                <div class="mgl-hub-club">
-                    {% team_logo team "lg" %}
-                    <div>
-                        <strong>{{ team.name }}</strong>
-                        <p>{% if team.league %}{{ team.league.name }}{% endif %} · {{ manager.display_name }}</p>
-                        <div class="mgl-hub-links">
-                            <a href="{% club_url team %}">Club Profile</a>
-                            <a href="{% url 'fixture_list' %}">Fixtures</a>
-                            <a href="{% url 'leagues_page' %}">League Tables</a>
-                            <a href="{% url 'manager_profile' %}">Profile</a>
-                        </div>
+    <div class="mgl-hub-layout mgl-hub-layout--personal">
+        <div class="dashboard-panel">
+            <div class="panel-heading">
+                <span>MY CLUB</span>
+                <a href="{% club_url team %}">CLUB PAGE →</a>
+            </div>
+            <div class="mgl-hub-club">
+                {% team_logo team "lg" %}
+                <div>
+                    <strong>{{ team.name }}</strong>
+                    <p>{% if team.league %}{{ team.league.name }}{% endif %} · {{ manager.display_name }}</p>
+                    <div class="mgl-hub-links">
+                        <a href="{% club_url team %}">Club Profile</a>
+                        <a href="{% url 'fixture_list' %}">Fixtures</a>
+                        <a href="{% url 'manager_profile' %}">Profile</a>
                     </div>
                 </div>
-            </div>
-
-            <div class="dashboard-panel" style="margin-top:20px">
-                <div class="panel-heading"><span>OUTSTANDING FIXTURES</span></div>
-                <p class="mgl-hub-note">The Remaining Games Left To Play</p>
-                {% for fixture in outstanding %}
-                    <div class="mgl-hub-fixture">
-                        <small>Gameweek {{ fixture.matchweek }}</small>
-                        <strong>{{ fixture.home_team.name }} vs {{ fixture.away_team.name }}</strong>
-                        {% if fixture.scheduled_at %}
-                            <span>{{ fixture.scheduled_at|date:"l" }}</span>
-                        {% endif %}
-                    </div>
-                {% empty %}
-                    {% include "mgl/includes/empty_state.html" with kicker="FIXTURES" title="NO GAMES LEFT TO PLAY" body="Outstanding fixtures are calculated from the published schedule." %}
-                {% endfor %}
-            </div>
-
-            <div class="dashboard-panel" style="margin-top:20px">
-                <div class="panel-heading"><span>LAST 5 RESULTS</span></div>
-                {% for fixture in recent_results %}
-                    <div class="table-row">
-                        <span class="mgl-wdl mgl-wdl-{{ fixture.outcome|lower }}">{{ fixture.result_mark }}</span>
-                        <strong>{{ fixture.result_line }}</strong>
-                        <small>MD {{ fixture.matchweek }}</small>
-                    </div>
-                {% empty %}
-                    {% include "mgl/includes/empty_state.html" with title="NO APPROVED RESULTS YET" body="The last five completed matches will appear here after admin approval." %}
-                {% endfor %}
             </div>
         </div>
 
-        <div>
-            <div class="dashboard-panel">
-                <div class="panel-heading"><span>TRANSFERS</span></div>
-                <div class="mgl-hub-links mgl-hub-links-stack">
-                    <a href="{% url 'team_management' %}">Propose Transfer</a>
-                    <a href="{% url 'team_management' %}">My Offers</a>
-                    <a href="{% url 'transfer_market' %}">Transfer Market</a>
-                    <a href="{% url 'free_agents' %}">Free Agents</a>
-                </div>
-                {% for listing in my_listings %}
-                    <div class="table-row">
-                        <strong>{{ listing.player.name }}</strong>
-                        <span>{{ listing.status }}</span>
-                        <b>{{ listing.asking_price }} TKN</b>
-                    </div>
-                {% empty %}
-                    <p class="mgl-hub-note">No live or pending listings. Free Agents are not unassigned players.</p>
-                {% endfor %}
-            </div>
-
-            <div class="dashboard-panel" style="margin-top:20px">
-                <div class="panel-heading"><span>PLAYER RECRUITMENT</span></div>
-                <div class="mgl-hub-links mgl-hub-links-stack">
-                    <a href="{% url 'stats_page' %}">Stats Hub</a>
-                    <a href="{% url 'scouting' %}">Recruitment Drive</a>
-                    <a href="{% url 'live_auctions' %}">Auctions</a>
-                    <a href="{% url 'player_database' %}">Player Database</a>
-                    <a href="{% url 'youth_academy' %}">Academy</a>
-                </div>
-            </div>
-
-            <div class="dashboard-panel" style="margin-top:20px">
-                <div class="panel-heading"><span>STATS &amp; COMMUNITY</span></div>
-                <div class="mgl-hub-links mgl-hub-links-stack">
-                    <a href="{% url 'stats_page' %}">Stats Hub</a>
-                    <a href="{% url 'head_to_head' %}">Head to Head</a>
-                    <a href="{% url 'historical_tables' %}">History</a>
-                    <a href="{% url 'live_activity' %}">Live Activity</a>
-                    <a href="{% url 'pressroom' %}">Pressroom</a>
-                    {% if discord_invite_url %}
-                        <a href="{{ discord_invite_url }}" target="_blank" rel="noopener">JOIN MGL DISCORD</a>
+        <div class="dashboard-panel">
+            <div class="panel-heading"><span>OUTSTANDING FIXTURES</span></div>
+            <p class="mgl-hub-note">The Remaining Games Left To Play</p>
+            {% for fixture in outstanding %}
+                <div class="mgl-hub-fixture">
+                    <small>Gameweek {{ fixture.matchweek }}</small>
+                    <strong>{{ fixture.home_team.name }} vs {{ fixture.away_team.name }}</strong>
+                    {% if fixture.scheduled_at %}
+                        <span>{{ fixture.scheduled_at|date:"l" }}</span>
                     {% endif %}
                 </div>
-            </div>
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with kicker="FIXTURES" title="NO GAMES LEFT TO PLAY" body="Outstanding fixtures are calculated from the published schedule." %}
+            {% endfor %}
+        </div>
+
+        <div class="dashboard-panel">
+            <div class="panel-heading"><span>LAST 5 RESULTS</span></div>
+            {% for fixture in recent_results %}
+                <div class="table-row">
+                    <span class="mgl-wdl mgl-wdl-{{ fixture.outcome|lower }}">{{ fixture.result_mark }}</span>
+                    <strong>{{ fixture.result_line }}</strong>
+                    <small>MD {{ fixture.matchweek }}</small>
+                </div>
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with title="NO APPROVED RESULTS YET" body="The last five completed matches will appear here after admin approval." %}
+            {% endfor %}
         </div>
     </div>
 </section>
@@ -224,48 +175,21 @@
 </section>
 {% endif %}
 
-{% if pending_press %}
 <section class="mgl-section">
     <div class="dashboard-panel">
-        <div class="panel-heading"><span>PRESS CONFERENCE</span></div>
-        {% for press in pending_press %}
-            <form method="post" action="{% url 'answer_press' press.id %}" class="mgl-press-answer">
-                {% csrf_token %}
-                <small>{{ press.get_trigger_display }}{% if press.team %} · {{ press.team.name }}{% endif %}</small>
-                <p>{{ press.question }}</p>
-                <textarea name="answer" rows="3" required placeholder="Your answer"></textarea>
-                <button type="submit" class="primary-button">SUBMIT ANSWER</button>
-            </form>
-        {% endfor %}
-    </div>
-</section>
-{% endif %}
-
-<section class="mgl-section">
-    <div class="dashboard-grid">
-        <div class="dashboard-panel">
-            <div class="panel-heading"><span>PENDING ACTIONS</span></div>
-            {% for item in pending_actions %}
-                <div class="table-row"><span>{{ item }}</span></div>
-            {% empty %}
-                {% include "mgl/includes/empty_state.html" with kicker="QUEUE" title="NOTHING WAITING" body="You have no pending sales, results or applications right now." %}
-            {% endfor %}
+        <div class="panel-heading">
+            <span>RECENT TRANSFERS</span>
+            <a href="{% url 'manager_rewards' %}">VIEW ALL →</a>
         </div>
-        <div class="dashboard-panel">
-            <div class="panel-heading">
-                <span>RECENT TRANSFERS</span>
-                <a href="{% url 'manager_rewards' %}">VIEW ALL →</a>
+        {% for row in transfers %}
+            <div class="table-row">
+                <span>{{ row.created_at|date:"d M Y" }}</span>
+                <strong>{{ row.player.name|default:"Token movement" }}</strong>
+                <b>{{ row.amount }} TKN</b>
             </div>
-            {% for row in transfers %}
-                <div class="table-row">
-                    <span>{{ row.created_at|date:"d M Y" }}</span>
-                    <strong>{{ row.player.name|default:"Token movement" }}</strong>
-                    <b>{{ row.amount }} TKN</b>
-                </div>
-            {% empty %}
-                {% include "mgl/includes/empty_state.html" with kicker="MARKET" title="NO TRANSFERS YET" body="Completed auctions and sales will appear here." %}
-            {% endfor %}
-        </div>
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with kicker="MARKET" title="NO TRANSFERS YET" body="Completed auctions and sales will appear here." %}
+        {% endfor %}
     </div>
 </section>
 {% endblock %}

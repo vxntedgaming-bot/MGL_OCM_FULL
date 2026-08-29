@@ -1,17 +1,41 @@
 {% extends "core/base.html" %}
 {% load mgl_ui %}
 
-{% block title %}Historical League Tables — MGL{% endblock %}
+{% block title %}History — MGL{% endblock %}
 
 {% block content %}
 <section class="mgl-section">
     <div class="section-heading">
         <div>
-            <div class="eyebrow">STATS &amp; HISTORY</div>
-            <h1>HISTORICAL LEAGUE TABLES</h1>
-            <p>Previous Premier League seasons will appear here after they are completed. The current table is shown below.</p>
+            <div class="eyebrow">COMMUNITY</div>
+            <h1>HISTORY</h1>
+            <p>Saved MGL seasons and cup history will be recorded here. Live league tables are not rewritten as past winners.</p>
         </div>
         <a href="{% url 'leagues_page' %}" class="view-all">CURRENT TABLE →</a>
+    </div>
+
+    <div class="mgl-history-seasons">
+        {% for season in history_seasons %}
+            <article class="dashboard-panel mgl-history-season">
+                <div class="panel-heading"><span>SEASON {{ season.number }}</span></div>
+                {% for record in season.records %}
+                    <div class="table-row mgl-history-row">
+                        <strong>{{ record.label }}</strong>
+                        <span>{{ record.value }}</span>
+                    </div>
+                {% endfor %}
+            </article>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">CURRENT SEASON</div>
+            <h2>LIVE TABLE</h2>
+            <p>This is the current Premier League table. It is not a completed season archive.</p>
+        </div>
     </div>
     <div class="dashboard-panel">
         {% include "mgl/includes/league_table.html" with table=table league=active_league %}

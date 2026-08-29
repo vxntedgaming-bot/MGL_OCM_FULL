@@ -10,7 +10,7 @@
             <h2>LIVE ACTIVITY</h2>
             <p>Official MGL events after approval. Pending results and transfers do not appear here.</p>
         </div>
-        <a href="{% url 'news_centre' %}" class="view-all">NEWSROOM →</a>
+        <a href="{% url 'pressroom' %}" class="view-all">PRESSROOM →</a>
     </div>
     <nav class="mgl-league-tabs">
         <a href="{% url 'news_centre' %}" class="mgl-league-tab">Latest News</a>
@@ -20,12 +20,7 @@
     </nav>
     <div class="mgl-activity-feed">
         {% for item in items %}
-            <article class="mgl-activity-item">
-                <div class="mgl-activity-kicker">{{ item.emoji }} {{ item.label }}</div>
-                <h3>{{ item.post.title }}</h3>
-                <p>{{ item.post.body|linebreaksbr }}</p>
-                <small>{{ item.post.created_at|date:"d M Y · H:i" }}</small>
-            </article>
+            {% include "mgl/includes/activity_card.html" with show_body=True %}
         {% empty %}
             {% include "mgl/includes/empty_state.html" with title="NO LIVE ACTIVITY YET" body="Approved match results, transfers, auctions, appointments and signings will appear here." %}
         {% endfor %}

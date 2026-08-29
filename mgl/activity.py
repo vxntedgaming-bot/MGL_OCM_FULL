@@ -2,6 +2,7 @@
 
 from mgl.models import NewsPost
 from mgl.services import create_news, manager_for_user
+from teams.models import Team
 
 ACTIVITY_EMOJI = {
     NewsPost.RESULTS: "🔥",
@@ -68,6 +69,41 @@ def activity_emoji(post):
     if label == "PLAYER RELEASED":
         return "🟢"
     return ACTIVITY_EMOJI.get(post.category, "📣")
+
+
+def teams_mentioned(text, teams=None):
+    """Resolve club badges from existing Team names in a published update."""
+    blob = text or ""
+    if not blob:
+        return []
+    catalog = list(teams) if teams is not None else list(Team.objects.all())
+    found = []
+    haystack = blob
+    for team in sorted(catalog, key=lambda row: len(row.name or ""), reverse=True):
+        name = team.name or ""
+        if len(name) < 3:
+            continue
+        if name in haystack:
+            found.append(team)
+            haystack = haystack.replace(name, " " * len(name))
+        if len(found) >= 2:
+            break
+    return found
+
+
+def activity_payloads(posts):
+    teams = list(Team.objects.all())
+    items = []
+    for post in posts:
+        items.append(
+            {
+                "post": post,
+                "emoji": activity_emoji(post),
+                "label": activity_label(post),
+                "teams": teams_mentioned(f"{post.title}\n{post.body}", teams),
+            }
+        )
+    return items
 
 
 def record_activity(category, title, body, publish=True):

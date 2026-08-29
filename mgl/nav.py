@@ -2,8 +2,8 @@
 
 from django.urls import NoReverseMatch, reverse
 
-from mgl.club_urls import club_page_url
-from mgl.market import club_for_user
+from accounts.models import User
+from mgl.permissions import approved_manager
 
 
 NAV_DROPDOWNS = (
@@ -127,7 +127,7 @@ NAV_DROPDOWNS = (
     },
 )
 
-MANAGER_NAV_DROPDOWNS = (
+SIGNED_IN_NAV_DROPDOWNS = (
     {
         "id": "my-club",
         "label": "MY CLUB",
@@ -136,55 +136,34 @@ MANAGER_NAV_DROPDOWNS = (
             "team_management",
             "fixture_list",
             "submit_match",
-            "leagues_page",
-            "competition_page",
             "club_page",
             "manager_profile",
         },
         "items": (
-            {"label": "Manager Hub", "url_name": "manager_hub"},
-            {"label": "My Team", "url_name": "team_management", "divider": True},
+            {"label": "My Team", "url_name": "team_management"},
             {"label": "Fixtures", "url_name": "fixture_list", "divider": True},
-            {"label": "Tables", "url_name": "leagues_page", "divider": True},
         ),
     },
     {
-        "id": "transfers",
-        "label": "TRANSFERS",
+        "id": "market",
+        "label": "MARKET",
         "current": {
-            "transfer_history",
             "transfer_market",
             "free_agents",
-            "team_management",
-        },
-        "items": (
-            {"label": "Propose Transfer", "url_name": "team_management"},
-            {"label": "My Offers", "url_name": "team_management", "divider": True},
-            {"label": "Transfer Market", "url_name": "transfer_market", "divider": True},
-            {"label": "Free Agents", "url_name": "free_agents", "divider": True},
-        ),
-    },
-    {
-        "id": "recruitment",
-        "label": "RECRUITMENT",
-        "current": {
-            "scouting",
             "live_auctions",
             "place_bid",
+            "scouting",
             "player_database",
             "player_profile",
             "youth_academy",
         },
         "items": (
-            {"label": "Recruitment Drive", "url_name": "scouting"},
+            {"label": "Transfer Market", "url_name": "transfer_market"},
+            {"label": "Free Agents", "url_name": "free_agents", "divider": True},
             {"label": "Auctions", "url_name": "live_auctions", "divider": True},
+            {"label": "Scouting", "url_name": "scouting", "divider": True},
             {"label": "Player Database", "url_name": "player_database", "divider": True},
-            {
-                "label": "Academy",
-                "url_name": "youth_academy",
-                "divider": True,
-                "badge": "NEW",
-            },
+            {"label": "Academy", "url_name": "youth_academy", "divider": True},
         ),
     },
     {
@@ -193,41 +172,24 @@ MANAGER_NAV_DROPDOWNS = (
         "current": {
             "head_to_head",
             "historical_tables",
-            "live_activity",
-            "pressroom",
-            "answer_press",
-            "news_centre",
         },
         "items": (
-            {"label": "Head to Head", "url_name": "head_to_head"},
+            {"label": "Head To Head", "url_name": "head_to_head"},
             {"label": "History", "url_name": "historical_tables", "divider": True},
-            {"label": "Live Activity", "url_name": "live_activity", "divider": True},
-            {"label": "Pressroom", "url_name": "pressroom", "divider": True},
         ),
     },
     {
-        "id": "stats",
-        "label": "STATISTICS",
-        "current": {"stats_page", "league_stats"},
+        "id": "news",
+        "label": "NEWS",
+        "current": {
+            "news_centre",
+            "live_activity",
+            "pressroom",
+            "answer_press",
+        },
         "items": (
-            {
-                "label": "Premier League Stats",
-                "url_name": "league_stats",
-                "url_kwargs": {"slug": "premier-league"},
-                "style": "sub",
-            },
-            {
-                "label": "Championship Stats",
-                "url_name": "league_stats",
-                "url_kwargs": {"slug": "championship"},
-                "style": "sub",
-            },
-            {
-                "label": "League One Stats",
-                "url_name": "league_stats",
-                "url_kwargs": {"slug": "league-one"},
-                "style": "sub",
-            },
+            {"label": "Live Activity", "url_name": "live_activity"},
+            {"label": "Pressroom", "url_name": "pressroom", "divider": True},
         ),
     },
 )
@@ -298,6 +260,14 @@ def _build_menus(source, url_name, kwargs, is_control, extra_by_id=None):
     return menus
 
 
+def uses_signed_in_nav(user):
+    if user is None or not getattr(user, "is_authenticated", False):
+        return False
+    if getattr(user, "role", None) in (User.OWNER, User.ADMIN):
+        return True
+    return approved_manager(user) is not None
+
+
 def nav_dropdowns_for_request(request):
     match = getattr(request, "resolver_match", None)
     url_name = getattr(match, "url_name", "") or ""
@@ -308,19 +278,6 @@ def nav_dropdowns_for_request(request):
         and getattr(user, "is_authenticated", False)
         and getattr(user, "role", None) in ("OWNER", "ADMIN")
     )
-    team = club_for_user(user) if user is not None else None
-    if team is not None:
-        extra = {
-            "my-club": [
-                {
-                    "label": "Club Profile",
-                    "url": club_page_url(team),
-                    "divider": True,
-                    "style": "",
-                    "badge": "",
-                    "is_current": url_name == "club_page",
-                }
-            ]
-        }
-        return _build_menus(MANAGER_NAV_DROPDOWNS, url_name, kwargs, is_control, extra)
+    if uses_signed_in_nav(user):
+        return _build_menus(SIGNED_IN_NAV_DROPDOWNS, url_name, kwargs, is_control)
     return _build_menus(NAV_DROPDOWNS, url_name, kwargs, is_control)

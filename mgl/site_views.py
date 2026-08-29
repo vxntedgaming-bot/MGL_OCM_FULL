@@ -5,10 +5,9 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
-from django.views.decorators.http import require_POST
 
 from leagues.services import active_divisions, active_league
-from mgl.activity import activity_emoji, activity_label, published_activity
+from mgl.activity import activity_payloads, published_activity
 from mgl.club_urls import resolve_club
 from mgl.models import Fixture, MatchSubmission, NewsPost, PressConference
 from mgl.press import publish_press_answer, published_press
@@ -102,22 +101,22 @@ def news_centre(request):
     tab = request.GET.get("tab", "latest")
     if tab not in {"latest", "activity", "pressroom", "official"}:
         tab = "latest"
-    latest = published_activity()[:20]
-    activity = published_activity()[:20]
+    latest_items = activity_payloads(published_activity()[:20])
+    official_items = activity_payloads(
+        published_activity().exclude(category=NewsPost.PRESS)[:20]
+    )
     press = published_press()[:12]
     for article in press:
         application = manager_for_user(article.manager)
         article.manager_name = application.display_name if application else article.manager.username
-    official = published_activity().exclude(category=NewsPost.PRESS)[:20]
     return render(
         request,
         "mgl/news.html",
         {
             "tab": tab,
-            "latest": latest,
-            "activity": activity,
+            "latest_items": latest_items,
+            "official_items": official_items,
             "press_articles": press,
-            "official": official,
         },
     )
 
@@ -126,14 +125,7 @@ def live_activity(request):
     posts = published_activity()
     paginator = Paginator(posts, 20)
     page = paginator.get_page(request.GET.get("page") or 1)
-    items = [
-        {
-            "post": post,
-            "emoji": activity_emoji(post),
-            "label": activity_label(post),
-        }
-        for post in page.object_list
-    ]
+    items = activity_payloads(page.object_list)
     return render(
         request,
         "mgl/live_activity.html",
@@ -149,18 +141,7 @@ def pressroom(request):
     articles = published_press()
     paginator = Paginator(articles, 12)
     page = paginator.get_page(request.GET.get("page") or 1)
-    pending = []
-    if request.user.is_authenticated:
-        pending = list(
-            PressConference.objects.filter(
-                manager=request.user,
-                status="PENDING",
-            )
-            .select_related("team", "fixture")
-            .order_by("-created_at")
-        )
-    articles = list(page.object_list)
-    for press in list(articles) + pending:
+    for press in page.object_list:
         application = manager_for_user(press.manager)
         press.manager_name = application.display_name if application else press.manager.username
     return render(
@@ -168,18 +149,31 @@ def pressroom(request):
         "mgl/pressroom.html",
         {
             "page": page,
-            "pending": pending,
         },
     )
 
 
 @login_required
-@require_POST
 def answer_press(request, press_id):
     press = get_object_or_404(PressConference, pk=press_id, manager=request.user)
-    try:
-        publish_press_answer(press, request.POST.get("answer", ""))
-        messages.success(request, "Your press conference is now in the MGL Pressroom.")
-    except ValueError as exc:
-        messages.error(request, str(exc))
-    return redirect("pressroom")
+    application = manager_for_user(request.user)
+    press.manager_name = application.display_name if application else request.user.username
+    if press.status != "PENDING":
+        messages.info(request, "This press conference has already been submitted.")
+        return redirect("pressroom")
+    form_answer = request.POST.get("answer", "") if request.method == "POST" else ""
+    if request.method == "POST":
+        try:
+            publish_press_answer(press, request.POST.get("answer", ""))
+            messages.success(request, "Your press conference is now in the MGL Pressroom.")
+            return redirect("pressroom")
+        except ValueError as exc:
+            messages.error(request, str(exc))
+    return render(
+        request,
+        "mgl/press_answer.html",
+        {
+            "press": press,
+            "form_answer": form_answer,
+        },
+    )

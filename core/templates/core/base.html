@@ -34,10 +34,8 @@
 
         <nav class="mgl-nav" id="mgl-site-nav">
             <a href="{% url 'home' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'home' or request.resolver_match.url_name == 'manager_hub' %}is-active{% endif %}">HOME</a>
-            {% if mgl_has_club %}
+            {% if mgl_signed_in_nav %}
                 {% for menu in mgl_nav_dropdowns %}{% include "core/includes/nav_dropdown.html" %}{% endfor %}
-                <a href="{% url 'job_centre' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'job_centre' %}is-active{% endif %}">JOBS</a>
-                <a href="{% url 'news_centre' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'news_centre' or request.resolver_match.url_name == 'live_activity' or request.resolver_match.url_name == 'pressroom' %}is-active{% endif %}">NEWS</a>
             {% else %}
                 <a href="{% url 'fixture_list' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'fixture_list' %}is-active{% endif %}">FIXTURES</a>
                 {% for menu in mgl_nav_dropdowns %}{% if menu.id == "leagues" %}{% include "core/includes/nav_dropdown.html" %}{% endif %}{% endfor %}
@@ -62,6 +60,9 @@
         </nav>
 
         <div class="mgl-header-actions">
+            {% if mgl_signed_in_nav %}
+                {% include "mgl/includes/notification_bar.html" %}
+            {% endif %}
             {% if discord_invite_url %}
                 <a href="{{ discord_invite_url }}" class="header-button" target="_blank" rel="noopener">DISCORD</a>
             {% endif %}

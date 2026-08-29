@@ -1,0 +1,16 @@
+{% load mgl_ui %}
+<article class="mgl-activity-item">
+    {% if item.teams %}
+        <div class="mgl-activity-badges">
+            {% for team in item.teams %}
+                {% team_logo team "sm" %}
+            {% endfor %}
+        </div>
+    {% endif %}
+    <div class="mgl-activity-kicker">{{ item.emoji }} {{ item.label }}</div>
+    <h3>{{ item.post.title }}</h3>
+    {% if show_body %}
+        <p>{{ item.post.body|linebreaksbr }}</p>
+    {% endif %}
+    <small>{{ item.post.created_at|date:"d M Y · H:i" }}</small>
+</article>

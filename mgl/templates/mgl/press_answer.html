@@ -1,0 +1,34 @@
+{% extends "core/base.html" %}
+{% load mgl_ui %}
+
+{% block title %}Answer Press Conference — MGL{% endblock %}
+
+{% block content %}
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">PRESS CONFERENCE</div>
+            <h2>ANSWER PRESS QUESTION</h2>
+            <p>Sky Sports are waiting for your answer. Once submitted, this interview publishes in News → Pressroom.</p>
+        </div>
+        <a href="{% url 'pressroom' %}" class="view-all">PRESSROOM →</a>
+    </div>
+    <article class="mgl-press-article">
+        <div class="mgl-press-brand">MGL PRESS CONFERENCE</div>
+        <div class="mgl-press-club">
+            {% team_logo press.team "md" %}
+            <div>
+                <strong>{% if press.team %}{{ press.team.name|upper }}{% else %}MGL{% endif %}</strong>
+                <p>Manager: {{ press.manager_name|default:user.username }}</p>
+            </div>
+        </div>
+        <form method="post" action="{% url 'answer_press' press.id %}" class="mgl-press-answer">
+            {% csrf_token %}
+            <p class="mgl-press-q"><span>Q</span> {{ press.question }}</p>
+            <label for="press-answer">Your answer</label>
+            <textarea id="press-answer" name="answer" rows="6" required placeholder="Your answer">{{ form_answer }}</textarea>
+            <button type="submit" class="primary-button">ANSWER PRESS QUESTION</button>
+        </form>
+    </article>
+</section>
+{% endblock %}
