@@ -34,12 +34,14 @@
                     {{ block.league.description }}
                 {% elif block.league.short_name == "PL" %}
                     {% site_text "leagues.premier_description" %}
-                {% elif block.league.short_name == "CH" %}
-                    {% site_text "leagues.championship_description" %}
-                {% elif block.league.short_name == "L1" %}
-                    {% site_text "leagues.league_one_description" %}
                 {% elif block.table %}
-                    Active division.
+                    {% if block.league.short_name == "CH" %}
+                        {% site_text "leagues.championship_description" %}
+                    {% elif block.league.short_name == "L1" %}
+                        {% site_text "leagues.league_one_description" %}
+                    {% else %}
+                        Active division.
+                    {% endif %}
                 {% else %}
                     No clubs assigned yet.
                 {% endif %}
