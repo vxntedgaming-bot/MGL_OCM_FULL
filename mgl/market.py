@@ -234,8 +234,8 @@ def create_free_agent_auction(player, user, duration_minutes, starting_bid=1):
     )
     create_news(
         NewsPost.AUCTION,
-        f"{player.name} in auction",
-        f"{player.name} is now available in the MGL Auction.",
+        f"{player.name} is now available in an Admin auction",
+        f"{player.name} is now available in an Admin auction.",
     )
     return auction
 
@@ -516,7 +516,7 @@ def settle_auction(auction, reviewer=None):
     create_news(
         NewsPost.AUCTION,
         f"{player.name} sold at auction",
-        f"{club.name} signed {player.name} for {highest.amount} tokens.",
+        f"{player.name} has joined {club.name} after a winning auction bid.",
     )
     return auction, f"{player.name} transferred to {club.name}."
 
@@ -645,8 +645,7 @@ def buy_listed_player(listing, buyer):
     create_news(
         NewsPost.TRANSFER,
         f"{listing.player.name} transferred",
-        f"{listing.player.name} has joined {buyer_club.name} from {listing.team.name} "
-        f"for {listing.asking_price} TKN.",
+        f"{listing.player.name} has joined {buyer_club.name} from {listing.team.name}.",
     )
     from mgl.press import maybe_create_signing_press
 

@@ -1,5 +1,6 @@
 from django import template
 
+from mgl.club_urls import club_page_url as build_club_page_url
 from players.fc26_faces import card_face_src
 from teams.badges import static_badge_path
 
@@ -68,6 +69,11 @@ NATIONALITY_ISO = {
     "Finland": "fi",
     "Romania": "ro",
 }
+
+
+@register.simple_tag
+def club_url(team):
+    return build_club_page_url(team)
 
 
 @register.inclusion_tag("mgl/includes/team_logo.html")

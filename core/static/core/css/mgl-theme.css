@@ -1038,6 +1038,109 @@ body.mgl-auth-body .mgl-main {
     margin-top: 4px;
 }
 
+.mgl-job-status {
+    color: var(--mgl-orange);
+    letter-spacing: 0.14em;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.mgl-job-squad {
+    margin: 6px 0 0;
+    font-weight: 700;
+}
+
+.mgl-job-apply-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.mgl-job-apply-actions .primary-button,
+.mgl-job-apply-actions .secondary-button,
+.mgl-job-form-details > summary {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mgl-job-form-details {
+    border: 1px solid var(--mgl-line);
+    border-radius: 14px;
+    padding: 0 14px 14px;
+}
+
+.mgl-job-form-details > summary {
+    list-style: none;
+    cursor: pointer;
+    margin: 14px 0;
+    width: 100%;
+    max-width: 100%;
+}
+
+.mgl-job-form-details > summary::-webkit-details-marker {
+    display: none;
+}
+
+.mgl-job-form {
+    padding-top: 4px;
+}
+
+.mgl-hub-fixture {
+    display: grid;
+    gap: 4px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--mgl-line);
+}
+
+.mgl-hub-fixture small,
+.mgl-hub-fixture span {
+    color: rgba(255, 255, 255, 0.62);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-size: 12px;
+}
+
+.mgl-activity-feed--home {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.mgl-press-meta-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 18px;
+    margin: 16px 0 20px;
+}
+
+.mgl-press-meta-list dt {
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.mgl-press-meta-list dd {
+    margin: 4px 0 0;
+    font-weight: 700;
+}
+
+.mgl-press-q,
+.mgl-press-a {
+    display: grid;
+    gap: 6px;
+    margin: 0 0 16px;
+}
+
+.mgl-press-q span,
+.mgl-press-a span {
+    color: var(--mgl-orange);
+    letter-spacing: 0.1em;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
 .mgl-league-tabs {
     display: flex;
     flex-wrap: wrap;
@@ -1213,7 +1316,9 @@ body.mgl-auth-body .mgl-main {
     .mgl-hub-layout,
     .mgl-hub-stats,
     .mgl-job-apply-head,
-    .mgl-club-hero {
+    .mgl-club-hero,
+    .mgl-activity-feed--home,
+    .mgl-press-meta-list {
         grid-template-columns: 1fr;
     }
 
@@ -1224,6 +1329,17 @@ body.mgl-auth-body .mgl-main {
     .mgl-header-actions .header-button {
         white-space: nowrap;
     }
+
+    .mgl-job-apply-actions {
+        flex-direction: column;
+    }
+
+    .mgl-job-apply-actions .primary-button,
+    .mgl-job-apply-actions .secondary-button,
+    .mgl-job-form-details > summary,
+    .mgl-job-form .primary-button {
+        width: 100%;
+    }
 }
 
 @media (max-width: 390px) {
@@ -1231,5 +1347,26 @@ body.mgl-auth-body .mgl-main {
     .mgl-squad-row {
         grid-template-columns: 1fr 48px 44px;
         font-size: 13px;
+    }
+
+    .primary-button,
+    .secondary-button,
+    .header-button {
+        min-height: 44px;
+    }
+}
+
+@media (max-width: 320px) {
+    .mgl-section,
+    .mgl-hero-pro,
+    .mgl-home-card {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .mgl-job-apply-card,
+    .mgl-press-article,
+    .mgl-activity-item {
+        padding: 14px;
     }
 }

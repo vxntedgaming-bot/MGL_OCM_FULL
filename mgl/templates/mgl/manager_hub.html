@@ -25,8 +25,8 @@
         <div class="overview-stat">
             <span>MY CLUB</span>
             {% if team %}
-                <strong class="mgl-info-club">{% team_logo team "sm" %} <a href="{% url 'club_page' team.short_name %}">{{ team.short_name }}</a></strong>
-                <small>{{ team.name }}</small>
+                <strong class="mgl-info-club">{% team_logo team "sm" %} <a href="{% club_url team %}">{{ team.name }}</a></strong>
+                <small>{{ team.short_name }}</small>
             {% else %}
                 <strong>—</strong>
                 <small>NO CLUB ASSIGNED</small>
@@ -62,7 +62,7 @@
         <div class="overview-stat">
             <span>OUTSTANDING FIXTURES</span>
             <strong>{{ outstanding_count|default:0 }}</strong>
-            <small>REMAINING GAMES LEFT TO PLAY</small>
+            <small>THE REMAINING GAMES LEFT TO PLAY</small>
         </div>
     </div>
 </section>
@@ -74,7 +74,7 @@
             <div class="dashboard-panel">
                 <div class="panel-heading">
                     <span>MY CLUB</span>
-                    <a href="{% url 'club_page' team.short_name %}">CLUB PAGE →</a>
+                    <a href="{% club_url team %}">CLUB PAGE →</a>
                 </div>
                 <div class="mgl-hub-club">
                     {% team_logo team "lg" %}
@@ -82,9 +82,9 @@
                         <strong>{{ team.name }}</strong>
                         <p>{% if team.league %}{{ team.league.name }}{% endif %} · {{ manager.display_name }}</p>
                         <div class="mgl-hub-links">
-                            <a href="{% url 'club_page' team.short_name %}">Club</a>
+                            <a href="{% club_url team %}">Club Profile</a>
                             <a href="{% url 'fixture_list' %}">Fixtures</a>
-                            <a href="{% url 'leagues_page' %}">League Table</a>
+                            <a href="{% url 'leagues_page' %}">League Tables</a>
                             <a href="{% url 'manager_profile' %}">Profile</a>
                         </div>
                     </div>
@@ -92,13 +92,15 @@
             </div>
 
             <div class="dashboard-panel" style="margin-top:20px">
-                <div class="panel-heading"><span>OUTSTANDING FIXTURES — {{ outstanding_count }}</span></div>
+                <div class="panel-heading"><span>OUTSTANDING FIXTURES</span></div>
+                <p class="mgl-hub-note">The Remaining Games Left To Play</p>
                 {% for fixture in outstanding %}
-                    <div class="table-row">
-                        <strong>{% if fixture.home_team_id == team.id %}{{ fixture.away_team.name }}{% else %}{{ fixture.home_team.name }}{% endif %}</strong>
-                        <span>{% if fixture.home_team_id == team.id %}H{% else %}A{% endif %}</span>
-                        <span>MD {{ fixture.matchweek }}</span>
-                        <small>{{ fixture.status }}</small>
+                    <div class="mgl-hub-fixture">
+                        <small>Gameweek {{ fixture.matchweek }}</small>
+                        <strong>{{ fixture.home_team.name }} vs {{ fixture.away_team.name }}</strong>
+                        {% if fixture.scheduled_at %}
+                            <span>{{ fixture.scheduled_at|date:"l" }}</span>
+                        {% endif %}
                     </div>
                 {% empty %}
                     {% include "mgl/includes/empty_state.html" with kicker="FIXTURES" title="NO GAMES LEFT TO PLAY" body="Outstanding fixtures are calculated from the published schedule." %}
@@ -106,13 +108,11 @@
             </div>
 
             <div class="dashboard-panel" style="margin-top:20px">
-                <div class="panel-heading"><span>RECENT RESULTS</span></div>
+                <div class="panel-heading"><span>LAST 5 RESULTS</span></div>
                 {% for fixture in recent_results %}
                     <div class="table-row">
-                        <strong>{{ fixture.opponent.name }}</strong>
-                        <span>{{ fixture.venue }}</span>
-                        <b>{{ fixture.home_goals|default:"—" }}–{{ fixture.away_goals|default:"—" }}</b>
-                        <span class="mgl-wdl mgl-wdl-{{ fixture.outcome|lower }}">{{ fixture.outcome }}</span>
+                        <span class="mgl-wdl mgl-wdl-{{ fixture.outcome|lower }}">{{ fixture.result_mark }}</span>
+                        <strong>{{ fixture.result_line }}</strong>
                         <small>MD {{ fixture.matchweek }}</small>
                     </div>
                 {% empty %}
@@ -161,7 +161,7 @@
                     <a href="{% url 'live_activity' %}">Live Activity</a>
                     <a href="{% url 'pressroom' %}">Pressroom</a>
                     {% if discord_invite_url %}
-                        <a href="{{ discord_invite_url }}" target="_blank" rel="noopener">MGL Discord</a>
+                        <a href="{{ discord_invite_url }}" target="_blank" rel="noopener">JOIN MGL DISCORD</a>
                     {% endif %}
                 </div>
             </div>
@@ -172,23 +172,23 @@
 <section class="mgl-section">
     <div class="mgl-hub-stats">
         <div class="dashboard-panel">
-            <div class="panel-heading"><span>TOP SCORERS</span></div>
+            <div class="panel-heading"><span>TOP SCORERS — YOUR CLUB</span></div>
             {% for player in top_scorers %}
                 <div class="table-row">
-                    <strong><a href="{% url 'player_profile' player.id %}">{{ player.name }}</a></strong>
+                    <strong>{{ forloop.counter }}. <a href="{% url 'player_profile' player.id %}">{{ player.name }}</a></strong>
                     <span>{{ player.appearances }} APP</span>
-                    <b>{{ player.goals }} GLS</b>
+                    <b>{{ player.goals }} goals</b>
                 </div>
             {% empty %}
                 {% include "mgl/includes/empty_state.html" with title="NO GOALS YET" body="Top scorers are taken from this season's approved match statistics for your squad." %}
             {% endfor %}
         </div>
         <div class="dashboard-panel">
-            <div class="panel-heading"><span>TOP ASSISTS</span></div>
+            <div class="panel-heading"><span>TOP ASSISTS — YOUR CLUB</span></div>
             {% for player in top_assists %}
                 <div class="table-row">
-                    <strong><a href="{% url 'player_profile' player.id %}">{{ player.name }}</a></strong>
-                    <b>{{ player.assists }} AST</b>
+                    <strong>{{ forloop.counter }}. <a href="{% url 'player_profile' player.id %}">{{ player.name }}</a></strong>
+                    <b>{{ player.assists }} assists</b>
                 </div>
             {% empty %}
                 {% include "mgl/includes/empty_state.html" with title="NO ASSISTS YET" body="Top assists are taken from this season's approved match statistics for your squad." %}

@@ -9,9 +9,11 @@ from django.views.decorators.http import require_POST
 
 from leagues.services import active_divisions, active_league
 from mgl.activity import activity_emoji, activity_label, published_activity
+from mgl.club_urls import resolve_club
 from mgl.models import Fixture, MatchSubmission, NewsPost, PressConference
 from mgl.press import publish_press_answer, published_press
 from mgl.standings import build_league_table
+from mgl.services import manager_for_user
 from teams.models import Team
 
 
@@ -58,11 +60,8 @@ def clubs_index(request):
     )
 
 
-def club_page(request, short_name):
-    team = get_object_or_404(
-        Team.objects.select_related("league", "manager"),
-        short_name__iexact=short_name,
-    )
+def club_page(request, slug):
+    team = resolve_club(slug)
     players = (
         team.players.select_related("mgl_team")
         .order_by("position", "-overall", "name")
@@ -106,6 +105,9 @@ def news_centre(request):
     latest = published_activity()[:20]
     activity = published_activity()[:20]
     press = published_press()[:12]
+    for article in press:
+        application = manager_for_user(article.manager)
+        article.manager_name = application.display_name if application else article.manager.username
     official = published_activity().exclude(category=NewsPost.PRESS)[:20]
     return render(
         request,
@@ -157,6 +159,10 @@ def pressroom(request):
             .select_related("team", "fixture")
             .order_by("-created_at")
         )
+    articles = list(page.object_list)
+    for press in list(articles) + pending:
+        application = manager_for_user(press.manager)
+        press.manager_name = application.display_name if application else press.manager.username
     return render(
         request,
         "mgl/pressroom.html",

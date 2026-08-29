@@ -1,24 +1,32 @@
 {% load mgl_ui %}
 <article class="mgl-press-article">
-    <div class="mgl-press-brand">MGL PRESSROOM</div>
+    <div class="mgl-press-brand">MGL PRESS CONFERENCE</div>
     <div class="mgl-press-club">
         {% team_logo press.team "sm" %}
         <strong>{% if press.team %}{{ press.team.name|upper }}{% else %}MGL{% endif %}</strong>
     </div>
-    <h2>
-        {% if press.trigger == "MATCH" %}POST-MATCH PRESS CONFERENCE
-        {% elif press.trigger == "APPOINTMENT" %}NEW MANAGER PRESS CONFERENCE
-        {% elif press.trigger == "SIGNING" %}RECRUITMENT PRESS CONFERENCE
-        {% else %}MGL PRESS CONFERENCE{% endif %}
-    </h2>
-    <p class="mgl-press-meta">
-        Manager: {{ press.manager.username }}
-        {% if press.matchweek %} · Matchday {{ press.matchweek }}{% endif %}
-        · {{ press.category|title }}
-        · {{ press.approved_at|default:press.created_at|date:"d M Y" }}
-    </p>
+    <dl class="mgl-press-meta-list">
+        <div>
+            <dt>Manager</dt>
+            <dd>{{ press.manager_name|default:press.manager.username }}</dd>
+        </div>
+        <div>
+            <dt>Club</dt>
+            <dd>{% if press.team %}{{ press.team.name }}{% else %}MGL{% endif %}</dd>
+        </div>
+        {% if press.matchweek %}
+        <div>
+            <dt>Gameweek</dt>
+            <dd>{{ press.matchweek }}</dd>
+        </div>
+        {% endif %}
+        <div>
+            <dt>Published</dt>
+            <dd>{{ press.approved_at|default:press.created_at|date:"d M Y" }}</dd>
+        </div>
+    </dl>
     <div class="mgl-press-qa">
-        <p><span>Q:</span> {{ press.question }}</p>
-        <p><span>A:</span> {{ press.answer }}</p>
+        <p class="mgl-press-q"><span>Question</span> “{{ press.question }}”</p>
+        <p class="mgl-press-a"><span>Manager Answer</span> “{{ press.answer }}”</p>
     </div>
 </article>

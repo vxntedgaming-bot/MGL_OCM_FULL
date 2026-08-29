@@ -56,6 +56,7 @@ from .player_state import (
 )
 from .services import manager_for_user
 from .tenure import close_club_spell_for_user, open_club_spell, resign_manager_from_club
+from .activity import published_activity, activity_label, activity_emoji, record_manager_departure
 
 
 def _post_int(post, key, default=0):
@@ -125,6 +126,14 @@ def home(request):
         .filter(published=True)
         .order_by("-created_at")[:6]
     )
+    live_feed = [
+        {
+            "post": post,
+            "label": activity_label(post),
+            "emoji": activity_emoji(post),
+        }
+        for post in published_activity()[:6]
+    ]
 
     recent_results = []
     completed = completed_qs[:5]
@@ -236,6 +245,7 @@ def home(request):
             ).count(),
             "recent_transfers": recent_transfers,
             "activity": activity,
+            "live_feed": live_feed,
             "active_league": league,
             "table": table,
         },
@@ -339,15 +349,24 @@ def manager_hub(request):
             opp = stats.get(opp_id)
             if own is None or opp is None:
                 outcome = "—"
+                mark = "—"
             elif own > opp:
                 outcome = "W"
+                mark = "✓"
             elif own < opp:
                 outcome = "L"
+                mark = "✕"
             else:
                 outcome = "D"
+                mark = "="
             fixture.home_goals = stats.get(fixture.home_team_id)
             fixture.away_goals = stats.get(fixture.away_team_id)
             fixture.outcome = outcome
+            fixture.result_mark = mark
+            fixture.result_line = (
+                f"{fixture.home_team.name} {fixture.home_goals}–{fixture.away_goals} "
+                f"{fixture.away_team.name}"
+            )
             fixture.opponent = (
                 fixture.away_team if fixture.home_team_id == team.id else fixture.home_team
             )
@@ -860,6 +879,7 @@ def resign_from_club(request):
         request,
         f"You have resigned from {team.name}. Your personal token balance is unchanged.",
     )
+    record_manager_departure(request.user, team)
     return redirect("manager_profile")
 
 
@@ -1168,6 +1188,7 @@ def remove_club_manager(request, team_id):
         f"{old_manager.username} has left {team.name}. "
         f"The club remains intact and the manager keeps their token balance.",
     )
+    record_manager_departure(old_manager, team)
     return redirect("club_management_admin")
 
 

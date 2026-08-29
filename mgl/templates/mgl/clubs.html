@@ -15,7 +15,7 @@
     </div>
     <div class="mgl-club-grid">
         {% for team in clubs %}
-            <a href="{% url 'club_page' team.short_name %}" class="mgl-club-card">
+            <a href="{% club_url team %}" class="mgl-club-card">
                 {% team_logo team "lg" %}
                 <strong>{{ team.name }}</strong>
                 <span>{{ team.league.name }} · {% if team.manager %}{{ team.manager.username }}{% else %}VACANT{% endif %}</span>

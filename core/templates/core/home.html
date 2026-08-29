@@ -87,6 +87,28 @@
     </div>
 </section>
 
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">LEAGUE LIVE UPDATES</div>
+            <h2>LIVE ACTIVITY</h2>
+            <p>Official confirmed events only. Pending submissions stay off this feed.</p>
+        </div>
+        <a href="{% url 'live_activity' %}" class="view-all">ALL UPDATES →</a>
+    </div>
+    <div class="mgl-activity-feed mgl-activity-feed--home">
+        {% for item in live_feed %}
+            <article class="mgl-activity-item">
+                <div class="mgl-activity-kicker">{{ item.emoji }} {{ item.label }}</div>
+                <h3>{{ item.post.title }}</h3>
+                <small>{{ item.post.created_at|date:"d M Y · H:i" }}</small>
+            </article>
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with title="NO LIVE ACTIVITY YET" body="Approved results, transfers, auctions and appointments will appear here." %}
+        {% endfor %}
+    </div>
+</section>
+
 <section class="mgl-section" id="mgl-about">
     <div class="section-heading">
         <div>

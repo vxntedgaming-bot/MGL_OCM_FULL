@@ -13,7 +13,7 @@
             <p>
                 {{ team.short_name }}
                 ·
-                {% if team.manager %}Manager: {{ team.manager.username }}{% else %}Manager vacant{% endif %}
+                {% if team.manager %}Manager: {{ team.manager.username }}{% else %}VACANT{% endif %}
                 {% if league_position %} · {{ league_position|stringformat:"02d" }}th{% endif %}
                 · {{ players|length }}/{{ team.roster_limit }} players
             </p>
@@ -65,9 +65,9 @@
             {% for fixture in upcoming %}
                 <div class="match-row">
                     <span class="match-date">MD {{ fixture.matchweek }}</span>
-                    <strong class="mgl-standings-club">{% team_logo fixture.home_team "xs" %} <a href="{% url 'club_page' fixture.home_team.short_name %}">{{ fixture.home_team.name }}</a></strong>
+                    <strong class="mgl-standings-club">{% team_logo fixture.home_team "xs" %} <a href="{% club_url fixture.home_team %}">{{ fixture.home_team.name }}</a></strong>
                     <span class="vs">VS</span>
-                    <strong class="mgl-standings-club">{% team_logo fixture.away_team "xs" %} <a href="{% url 'club_page' fixture.away_team.short_name %}">{{ fixture.away_team.name }}</a></strong>
+                    <strong class="mgl-standings-club">{% team_logo fixture.away_team "xs" %} <a href="{% club_url fixture.away_team %}">{{ fixture.away_team.name }}</a></strong>
                 </div>
             {% empty %}
                 {% include "mgl/includes/empty_state.html" with title="NO UPCOMING FIXTURES" body="Released fixtures for this club will appear here." %}

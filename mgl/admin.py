@@ -249,17 +249,17 @@ def approve_match_submission(sub, reviewer):
         category=NewsPost.RESULTS,
         title=(
             f"{fixture.home_team.name} "
-            f"{home_stats.goals} - {away_stats.goals} "
+            f"{home_stats.goals}–{away_stats.goals} "
             f"{fixture.away_team.name}"
         ),
         body=(
-            f"FULL TIME\n\n"
-            f"{fixture.home_team.name} {home_stats.goals} - "
-            f"{away_stats.goals} {fixture.away_team.name}\n\n"
+            f"Result approved by Admin.\n"
+            f"Gameweek {fixture.matchweek}.\n\n"
+            f"{fixture.home_team.name} {home_stats.goals}–{away_stats.goals} "
+            f"{fixture.away_team.name}\n\n"
             f"Shots: {home_stats.shots} - {away_stats.shots}\n"
             f"Possession: {home_stats.possession}% - "
-            f"{away_stats.possession}%\n\n"
-            f"The result has been officially approved by MGL Admin."
+            f"{away_stats.possession}%"
         ),
         published=True,
         discord_sent=False,

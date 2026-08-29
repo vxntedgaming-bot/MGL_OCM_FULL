@@ -18,9 +18,9 @@
         <article class="match-panel mgl-fixture-card">
             <div class="match-row">
                 <span class="match-date">{{ f.scheduled_at|date:"d M"|upper|default:"TBC" }}</span>
-                <strong class="mgl-standings-club">{% team_logo f.home_team "xs" %} <a href="{% url 'club_page' f.home_team.short_name %}">{{ f.home_team.name }}</a></strong>
+                <strong class="mgl-standings-club">{% team_logo f.home_team "xs" %} <a href="{% club_url f.home_team %}">{{ f.home_team.name }}</a></strong>
                 <span class="vs">VS</span>
-                <strong class="mgl-standings-club">{% team_logo f.away_team "xs" %} <a href="{% url 'club_page' f.away_team.short_name %}">{{ f.away_team.name }}</a></strong>
+                <strong class="mgl-standings-club">{% team_logo f.away_team "xs" %} <a href="{% club_url f.away_team %}">{{ f.away_team.name }}</a></strong>
                 <span class="match-time">{{ f.status }}</span>
             </div>
             {% if f.status == 'SCHEDULED' %}

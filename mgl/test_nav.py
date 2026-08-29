@@ -171,6 +171,33 @@ class NavigationDropdownTests(TestCase):
         self.assertContains(owner, reverse("unassigned_players"))
         self.assertContains(owner, "UNASSIGNED PLAYERS")
 
+    def test_assigned_manager_gets_manager_nav(self):
+        league = ensure_super_league_1()
+        team = Team.objects.filter(short_name="LIV").first() or Team.objects.create(
+            name="Liverpool",
+            short_name="LIV",
+            league=league,
+        )
+        team.manager = self.user
+        team.save(update_fields=["manager"])
+        self.client.login(username="navuser", password="test-pass-123")
+        hub = self.client.get(reverse("manager_hub"))
+        self.assertEqual(hub.status_code, 200)
+        html = hub.content.decode()
+        self.assertIn('data-nav-dropdown="my-club"', html)
+        self.assertIn('data-nav-dropdown="transfers"', html)
+        self.assertIn('data-nav-dropdown="recruitment"', html)
+        self.assertIn('data-nav-dropdown="community"', html)
+        self.assertContains(hub, "MY CLUB")
+        self.assertContains(hub, "CLUB PROFILE")
+        self.assertContains(hub, "PROPOSE TRANSFER")
+        self.assertContains(hub, "LIVE ACTIVITY")
+        self.assertContains(hub, "PRESSROOM")
+        self.assertNotContains(hub, reverse("control_centre"))
+        self.assertNotContains(hub, "UNASSIGNED PLAYERS")
+        self.assertNotContains(hub, 'data-nav-dropdown="my-team"')
+        self.assertNotContains(hub, 'data-nav-dropdown="market"')
+
 
 class PlayerSearchAndCardNameTests(TestCase):
     def setUp(self):

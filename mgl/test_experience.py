@@ -19,11 +19,13 @@ from mgl.models import (
     PressConference,
     TeamMatchStats,
 )
+from mgl.club_urls import club_page_url, club_slug
 from mgl.press import (
     create_appointment_press,
     create_press_question,
     maybe_create_odd_matchday_interview,
 )
+from mgl.press_questions import QUESTION_BANK
 from mgl.services import sign_free_agent
 from players.models import Player
 from teams.models import Team
@@ -86,9 +88,22 @@ class JobCentreExperienceTests(TestCase):
         response = self.client.get(reverse("job_centre"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "VIEW SQUAD")
-        self.assertContains(response, reverse("club_page", args=[self.vacant.short_name]))
+        self.assertContains(response, club_page_url(self.vacant))
+        self.assertContains(response, "VACANT / NO MANAGER")
+        self.assertContains(response, self.vacant.name)
         self.assertNotContains(response, "50.00 TKN")
-        self.assertContains(response, "APPLY FOR TOT")
+        self.assertNotContains(response, "APPLY & JOIN DISCORD")
+        slug_page = self.client.get(club_page_url(self.vacant))
+        self.assertEqual(slug_page.status_code, 200)
+        short_page = self.client.get(reverse("club_page", args=[self.vacant.short_name]))
+        self.assertEqual(short_page.status_code, 200)
+
+    def test_logged_in_manager_sees_apply_form_after_clicking_apply(self):
+        self.client.login(username="applicant", password="test-pass-123")
+        response = self.client.get(reverse("job_centre"))
+        self.assertContains(response, "APPLY FOR")
+        self.assertContains(response, "EA ID / GAMERTAG")
+        self.assertContains(response, "<details", html=False)
 
     def test_user_can_apply_for_vacant_club(self):
         self.client.login(username="applicant", password="test-pass-123")
@@ -152,8 +167,12 @@ class JobCentreExperienceTests(TestCase):
         self.assertEqual(page.status_code, 200)
         self.assertContains(page, "Squad Star")
         self.assertContains(page, reverse("player_profile", args=[player.id]))
+        self.assertContains(page, "VACANT")
         self.assertNotContains(page, "TOKEN BALANCE")
         self.assertNotContains(page, "RELEASE")
+        pretty = self.client.get("/clubs/%s/" % club_slug(self.vacant))
+        self.assertEqual(pretty.status_code, 200)
+        self.assertContains(pretty, "Squad Star")
         public_player = self.client.get(reverse("player_profile", args=[player.id]))
         self.assertEqual(public_player.status_code, 200)
 
@@ -172,6 +191,16 @@ class LiveActivityAndPressTests(TestCase):
         )
         self.team_b = Team.objects.create(
             name="Chelsea Test", short_name="CTX", league=self.league, manager=self.user_b
+        )
+        self.user_c = _user("idleone")
+        self.user_d = _user("idletwo")
+        _manager(self.user_c)
+        _manager(self.user_d)
+        self.team_c = Team.objects.create(
+            name="Idle One", short_name="IOX", league=self.league, manager=self.user_c
+        )
+        self.team_d = Team.objects.create(
+            name="Idle Two", short_name="ITW", league=self.league, manager=self.user_d
         )
         self.scorer = Player.objects.create(
             name="Home Striker",
@@ -228,7 +257,8 @@ class LiveActivityAndPressTests(TestCase):
             ).exists()
         )
         activity = self.client.get(reverse("live_activity"))
-        self.assertContains(activity, "MATCH RESULT")
+        self.assertContains(activity, "RESULT APPROVED")
+        self.assertContains(activity, "Gameweek 1")
 
     def test_odd_matchday_does_not_repeat_same_manager_in_cycle(self):
         fixture, submission = self._pending_match(matchweek=1)
@@ -279,6 +309,33 @@ class LiveActivityAndPressTests(TestCase):
         self.assertIsNotNone(first)
         self.assertIsNone(duplicate)
 
+    def test_pending_questions_are_unique_across_managers(self):
+        first = create_press_question(
+            manager=self.user_a,
+            team=self.team_a,
+            question="What was the key to today's victory?",
+            question_key="win_key",
+            category="win",
+            trigger=PressConference.MATCH,
+        )
+        clash = create_press_question(
+            manager=self.user_b,
+            team=self.team_b,
+            question="What was the key to today's victory?",
+            question_key="win_key",
+            category="win",
+            trigger=PressConference.MATCH,
+        )
+        self.assertIsNotNone(first)
+        self.assertIsNone(clash)
+
+    def test_question_bank_keys_are_unique(self):
+        keys = []
+        for questions in QUESTION_BANK.values():
+            keys.extend(key for key, _text in questions)
+        self.assertEqual(len(keys), len(set(keys)))
+        self.assertGreaterEqual(len(keys), 80)
+
     def test_new_manager_gets_appointment_question(self):
         press = create_appointment_press(self.user_a, self.team_a)
         self.assertIsNotNone(press)
@@ -314,6 +371,9 @@ class LiveActivityAndPressTests(TestCase):
         fa = Player.objects.create(name="Free Signing", position="ST", overall=66, is_free_agent=True)
         sign_free_agent(fa, self.mgr_a)
         self.assertTrue(NewsPost.objects.filter(category=NewsPost.SIGNING).exists())
+        activity = self.client.get(reverse("live_activity"))
+        self.assertContains(activity, "MANAGER APPOINTED")
+        self.assertContains(activity, "FREE AGENT SIGNING")
 
     def test_auction_no_bid_creates_free_agent_activity(self):
         player = Player.objects.create(
@@ -329,6 +389,9 @@ class LiveActivityAndPressTests(TestCase):
         self.assertTrue(
             NewsPost.objects.filter(category=NewsPost.FREE_AGENT, body__icontains="no bids").exists()
         )
+        activity = self.client.get(reverse("live_activity"))
+        self.assertContains(activity, "AUCTION STARTED")
+        self.assertContains(activity, "FREE AGENT")
 
 
 class ManagerHubExperienceTests(TestCase):
@@ -400,14 +463,22 @@ class ManagerHubExperienceTests(TestCase):
         hub = self.client.get(reverse("manager_hub"))
         self.assertContains(hub, "Hub United")
         self.assertContains(hub, "MGL MANAGER HUB")
-        self.assertContains(hub, "OUTSTANDING FIXTURES — 8")
+        self.assertContains(hub, "THE REMAINING GAMES LEFT TO PLAY")
+        self.assertContains(hub, "Gameweek")
         self.assertContains(hub, "Own Striker")
-        self.assertContains(hub, "4 GLS")
+        self.assertContains(hub, "4 goals")
         self.assertContains(hub, "Own Maker")
-        self.assertContains(hub, "3 AST")
+        self.assertContains(hub, "3 assists")
+        self.assertContains(hub, "TOP SCORERS — YOUR CLUB")
+        self.assertContains(hub, "TOP ASSISTS — YOUR CLUB")
+        self.assertContains(hub, "LAST 5 RESULTS")
         self.assertNotContains(hub, "Other Striker")
-        self.assertContains(hub, "W")
+        self.assertContains(hub, "✓")
+        self.assertContains(hub, 'data-nav-dropdown="my-club"')
+        self.assertContains(hub, "CLUB PROFILE")
+        self.assertContains(hub, "RECRUITMENT DRIVE")
         self.assertNotContains(hub, reverse("control_centre"))
+        self.assertNotContains(hub, "UNASSIGNED PLAYERS")
 
     def test_member_without_club_keeps_public_home(self):
         member = _user("fan")
@@ -416,6 +487,8 @@ class ManagerHubExperienceTests(TestCase):
         home = self.client.get("/")
         self.assertEqual(home.status_code, 200)
         self.assertContains(home, "COMPETE.")
+        self.assertContains(home, "LIVE ACTIVITY")
+        self.assertNotContains(home, "MGL CLUBS")
 
 
 class NewsAndTablePublicTests(TestCase):
@@ -427,8 +500,11 @@ class NewsAndTablePublicTests(TestCase):
         tables = self.client.get(reverse("leagues_page"))
         self.assertEqual(tables.status_code, 200)
         self.assertContains(tables, "LEAGUE TABLES")
-        self.assertContains(tables, reverse("club_page", args=["ARS"]))
+        arsenal = Team.objects.get(short_name="ARS")
+        self.assertContains(tables, club_page_url(arsenal))
+        self.assertContains(tables, "/clubs/arsenal/")
         self.assertNotContains(tables, "MANAGER VACANT")
+        self.assertNotContains(tables, "50.00 TKN")
 
     def test_news_tabs_and_public_fixtures(self):
         self.assertEqual(self.client.get(reverse("news_centre")).status_code, 200)

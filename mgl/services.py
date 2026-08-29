@@ -192,8 +192,7 @@ def release_player(player, team, source="MANAGER_RELEASE"):
     create_news(
         NewsPost.FREE_AGENT,
         f"{player.name} released",
-        f"{team.name} have released {player.name}. "
-        f"The player is now available as a free agent.",
+        f"{player.name} has been released by {team.name} and is now a Free Agent.",
     )
 
     return player
@@ -267,7 +266,7 @@ def sign_free_agent(player, manager):
     create_news(
         NewsPost.SIGNING,
         f"{signed.name} signed",
-        f"{manager.display_name} has signed {signed.name} from the Free Agent pool for 0 TKN.",
+        f"{signed.name} has joined {team.name} on a free signing.",
     )
     from mgl.press import maybe_create_signing_press
 

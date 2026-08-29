@@ -2,6 +2,9 @@
 
 from django.urls import NoReverseMatch, reverse
 
+from mgl.club_urls import club_page_url
+from mgl.market import club_for_user
+
 
 NAV_DROPDOWNS = (
     {
@@ -120,6 +123,88 @@ NAV_DROPDOWNS = (
     },
 )
 
+MANAGER_NAV_DROPDOWNS = (
+    {
+        "id": "my-club",
+        "label": "MY CLUB",
+        "current": {
+            "manager_hub",
+            "team_management",
+            "fixture_list",
+            "submit_match",
+            "leagues_page",
+            "competition_page",
+            "club_page",
+            "manager_profile",
+        },
+        "items": (
+            {"label": "MANAGER HUB", "url_name": "manager_hub"},
+            {"label": "MY TEAM", "url_name": "team_management", "divider": True},
+            {"label": "FIXTURES", "url_name": "fixture_list", "divider": True},
+            {"label": "TABLES", "url_name": "leagues_page", "divider": True},
+        ),
+    },
+    {
+        "id": "transfers",
+        "label": "TRANSFERS",
+        "current": {
+            "transfer_history",
+            "transfer_market",
+            "free_agents",
+            "team_management",
+        },
+        "items": (
+            {"label": "PROPOSE TRANSFER", "url_name": "team_management"},
+            {"label": "MY OFFERS", "url_name": "team_management", "divider": True},
+            {"label": "TRANSFER MARKET", "url_name": "transfer_market", "divider": True},
+            {"label": "FREE AGENTS", "url_name": "free_agents", "divider": True},
+        ),
+    },
+    {
+        "id": "recruitment",
+        "label": "RECRUITMENT",
+        "current": {
+            "stats_page",
+            "scouting",
+            "live_auctions",
+            "place_bid",
+            "player_database",
+            "player_profile",
+            "youth_academy",
+        },
+        "items": (
+            {"label": "STATS HUB", "url_name": "stats_page"},
+            {"label": "RECRUITMENT DRIVE", "url_name": "scouting", "divider": True},
+            {"label": "AUCTIONS", "url_name": "live_auctions", "divider": True},
+            {"label": "PLAYER DATABASE", "url_name": "player_database", "divider": True},
+            {
+                "label": "ACADEMY",
+                "url_name": "youth_academy",
+                "divider": True,
+                "badge": "NEW",
+            },
+        ),
+    },
+    {
+        "id": "community",
+        "label": "COMMUNITY",
+        "current": {
+            "head_to_head",
+            "historical_tables",
+            "live_activity",
+            "pressroom",
+            "answer_press",
+            "news_centre",
+        },
+        "items": (
+            {"label": "HEAD TO HEAD", "url_name": "head_to_head"},
+            {"label": "HISTORY", "url_name": "historical_tables", "divider": True},
+            {"label": "LIVE ACTIVITY", "url_name": "live_activity", "divider": True},
+            {"label": "PRESSROOM", "url_name": "pressroom", "divider": True},
+        ),
+    },
+)
+
 COMPETITIONS = {
     "premier-league": "Premier League",
     "championship": "Championship",
@@ -136,6 +221,8 @@ LIVE_COMPETITION_SLUGS = {
 
 
 def _item_url(item):
+    if item.get("href"):
+        return item["href"]
     kwargs = item.get("url_kwargs") or None
     try:
         return reverse(item["url_name"], kwargs=kwargs)
@@ -144,6 +231,8 @@ def _item_url(item):
 
 
 def _item_is_current(item, url_name, kwargs):
+    if item.get("href"):
+        return False
     if item.get("url_name") != url_name:
         return False
     expected = item.get("url_kwargs") or {}
@@ -152,18 +241,10 @@ def _item_is_current(item, url_name, kwargs):
     return all(kwargs.get(key) == value for key, value in expected.items())
 
 
-def nav_dropdowns_for_request(request):
-    match = getattr(request, "resolver_match", None)
-    url_name = getattr(match, "url_name", "") or ""
-    kwargs = getattr(match, "kwargs", None) or {}
-    user = getattr(request, "user", None)
-    is_control = bool(
-        user is not None
-        and getattr(user, "is_authenticated", False)
-        and getattr(user, "role", None) in ("OWNER", "ADMIN")
-    )
+def _build_menus(source, url_name, kwargs, is_control, extra_by_id=None):
+    extra_by_id = extra_by_id or {}
     menus = []
-    for menu in NAV_DROPDOWNS:
+    for menu in source:
         items = []
         for item in menu["items"]:
             if item.get("control_only") and not is_control:
@@ -178,6 +259,8 @@ def nav_dropdowns_for_request(request):
                     "is_current": _item_is_current(item, url_name, kwargs),
                 }
             )
+        for extra in extra_by_id.get(menu["id"], ()):
+            items.append(extra)
         menus.append(
             {
                 "id": menu["id"],
@@ -187,3 +270,31 @@ def nav_dropdowns_for_request(request):
             }
         )
     return menus
+
+
+def nav_dropdowns_for_request(request):
+    match = getattr(request, "resolver_match", None)
+    url_name = getattr(match, "url_name", "") or ""
+    kwargs = getattr(match, "kwargs", None) or {}
+    user = getattr(request, "user", None)
+    is_control = bool(
+        user is not None
+        and getattr(user, "is_authenticated", False)
+        and getattr(user, "role", None) in ("OWNER", "ADMIN")
+    )
+    team = club_for_user(user) if user is not None else None
+    if team is not None:
+        extra = {
+            "my-club": [
+                {
+                    "label": "CLUB PROFILE",
+                    "url": club_page_url(team),
+                    "divider": True,
+                    "style": "",
+                    "badge": "",
+                    "is_current": url_name == "club_page",
+                }
+            ]
+        }
+        return _build_menus(MANAGER_NAV_DROPDOWNS, url_name, kwargs, is_control, extra)
+    return _build_menus(NAV_DROPDOWNS, url_name, kwargs, is_control)
