@@ -333,7 +333,8 @@ def manager_hub(request):
                 fixture.away_team if fixture.home_team_id == team.id else fixture.home_team
             )
             fixture.can_submit = (
-                request.user.id
+                approved_manager(request.user) is not None
+                and request.user.id
                 in {
                     fixture.home_team.manager_id,
                     fixture.away_team.manager_id,

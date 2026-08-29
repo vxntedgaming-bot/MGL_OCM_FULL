@@ -1,5 +1,3 @@
-from decimal import Decimal
-
 from django.test import Client, TestCase
 from django.urls import reverse
 
@@ -138,3 +136,24 @@ class ManagerHubDashboardTests(TestCase):
         self.assertContains(response, "20.00 TKN")
         self.assertContains(response, "—")
         self.assertNotContains(response, "ENTER RESULT")
+
+    def test_enter_result_hidden_when_match_already_submitted(self):
+        MatchSubmission.objects.create(fixture=self.outstanding)
+        self.client.login(username="dashmgr", password="test-pass-123")
+        response = self.client.get(reverse("manager_hub"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "OUTSTANDING FIXTURES")
+        self.assertContains(response, "Dash Rival")
+        self.assertNotContains(response, reverse("submit_match", args=[self.outstanding.id]))
+        self.assertNotContains(response, "ENTER RESULT")
+
+    def test_standings_use_approved_results(self):
+        self.client.login(username="dashmgr", password="test-pass-123")
+        response = self.client.get(reverse("manager_hub"))
+        row = response.context["standings_row"]
+        self.assertEqual(row["played"], 1)
+        self.assertEqual(row["points"], 3)
+        self.assertEqual(row["gd"], 2)
+        self.assertEqual(row["position"], 1)
+        self.assertEqual(list(response.context["form"]), ["W"])
+        self.assertTrue(response.context["outstanding"][0].can_submit)
