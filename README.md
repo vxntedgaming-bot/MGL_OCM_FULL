@@ -91,6 +91,7 @@ python manage.py close_expired_auctions
 - Owner / admin control: `/mgl/control/`
 - Site Management (owner/admin only): `/mgl/control/site/` — clubs, leagues, website copy, Discord and site settings. Managers receive HTTP 403. Display edits do not change Team/League IDs, squads, fixtures, tokens or player states. The legacy `/mgl/admin/clubs/<id>/edit/` URL redirects to the Site Management team editor. Official crests are pinned to `Team.badge_code` so a short-name change cannot show another club's badge.
 - Public pages: `/leagues/`, `/market/`, `/stats/premier-league/`, `/jobs/`
+- Jobs (`/jobs/`): each vacant club shows its application form on the card. After a successful apply, the existing ClubApplication is saved and the MGL Discord invite opens (`https://discord.gg/Jmf29wBafP`). Occupied clubs stay off the vacancy list. Owner/Admin still appoint from Control Centre.
 
 Statistics are per division (`/stats/premier-league/`, `/stats/championship/`, `/stats/league-one/`) and use **approved** match submissions only. Pending results do not move the table or player leaderboards. Waiting Room League and the Compare page are not in navigation; those URLs 404.
 

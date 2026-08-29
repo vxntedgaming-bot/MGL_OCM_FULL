@@ -93,17 +93,28 @@ class JobCentreExperienceTests(TestCase):
         self.assertContains(response, self.vacant.name)
         self.assertNotContains(response, "50.00 TKN")
         self.assertNotContains(response, "APPLY & JOIN DISCORD")
+        self.assertContains(response, "mgl-jobs.css")
+        self.assertNotContains(response, "<details")
+        self.assertContains(response, "APPLY FOR")
+        self.assertNotContains(response, reverse("apply_for_club", args=[self.occupied.id]))
         slug_page = self.client.get(club_page_url(self.vacant))
         self.assertEqual(slug_page.status_code, 200)
         short_page = self.client.get(reverse("club_page", args=[self.vacant.short_name]))
         self.assertEqual(short_page.status_code, 200)
 
-    def test_logged_in_manager_sees_apply_form_after_clicking_apply(self):
+    def test_logged_in_manager_sees_apply_form_on_each_vacant_card(self):
         self.client.login(username="applicant", password="test-pass-123")
         response = self.client.get(reverse("job_centre"))
         self.assertContains(response, "APPLY FOR")
         self.assertContains(response, "EA ID / GAMERTAG")
-        self.assertContains(response, "<details", html=False)
+        self.assertContains(response, "DISCORD USERNAME")
+        self.assertContains(response, "GAMES PER WEEK")
+        self.assertContains(response, "REFERRED BY")
+        self.assertContains(response, "new gen console")
+        self.assertContains(response, "APPLY &amp; JOIN DISCORD")
+        self.assertContains(response, reverse("apply_for_club", args=[self.vacant.id]))
+        self.assertNotContains(response, "<details")
+        self.assertNotContains(response, reverse("apply_for_club", args=[self.occupied.id]))
 
     def test_user_can_apply_for_vacant_club(self):
         self.client.login(username="applicant", password="test-pass-123")
@@ -112,6 +123,7 @@ class JobCentreExperienceTests(TestCase):
             JOB_APPLY,
         )
         self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], reverse("job_centre") + "?join_discord=1")
         app = ClubApplication.objects.get(manager=self.manager, team=self.vacant)
         self.assertEqual(app.status, ApprovalStatus.PENDING)
         self.assertEqual(app.gamertag, "EAID1")
@@ -119,11 +131,15 @@ class JobCentreExperienceTests(TestCase):
         self.assertTrue(app.new_gen_confirmed)
         self.vacant.refresh_from_db()
         self.assertIsNone(self.vacant.manager_id)
+        joined = self.client.get(reverse("job_centre") + "?join_discord=1")
+        self.assertContains(joined, "https://discord.gg/Jmf29wBafP")
+        self.assertContains(joined, "Application sent")
 
     def test_application_requires_required_fields(self):
         self.client.login(username="applicant", password="test-pass-123")
         response = self.client.post(reverse("apply_for_club", args=[self.vacant.id]), {})
         self.assertEqual(response.status_code, 302)
+        self.assertNotIn("join_discord", response["Location"])
         self.assertFalse(ClubApplication.objects.filter(manager=self.manager).exists())
 
     def test_cannot_apply_for_occupied_club(self):

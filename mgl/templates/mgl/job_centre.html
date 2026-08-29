@@ -2,9 +2,12 @@
 {% load static mgl_ui %}
 
 {% block title %}Job Centre — MGL{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/mgl-jobs.css' %}">
+{% endblock %}
 
 {% block content %}
-<section class="mgl-section">
+<section class="mgl-section mgl-jobs-page">
     <div class="section-heading">
         <div>
             <div class="eyebrow">JOB CENTRE</div>
@@ -13,6 +16,10 @@
         </div>
         <span class="section-line"></span>
     </div>
+
+    {% if join_discord and jobs_discord_invite %}
+        <p class="mgl-job-pending">Application saved. <a href="{{ jobs_discord_invite }}" target="_blank" rel="noopener">Join the MGL Discord</a>.</p>
+    {% endif %}
 
     {% if has_club %}
         {% include "mgl/includes/empty_state.html" with title="YOU ALREADY MANAGE A CLUB" body="Leave through the league office if you want to apply for a different vacant club." %}
@@ -23,27 +30,32 @@
     {% for team in vacant_clubs %}
         <article class="mgl-job-apply-card">
             <div class="mgl-job-apply-head">
-                {% team_logo team "lg" %}
-                <div>
-                    <div class="mgl-job-status">VACANT / NO MANAGER</div>
-                    <h3>{{ team.name }}</h3>
-                    <p>{{ team.league|league_label }}</p>
-                    <p class="mgl-job-squad">Squad {{ team.players.all|length }} / {{ team.roster_limit }}</p>
+                <div class="mgl-job-apply-identity">
+                    {% team_logo team "lg" %}
+                    <div>
+                        <h3>{{ team.name }}</h3>
+                        <p class="mgl-job-meta">
+                            <span>{{ team.league|league_label }}</span>
+                            <span class="mgl-job-status">VACANT / NO MANAGER</span>
+                        </p>
+                        <p class="mgl-job-squad">Squad {{ team.players.all|length }} / {{ team.roster_limit }}</p>
+                    </div>
+                </div>
+                <div class="mgl-job-apply-actions">
+                    <a href="{% club_url team %}#squad" class="secondary-button">VIEW SQUAD</a>
                 </div>
             </div>
-            <div class="mgl-job-apply-actions">
-                <a href="{% club_url team %}#squad" class="secondary-button">VIEW SQUAD</a>
-                {% if not user.is_authenticated %}
-                    <a href="{% url 'manager_login' %}?next={% url 'job_centre' %}" class="primary-button">LOGIN TO APPLY</a>
-                {% elif not manager %}
-                    <a href="{% url 'manager_register' %}" class="primary-button">REGISTER TO APPLY</a>
-                {% endif %}
-            </div>
-            {% if user.is_authenticated and manager and not has_club %}
-                <details class="mgl-job-form-details" id="apply-{{ team.id }}">
-                    <summary class="primary-button">APPLY FOR {{ team.name|upper }}</summary>
-                    <form method="post" action="{% url 'apply_for_club' team.id %}" class="mgl-job-form">
-                        {% csrf_token %}
+
+            {% if team.id in pending_team_ids %}
+                <div class="mgl-job-apply-body">
+                    <p class="mgl-job-apply-title">APPLY FOR {{ team.name|upper }}</p>
+                    <p class="mgl-job-pending">Your application is pending Owner/Admin review.</p>
+                </div>
+            {% elif can_apply %}
+                <form method="post" action="{% url 'apply_for_club' team.id %}" class="mgl-job-form mgl-job-apply-body">
+                    {% csrf_token %}
+                    <p class="mgl-job-apply-title">APPLY FOR {{ team.name|upper }}</p>
+                    <div class="mgl-job-form-grid">
                         <label>
                             EA ID / GAMERTAG
                             <input type="text" name="gamertag" value="{{ manager.gamertag }}" required maxlength="64">
@@ -55,27 +67,62 @@
                         <label>
                             GAMES PER WEEK
                             <select name="games_per_week" required>
-                                <option value="">Select</option>
+                                <option value="">Select...</option>
                                 {% for choice in games_per_week_choices %}
                                     <option value="{{ choice }}">{{ choice }}</option>
                                 {% endfor %}
                             </select>
                         </label>
                         <label>
-                            REFERRED BY
+                            REFERRED BY (optional)
                             <input type="text" name="referred_by" maxlength="64" placeholder="Optional">
                         </label>
-                        <label class="mgl-job-check">
-                            <input type="checkbox" name="new_gen_confirmed" value="on" required>
-                            <span>I confirm I am playing on a new gen console (PS5, Xbox Series X/S or PC). This league is only compatible with new gen.</span>
+                    </div>
+                    <label class="mgl-job-check">
+                        <input type="checkbox" name="new_gen_confirmed" value="on" required>
+                        <span>I confirm I am playing on a new gen console (PS5, Xbox Series X/S or PC). This league is only compatible with new gen.</span>
+                    </label>
+                    <div class="mgl-job-form-foot">
+                        <button type="submit" class="primary-button">APPLY &amp; JOIN DISCORD</button>
+                        <p class="mgl-job-discord-note">After your application is saved you will be invited to the MGL Discord. Make sure your Discord username is correct.</p>
+                    </div>
+                </form>
+            {% else %}
+                <div class="mgl-job-apply-body">
+                    <p class="mgl-job-apply-title">APPLY FOR {{ team.name|upper }}</p>
+                    <div class="mgl-job-form-grid mgl-job-form-grid--preview">
+                        <label>
+                            EA ID / GAMERTAG
+                            <input type="text" disabled placeholder="Required after login">
                         </label>
-                        {% if discord_invite_url %}
-                            <button type="submit" class="primary-button">APPLY &amp; JOIN DISCORD</button>
+                        <label>
+                            DISCORD USERNAME
+                            <input type="text" disabled placeholder="Required after login">
+                        </label>
+                        <label>
+                            GAMES PER WEEK
+                            <select disabled>
+                                <option>Select...</option>
+                            </select>
+                        </label>
+                        <label>
+                            REFERRED BY (optional)
+                            <input type="text" disabled placeholder="Optional">
+                        </label>
+                    </div>
+                    <p class="mgl-job-check mgl-job-check--preview">I confirm I am playing on a new gen console (PS5, Xbox Series X/S or PC). This league is only compatible with new gen.</p>
+                    <div class="mgl-job-form-foot">
+                        {% if not user.is_authenticated %}
+                            <a href="{% url 'manager_login' %}?next={% url 'job_centre' %}" class="primary-button">LOGIN TO APPLY</a>
+                        {% elif not manager %}
+                            <a href="{% url 'manager_register' %}" class="primary-button">REGISTER TO APPLY</a>
+                        {% elif has_club %}
+                            <p class="mgl-job-pending">You already manage a club.</p>
                         {% else %}
-                            <button type="submit" class="primary-button">APPLY</button>
+                            <p class="mgl-job-pending">Your manager application must be approved before you can apply for a club.</p>
                         {% endif %}
-                    </form>
-                </details>
+                    </div>
+                </div>
             {% endif %}
         </article>
     {% endfor %}
@@ -104,5 +151,13 @@
         {% endfor %}
     </div>
 </section>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if join_discord and jobs_discord_invite %}
+<script>
+    window.open("{{ jobs_discord_invite|escapejs }}", "_blank", "noopener");
+</script>
 {% endif %}
 {% endblock %}

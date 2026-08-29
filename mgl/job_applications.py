@@ -1,6 +1,7 @@
 """Helpers for the existing ClubApplication flow. No second job system."""
 
 GAMES_PER_WEEK_CHOICES = ("1", "2", "3", "4", "5+")
+JOBS_DISCORD_INVITE = "https://discord.gg/Jmf29wBafP"
 
 
 def parse_club_application(post):

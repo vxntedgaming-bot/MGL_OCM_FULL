@@ -1,0 +1,235 @@
+/* Public Jobs page only. Loaded on /jobs/. Does not restyle other pages. */
+
+.mgl-jobs-page .mgl-job-list {
+    display: grid;
+    gap: 28px;
+    width: 100%;
+}
+
+.mgl-jobs-page .mgl-job-apply-card {
+    display: grid;
+    gap: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: #10141c;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    box-sizing: border-box;
+    min-width: 0;
+}
+
+.mgl-jobs-page .mgl-job-apply-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px 20px;
+    padding: 22px 22px 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.mgl-job-apply-identity {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+}
+
+.mgl-job-apply-identity .mgl-team-logo,
+.mgl-job-apply-identity .mgl-team-logo-lg {
+    width: 72px;
+    height: 72px;
+    flex-shrink: 0;
+}
+
+.mgl-jobs-page .mgl-job-apply-head h3 {
+    margin: 0;
+    color: #fff;
+    font-size: clamp(22px, 3.4vw, 32px);
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    line-height: 1.1;
+    overflow-wrap: anywhere;
+}
+
+.mgl-job-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 10px;
+    margin: 8px 0 0;
+    color: rgba(255, 255, 255, 0.62);
+    font-size: 13px;
+}
+
+.mgl-jobs-page .mgl-job-status {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: rgba(255, 92, 0, 0.12);
+    border: 1px solid rgba(255, 92, 0, 0.4);
+    color: var(--mgl-orange, #ff5c00);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.mgl-jobs-page .mgl-job-squad {
+    margin: 8px 0 0;
+    color: rgba(255, 255, 255, 0.48);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.mgl-jobs-page .mgl-job-apply-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.mgl-jobs-page .mgl-job-apply-body {
+    display: grid;
+    gap: 16px;
+    padding: 20px 22px 22px;
+    min-width: 0;
+}
+
+.mgl-job-apply-title {
+    margin: 0;
+    color: var(--mgl-orange, #ff5c00);
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+}
+
+.mgl-jobs-page .mgl-job-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 16px;
+}
+
+.mgl-jobs-page .mgl-job-form label,
+.mgl-jobs-page .mgl-job-apply-body label {
+    display: grid;
+    gap: 7px;
+    min-width: 0;
+    color: rgba(255, 255, 255, 0.58);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.mgl-jobs-page .mgl-job-form input,
+.mgl-jobs-page .mgl-job-form select,
+.mgl-jobs-page .mgl-job-apply-body input,
+.mgl-jobs-page .mgl-job-apply-body select {
+    width: 100%;
+    max-width: 100%;
+    min-height: 46px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: #0b0d12;
+    color: #fff;
+    box-sizing: border-box;
+}
+
+.mgl-jobs-page .mgl-job-form input:focus,
+.mgl-jobs-page .mgl-job-form select:focus {
+    outline: 2px solid rgba(255, 92, 0, 0.45);
+    border-color: var(--mgl-orange, #ff5c00);
+}
+
+.mgl-jobs-page .mgl-job-check {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 10px;
+    align-items: start;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.82);
+    line-height: 1.45;
+}
+
+.mgl-jobs-page .mgl-job-check input {
+    width: 18px;
+    height: 18px;
+    min-height: 18px;
+    margin-top: 2px;
+    accent-color: var(--mgl-orange, #ff5c00);
+}
+
+.mgl-job-check--preview {
+    display: block;
+    color: rgba(255, 255, 255, 0.55);
+}
+
+.mgl-job-form-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px 20px;
+    min-width: 0;
+}
+
+.mgl-jobs-page .mgl-job-form-foot .primary-button,
+.mgl-jobs-page .mgl-job-apply-actions .secondary-button {
+    min-height: 46px;
+    width: fit-content;
+    max-width: 100%;
+}
+
+.mgl-job-discord-note,
+.mgl-job-pending {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.58);
+    font-size: 13px;
+    line-height: 1.45;
+    max-width: 42ch;
+}
+
+.mgl-job-pending {
+    color: var(--mgl-orange, #ff5c00);
+    font-weight: 700;
+}
+
+@media (max-width: 720px) {
+    .mgl-jobs-page .mgl-job-apply-head,
+    .mgl-jobs-page .mgl-job-apply-body {
+        padding: 18px 16px;
+    }
+
+    .mgl-job-apply-identity {
+        width: 100%;
+    }
+
+    .mgl-job-apply-identity .mgl-team-logo,
+    .mgl-job-apply-identity .mgl-team-logo-lg {
+        width: 56px;
+        height: 56px;
+    }
+
+    .mgl-jobs-page .mgl-job-form-grid,
+    .mgl-jobs-page .mgl-job-apply-head {
+        grid-template-columns: 1fr;
+        display: grid;
+    }
+
+    .mgl-jobs-page .mgl-job-apply-actions,
+    .mgl-jobs-page .mgl-job-apply-actions .secondary-button,
+    .mgl-jobs-page .mgl-job-form-foot,
+    .mgl-jobs-page .mgl-job-form-foot .primary-button {
+        width: 100%;
+    }
+}

@@ -33,10 +33,13 @@ from .models import (
 from managers.models import ManagerApplication
 from managers.services import STARTING_TOKENS, approve_manager_application, reject_manager_application
 
-from .job_applications import GAMES_PER_WEEK_CHOICES, parse_club_application
+from .job_applications import (
+    GAMES_PER_WEEK_CHOICES,
+    JOBS_DISCORD_INVITE,
+    parse_club_application,
+)
 from .permissions import approved_manager, owner_admin_required
 from .services import create_news, manager_for_user
-from .site_cms import resolved_discord_invite
 from .standings import build_league_table
 from .player_state import club_players, free_agents as free_agent_qs, market_counts, unassigned_players
 from .tenure import open_club_spell
@@ -234,8 +237,15 @@ def job_centre(request):
         .order_by("name")
     )
     my_apps = []
+    pending_team_ids = set()
     if manager:
         my_apps = manager.club_applications.select_related("team").order_by("-created_at")[:10]
+        pending_team_ids = set(
+            manager.club_applications.filter(
+                status=ApprovalStatus.PENDING
+            ).values_list("team_id", flat=True)
+        )
+    can_apply = bool(approved_manager(request.user) and not club_for_user(request.user))
     return render(
         request,
         "mgl/job_centre.html",
@@ -243,8 +253,12 @@ def job_centre(request):
             "vacant_clubs": vacant,
             "manager": manager,
             "my_applications": my_apps,
+            "pending_team_ids": pending_team_ids,
             "has_club": bool(club_for_user(request.user)),
+            "can_apply": can_apply,
             "games_per_week_choices": GAMES_PER_WEEK_CHOICES,
+            "jobs_discord_invite": JOBS_DISCORD_INVITE,
+            "join_discord": request.GET.get("join_discord") == "1",
         },
     )
 
@@ -289,10 +303,7 @@ def apply_for_club(request, team_id):
         request,
         f"Application sent for {team.name}. An owner or admin will review it. You have not been appointed yet.",
     )
-    invite = resolved_discord_invite()
-    if invite:
-        return redirect(invite)
-    return redirect("job_centre")
+    return redirect(f"{reverse('job_centre')}?join_discord=1")
 
 
 @owner_admin_required
