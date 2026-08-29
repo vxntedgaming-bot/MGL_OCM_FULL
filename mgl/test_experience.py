@@ -286,21 +286,31 @@ class LiveActivityAndPressTests(TestCase):
         self.assertIn("Arsenal Test", press.question)
 
     def test_approved_transfer_and_appointment_create_activity(self):
+        vacant = Team.objects.create(
+            name="Vacant Test", short_name="VTX", league=self.league
+        )
+        newbie = _user("newbie")
+        mgr = _manager(newbie)
         ClubApplication.objects.create(
-            manager=self.mgr_a,
-            team=self.team_a,
+            manager=mgr,
+            team=vacant,
             status=ApprovalStatus.PENDING,
-            gamertag="KAI",
-            discord_username="kai",
+            gamertag="NEW",
+            discord_username="new",
             games_per_week="3",
             new_gen_confirmed=True,
         )
-        self.team_a.manager = None
-        self.team_a.save()
         self.client.login(username="owner", password="test-pass-123")
-        job = ClubApplication.objects.get(manager=self.mgr_a, team=self.team_a)
+        job = ClubApplication.objects.get(manager=mgr, team=vacant)
         self.client.post(reverse("control_approve_job", args=[job.id]))
+        vacant.refresh_from_db()
+        self.assertEqual(vacant.manager_id, newbie.id)
         self.assertTrue(NewsPost.objects.filter(category=NewsPost.MANAGER).exists())
+        self.assertTrue(
+            PressConference.objects.filter(
+                manager=newbie, trigger=PressConference.APPOINTMENT
+            ).exists()
+        )
         fa = Player.objects.create(name="Free Signing", position="ST", overall=66, is_free_agent=True)
         sign_free_agent(fa, self.mgr_a)
         self.assertTrue(NewsPost.objects.filter(category=NewsPost.SIGNING).exists())

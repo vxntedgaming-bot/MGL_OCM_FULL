@@ -130,8 +130,8 @@ def create_press_question(
 ):
     if manager is None:
         return None
-    if fixture_id := getattr(fixture, "id", None):
-        if PressConference.objects.filter(fixture_id=fixture_id, manager=manager).exists():
+    if trigger == PressConference.MATCH and getattr(fixture, "id", None):
+        if PressConference.objects.filter(fixture_id=fixture.id, manager=manager).exists():
             return None
     if question_key and _has_pending(manager, question_key=question_key):
         return None
@@ -228,7 +228,7 @@ def maybe_create_odd_matchday_interview(fixture):
         question_key=key,
         category=category,
         trigger=PressConference.ODD_MATCHDAY,
-        fixture=fixture,
+        fixture=None,
         matchweek=fixture.matchweek,
     )
 
