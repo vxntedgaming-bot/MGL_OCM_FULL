@@ -141,9 +141,12 @@ def normalise_totw_position(position):
     return mapping.get(position, position)
 
 
-def create_news(category, title, body, publish=True):
+def create_news(category, title, body, publish=True, team=None, secondary_team=None):
     """
     Creates a news event for the website and Discord bot queue.
+
+    Pass the actual Team objects involved so Live Activity can render
+    club badges from club data rather than guessing names in the copy.
     """
 
     return NewsPost.objects.create(
@@ -152,6 +155,8 @@ def create_news(category, title, body, publish=True):
         body=body,
         published=publish,
         discord_sent=False,
+        primary_team=team,
+        secondary_team=secondary_team,
     )
 
 
@@ -193,6 +198,7 @@ def release_player(player, team, source="MANAGER_RELEASE"):
         NewsPost.FREE_AGENT,
         f"{player.name} released",
         f"{player.name} has been released by {team.name} and is now a Free Agent.",
+        team=team,
     )
 
     return player
@@ -267,6 +273,7 @@ def sign_free_agent(player, manager):
         NewsPost.SIGNING,
         f"{signed.name} signed",
         f"{signed.name} has joined {team.name} on a free signing.",
+        team=team,
     )
     from mgl.press import maybe_create_signing_press
 

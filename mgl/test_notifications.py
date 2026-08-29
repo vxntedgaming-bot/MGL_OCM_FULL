@@ -16,8 +16,10 @@ from mgl.models import (
     PressConference,
     TeamMatchStats,
 )
-from mgl.notifications import notifications_for_user
+from mgl.activity import activity_payloads, teams_for_post
+from mgl.notifications import NotificationItem, notifications_for_user
 from mgl.press import create_press_question, publish_press_answer
+from mgl.services import create_news
 from players.models import Player
 from teams.models import Team
 
@@ -133,6 +135,10 @@ class NotificationAndPressroomTests(TestCase):
         activity = self.client.get(reverse("live_activity"))
         self.assertContains(activity, "PRESS CONFERENCE")
         self.assertContains(activity, "Arsenal Test")
+        news = NewsPost.objects.get(category=NewsPost.PRESS)
+        self.assertEqual(news.primary_team_id, self.team_a.id)
+        payload = activity_payloads([news])[0]
+        self.assertEqual([row.pk for row in payload["teams"]], [self.team_a.id])
 
     def test_result_notification_clears_after_submit(self):
         fixture = Fixture.objects.create(
@@ -209,6 +215,14 @@ class NotificationAndPressroomTests(TestCase):
         )
         ok, _ = approve_match_submission(submission, self.owner)
         self.assertTrue(ok)
+        news = NewsPost.objects.get(category=NewsPost.RESULTS)
+        self.assertEqual(news.primary_team_id, self.team_a.id)
+        self.assertEqual(news.secondary_team_id, self.team_b.id)
+        payload = activity_payloads([news])[0]
+        self.assertEqual(
+            [row.pk for row in payload["teams"]],
+            [self.team_a.id, self.team_b.id],
+        )
         activity = self.client.get(reverse("live_activity"))
         self.assertContains(activity, "RESULT APPROVED")
         self.assertContains(activity, "ATX")
@@ -268,3 +282,97 @@ class NotificationAndPressroomTests(TestCase):
         self.assertNotContains(home, reverse("unassigned_players"))
         control = self.client.get(reverse("control_centre"))
         self.assertEqual(control.status_code, 200)
+
+    def test_linked_team_badges_ignore_unrelated_names_in_copy(self):
+        post = create_news(
+            NewsPost.RESULTS,
+            "Final whistle",
+            "Result approved without naming either club.",
+            team=self.team_a,
+            secondary_team=self.team_b,
+        )
+        teams = teams_for_post(post)
+        self.assertEqual([row.pk for row in teams], [self.team_a.id, self.team_b.id])
+
+    def test_transfer_news_uses_actual_clubs(self):
+        post = create_news(
+            NewsPost.TRANSFER,
+            "Player moved clubs",
+            "Transfer completed.",
+            team=self.team_b,
+            secondary_team=self.team_a,
+        )
+        self.assertEqual(post.primary_team_id, self.team_b.id)
+        self.assertEqual(post.secondary_team_id, self.team_a.id)
+        self.assertEqual(
+            [row.pk for row in teams_for_post(post)],
+            [self.team_b.id, self.team_a.id],
+        )
+
+    def test_legacy_news_falls_back_to_team_name_matching(self):
+        post = NewsPost.objects.create(
+            category=NewsPost.TRANSFER,
+            title="Arsenal Test signed a player from Chelsea Test",
+            body="Completed.",
+            published=True,
+        )
+        self.assertIsNone(post.primary_team_id)
+        names = {row.name for row in teams_for_post(post)}
+        self.assertEqual(names, {"Arsenal Test", "Chelsea Test"})
+
+    def test_press_related_row_supplies_badge_without_stored_fk(self):
+        press = create_press_question(
+            manager=self.user_a,
+            team=self.team_a,
+            question="What was the turning point?",
+            question_key="win_key",
+            category="win",
+            trigger=PressConference.MATCH,
+        )
+        publish_press_answer(press, "The first goal.")
+        NewsPost.objects.filter(category=NewsPost.PRESS).update(
+            primary_team=None, secondary_team=None
+        )
+        legacy = NewsPost.objects.get(category=NewsPost.PRESS)
+        legacy.refresh_from_db()
+        self.assertIsNone(legacy.primary_team_id)
+        teams = teams_for_post(legacy)
+        self.assertEqual([row.pk for row in teams], [self.team_a.id])
+
+    def test_notification_items_expose_extensible_fields(self):
+        create_press_question(
+            manager=self.user_a,
+            team=self.team_a,
+            question="Any late thoughts?",
+            question_key="pm_late",
+            category="performance",
+            trigger=PressConference.MATCH,
+        )
+        row = notifications_for_user(self.user_a)[0]
+        for field in ("key", "type", "title", "description", "url", "complete"):
+            self.assertIn(field, row)
+        self.assertFalse(row["complete"])
+        item = NotificationItem(
+            key="future-offer-1",
+            type="TRANSFER OFFER",
+            title="TRANSFER OFFER",
+            description="Placeholder for a future offer model.",
+            url="/market/",
+            cta="VIEW OFFER",
+        )
+        self.assertFalse(item.complete)
+        self.assertEqual(item.as_template()["key"], "future-offer-1")
+
+    def test_duplicate_notification_keys_are_not_repeated(self):
+        press = create_press_question(
+            manager=self.user_a,
+            team=self.team_a,
+            question="How did the team recover?",
+            question_key="loss_recover",
+            category="loss",
+            trigger=PressConference.MATCH,
+        )
+        notes = notifications_for_user(self.user_a)
+        keys = [row["key"] for row in notes]
+        self.assertEqual(keys.count(f"press-{press.pk}"), 1)
+        self.assertEqual(len(keys), len(set(keys)))

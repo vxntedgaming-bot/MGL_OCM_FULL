@@ -29,6 +29,7 @@
         panel.hidden = true;
         panel.style.left = "";
         panel.style.right = "";
+        panel.style.width = "";
       }
     });
   }
@@ -59,8 +60,15 @@
   function positionNotify(box) {
     const panel = box.querySelector(".mgl-notify-panel");
     if (!panel) return;
+    if (window.matchMedia("(max-width: 390px)").matches) {
+      panel.style.left = "8px";
+      panel.style.right = "8px";
+      panel.style.width = "auto";
+      return;
+    }
     panel.style.left = "auto";
     panel.style.right = "0";
+    panel.style.width = "";
     const rect = panel.getBoundingClientRect();
     if (rect.left < 8) {
       panel.style.right = "auto";

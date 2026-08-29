@@ -299,6 +299,7 @@ def publish_press_answer(press, answer):
         NewsPost.PRESS,
         f"{manager_name} | {club} press conference",
         f"Q: {press.question}\n\nA: {press.answer}",
+        team=press.team,
     )
     return press
 

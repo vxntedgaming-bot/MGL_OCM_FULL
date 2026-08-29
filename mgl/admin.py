@@ -26,7 +26,7 @@ from .models import (
     ApprovalRequest,
 )
 
-from .services import credit_manager
+from .services import create_news, credit_manager
 
 
 @transaction.atomic
@@ -245,14 +245,14 @@ def approve_match_submission(sub, reviewer):
     # NEWS
     # ---------------------------------------------------------
 
-    NewsPost.objects.create(
-        category=NewsPost.RESULTS,
-        title=(
+    create_news(
+        NewsPost.RESULTS,
+        (
             f"{fixture.home_team.name} "
             f"{home_stats.goals}–{away_stats.goals} "
             f"{fixture.away_team.name}"
         ),
-        body=(
+        (
             f"Result approved by Admin.\n"
             f"Gameweek {fixture.matchweek}.\n\n"
             f"{fixture.home_team.name} {home_stats.goals}–{away_stats.goals} "
@@ -261,8 +261,8 @@ def approve_match_submission(sub, reviewer):
             f"Possession: {home_stats.possession}% - "
             f"{away_stats.possession}%"
         ),
-        published=True,
-        discord_sent=False,
+        team=fixture.home_team,
+        secondary_team=fixture.away_team,
     )
 
     from mgl.press import create_match_press_questions, maybe_create_odd_matchday_interview
@@ -613,19 +613,24 @@ def approve_selected_motw(modeladmin, request, queryset):
             manager_name = (
                 manager_week.manager.display_name
             )
+            club = None
+            user = getattr(manager_week.manager, "user", None)
+            if user is not None:
+                from teams.models import Team
 
-            NewsPost.objects.create(
-                category=NewsPost.REWARD,
-                title="MGL MANAGER OF THE WEEK",
-                body=(
+                club = Team.objects.filter(manager=user).first()
+
+            create_news(
+                NewsPost.REWARD,
+                "MGL MANAGER OF THE WEEK",
+                (
                     f"{manager_name} has been named "
                     f"MGL Manager of the Week.\n\n"
                     f"Wins this week: "
                     f"{manager_week.wins}\n\n"
                     f"Reward: 0.50 tokens."
                 ),
-                published=True,
-                discord_sent=False,
+                team=club,
             )
 
             approved += 1

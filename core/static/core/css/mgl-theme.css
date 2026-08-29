@@ -1427,6 +1427,10 @@ body.mgl-auth-body .mgl-main {
     gap: 10px;
 }
 
+.mgl-activity-badges .mgl-team-logo {
+    flex-shrink: 0;
+}
+
 .mgl-press-date {
     display: block;
     margin-top: 16px;
@@ -1614,7 +1618,12 @@ body.mgl-auth-body .mgl-main {
     }
 
     .mgl-notify-panel {
-        width: min(360px, calc(100vw - 12px));
+        position: fixed;
+        top: calc(var(--header-h, 72px) + 8px);
+        left: 8px;
+        right: 8px;
+        width: auto;
+        max-width: none;
     }
 }
 

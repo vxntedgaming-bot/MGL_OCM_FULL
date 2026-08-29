@@ -404,6 +404,7 @@ def control_approve_job(request, application_id):
         NewsPost.MANAGER,
         f"{application.manager.display_name} appointed",
         f"{application.manager.display_name} has been appointed as manager of {team.name}.",
+        team=team,
     )
     create_appointment_press(new_manager, team)
     messages.success(

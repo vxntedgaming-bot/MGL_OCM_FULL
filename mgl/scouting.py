@@ -313,6 +313,7 @@ def complete_ready_assignments(manager, now=None):
             NewsPost.SCOUTING,
             f"{player.name} recruited",
             f"{team.name} recruited {player.name} through the MGL scouting network.",
+            team=team,
         )
     return created, notices
 

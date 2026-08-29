@@ -153,6 +153,20 @@ class NewsPost(models.Model):
     published=models.BooleanField(default=False)
     discord_sent=models.BooleanField(default=False)
     created_at=models.DateTimeField(auto_now_add=True)
+    primary_team=models.ForeignKey(
+        "teams.Team",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="news_as_primary",
+    )
+    secondary_team=models.ForeignKey(
+        "teams.Team",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="news_as_secondary",
+    )
 
 class Pack(models.Model):
     GOLD="GOLD"; SILVER="SILVER"; BRONZE="BRONZE"; ELITE="ELITE"; YOUTH="YOUTH"

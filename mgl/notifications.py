@@ -1,9 +1,15 @@
 """Manager/admin notifications derived from existing pending rows.
 
-Completing the source action (answering press, submitting a result,
-selling/withdrawing a listing, or approving a control item) clears the
-matching notification. No separate Notification model.
+No separate Notification model. Each source yields incomplete items;
+completing the underlying row (answer, submit, sell, approve) means the
+source no longer returns that key.
+
+To add a future action (for example an incoming transfer offer once a
+backend offer model exists), append a NotificationSource to
+NOTIFICATION_SOURCES. Do not invent offer rows here.
 """
+
+from dataclasses import dataclass
 
 from django.db.models import Q
 from django.urls import reverse
@@ -21,6 +27,41 @@ from mgl.models import (
 )
 
 
+@dataclass(frozen=True)
+class NotificationItem:
+    key: str
+    type: str
+    title: str
+    description: str
+    url: str
+    cta: str = "VIEW"
+
+    @property
+    def complete(self):
+        """Pending sources only yield incomplete items."""
+        return False
+
+    def as_template(self):
+        return {
+            "key": self.key,
+            "type": self.type,
+            "kind": self.type,
+            "title": self.title,
+            "description": self.description,
+            "body": self.description,
+            "url": self.url,
+            "cta": self.cta,
+            "complete": self.complete,
+        }
+
+
+class NotificationSource:
+    """Override pending_for(user) in a subclass to register a new action."""
+
+    def pending_for(self, user):
+        return []
+
+
 def _press_copy(press):
     if press.trigger == PressConference.MATCH:
         return "Sky Sports have a question for you after your latest result."
@@ -34,41 +75,31 @@ def _press_copy(press):
     return "You have a press conference question waiting."
 
 
-def notifications_for_user(user):
-    if user is None or not getattr(user, "is_authenticated", False):
-        return []
+class PressConferenceSource(NotificationSource):
+    def pending_for(self, user):
+        for press in (
+            PressConference.objects.filter(
+                manager=user,
+                status=ApprovalStatus.PENDING,
+            )
+            .select_related("team")
+            .order_by("-created_at")
+        ):
+            yield NotificationItem(
+                key=f"press-{press.pk}",
+                type="PRESS CONFERENCE",
+                title="PRESS CONFERENCE",
+                description=_press_copy(press),
+                url=reverse("answer_press", args=[press.pk]),
+                cta="ANSWER NOW",
+            )
 
-    items = []
-    seen = set()
 
-    def add(item):
-        key = item["key"]
-        if key in seen:
+class ResultSubmissionSource(NotificationSource):
+    def pending_for(self, user):
+        club = club_for_user(user)
+        if club is None:
             return
-        seen.add(key)
-        items.append(item)
-
-    for press in (
-        PressConference.objects.filter(
-            manager=user,
-            status=ApprovalStatus.PENDING,
-        )
-        .select_related("team")
-        .order_by("-created_at")
-    ):
-        add(
-            {
-                "key": f"press-{press.pk}",
-                "kind": "PRESS CONFERENCE",
-                "title": "PRESS CONFERENCE",
-                "body": _press_copy(press),
-                "cta": "ANSWER NOW",
-                "url": reverse("answer_press", args=[press.pk]),
-            }
-        )
-
-    club = club_for_user(user)
-    if club is not None:
         club_fixtures = Fixture.objects.filter(
             Q(home_team=club) | Q(away_team=club)
         )
@@ -89,55 +120,59 @@ def notifications_for_user(user):
                 if fixture.home_team_id == club.id
                 else fixture.home_team
             )
-            add(
-                {
-                    "key": f"result-{fixture.pk}",
-                    "kind": "RESULT SUBMISSION",
-                    "title": "RESULT SUBMISSION",
-                    "body": (
-                        f"Your fixture vs {opponent.name} is ready for submission."
-                    ),
-                    "cta": "SUBMIT RESULT",
-                    "url": reverse("submit_match", args=[fixture.pk]),
-                }
+            yield NotificationItem(
+                key=f"result-{fixture.pk}",
+                type="RESULT SUBMISSION",
+                title="RESULT SUBMISSION",
+                description=(
+                    f"Your fixture vs {opponent.name} is ready for submission."
+                ),
+                url=reverse("submit_match", args=[fixture.pk]),
+                cta="SUBMIT RESULT",
             )
 
+
+class LiveListingSource(NotificationSource):
+    def pending_for(self, user):
+        club = club_for_user(user)
+        if club is None:
+            return
         for listing in (
             PlayerListing.objects.filter(team=club, status=PlayerListing.LIVE)
             .select_related("player", "team")
             .order_by("-created_at")
         ):
-            add(
-                {
-                    "key": f"listing-{listing.pk}",
-                    "kind": "TRANSFER",
-                    "title": "TRANSFER",
-                    "body": (
-                        f"{listing.player.name} is listed on the transfer market."
-                    ),
-                    "cta": "VIEW",
-                    "url": reverse("team_management"),
-                }
+            yield NotificationItem(
+                key=f"listing-{listing.pk}",
+                type="TRANSFER",
+                title="TRANSFER",
+                description=(
+                    f"{listing.player.name} is listed on the transfer market."
+                ),
+                url=reverse("team_management"),
+                cta="VIEW",
             )
 
-    if getattr(user, "role", None) in (User.OWNER, User.ADMIN):
+
+class ControlQueueSource(NotificationSource):
+    def pending_for(self, user):
+        if getattr(user, "role", None) not in (User.OWNER, User.ADMIN):
+            return
         for listing in (
             PlayerListing.objects.filter(status=PlayerListing.PENDING)
             .select_related("player", "team")
             .order_by("-created_at")[:12]
         ):
-            add(
-                {
-                    "key": f"admin-listing-{listing.pk}",
-                    "kind": "TRANSFER",
-                    "title": "TRANSFER",
-                    "body": (
-                        f"{listing.team.name} listed {listing.player.name} "
-                        "and it needs approval."
-                    ),
-                    "cta": "REVIEW",
-                    "url": reverse("control_centre"),
-                }
+            yield NotificationItem(
+                key=f"admin-listing-{listing.pk}",
+                type="TRANSFER",
+                title="TRANSFER",
+                description=(
+                    f"{listing.team.name} listed {listing.player.name} "
+                    "and it needs approval."
+                ),
+                url=reverse("control_centre"),
+                cta="REVIEW",
             )
         for submission in (
             MatchSubmission.objects.filter(status=ApprovalStatus.PENDING)
@@ -145,52 +180,66 @@ def notifications_for_user(user):
             .order_by("-submitted_at")[:12]
         ):
             fixture = submission.fixture
-            add(
-                {
-                    "key": f"admin-result-{submission.pk}",
-                    "kind": "RESULT",
-                    "title": "RESULT",
-                    "body": (
-                        f"{fixture.home_team.name} vs {fixture.away_team.name} "
-                        "needs approval."
-                    ),
-                    "cta": "REVIEW",
-                    "url": reverse("control_centre"),
-                }
+            yield NotificationItem(
+                key=f"admin-result-{submission.pk}",
+                type="RESULT",
+                title="RESULT",
+                description=(
+                    f"{fixture.home_team.name} vs {fixture.away_team.name} "
+                    "needs approval."
+                ),
+                url=reverse("control_centre"),
+                cta="REVIEW",
             )
         for application in (
             ClubApplication.objects.filter(status=ApprovalStatus.PENDING)
             .select_related("manager", "team")
             .order_by("-created_at")[:12]
         ):
-            add(
-                {
-                    "key": f"admin-job-{application.pk}",
-                    "kind": "ADMIN",
-                    "title": "CLUB APPLICATION",
-                    "body": (
-                        f"{application.manager.display_name} applied for "
-                        f"{application.team.name}."
-                    ),
-                    "cta": "REVIEW",
-                    "url": reverse("control_centre"),
-                }
+            yield NotificationItem(
+                key=f"admin-job-{application.pk}",
+                type="ADMIN",
+                title="CLUB APPLICATION",
+                description=(
+                    f"{application.manager.display_name} applied for "
+                    f"{application.team.name}."
+                ),
+                url=reverse("control_centre"),
+                cta="REVIEW",
             )
         for application in ManagerApplication.objects.filter(
             status=ManagerApplication.PENDING
         ).order_by("-id")[:12]:
-            add(
-                {
-                    "key": f"admin-manager-{application.pk}",
-                    "kind": "ADMIN",
-                    "title": "MANAGER APPLICATION",
-                    "body": (
-                        f"{application.display_name} is waiting for "
-                        "manager approval."
-                    ),
-                    "cta": "REVIEW",
-                    "url": reverse("control_centre"),
-                }
+            yield NotificationItem(
+                key=f"admin-manager-{application.pk}",
+                type="ADMIN",
+                title="MANAGER APPLICATION",
+                description=(
+                    f"{application.display_name} is waiting for "
+                    "manager approval."
+                ),
+                url=reverse("control_centre"),
+                cta="REVIEW",
             )
 
+
+NOTIFICATION_SOURCES = (
+    PressConferenceSource(),
+    ResultSubmissionSource(),
+    LiveListingSource(),
+    ControlQueueSource(),
+)
+
+
+def notifications_for_user(user):
+    if user is None or not getattr(user, "is_authenticated", False):
+        return []
+    items = []
+    seen = set()
+    for source in NOTIFICATION_SOURCES:
+        for item in source.pending_for(user):
+            if item.complete or item.key in seen:
+                continue
+            seen.add(item.key)
+            items.append(item.as_template())
     return items

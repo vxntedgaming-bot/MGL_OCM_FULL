@@ -517,6 +517,8 @@ def settle_auction(auction, reviewer=None):
         NewsPost.AUCTION,
         f"{player.name} sold at auction",
         f"{player.name} has joined {club.name} after a winning auction bid.",
+        team=club,
+        secondary_team=origin,
     )
     return auction, f"{player.name} transferred to {club.name}."
 
@@ -570,6 +572,7 @@ def approve_listing(listing, reviewer):
         NewsPost.TRANSFER,
         f"{listing.player.name} listed for sale",
         f"{listing.team.name} listed {listing.player.name} for {listing.asking_price} tokens.",
+        team=listing.team,
     )
     return listing
 
@@ -646,6 +649,8 @@ def buy_listed_player(listing, buyer):
         NewsPost.TRANSFER,
         f"{listing.player.name} transferred",
         f"{listing.player.name} has joined {buyer_club.name} from {listing.team.name}.",
+        team=buyer_club,
+        secondary_team=listing.team,
     )
     from mgl.press import maybe_create_signing_press
 
