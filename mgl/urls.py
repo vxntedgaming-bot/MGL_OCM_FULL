@@ -24,6 +24,11 @@ urlpatterns = [
         name="manager_notifications",
     ),
     path(
+        "notifications/<int:notification_id>/respond/",
+        views.manager_notification_respond,
+        name="manager_notification_respond",
+    ),
+    path(
         "live-activity/",
         RedirectView.as_view(pattern_name="live_activity", permanent=False),
         name="live_activity_alias",
@@ -169,6 +174,11 @@ urlpatterns = [
     ),
 
     path("market/listings/<int:listing_id>/buy/", views_market.buy_player, name="buy_player"),
+    path(
+        "players/<int:player_id>/request-transfer/",
+        views_market.request_player_transfer,
+        name="request_player_transfer",
+    ),
     path(
         "market/listings/<int:listing_id>/cancel/",
         views_market.cancel_player_listing,

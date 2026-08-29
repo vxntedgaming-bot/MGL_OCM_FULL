@@ -145,6 +145,28 @@
         {% endfor %}
     </div>
 
+    {% if can_request_transfer or open_transfer_offer %}
+    <div class="mgl-buy-panel">
+        <div class="eyebrow">TRANSFER</div>
+        <h2>BUY PLAYER</h2>
+        {% if open_transfer_offer %}
+            <p>Your transfer request for {{ player.name }} is {{ open_transfer_offer.status|lower }}. The current club manager and the league office still have to complete their steps.</p>
+        {% else %}
+            <p>Submit a transfer request to {{ player.mgl_team.name }}. Their manager must accept it, and Owner/Admin approval is still required.</p>
+            <form method="post" action="{% url 'request_player_transfer' player.id %}" class="mgl-modal-form">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.path }}">
+                <label>
+                    BID AMOUNT
+                    <input type="number" name="asking_price" min="0.01" step="0.01" placeholder="5.00" required>
+                    <span>TOKENS</span>
+                </label>
+                <button type="submit" class="primary-button">BUY</button>
+            </form>
+        {% endif %}
+    </div>
+    {% endif %}
+
     <a href="{% url 'player_database' %}" class="secondary-button" style="display:inline-flex;margin-top:30px;">
         ← BACK TO PLAYER DATABASE
     </a>

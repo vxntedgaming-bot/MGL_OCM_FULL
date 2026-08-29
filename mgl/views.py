@@ -265,6 +265,8 @@ def player_profile(request, player_id):
         .order_by("-submitted_at")
     )
 
+    from mgl.market import transfer_offer_context_for
+
     return render(
         request,
         "mgl/player_profile.html",
@@ -274,6 +276,7 @@ def player_profile(request, player_id):
             "totw_selections": totw_selections,
             "auction_requests": auction_requests,
             "attribute_groups": attribute_groups_for_player(player),
+            **transfer_offer_context_for(request.user, player),
         },
     )
 
@@ -300,6 +303,52 @@ def manager_notifications(request):
             "notifications": inbox,
         },
     )
+
+
+@login_required
+@require_POST
+def manager_notification_respond(request, notification_id):
+    from django.core.exceptions import PermissionDenied
+    from mgl.inbox_actions import (
+        InboxActionError,
+        notification_for_recipient,
+        respond_to_inbox_notification,
+    )
+
+    manager = manager_for_user(request.user)
+    if not manager:
+        messages.error(request, "You do not have a manager account.")
+        return redirect("manager_login")
+
+    notification = notification_for_recipient(request.user, notification_id)
+    if notification is None:
+        messages.error(request, "That notification does not belong to your account.")
+        return redirect("manager_notifications")
+
+    accept = (request.POST.get("action") or "").strip().lower() == "accept"
+    reject = (request.POST.get("action") or "").strip().lower() == "reject"
+    if not accept and not reject:
+        messages.error(request, "Choose Accept or Reject.")
+        return redirect("manager_notifications")
+    try:
+        respond_to_inbox_notification(request.user, notification, accept)
+    except PermissionDenied:
+        messages.error(request, "You are not allowed to action this notification.")
+        return redirect("manager_notifications")
+    except InboxActionError as exc:
+        messages.error(request, str(exc))
+        return redirect("manager_notifications")
+    except ValueError as exc:
+        messages.error(request, str(exc))
+        return redirect("manager_notifications")
+    if accept:
+        messages.success(
+            request,
+            "Response recorded. Owner/Admin approval is still required where applicable.",
+        )
+    else:
+        messages.success(request, "You rejected this request.")
+    return redirect("manager_notifications")
 
 
 @login_required
@@ -549,32 +598,13 @@ def submit_match(request, fixture_id):
 
     if request.method == "POST":
         try:
-            save_match_submission(fixture, request.user, request.POST)
+            submission = save_match_submission(fixture, request.user, request.POST)
         except MatchSubmitError as exc:
             messages.error(request, str(exc))
             return redirect("submit_match", fixture.id)
-        from django.urls import reverse
-        from mgl.notifications import notify_user
+        from mgl.notifications import notify_opponent_of_score_submission
 
-        opponent = (
-            fixture.away_team.manager
-            if request.user.id == fixture.home_team.manager_id
-            else fixture.home_team.manager
-        )
-        notify_user(
-            opponent,
-            source_key=f"score-submitted-{fixture.pk}",
-            notification_type="MATCH",
-            title="RESULT SUBMITTED",
-            message=(
-                f"{fixture.home_team.name} vs {fixture.away_team.name} "
-                "has been submitted and is waiting for approval."
-            ),
-            actor=request.user.username,
-            action_url=reverse("fixture_list"),
-            action_label="VIEW FIXTURES",
-            team=club_for_user(request.user),
-        )
+        notify_opponent_of_score_submission(fixture, submission, request.user)
         messages.success(
             request,
             "Match submitted to Admin for approval. Statistics stay unofficial until approved.",

@@ -35,6 +35,20 @@ class MatchSubmission(models.Model):
     reviewed_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="reviewed_match_submissions")
     reviewed_at = models.DateTimeField(null=True, blank=True)
     admin_notes = models.TextField(blank=True)
+    opponent_response = models.CharField(
+        max_length=20,
+        choices=ApprovalStatus.choices,
+        blank=True,
+        default="",
+    )
+    opponent_responded_at = models.DateTimeField(null=True, blank=True)
+    opponent_responded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="opponent_match_responses",
+    )
 
 class TeamMatchStats(models.Model):
     submission = models.ForeignKey(MatchSubmission, on_delete=models.CASCADE, related_name="team_stats")
@@ -239,6 +253,7 @@ class PlayerListing(models.Model):
     SOLD = "SOLD"
     CANCELLED = "CANCELLED"
     REJECTED = "REJECTED"
+    OFFER = "OFFER"
 
     STATUS_CHOICES = [
         (PENDING, "Pending approval"),
@@ -246,6 +261,7 @@ class PlayerListing(models.Model):
         (SOLD, "Sold"),
         (CANCELLED, "Cancelled"),
         (REJECTED, "Rejected"),
+        (OFFER, "Waiting for selling manager"),
     ]
 
     player = models.ForeignKey("players.Player", on_delete=models.CASCADE, related_name="listings")
@@ -258,6 +274,13 @@ class PlayerListing(models.Model):
     reviewed_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="listings_reviewed")
     sold_to = models.ForeignKey("managers.ManagerApplication", on_delete=models.SET_NULL, null=True, blank=True, related_name="players_bought")
     sold_at = models.DateTimeField(null=True, blank=True)
+    reserved_buyer = models.ForeignKey(
+        "managers.ManagerApplication",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="transfer_offers",
+    )
 
     class Meta:
         ordering = ["-created_at"]
@@ -496,6 +519,17 @@ class SiteChangeLog(models.Model):
 class ManagerNotification(models.Model):
     """Per-manager inbox row. Ownership is always the recipient user."""
 
+    NONE = ""
+    PENDING = "PENDING"
+    ACCEPTED = "ACCEPTED"
+    REJECTED = "REJECTED"
+    RESPONSE_CHOICES = [
+        (NONE, "None"),
+        (PENDING, "Pending"),
+        (ACCEPTED, "Accepted"),
+        (REJECTED, "Rejected"),
+    ]
+
     recipient = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -522,6 +556,28 @@ class ManagerNotification(models.Model):
         blank=True,
         related_name="manager_notifications",
     )
+    fixture = models.ForeignKey(
+        "mgl.Fixture",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="manager_notifications",
+    )
+    listing = models.ForeignKey(
+        "mgl.PlayerListing",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="manager_notifications",
+    )
+    details = models.JSONField(default=dict, blank=True)
+    response_status = models.CharField(
+        max_length=20,
+        choices=RESPONSE_CHOICES,
+        default=NONE,
+        blank=True,
+    )
+    actioned_at = models.DateTimeField(null=True, blank=True)
     is_action = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     read_at = models.DateTimeField(null=True, blank=True)
@@ -551,3 +607,11 @@ class ManagerNotification(models.Model):
     @property
     def is_unread(self):
         return self.read_at is None
+
+    @property
+    def is_pending_response(self):
+        return self.response_status == self.PENDING
+
+    @property
+    def is_actioned(self):
+        return self.response_status in {self.ACCEPTED, self.REJECTED}

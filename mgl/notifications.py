@@ -290,6 +290,10 @@ def notify_user(
     actor="",
     team=None,
     player=None,
+    fixture=None,
+    listing=None,
+    details=None,
+    response_status="",
     is_action=False,
 ):
     """Create a manager-owned inbox row. Idempotent on (recipient, source_key)."""
@@ -297,6 +301,8 @@ def notify_user(
         return None
     team_id = getattr(team, "pk", team)
     player_id = getattr(player, "pk", player)
+    fixture_id = getattr(fixture, "pk", fixture)
+    listing_id = getattr(listing, "pk", listing)
     obj, _created = ManagerNotification.objects.get_or_create(
         recipient=user,
         source_key=source_key,
@@ -309,6 +315,10 @@ def notify_user(
             "action_label": action_label or "VIEW",
             "team_id": team_id,
             "player_id": player_id,
+            "fixture_id": fixture_id,
+            "listing_id": listing_id,
+            "details": details or {},
+            "response_status": response_status or ManagerNotification.NONE,
             "is_action": is_action,
         },
     )
@@ -322,6 +332,14 @@ def inbox_queryset_for_user(user):
     return ManagerNotification.objects.filter(recipient=user).select_related(
         "team",
         "player",
+        "fixture",
+        "fixture__home_team",
+        "fixture__away_team",
+        "listing",
+        "listing__player",
+        "listing__team",
+        "listing__reserved_buyer",
+        "listing__seller",
     )
 
 
@@ -357,24 +375,52 @@ def sync_pending_notifications(user):
         )
     if to_create:
         ManagerNotification.objects.bulk_create(to_create, ignore_conflicts=True)
+    stale_actions = ManagerNotification.objects.filter(
+        recipient=user,
+        is_action=True,
+        read_at__isnull=True,
+    ).exclude(response_status=ManagerNotification.PENDING)
     if pending_keys:
-        ManagerNotification.objects.filter(
-            recipient=user,
-            is_action=True,
-            read_at__isnull=True,
-        ).exclude(source_key__in=pending_keys).update(read_at=timezone.now())
+        stale_actions.exclude(source_key__in=pending_keys).update(read_at=timezone.now())
     else:
-        ManagerNotification.objects.filter(
-            recipient=user,
-            is_action=True,
-            read_at__isnull=True,
-        ).update(read_at=timezone.now())
+        stale_actions.update(read_at=timezone.now())
     return pending
 
 
 def unread_count_for_user(user):
     sync_pending_notifications(user)
-    return inbox_queryset_for_user(user).filter(read_at__isnull=True).count()
+    return (
+        inbox_queryset_for_user(user)
+        .filter(read_at__isnull=True)
+        .exclude(
+            response_status__in=[
+                ManagerNotification.ACCEPTED,
+                ManagerNotification.REJECTED,
+            ]
+        )
+        .count()
+    )
+
+
+def pending_action_count_for_user(user):
+    sync_pending_notifications(user)
+    return inbox_queryset_for_user(user).filter(
+        response_status=ManagerNotification.PENDING
+    ).count()
+
+
+def mark_notification_response(user, source_key, status):
+    if user is None or not source_key:
+        return 0
+    now = timezone.now()
+    return inbox_queryset_for_user(user).filter(
+        source_key=source_key,
+        response_status=ManagerNotification.PENDING,
+    ).update(
+        response_status=status,
+        actioned_at=now,
+        read_at=now,
+    )
 
 
 def attach_press_briefs(items, user):
@@ -419,9 +465,109 @@ def attach_press_briefs(items, user):
     return items
 
 
+def _detail_rows(item):
+    details = getattr(item, "details", None) or {}
+    rows = []
+    mapping = (
+        ("scoreline", "Submitted score"),
+        ("fixture", "Match"),
+        ("player", "Player"),
+        ("requesting_club", "Requesting club"),
+        ("current_club", "Current club"),
+        ("transfer_type", "Transfer type"),
+        ("amount", "Proposed amount"),
+    )
+    for key, label in mapping:
+        value = details.get(key)
+        if value not in (None, ""):
+            if key == "amount":
+                rows.append((label, f"{value} TKN"))
+            else:
+                rows.append((label, value))
+    if item.team_id and not details.get("current_club"):
+        rows.append(("Team", item.team.name))
+    if item.player_id and not details.get("player"):
+        rows.append(("Player", item.player.name))
+    return rows
+
+
+def decorate_inbox_items(items):
+    for item in items:
+        status = getattr(item, "response_status", "") or ManagerNotification.NONE
+        item.can_respond = status == ManagerNotification.PENDING
+        if status == ManagerNotification.PENDING:
+            item.status_label = "PENDING"
+        elif status == ManagerNotification.ACCEPTED:
+            item.status_label = "ACCEPTED"
+        elif status == ManagerNotification.REJECTED:
+            item.status_label = "REJECTED"
+        else:
+            item.status_label = ""
+        item.detail_rows = _detail_rows(item)
+        kind = (item.notification_type or "").upper()
+        if "MATCH" in kind or "RESULT" in kind or "SCORE" in kind:
+            item.card_kind = "match"
+        elif "TRANSFER" in kind:
+            item.card_kind = "transfer"
+        else:
+            item.card_kind = "notice"
+    return items
+
+
 def inbox_for_user(user):
     sync_pending_notifications(user)
-    return attach_press_briefs(list(inbox_queryset_for_user(user)), user)
+    items = attach_press_briefs(list(inbox_queryset_for_user(user)), user)
+    return decorate_inbox_items(items)
+
+
+def notify_opponent_of_score_submission(fixture, submission, submitted_by):
+    opponent_team = (
+        fixture.away_team
+        if submitted_by.id == fixture.home_team.manager_id
+        else fixture.home_team
+    )
+    submitter_team = (
+        fixture.home_team
+        if submitted_by.id == fixture.home_team.manager_id
+        else fixture.away_team
+    )
+    stats = {
+        row.team_id: row.goals
+        for row in submission.team_stats.all()
+    }
+    home_goals = stats.get(fixture.home_team_id, 0)
+    away_goals = stats.get(fixture.away_team_id, 0)
+    scoreline = (
+        f"{fixture.home_team.name} {home_goals}–{away_goals} {fixture.away_team.name}"
+    )
+    fixture_name = f"{fixture.home_team.name} vs {fixture.away_team.name}"
+    from django.urls import reverse
+
+    return notify_user(
+        opponent_team.manager,
+        source_key=f"score-submitted-{fixture.pk}",
+        notification_type="MATCH",
+        title="Match Result Submitted",
+        message=(
+            f"{submitter_team.name} has submitted a match result involving your team."
+        ),
+        actor=submitter_team.name,
+        action_url=reverse("manager_notifications"),
+        action_label="REVIEW",
+        team=opponent_team,
+        fixture=fixture,
+        is_action=True,
+        response_status=ManagerNotification.PENDING,
+        details={
+            "fixture": fixture_name,
+            "scoreline": scoreline,
+            "home_team": fixture.home_team.name,
+            "away_team": fixture.away_team.name,
+            "home_goals": home_goals,
+            "away_goals": away_goals,
+            "submitter_club": submitter_team.name,
+        },
+    )
 
 
 def mark_inbox_read(user):

@@ -127,6 +127,7 @@ def save_match_submission(fixture, user, post):
         fixture=fixture,
         submitted_by=user,
         status="PENDING",
+        opponent_response="PENDING",
     )
     for side in (home, away):
         stats = TeamMatchStats.objects.create(

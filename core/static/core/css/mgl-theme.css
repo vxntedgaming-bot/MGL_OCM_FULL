@@ -1248,6 +1248,27 @@ body.mgl-auth-body .mgl-main {
     border-top: 1px solid var(--mgl-line);
 }
 
+.mgl-squad-table-wrap--buy .mgl-squad-table-head,
+.mgl-squad-table-wrap--buy .mgl-squad-row {
+    grid-template-columns: 1fr 70px 60px minmax(88px, auto);
+}
+
+.mgl-buy-panel {
+    margin-top: 32px;
+    padding: 22px;
+    background: #10141c;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+}
+
+.mgl-buy-panel h2 {
+    margin: 8px 0 12px;
+}
+
+.mgl-buy-panel .mgl-modal-form {
+    max-width: 360px;
+}
+
 .mgl-activity-feed,
 .mgl-activity-item {
     display: grid;

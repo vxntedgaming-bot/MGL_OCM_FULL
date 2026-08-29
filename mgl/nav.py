@@ -17,6 +17,7 @@ NAV_DROPDOWNS = (
             "press_conference",
             "manager_hub",
             "manager_notifications",
+            "manager_notification_respond",
             "pressroom",
             "answer_press",
         },
@@ -41,6 +42,7 @@ NAV_DROPDOWNS = (
             "place_bid",
             "player_database",
             "player_profile",
+            "request_player_transfer",
             "club_page",
             "clubs_index",
         },
@@ -170,6 +172,7 @@ SIGNED_IN_NAV_DROPDOWNS = (
             "scouting",
             "player_database",
             "player_profile",
+            "request_player_transfer",
             "youth_academy",
         },
         "items": (

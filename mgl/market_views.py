@@ -16,6 +16,7 @@ from .market import (
     cancel_listing,
     close_expired_auctions,
     club_for_user,
+    create_transfer_offer,
     list_player_for_sale,
     reject_listing,
     settle_auction,
@@ -150,6 +151,32 @@ def cancel_player_listing(request, listing_id):
     except ValueError as exc:
         messages.error(request, str(exc))
     return redirect("team_management")
+
+
+@login_required
+@require_POST
+def request_player_transfer(request, player_id):
+    manager = approved_manager(request.user)
+    player = get_object_or_404(Player.objects.select_related("mgl_team"), pk=player_id)
+    next_url = request.POST.get("next") or reverse("player_profile", args=[player.id])
+    if not manager:
+        messages.error(request, "You must be an approved manager to buy a player.")
+        return redirect(next_url)
+    try:
+        listing = create_transfer_offer(
+            player,
+            manager,
+            request.POST.get("asking_price") or request.POST.get("amount"),
+        )
+        messages.success(
+            request,
+            f"Transfer request sent for {player.name} "
+            f"({listing.asking_price} TKN). The current club manager must respond, "
+            "and Owner/Admin approval is still required.",
+        )
+    except ValueError as exc:
+        messages.error(request, str(exc))
+    return redirect(next_url)
 
 
 @login_required
@@ -302,7 +329,7 @@ def control_centre(request):
     ).select_related("user")
     pending_listings = PlayerListing.objects.filter(
         status=PlayerListing.PENDING
-    ).select_related("player", "team", "seller")
+    ).select_related("player", "team", "seller", "reserved_buyer")
     pending_jobs = ClubApplication.objects.filter(
         status=ApprovalStatus.PENDING
     ).select_related("manager", "team")
@@ -350,8 +377,17 @@ def control_centre(request):
 def control_approve_listing(request, listing_id):
     listing = get_object_or_404(PlayerListing, pk=listing_id)
     try:
-        approve_listing(listing, request.user)
-        messages.success(request, f"{listing.player.name} is now live on the transfer market.")
+        listing = approve_listing(listing, request.user)
+        if listing.status == PlayerListing.SOLD:
+            messages.success(
+                request,
+                f"{listing.player.name} transfer is complete after Owner/Admin approval.",
+            )
+        else:
+            messages.success(
+                request,
+                f"{listing.player.name} is now live on the transfer market.",
+            )
     except ValueError as exc:
         messages.error(request, str(exc))
     return control_centre_redirect(request)

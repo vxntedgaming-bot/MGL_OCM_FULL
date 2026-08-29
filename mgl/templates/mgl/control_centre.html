@@ -50,7 +50,12 @@
             {% for listing in pending_listings %}
                 <div class="table-row">
                     <strong>{{ listing.player.name }}</strong>
-                    <span>{{ listing.team.short_name }} · {{ listing.asking_price }} TKN</span>
+                    <span>
+                        {{ listing.team.short_name }} · {{ listing.asking_price }} TKN
+                        {% if listing.reserved_buyer %}
+                            · BID FROM {{ listing.reserved_buyer.display_name }}
+                        {% endif %}
+                    </span>
                     <form method="post" action="{% url 'control_approve_listing' listing.id %}">{% csrf_token %}<button class="header-button" type="submit">APPROVE</button></form>
                     <form method="post" action="{% url 'control_reject_listing' listing.id %}">{% csrf_token %}<button class="header-button" type="submit">REJECT</button></form>
                 </div>

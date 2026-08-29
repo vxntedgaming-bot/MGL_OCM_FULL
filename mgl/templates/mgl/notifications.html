@@ -4,6 +4,7 @@
 {% block title %}Notifications — MGL{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'core/css/mgl-press-brief.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/mgl-notify-cards.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -42,10 +43,34 @@
                     <time class="mgl-press-brief-date" datetime="{{ item.created_at|date:'c' }}">{{ item.created_at|date:"d M Y · H:i"|upper }}</time>
                 </article>
             {% else %}
-                <article class="mgl-notify-item{% if item.is_unread %} is-unread{% endif %}">
-                    <small>{{ item.notification_type }}</small>
+                <article class="mgl-notify-item mgl-ncard{% if item.is_unread %} is-unread{% endif %}">
+                    <div class="mgl-ncard-top">
+                        <span class="mgl-ncard-icon" aria-hidden="true">
+                            {% if item.card_kind == "match" %}
+                                <svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"></rect><path d="M8 3v4M16 3v4M4 10h16"></path></svg>
+                            {% elif item.card_kind == "transfer" %}
+                                <svg viewBox="0 0 24 24"><path d="M7 7h11l-3-3M17 17H6l3 3"></path></svg>
+                            {% else %}
+                                <svg viewBox="0 0 24 24"><path d="M6 9a6 6 0 1 1 12 0c0 7 3 7 3 7H3s3 0 3-7"></path><path d="M10 20h4"></path></svg>
+                            {% endif %}
+                        </span>
+                        {% if item.status_label %}
+                            <span class="mgl-ncard-status {% if item.status_label == 'PENDING' %}is-pending{% elif item.status_label == 'ACCEPTED' %}is-accepted{% elif item.status_label == 'REJECTED' %}is-rejected{% endif %}">{{ item.status_label }}</span>
+                        {% endif %}
+                    </div>
+                    <small class="mgl-ncard-kicker">{{ item.notification_type }}</small>
                     <h2>{{ item.title }}</h2>
-                    <p>{{ item.message }}</p>
+                    <p class="mgl-ncard-message">{{ item.message }}</p>
+                    {% if item.detail_rows %}
+                        <dl class="mgl-ncard-facts">
+                            {% for label, value in item.detail_rows %}
+                                <div>
+                                    <dt>{{ label }}</dt>
+                                    <dd>{{ value }}</dd>
+                                </div>
+                            {% endfor %}
+                        </dl>
+                    {% endif %}
                     <p class="mgl-inbox-meta">
                         {% if item.actor %}<span>From {{ item.actor }}</span>{% endif %}
                         {% if item.team %}<span>{{ item.team.name }}</span>{% endif %}
@@ -53,7 +78,20 @@
                         <span>{{ item.created_at|date:"j M Y, H:i" }}</span>
                         <span>{% if item.is_unread %}Unread{% else %}Read{% endif %}</span>
                     </p>
-                    {% if item.action_url %}
+                    {% if item.can_respond %}
+                        <div class="mgl-ncard-actions">
+                            <form method="post" action="{% url 'manager_notification_respond' item.id %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="accept">
+                                <button type="submit" class="mgl-ncard-btn mgl-ncard-btn-accept">ACCEPT</button>
+                            </form>
+                            <form method="post" action="{% url 'manager_notification_respond' item.id %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="reject">
+                                <button type="submit" class="mgl-ncard-btn mgl-ncard-btn-reject">REJECT</button>
+                            </form>
+                        </div>
+                    {% elif item.action_url %}
                         <a href="{{ item.action_url }}" class="mgl-notify-cta">{{ item.action_label|default:"VIEW" }}</a>
                     {% endif %}
                 </article>

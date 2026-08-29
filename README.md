@@ -94,7 +94,9 @@ python manage.py close_expired_auctions
 
 Statistics are per division (`/stats/premier-league/`, `/stats/championship/`, `/stats/league-one/`) and use **approved** match submissions only. Pending results do not move the table or player leaderboards. Waiting Room League and the Compare page are not in navigation; those URLs 404.
 
-Managers submit results only for fixtures that include their club (`/mgl/fixtures/<id>/submit/`). Goal and assist player fields follow the goal count; defender ratings accept decimals 0.0–10.0; goalkeeper saves are stored on the same submission. Admin/owner approval is unchanged.
+Managers submit results only for fixtures that include their club (`/mgl/fixtures/<id>/submit/`). Goal and assist player fields follow the goal count; defender ratings accept decimals 0.0–10.0; goalkeeper saves are stored on the same submission. Admin/owner approval is unchanged. The opposing manager gets a private inbox card with Accept/Reject; that confirmation does **not** make the result official.
+
+Approved managers can send a **BUY** transfer request from another club's player profile (or the BUY link on that club page). The current club manager is notified and must accept or reject. Seller acceptance still leaves the existing Owner/Admin listing approval in place; the transfer does not complete until the league office approves it. Managers cannot buy their own players, exceed their token balance, or skip the transfer window hook.
 
 If a 14-team division has no round-robin yet, create the missing 13-game single schedule locally (91 fixtures, no duplicates, no deadline):
 

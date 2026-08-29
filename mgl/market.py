@@ -190,6 +190,16 @@ def assert_club_listing_capacity(team):
         raise ValueError(MARKET_SLOT_MESSAGE)
 
 
+def transfer_window_is_open():
+    """MGL currently keeps the window open. Shared hook for buy/list checks."""
+    return True
+
+
+def assert_transfer_window():
+    if not transfer_window_is_open():
+        raise ValueError("The transfer window is closed.")
+
+
 def _assert_no_live_auction(player):
     if PlayerAuction.objects.filter(
         player=player,
@@ -198,7 +208,11 @@ def _assert_no_live_auction(player):
         raise ValueError("This player already has an active auction.")
     if PlayerListing.objects.filter(
         player=player,
-        status__in=[PlayerListing.PENDING, PlayerListing.LIVE],
+        status__in=[
+            PlayerListing.PENDING,
+            PlayerListing.LIVE,
+            PlayerListing.OFFER,
+        ],
     ).exists():
         raise ValueError("This player is listed on the transfer market.")
 
@@ -547,6 +561,7 @@ def list_player_for_sale(player, manager, asking_price):
         raise ValueError("You can only sell a player who belongs to your club.")
 
     price = parse_asking_price(asking_price)
+    assert_transfer_window()
     _assert_no_live_auction(player)
     assert_club_listing_capacity(team)
 
@@ -559,23 +574,40 @@ def list_player_for_sale(player, manager, asking_price):
     )
 
 
-@transaction.atomic
-def approve_listing(listing, reviewer):
-    listing = PlayerListing.objects.select_for_update().select_related("player").get(pk=listing.pk)
-    if listing.status != PlayerListing.PENDING:
-        raise ValueError("This listing is not waiting for approval.")
-    listing.status = PlayerListing.LIVE
-    listing.reviewed_at = timezone.now()
-    listing.reviewed_by = reviewer
-    listing.save(update_fields=["status", "reviewed_at", "reviewed_by"])
-    create_news(
-        NewsPost.TRANSFER,
-        f"{listing.player.name} listed for sale",
-        f"{listing.team.name} listed {listing.player.name} for {listing.asking_price} tokens.",
-        team=listing.team,
-    )
+def _notify_listing_outcome(listing, *, buyer=None, rejected=False):
     from django.urls import reverse
     from mgl.notifications import notify_user
+
+    if rejected:
+        notify_user(
+            listing.seller.user,
+            source_key=f"listing-rejected-{listing.pk}",
+            notification_type="TRANSFER",
+            title="LISTING REJECTED",
+            message=f"Your listing for {listing.player.name} was rejected.",
+            actor="MGL Admin",
+            action_url=reverse("team_management"),
+            action_label="VIEW SQUAD",
+            team=listing.team,
+            player=listing.player,
+        )
+        if listing.reserved_buyer_id and listing.reserved_buyer.user_id:
+            notify_user(
+                listing.reserved_buyer.user,
+                source_key=f"transfer-offer-admin-rejected-{listing.pk}",
+                notification_type="TRANSFER",
+                title="TRANSFER REJECTED",
+                message=(
+                    f"Your transfer request for {listing.player.name} "
+                    "was rejected by the league office."
+                ),
+                actor="MGL Admin",
+                action_url=reverse("transfer_market"),
+                action_label="VIEW MARKET",
+                team=listing.team,
+                player=listing.player,
+            )
+        return
 
     notify_user(
         listing.seller.user,
@@ -592,47 +624,9 @@ def approve_listing(listing, reviewer):
         team=listing.team,
         player=listing.player,
     )
-    return listing
 
 
-@transaction.atomic
-def reject_listing(listing, reviewer):
-    listing = PlayerListing.objects.select_for_update().get(pk=listing.pk)
-    if listing.status != PlayerListing.PENDING:
-        raise ValueError("This listing is not waiting for approval.")
-    listing.status = PlayerListing.REJECTED
-    listing.reviewed_at = timezone.now()
-    listing.reviewed_by = reviewer
-    listing.save(update_fields=["status", "reviewed_at", "reviewed_by"])
-    from django.urls import reverse
-    from mgl.notifications import notify_user
-
-    notify_user(
-        listing.seller.user,
-        source_key=f"listing-rejected-{listing.pk}",
-        notification_type="TRANSFER",
-        title="LISTING REJECTED",
-        message=f"Your listing for {listing.player.name} was rejected.",
-        actor="MGL Admin",
-        action_url=reverse("team_management"),
-        action_label="VIEW SQUAD",
-        team=listing.team,
-        player=listing.player,
-    )
-    return listing
-
-
-@transaction.atomic
-def buy_listed_player(listing, buyer):
-    listing = PlayerListing.objects.select_for_update().select_related(
-        "player",
-        "team",
-        "seller",
-    ).get(pk=listing.pk)
-
-    if listing.status != PlayerListing.LIVE:
-        raise ValueError("This player is not available for purchase.")
-
+def _complete_listing_sale(listing, buyer):
     buyer_club = club_for_user(buyer.user)
     if not buyer_club:
         raise ValueError("You must manage a club to buy a player.")
@@ -640,6 +634,7 @@ def buy_listed_player(listing, buyer):
         raise ValueError("You already own this player.")
     if listing.seller_id == buyer.id:
         raise ValueError("You cannot buy your own listing.")
+    assert_transfer_window()
     assert_roster_space(buyer_club)
 
     debit_manager_tokens(
@@ -725,6 +720,224 @@ def buy_listed_player(listing, buyer):
 
 
 @transaction.atomic
+def approve_listing(listing, reviewer):
+    listing = PlayerListing.objects.select_for_update().select_related(
+        "player",
+        "team",
+        "seller",
+        "reserved_buyer",
+    ).get(pk=listing.pk)
+    if listing.status != PlayerListing.PENDING:
+        raise ValueError("This listing is not waiting for approval.")
+    listing.reviewed_at = timezone.now()
+    listing.reviewed_by = reviewer
+    if listing.reserved_buyer_id:
+        listing.save(update_fields=["reviewed_at", "reviewed_by"])
+        return _complete_listing_sale(listing, listing.reserved_buyer)
+    listing.status = PlayerListing.LIVE
+    listing.save(update_fields=["status", "reviewed_at", "reviewed_by"])
+    create_news(
+        NewsPost.TRANSFER,
+        f"{listing.player.name} listed for sale",
+        f"{listing.team.name} listed {listing.player.name} for {listing.asking_price} tokens.",
+        team=listing.team,
+    )
+    _notify_listing_outcome(listing)
+    return listing
+
+
+@transaction.atomic
+def reject_listing(listing, reviewer):
+    listing = PlayerListing.objects.select_for_update().select_related(
+        "player",
+        "team",
+        "seller",
+        "reserved_buyer",
+    ).get(pk=listing.pk)
+    if listing.status != PlayerListing.PENDING:
+        raise ValueError("This listing is not waiting for approval.")
+    listing.status = PlayerListing.REJECTED
+    listing.reviewed_at = timezone.now()
+    listing.reviewed_by = reviewer
+    listing.save(update_fields=["status", "reviewed_at", "reviewed_by"])
+    _notify_listing_outcome(listing, rejected=True)
+    return listing
+
+
+@transaction.atomic
+def buy_listed_player(listing, buyer):
+    listing = PlayerListing.objects.select_for_update().select_related(
+        "player",
+        "team",
+        "seller",
+    ).get(pk=listing.pk)
+
+    if listing.status != PlayerListing.LIVE:
+        raise ValueError("This player is not available for purchase.")
+    if listing.reserved_buyer_id and listing.reserved_buyer_id != buyer.id:
+        raise ValueError("This listing is reserved for another club.")
+
+    return _complete_listing_sale(listing, buyer)
+
+
+def seller_application_for_team(team):
+    if team is None or not team.manager_id:
+        return None
+    return manager_for_user(team.manager)
+
+
+def assert_can_create_transfer_offer(player, buyer):
+    assert_transfer_window()
+    buyer_club = club_for_user(buyer.user)
+    if not buyer_club:
+        raise ValueError("You must manage a club to buy a player.")
+    selling_team = player.mgl_team
+    if selling_team is None:
+        raise ValueError("This player is not at a club.")
+    if selling_team.id == buyer_club.id:
+        raise ValueError("You cannot buy your own player.")
+    if not selling_team.manager_id:
+        raise ValueError("This club has no manager to receive a transfer request.")
+    seller = seller_application_for_team(selling_team)
+    if seller is None:
+        raise ValueError("This club has no manager to receive a transfer request.")
+    if seller.id == buyer.id:
+        raise ValueError("You cannot buy your own player.")
+    if buyer.tokens < Decimal("0.01"):
+        raise ValueError("You do not have enough tokens.")
+    assert_roster_space(buyer_club)
+    _assert_no_live_auction(player)
+    return buyer_club, selling_team, seller
+
+
+@transaction.atomic
+def create_transfer_offer(player, buyer, asking_price):
+    player = Player.objects.select_for_update().select_related("mgl_team").get(pk=player.pk)
+    buyer_club, selling_team, seller = assert_can_create_transfer_offer(player, buyer)
+    price = parse_asking_price(asking_price)
+    if buyer.tokens < price:
+        raise ValueError("You do not have enough tokens.")
+    listing = PlayerListing.objects.create(
+        player=player,
+        team=selling_team,
+        seller=seller,
+        asking_price=price,
+        status=PlayerListing.OFFER,
+        reserved_buyer=buyer,
+    )
+    from django.urls import reverse
+    from mgl.notifications import notify_user
+
+    details = {
+        "player": player.name,
+        "requesting_club": buyer_club.name,
+        "current_club": selling_team.name,
+        "transfer_type": "Transfer request",
+        "amount": str(price),
+    }
+    notify_user(
+        selling_team.manager,
+        source_key=f"transfer-offer-{listing.pk}",
+        notification_type="TRANSFER",
+        title="Transfer Request",
+        message=(
+            f"{buyer_club.name} has submitted a transfer request for {player.name}."
+        ),
+        actor=buyer_club.name,
+        action_url=reverse("manager_notifications"),
+        action_label="REVIEW",
+        team=selling_team,
+        player=player,
+        listing=listing,
+        is_action=True,
+        response_status="PENDING",
+        details=details,
+    )
+    return listing
+
+
+@transaction.atomic
+def respond_to_transfer_offer(listing, seller_user, accept):
+    listing = PlayerListing.objects.select_for_update().select_related(
+        "player",
+        "team",
+        "seller",
+        "reserved_buyer",
+    ).get(pk=listing.pk)
+    if listing.status != PlayerListing.OFFER:
+        raise ValueError("This transfer request has already been handled.")
+    if listing.team.manager_id != seller_user.id:
+        raise ValueError("You can only respond to transfer requests for your own players.")
+    player = listing.player
+    if player.mgl_team_id != listing.team_id:
+        raise ValueError("This player is no longer at your club.")
+    from django.urls import reverse
+    from mgl.notifications import mark_notification_response, notify_user
+
+    now = timezone.now()
+    if accept:
+        assert_club_listing_capacity(listing.team)
+        listing.status = PlayerListing.PENDING
+        listing.save(update_fields=["status"])
+        mark_notification_response(
+            listing.team.manager,
+            f"transfer-offer-{listing.pk}",
+            "ACCEPTED",
+        )
+        if listing.reserved_buyer_id:
+            notify_user(
+                listing.reserved_buyer.user,
+                source_key=f"transfer-offer-accepted-{listing.pk}",
+                notification_type="TRANSFER",
+                title="TRANSFER ACCEPTED",
+                message=(
+                    f"{listing.team.name} accepted your request for {player.name}. "
+                    "The league office still has to approve the transfer."
+                ),
+                actor=listing.team.name,
+                action_url=reverse("transfer_market"),
+                action_label="VIEW MARKET",
+                team=listing.team,
+                player=player,
+                listing=listing,
+                details={
+                    "player": player.name,
+                    "requesting_club": listing.reserved_buyer.display_name,
+                    "current_club": listing.team.name,
+                    "transfer_type": "Transfer request",
+                    "amount": str(listing.asking_price),
+                    "status": "PENDING ADMIN",
+                },
+            )
+        return listing
+
+    listing.status = PlayerListing.REJECTED
+    listing.save(update_fields=["status"])
+    mark_notification_response(
+        listing.team.manager,
+        f"transfer-offer-{listing.pk}",
+        "REJECTED",
+    )
+    if listing.reserved_buyer_id:
+        notify_user(
+            listing.reserved_buyer.user,
+            source_key=f"transfer-offer-rejected-{listing.pk}",
+            notification_type="TRANSFER",
+            title="TRANSFER REJECTED",
+            message=(
+                f"{listing.team.name} rejected the transfer request for {player.name}."
+            ),
+            actor=listing.team.name,
+            action_url=reverse("transfer_market"),
+            action_label="VIEW MARKET",
+            team=listing.team,
+            player=player,
+            listing=listing,
+        )
+    return listing
+
+
+@transaction.atomic
 def cancel_listing(listing, manager):
     listing = PlayerListing.objects.select_for_update().get(pk=listing.pk)
     if listing.seller_id != manager.id:
@@ -734,3 +947,37 @@ def cancel_listing(listing, manager):
     listing.status = PlayerListing.CANCELLED
     listing.save(update_fields=["status"])
     return listing
+
+
+def transfer_offer_context_for(user, player):
+    from mgl.permissions import approved_manager
+
+    manager = approved_manager(user) if getattr(user, "is_authenticated", False) else None
+    club = club_for_user(user) if manager else None
+    can_request = False
+    block_reason = ""
+    open_offer = None
+    if manager and club:
+        open_offer = (
+            PlayerListing.objects.filter(
+                player=player,
+                reserved_buyer=manager,
+                status__in=[PlayerListing.OFFER, PlayerListing.PENDING],
+            )
+            .order_by("-id")
+            .first()
+        )
+        try:
+            assert_can_create_transfer_offer(player, manager)
+            can_request = True
+        except ValueError as exc:
+            block_reason = str(exc)
+    own_player = bool(club and player.mgl_team_id == club.id)
+    return {
+        "can_request_transfer": can_request and open_offer is None,
+        "transfer_block_reason": "" if own_player else block_reason,
+        "open_transfer_offer": open_offer,
+        "viewer_manager": manager,
+        "viewer_club": club,
+        "is_own_player": own_player,
+    }

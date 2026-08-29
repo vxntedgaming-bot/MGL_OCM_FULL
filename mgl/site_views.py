@@ -82,6 +82,17 @@ def club_page(request, slug):
     is_own_club = (
         request.user.is_authenticated and team.manager_id == request.user.id
     )
+    from mgl.market import club_for_user
+    from mgl.permissions import approved_manager
+
+    viewer_manager = approved_manager(request.user) if request.user.is_authenticated else None
+    viewer_club = club_for_user(request.user) if viewer_manager else None
+    can_buy_from_club = bool(
+        viewer_manager
+        and viewer_club
+        and not is_own_club
+        and team.manager_id
+    )
     return render(
         request,
         "mgl/club_page.html",
@@ -93,6 +104,8 @@ def club_page(request, slug):
             "table": table,
             "league_position": position,
             "is_own_club": is_own_club,
+            "can_buy_from_club": can_buy_from_club,
+            "viewer_manager": viewer_manager,
         },
     )
 
