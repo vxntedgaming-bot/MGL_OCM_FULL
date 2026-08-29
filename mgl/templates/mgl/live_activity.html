@@ -1,29 +1,31 @@
 {% extends "core/base.html" %}
-{% load mgl_ui %}
+{% load static mgl_ui %}
 
-{% block title %}Live Activity — MGL{% endblock %}
+{% block title %}League Activity — MGL{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/mgl-activity-feed.css' %}">
+{% endblock %}
+{% block body_class %}mgl-activity-page{% endblock %}
 
 {% block content %}
 <section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">NEWS</div>
-            <h2>LIVE ACTIVITY</h2>
-            <p>{% site_text "news.live_activity_intro" %}</p>
-        </div>
-        <a href="{% url 'pressroom' %}" class="view-all">PRESSROOM →</a>
+    <div class="mgl-activity-hero">
+        <h1 class="mgl-activity-title">LEAGUE <span>ACTIVITY</span></h1>
+        <p class="mgl-activity-sub">Live feed of results, transfers and signings across all leagues.</p>
     </div>
-    <nav class="mgl-league-tabs">
-        <a href="{% url 'news_centre' %}" class="mgl-league-tab">Latest News</a>
-        <a href="{% url 'live_activity' %}" class="mgl-league-tab is-active">Live Activity</a>
+    <nav class="mgl-league-tabs mgl-activity-tabs">
         <a href="{% url 'pressroom' %}" class="mgl-league-tab">Pressroom</a>
-        <a href="{% url 'news_centre' %}?tab=official" class="mgl-league-tab">Official News</a>
+        <a href="{% url 'live_activity' %}" class="mgl-league-tab is-active">Live Activity</a>
     </nav>
     <div class="mgl-activity-feed">
         {% for item in items %}
             {% include "mgl/includes/activity_card.html" with show_body=True %}
         {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO LIVE ACTIVITY YET" body="Approved match results, transfers, auctions, appointments and signings will appear here." %}
+            <div class="mgl-activity-empty">
+                <h2>LEAGUE ACTIVITY</h2>
+                <p>No league activity yet.</p>
+                <p>New results, transfers and signings will appear here.</p>
+            </div>
         {% endfor %}
     </div>
     {% if page.has_other_pages %}

@@ -26,7 +26,7 @@ from mgl.notifications import (
     notify_user,
     unread_count_for_user,
 )
-from mgl.press import create_press_question, publish_press_answer
+from mgl.press import approve_press_conference, create_press_question, publish_press_answer
 from mgl.services import create_news
 from players.models import Player
 from teams.models import Team
@@ -136,7 +136,8 @@ class NotificationAndPressroomTests(TestCase):
         self.assertEqual(posted["Location"], reverse("pressroom"))
 
         press.refresh_from_db()
-        self.assertEqual(press.status, ApprovalStatus.APPROVED)
+        self.assertEqual(press.status, ApprovalStatus.PENDING)
+        self.assertEqual(press.answer, "We controlled the game from the start.")
         remaining = [
             row for row in notifications_for_user(self.user_a) if row["key"].startswith("press-")
         ]
@@ -146,6 +147,21 @@ class NotificationAndPressroomTests(TestCase):
         self.assertNotContains(after, reverse("answer_press", args=[press.pk]))
         self.assertEqual(unread_count_for_user(self.user_a), 0)
 
+        pending_room = self.client.get(reverse("pressroom"))
+        self.assertNotContains(pending_room, "We controlled the game from the start.")
+        self.assertFalse(NewsPost.objects.filter(category=NewsPost.PRESS).exists())
+        pending_activity = self.client.get(reverse("live_activity"))
+        self.assertNotContains(pending_activity, "PRESS CONFERENCE")
+        self.assertNotContains(pending_activity, "We controlled the game from the start.")
+
+        self.client.logout()
+        self.client.login(username="owner", password="test-pass-123")
+        approved = self.client.post(reverse("control_approve_press", args=[press.pk]))
+        self.assertEqual(approved.status_code, 302)
+        press.refresh_from_db()
+        self.assertEqual(press.status, ApprovalStatus.APPROVED)
+
+        self.client.logout()
         room = self.client.get(reverse("pressroom"))
         self.assertContains(room, "mgl-press-story")
         self.assertContains(room, "mgl-press-story.css")
@@ -158,13 +174,15 @@ class NotificationAndPressroomTests(TestCase):
         self.assertNotContains(room, "YOUR QUESTIONS")
         self.assertNotContains(room, "<span>Q:</span>")
         self.assertNotContains(room, "<span>A:</span>")
+        self.assertNotContains(room, "Latest News")
+        self.assertNotContains(room, "Official News")
 
         self.assertTrue(
             NewsPost.objects.filter(category=NewsPost.PRESS, published=True).exists()
         )
         activity = self.client.get(reverse("live_activity"))
-        self.assertContains(activity, "PRESS CONFERENCE")
-        self.assertContains(activity, "Arsenal Test")
+        self.assertNotContains(activity, "PRESS CONFERENCE")
+        self.assertNotContains(activity, "We controlled the game from the start.")
         news = NewsPost.objects.get(category=NewsPost.PRESS)
         self.assertEqual(news.primary_team_id, self.team_a.id)
         payload = activity_payloads([news])[0]
@@ -254,13 +272,14 @@ class NotificationAndPressroomTests(TestCase):
             [self.team_a.id, self.team_b.id],
         )
         activity = self.client.get(reverse("live_activity"))
-        self.assertContains(activity, "RESULT APPROVED")
-        self.assertContains(activity, "ATX")
-        self.assertContains(activity, "CTX")
-        self.assertContains(activity, "mgl-activity-badges")
-        news = self.client.get(reverse("news_centre"))
-        self.assertContains(news, "mgl-activity-badges")
-        self.assertContains(news, "ATX")
+        self.assertContains(activity, "RESULT")
+        self.assertContains(activity, "Arsenal Test")
+        self.assertContains(activity, "Chelsea Test")
+        self.assertContains(activity, "mgl-activity-card")
+        self.assertContains(activity, "mgl-activity-feed.css")
+        news = self.client.get(reverse("news_centre"), follow=True)
+        self.assertContains(news, "mgl-activity-card")
+        self.assertContains(news, "Arsenal Test")
 
     def test_unpublished_news_is_not_live_activity(self):
         NewsPost.objects.create(
@@ -362,6 +381,7 @@ class NotificationAndPressroomTests(TestCase):
             trigger=PressConference.MATCH,
         )
         publish_press_answer(press, "The first goal.")
+        approve_press_conference(press)
         NewsPost.objects.filter(category=NewsPost.PRESS).update(
             primary_team=None, secondary_team=None
         )

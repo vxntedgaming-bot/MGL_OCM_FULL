@@ -9,7 +9,7 @@
         <div>
             <div class="eyebrow">PRESS CONFERENCE</div>
             <h2>ANSWER PRESS QUESTION</h2>
-            <p>Sky Sports are waiting for your answer. Once submitted, this interview publishes in News → Pressroom.</p>
+            <p>{% if awaiting_approval %}Your answer is with Admin. It will appear in Pressroom only after approval.{% else %}Sky Sports are waiting for your answer. Admin reviews it before it appears in Pressroom.{% endif %}</p>
         </div>
         <a href="{% url 'pressroom' %}" class="view-all">PRESSROOM →</a>
     </div>
@@ -22,6 +22,13 @@
                 <p>Manager: {{ press.manager_name|default:user.username }}</p>
             </div>
         </div>
+        {% if awaiting_approval %}
+        <div class="mgl-press-answer">
+            <p class="mgl-press-q"><span>Q</span> {{ press.question }}</p>
+            <p>{{ press.answer|linebreaksbr }}</p>
+            <p>Awaiting Admin approval.</p>
+        </div>
+        {% else %}
         <form method="post" action="{% url 'answer_press' press.id %}" class="mgl-press-answer">
             {% csrf_token %}
             <p class="mgl-press-q"><span>Q</span> {{ press.question }}</p>
@@ -29,6 +36,7 @@
             <textarea id="press-answer" name="answer" rows="6" required placeholder="Your answer">{{ form_answer }}</textarea>
             <button type="submit" class="primary-button">ANSWER PRESS QUESTION</button>
         </form>
+        {% endif %}
     </article>
 </section>
 {% endblock %}

@@ -64,6 +64,20 @@
 <section class="mgl-section">
     <div class="dashboard-grid">
         <div class="dashboard-panel">
+            <div class="panel-heading"><span>PRESS CONFERENCE ANSWERS</span></div>
+            {% for press in pending_press %}
+                <div class="table-row">
+                    <strong>{% if press.team %}{{ press.team.name }}{% else %}MGL{% endif %}</strong>
+                    <span>{{ press.manager.username }}</span>
+                    <small>{{ press.question|truncatechars:80 }}</small>
+                    <form method="post" action="{% url 'control_approve_press' press.id %}">{% csrf_token %}<button class="header-button" type="submit">APPROVE</button></form>
+                    <form method="post" action="{% url 'control_reject_press' press.id %}">{% csrf_token %}<button class="header-button" type="submit">REJECT</button></form>
+                </div>
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with title="NO ANSWERS WAITING" body="Manager press conference answers appear here until you approve or reject them. Nothing reaches the public Pressroom without approval." %}
+            {% endfor %}
+        </div>
+        <div class="dashboard-panel">
             <div class="panel-heading"><span>JOB CENTRE APPLICATIONS</span></div>
             {% for app in pending_jobs %}
                 <div class="table-row">

@@ -52,7 +52,7 @@ from .player_state import (
 )
 from .services import manager_for_user
 from .tenure import close_club_spell_for_user, open_club_spell, resign_manager_from_club
-from .activity import activity_payloads, published_activity, record_manager_departure
+from .activity import activity_payloads, published_football_activity, record_manager_departure
 
 
 def _post_int(post, key, default=0):
@@ -122,7 +122,7 @@ def home(request):
         .filter(published=True)
         .order_by("-created_at")[:6]
     )
-    live_feed = activity_payloads(published_activity()[:6])
+    live_feed = activity_payloads(published_football_activity()[:6])
 
     recent_results = []
     completed = completed_qs[:5]
@@ -654,7 +654,10 @@ def press_conference(request, fixture_id):
 
     try:
         publish_press_answer(press, answer)
-        messages.success(request, "Your press conference is now in the MGL Pressroom.")
+        messages.success(
+            request,
+            "Your answer has been submitted and is awaiting Admin approval.",
+        )
     except ValueError as exc:
         messages.error(request, str(exc))
     return redirect("pressroom")

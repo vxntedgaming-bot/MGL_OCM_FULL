@@ -27,6 +27,7 @@ from .models import (
     MarketTransaction,
     NewsPost,
     PlayerListing,
+    PressConference,
 )
 from managers.models import ManagerApplication
 from managers.services import STARTING_TOKENS, approve_manager_application, reject_manager_application
@@ -306,6 +307,9 @@ def control_centre(request):
         status=ApprovalStatus.PENDING
     ).select_related("manager", "team")
     live_auctions = PlayerAuction.objects.filter(status=PlayerAuction.LIVE).select_related("player")
+    from mgl.press import pending_press_reviews
+
+    pending_press = pending_press_reviews()
     recent_activity = MarketTransaction.objects.select_related(
         "player", "seller", "buyer"
     ).order_by("-created_at")[:20]
@@ -322,6 +326,7 @@ def control_centre(request):
             "pending_managers": pending_managers,
             "pending_listings": pending_listings,
             "pending_jobs": pending_jobs,
+            "pending_press": pending_press,
             "live_auctions": live_auctions,
             "recent_activity": recent_activity,
             "teams": Team.objects.select_related("manager", "league").order_by("name"),
@@ -460,4 +465,56 @@ def control_reject_job(request, application_id):
         request,
         f"{application.manager.display_name}'s application for {application.team.name} was rejected.",
     )
+    return control_centre_redirect(request)
+
+
+@owner_admin_required
+@require_POST
+def control_approve_press(request, press_id):
+    from mgl.notifications import notify_user
+    from mgl.press import approve_press_conference
+
+    press = get_object_or_404(PressConference, pk=press_id)
+    try:
+        approve_press_conference(press, reviewer=request.user)
+        notify_user(
+            press.manager,
+            source_key=f"press-approved-{press.pk}",
+            notification_type="ADMIN",
+            title="PRESS CONFERENCE PUBLISHED",
+            message="Your interview is now live in the MGL Pressroom.",
+            actor="MGL Admin",
+            action_url=reverse("pressroom"),
+            action_label="OPEN PRESSROOM",
+            team=press.team,
+        )
+        messages.success(request, "Press conference published to the Pressroom.")
+    except ValueError as exc:
+        messages.error(request, str(exc))
+    return control_centre_redirect(request)
+
+
+@owner_admin_required
+@require_POST
+def control_reject_press(request, press_id):
+    from mgl.notifications import notify_user
+    from mgl.press import reject_press_conference
+
+    press = get_object_or_404(PressConference, pk=press_id)
+    try:
+        reject_press_conference(press, reviewer=request.user)
+        notify_user(
+            press.manager,
+            source_key=f"press-rejected-{press.pk}",
+            notification_type="ADMIN",
+            title="PRESS CONFERENCE REJECTED",
+            message="Your press conference answer was not published.",
+            actor="MGL Admin",
+            action_url=reverse("manager_hub"),
+            action_label="OPEN HUB",
+            team=press.team,
+        )
+        messages.success(request, "Press conference rejected.")
+    except ValueError as exc:
+        messages.error(request, str(exc))
     return control_centre_redirect(request)

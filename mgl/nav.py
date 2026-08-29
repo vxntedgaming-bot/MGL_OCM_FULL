@@ -67,6 +67,20 @@ NAV_DROPDOWNS = (
         ),
     },
     {
+        "id": "news",
+        "label": "NEWS",
+        "current": {
+            "news_centre",
+            "live_activity",
+            "pressroom",
+            "answer_press",
+        },
+        "items": (
+            {"label": "Pressroom", "url_name": "pressroom"},
+            {"label": "Live Activity", "url_name": "live_activity", "divider": True},
+        ),
+    },
+    {
         "id": "leagues",
         "label": "TABLES",
         "current": {"leagues_page", "competition_page", "clubs_index", "club_page"},
@@ -189,8 +203,8 @@ SIGNED_IN_NAV_DROPDOWNS = (
             "answer_press",
         },
         "items": (
-            {"label": "Live Activity", "url_name": "live_activity"},
-            {"label": "Pressroom", "url_name": "pressroom", "divider": True},
+            {"label": "Pressroom", "url_name": "pressroom"},
+            {"label": "Live Activity", "url_name": "live_activity", "divider": True},
         ),
     },
 )

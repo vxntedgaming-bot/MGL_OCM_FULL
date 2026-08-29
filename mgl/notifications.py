@@ -92,6 +92,7 @@ class PressConferenceSource(NotificationSource):
             PressConference.objects.filter(
                 manager=user,
                 status=ApprovalStatus.PENDING,
+                answer="",
             )
             .select_related("team")
             .order_by("-created_at")

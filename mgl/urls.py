@@ -252,4 +252,14 @@ urlpatterns = [
         views_market.control_reject_job,
         name="control_reject_job",
     ),
+    path(
+        "control/press/<int:press_id>/approve/",
+        views_market.control_approve_press,
+        name="control_approve_press",
+    ),
+    path(
+        "control/press/<int:press_id>/reject/",
+        views_market.control_reject_press,
+        name="control_reject_press",
+    ),
 ]

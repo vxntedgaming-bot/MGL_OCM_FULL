@@ -280,31 +280,75 @@ def maybe_create_signing_press(user, team):
     )
 
 
-def publish_press_answer(press, answer):
+def submit_press_answer(press, answer):
+    """Store a manager's answer. Public Pressroom waits for Admin approval."""
     answer = (answer or "").strip()
     if not answer:
         raise ValueError("Please answer the question.")
-    if press.answer and press.status == ApprovalStatus.APPROVED:
-        raise ValueError("This interview has already been submitted.")
+    if press.status == ApprovalStatus.APPROVED and press.answer:
+        raise ValueError("This interview has already been published.")
+    if press.status == ApprovalStatus.REJECTED:
+        raise ValueError("This interview was rejected.")
+    if press.answer and press.status == ApprovalStatus.PENDING:
+        raise ValueError("This interview is already awaiting Admin approval.")
     press.answer = answer
-    press.status = ApprovalStatus.APPROVED
-    press.approved_at = timezone.now()
-    press.save(update_fields=["answer", "status", "approved_at"])
+    press.status = ApprovalStatus.PENDING
+    press.save(update_fields=["answer", "status"])
+    from mgl.notifications import mark_action_complete
+
+    mark_action_complete(press.manager, f"press-{press.pk}")
+    return press
+
+
+def publish_press_answer(press, answer):
+    """Managers submit answers. Admin approval publishes to Pressroom."""
+    return submit_press_answer(press, answer)
+
+
+def _press_news_copy(press):
     manager_name = press.manager.username
     application = manager_for_user(press.manager)
     if application:
         manager_name = application.display_name
     club = press.team.name if press.team_id else "MGL"
-    create_news(
-        NewsPost.PRESS,
+    return (
         f"{manager_name} | {club} press conference",
         f"Q: {press.question}\n\nA: {press.answer}",
-        team=press.team,
     )
-    from mgl.notifications import mark_action_complete
 
-    mark_action_complete(press.manager, f"press-{press.pk}")
+
+def approve_press_conference(press, reviewer=None):
+    if press.status == ApprovalStatus.APPROVED and (press.answer or "").strip():
+        return press
+    if press.status == ApprovalStatus.REJECTED:
+        raise ValueError("This interview was rejected.")
+    if not (press.answer or "").strip():
+        raise ValueError("This interview has no answer to approve.")
+    press.status = ApprovalStatus.APPROVED
+    press.approved_at = timezone.now()
+    press.save(update_fields=["status", "approved_at"])
+    title, body = _press_news_copy(press)
+    create_news(NewsPost.PRESS, title, body, team=press.team)
     return press
+
+
+def reject_press_conference(press, reviewer=None):
+    if press.status == ApprovalStatus.APPROVED:
+        raise ValueError("This interview is already published.")
+    if press.status == ApprovalStatus.REJECTED:
+        return press
+    press.status = ApprovalStatus.REJECTED
+    press.save(update_fields=["status"])
+    return press
+
+
+def pending_press_reviews():
+    return (
+        PressConference.objects.filter(status=ApprovalStatus.PENDING)
+        .exclude(answer="")
+        .select_related("manager", "team", "fixture")
+        .order_by("-created_at")
+    )
 
 
 def published_press():

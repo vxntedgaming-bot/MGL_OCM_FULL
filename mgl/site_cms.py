@@ -152,21 +152,21 @@ CONTENT_FIELDS = (
         "news",
         "Newsroom Introduction",
         "long",
-        "Official news, live league activity and press conferences. Pending submissions stay off this page until they are approved.",
+        "Pressroom interviews and official league activity. Nothing is published until Admin approves it.",
     ),
     ContentField(
         "news.live_activity_intro",
         "news",
         "Live Activity Introduction",
         "long",
-        "Official MGL events after approval. Pending results and transfers do not appear here.",
+        "Live feed of results, transfers and signings across all leagues.",
     ),
     ContentField(
         "news.pressroom_intro",
         "news",
         "Pressroom Introduction",
         "long",
-        "Manager interviews after they answer a press conference question. Pending questions appear in Notifications until submitted.",
+        "Published manager interviews and Press Conferences. Answers stay private until Admin approves them.",
     ),
     # RULES — current HOW IT WORKS cards
     ContentField(

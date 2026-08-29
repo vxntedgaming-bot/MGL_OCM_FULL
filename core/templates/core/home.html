@@ -2,6 +2,9 @@
 {% load static mgl_ui %}
 
 {% block title %}MGL – MetaGamingLeague{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/mgl-activity-feed.css' %}">
+{% endblock %}
 
 {% block content %}
 <section class="mgl-hero-pro">
@@ -106,7 +109,7 @@
         {% for item in live_feed %}
             {% include "mgl/includes/activity_card.html" %}
         {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO LIVE ACTIVITY YET" body="Approved results, transfers, auctions and appointments will appear here." %}
+            {% include "mgl/includes/empty_state.html" with title="NO LIVE ACTIVITY YET" body="Approved results, transfers and signings will appear here." %}
         {% endfor %}
     </div>
 </section>

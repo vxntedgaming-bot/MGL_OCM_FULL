@@ -44,7 +44,7 @@
                 <a href="{% url 'clubs_index' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'clubs_index' or request.resolver_match.url_name == 'club_page' %}is-active{% endif %}">TEAMS</a>
                 {% for menu in mgl_nav_dropdowns %}{% if menu.id == "market" %}{% include "core/includes/nav_dropdown.html" %}{% endif %}{% endfor %}
                 <a href="{% url 'job_centre' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'job_centre' %}is-active{% endif %}">JOBS</a>
-                <a href="{% url 'news_centre' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'news_centre' or request.resolver_match.url_name == 'live_activity' or request.resolver_match.url_name == 'pressroom' %}is-active{% endif %}">NEWS</a>
+                {% for menu in mgl_nav_dropdowns %}{% if menu.id == "news" %}{% include "core/includes/nav_dropdown.html" %}{% endif %}{% endfor %}
                 {% for menu in mgl_nav_dropdowns %}{% if menu.id == "my-team" %}{% include "core/includes/nav_dropdown.html" %}{% endif %}{% endfor %}
             {% endif %}
             {% if mgl_is_control %}

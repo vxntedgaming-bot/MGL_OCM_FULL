@@ -7,9 +7,9 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 
 from leagues.services import active_divisions, active_league
-from mgl.activity import activity_payloads, published_activity
+from mgl.activity import activity_payloads, published_football_activity
 from mgl.club_urls import resolve_club
-from mgl.models import Fixture, MatchSubmission, NewsPost, PressConference
+from mgl.models import ApprovalStatus, Fixture, MatchSubmission, PressConference
 from mgl.press import publish_press_answer, published_press
 from mgl.standings import build_league_table
 from mgl.services import manager_for_user
@@ -98,31 +98,14 @@ def club_page(request, slug):
 
 
 def news_centre(request):
-    tab = request.GET.get("tab", "latest")
-    if tab not in {"latest", "activity", "pressroom", "official"}:
-        tab = "latest"
-    latest_items = activity_payloads(published_activity()[:20])
-    official_items = activity_payloads(
-        published_activity().exclude(category=NewsPost.PRESS)[:20]
-    )
-    press = published_press()[:12]
-    for article in press:
-        application = manager_for_user(article.manager)
-        article.manager_name = application.display_name if application else article.manager.username
-    return render(
-        request,
-        "mgl/news.html",
-        {
-            "tab": tab,
-            "latest_items": latest_items,
-            "official_items": official_items,
-            "press_articles": press,
-        },
-    )
+    tab = (request.GET.get("tab") or "").strip().lower()
+    if tab == "pressroom":
+        return redirect("pressroom")
+    return redirect("live_activity")
 
 
 def live_activity(request):
-    posts = published_activity()
+    posts = published_football_activity()
     paginator = Paginator(posts, 20)
     page = paginator.get_page(request.GET.get("page") or 1)
     items = activity_payloads(page.object_list)
@@ -158,14 +141,24 @@ def answer_press(request, press_id):
     press = get_object_or_404(PressConference, pk=press_id, manager=request.user)
     application = manager_for_user(request.user)
     press.manager_name = application.display_name if application else request.user.username
-    if press.status != "PENDING":
-        messages.info(request, "This press conference has already been submitted.")
+    if press.status == ApprovalStatus.APPROVED:
+        messages.info(request, "This press conference has already been published.")
         return redirect("pressroom")
+    if press.status == ApprovalStatus.REJECTED:
+        messages.info(request, "This press conference was rejected.")
+        return redirect("pressroom")
+    awaiting_approval = bool(press.answer)
     form_answer = request.POST.get("answer", "") if request.method == "POST" else ""
     if request.method == "POST":
+        if awaiting_approval:
+            messages.info(request, "Your answer is already awaiting Admin approval.")
+            return redirect("pressroom")
         try:
             publish_press_answer(press, request.POST.get("answer", ""))
-            messages.success(request, "Your press conference is now in the MGL Pressroom.")
+            messages.success(
+                request,
+                "Your answer has been submitted and is awaiting Admin approval.",
+            )
             return redirect("pressroom")
         except ValueError as exc:
             messages.error(request, str(exc))
@@ -175,5 +168,6 @@ def answer_press(request, press_id):
         {
             "press": press,
             "form_answer": form_answer,
+            "awaiting_approval": awaiting_approval,
         },
     )

@@ -1,16 +1,62 @@
 {% load mgl_ui %}
-<article class="mgl-activity-item">
-    {% if item.teams %}
-        <div class="mgl-activity-badges">
-            {% for team in item.teams %}
-                {% team_logo team "sm" %}
-            {% endfor %}
-        </div>
-    {% endif %}
-    <div class="mgl-activity-kicker">{{ item.emoji }} {{ item.label }}</div>
-    <h3>{{ item.post.title }}</h3>
-    {% if show_body %}
-        <p>{{ item.post.body|linebreaksbr }}</p>
-    {% endif %}
-    <small>{{ item.post.created_at|date:"d M Y · H:i" }}</small>
+<article class="mgl-activity-card mgl-activity-card--{{ item.kind }}">
+    <div class="mgl-activity-icon" aria-hidden="true">
+        {% if item.kind == "result" %}
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M12 3c2.2 2.4 3.4 5.5 3.4 9S14.2 18.6 12 21c-2.2-2.4-3.4-5.5-3.4-9S9.8 5.4 12 3z"/>
+            <path d="M3.6 9.2h16.8M3.6 14.8h16.8"/>
+        </svg>
+        {% elif item.kind == "transfer" %}
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+            <path d="M4 8h13M13 4l4 4-4 4M20 16H7M11 12l-4 4 4 4"/>
+        </svg>
+        {% elif item.kind == "signing" %}
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+            <path d="M6 4h9l3 3v13H6z"/>
+            <path d="M15 4v3h3M8 12h8M8 16h6"/>
+        </svg>
+        {% else %}
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M8 12h8"/>
+        </svg>
+        {% endif %}
+    </div>
+    <div class="mgl-activity-body">
+        <span class="mgl-activity-pill">{{ item.label }}</span>
+        {% if item.kind == "result" and item.home_score %}
+            <h3 class="mgl-activity-headline">
+                {{ item.home_name }}
+                <span class="mgl-activity-score">{{ item.home_score }} - {{ item.away_score }}</span>
+                {{ item.away_name }}
+            </h3>
+            {% if item.home_manager or item.away_manager %}
+                <p class="mgl-activity-managers">{{ item.home_manager }}{% if item.home_manager and item.away_manager %} vs {% endif %}{{ item.away_manager }}</p>
+            {% endif %}
+        {% elif item.kind == "transfer" %}
+            <h3 class="mgl-activity-headline">{{ item.player_name|default:item.post.title }}</h3>
+            {% if item.from_club or item.to_club %}
+                <p class="mgl-activity-managers">{{ item.from_club }}{% if item.from_club and item.to_club %} → {% endif %}{{ item.to_club }}</p>
+            {% endif %}
+            {% if item.subtitle %}<p class="mgl-activity-meta">{{ item.subtitle }}</p>{% endif %}
+        {% elif item.kind == "signing" %}
+            <h3 class="mgl-activity-headline">{{ item.player_name|default:item.post.title }}</h3>
+            {% if item.to_club %}<p class="mgl-activity-managers">{{ item.to_club }}</p>{% endif %}
+            {% if item.subtitle %}<p class="mgl-activity-meta">{{ item.subtitle }}</p>{% endif %}
+        {% else %}
+            <h3 class="mgl-activity-headline">{{ item.post.title }}</h3>
+            {% if show_body %}<p class="mgl-activity-meta">{{ item.post.body|linebreaksbr }}</p>{% endif %}
+        {% endif %}
+        {% if item.meta_line %}
+            <p class="mgl-activity-meta">{{ item.meta_line }}</p>
+        {% endif %}
+        <p class="mgl-activity-time">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <circle cx="12" cy="12" r="8"/>
+                <path d="M12 8v5l3 2"/>
+            </svg>
+            <time datetime="{{ item.occurred_at|date:'c' }}">{{ item.occurred_at|date:"d M Y · H:i" }}</time>
+        </p>
+    </div>
 </article>

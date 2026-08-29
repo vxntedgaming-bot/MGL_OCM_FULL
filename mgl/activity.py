@@ -1,10 +1,22 @@
 """Live Activity helpers on top of the existing NewsPost model."""
 
+import re
 from datetime import timedelta
+
+from django.db.models import Q
 
 from mgl.models import ApprovalStatus, MatchSubmission, NewsPost, PressConference
 from mgl.services import create_news, manager_for_user
 from teams.models import Team
+
+FOOTBALL_CATEGORIES = (NewsPost.RESULTS, NewsPost.TRANSFER, NewsPost.SIGNING)
+KIND_RESULT = "result"
+KIND_TRANSFER = "transfer"
+KIND_SIGNING = "signing"
+
+_RESULT_TITLE_RE = re.compile(
+    r"^(?P<home>.+?)\s+(?P<hs>\d+)\s*[-–]\s*(?P<as>\d+)\s+(?P<away>.+)$"
+)
 
 ACTIVITY_EMOJI = {
     NewsPost.RESULTS: "🔥",
@@ -22,8 +34,37 @@ ACTIVITY_EMOJI = {
 def published_activity():
     return (
         NewsPost.objects.filter(published=True)
-        .select_related("primary_team", "secondary_team")
+        .select_related(
+            "primary_team",
+            "secondary_team",
+            "primary_team__league",
+            "secondary_team__league",
+            "primary_team__manager",
+            "secondary_team__manager",
+        )
         .order_by("-created_at", "-id")
+    )
+
+
+def _listing_or_auction_noise():
+    return (
+        Q(title__icontains="listed")
+        | Q(body__icontains="listed for sale")
+        | Q(title__icontains="Auction started")
+        | Q(title__icontains="available in an Admin auction")
+    )
+
+
+def published_football_activity():
+    """Official results, completed transfers and signings only.
+
+    Pending, rejected and unpublished records are excluded in the query.
+    Press conferences never appear here.
+    """
+    return (
+        published_activity()
+        .filter(category__in=FOOTBALL_CATEGORIES)
+        .exclude(_listing_or_auction_noise())
     )
 
 
@@ -33,13 +74,13 @@ def activity_label(post):
     blob = f"{title} {body}"
     category = post.category
     if category == NewsPost.RESULTS:
-        return "RESULT APPROVED"
+        return "RESULT"
     if category == NewsPost.TRANSFER:
         if "released" in blob or "free agent" in blob:
             return "PLAYER RELEASED"
         if "listed" in blob:
             return "TRANSFER LISTED"
-        return "TRANSFER APPROVED"
+        return "TRANSFER"
     if category == NewsPost.AUCTION:
         if "sold" in blob or "winning" in blob or "joined" in blob:
             return "AUCTION WON"
@@ -49,7 +90,7 @@ def activity_label(post):
             return "PLAYER RELEASED"
         return "FREE AGENT"
     if category == NewsPost.SIGNING:
-        return "FREE AGENT SIGNING"
+        return "SIGNING"
     if category == NewsPost.MANAGER:
         if any(word in blob for word in ("left", "resign", "depart")):
             return "MANAGER DEPARTURE"
@@ -167,16 +208,171 @@ def teams_for_post(post, catalog=None):
     return teams_mentioned(f"{post.title}\n{post.body}", catalog)
 
 
+def _display_name(user):
+    if user is None:
+        return ""
+    application = manager_for_user(user)
+    if application and application.display_name:
+        return application.display_name
+    return user.username
+
+
+def _season_label(league):
+    if league is None:
+        return ""
+    name = getattr(league, "public_name", None) or league.name
+    season = (getattr(league, "season", None) or "").strip()
+    if not season:
+        return name
+    if season.lower().startswith("season"):
+        return f"{name} · {season}"
+    return f"{name} · Season {season}"
+
+
+def _match_for_result(post):
+    if post.category != NewsPost.RESULTS or not post.created_at:
+        return None
+    window = timedelta(minutes=5)
+    matches = list(
+        MatchSubmission.objects.filter(
+            status=ApprovalStatus.APPROVED,
+            reviewed_at__gte=post.created_at - window,
+            reviewed_at__lte=post.created_at + window,
+        ).select_related(
+            "fixture__home_team__manager",
+            "fixture__away_team__manager",
+            "fixture__home_team__league",
+            "fixture__away_team__league",
+            "fixture__league",
+        )[:3]
+    )
+    if len(matches) != 1:
+        return None
+    return matches[0]
+
+
+def _parse_result_title(post):
+    match = _RESULT_TITLE_RE.match((post.title or "").strip())
+    if not match:
+        return None
+    return {
+        "home_name": match.group("home").strip(),
+        "away_name": match.group("away").strip(),
+        "home_score": match.group("hs"),
+        "away_score": match.group("as"),
+    }
+
+
+def _football_kind(post):
+    if post.category == NewsPost.RESULTS:
+        return KIND_RESULT
+    if post.category == NewsPost.SIGNING:
+        return KIND_SIGNING
+    if post.category == NewsPost.TRANSFER:
+        blob = f"{post.title or ''} {post.body or ''}".lower()
+        if "listed" in blob or "auction" in blob:
+            return None
+        return KIND_TRANSFER
+    return None
+
+
+def _player_name(post):
+    title = (post.title or "").strip()
+    for suffix in (" transferred", " signed", " listed for sale"):
+        if title.lower().endswith(suffix):
+            return title[: -len(suffix)].strip()
+    return title
+
+
 def activity_payloads(posts):
-    teams = list(Team.objects.all())
+    teams = list(Team.objects.select_related("league", "manager"))
     items = []
     for post in posts:
+        kind = _football_kind(post)
+        related = teams_for_post(post, teams)
+        home = post.primary_team
+        away = post.secondary_team
+        if kind == KIND_RESULT and len(related) >= 2:
+            home, away = related[0], related[1]
+        parsed = _parse_result_title(post) if kind == KIND_RESULT else None
+        submission = _match_for_result(post) if kind == KIND_RESULT else None
+        fixture = getattr(submission, "fixture", None) if submission else None
+        league = None
+        if fixture is not None:
+            league = fixture.league
+            home = fixture.home_team
+            away = fixture.away_team
+        elif home is not None:
+            league = getattr(home, "league", None)
+        elif away is not None:
+            league = getattr(away, "league", None)
+        home_manager = _display_name(getattr(home, "manager", None)) if home else ""
+        away_manager = _display_name(getattr(away, "manager", None)) if away else ""
+        if fixture is not None:
+            home_manager = _display_name(fixture.home_team.manager)
+            away_manager = _display_name(fixture.away_team.manager)
+        headline = post.title
+        home_name = getattr(home, "name", "") if home else ""
+        away_name = getattr(away, "name", "") if away else ""
+        home_score = ""
+        away_score = ""
+        if parsed:
+            home_name = parsed["home_name"]
+            away_name = parsed["away_name"]
+            home_score = parsed["home_score"]
+            away_score = parsed["away_score"]
+            headline = f"{home_name} {home_score} - {away_score} {away_name}"
+        player_name = _player_name(post) if kind in (KIND_TRANSFER, KIND_SIGNING) else ""
+        from_club = getattr(away, "name", "") if kind == KIND_TRANSFER and away else ""
+        to_club = getattr(home, "name", "") if kind in (KIND_TRANSFER, KIND_SIGNING) and home else ""
+        if kind == KIND_TRANSFER and not from_club and post.body:
+            joined = re.search(
+                r"joined (?P<to>.+?) from (?P<fr>.+?)\.",
+                post.body,
+                re.IGNORECASE,
+            )
+            if joined:
+                to_club = to_club or joined.group("to").strip()
+                from_club = joined.group("fr").strip()
+        if kind == KIND_SIGNING and not to_club and post.body:
+            signed = re.search(
+                r"(?:joined|signed for) (?P<club>.+?)(?: on a free signing)?\.",
+                post.body,
+                re.IGNORECASE,
+            )
+            if signed:
+                to_club = signed.group("club").strip()
+        meta_line = _season_label(league)
+        matchweek = getattr(fixture, "matchweek", None) if fixture is not None else None
+        if kind == KIND_RESULT and matchweek:
+            gw = f"Gameweek {matchweek}"
+            meta_line = f"{meta_line} · {gw}" if meta_line else gw
         items.append(
             {
                 "post": post,
                 "emoji": activity_emoji(post),
                 "label": activity_label(post),
-                "teams": teams_for_post(post, teams),
+                "teams": related,
+                "kind": kind or "other",
+                "headline": headline,
+                "home_name": home_name,
+                "away_name": away_name,
+                "home_score": home_score,
+                "away_score": away_score,
+                "home_manager": home_manager,
+                "away_manager": away_manager,
+                "player_name": player_name,
+                "from_club": from_club,
+                "to_club": to_club,
+                "meta_line": meta_line,
+                "occurred_at": post.created_at,
+                "subtitle": (
+                    "Transfer completed"
+                    if kind == KIND_TRANSFER
+                    else "New signing"
+                    if kind == KIND_SIGNING
+                    else ""
+                ),
             }
         )
     return items

@@ -257,7 +257,7 @@ class LiveActivityAndPressTests(TestCase):
             ).exists()
         )
         activity = self.client.get(reverse("live_activity"))
-        self.assertContains(activity, "RESULT APPROVED")
+        self.assertContains(activity, "RESULT")
         self.assertContains(activity, "Gameweek 1")
 
     def test_odd_matchday_does_not_repeat_same_manager_in_cycle(self):
@@ -372,8 +372,9 @@ class LiveActivityAndPressTests(TestCase):
         sign_free_agent(fa, self.mgr_a)
         self.assertTrue(NewsPost.objects.filter(category=NewsPost.SIGNING).exists())
         activity = self.client.get(reverse("live_activity"))
-        self.assertContains(activity, "MANAGER APPOINTED")
-        self.assertContains(activity, "FREE AGENT SIGNING")
+        self.assertNotContains(activity, "MANAGER APPOINTED")
+        self.assertContains(activity, "SIGNING")
+        self.assertContains(activity, "Free Signing")
 
     def test_auction_no_bid_creates_free_agent_activity(self):
         player = Player.objects.create(
@@ -390,8 +391,8 @@ class LiveActivityAndPressTests(TestCase):
             NewsPost.objects.filter(category=NewsPost.FREE_AGENT, body__icontains="no bids").exists()
         )
         activity = self.client.get(reverse("live_activity"))
-        self.assertContains(activity, "AUCTION STARTED")
-        self.assertContains(activity, "FREE AGENT")
+        self.assertNotContains(activity, "AUCTION STARTED")
+        self.assertNotContains(activity, "Pool Player")
 
 
 class ManagerHubExperienceTests(TestCase):
@@ -513,7 +514,9 @@ class NewsAndTablePublicTests(TestCase):
         self.assertNotContains(tables, "50.00 TKN")
 
     def test_news_tabs_and_public_fixtures(self):
-        self.assertEqual(self.client.get(reverse("news_centre")).status_code, 200)
+        news = self.client.get(reverse("news_centre"))
+        self.assertEqual(news.status_code, 302)
+        self.assertEqual(news["Location"], reverse("live_activity"))
         self.assertEqual(self.client.get(reverse("live_activity")).status_code, 200)
         self.assertEqual(self.client.get(reverse("pressroom")).status_code, 200)
         self.assertEqual(self.client.get(reverse("fixture_list")).status_code, 200)
