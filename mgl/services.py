@@ -141,12 +141,14 @@ def normalise_totw_position(position):
     return mapping.get(position, position)
 
 
-def create_news(category, title, body, publish=True, team=None, secondary_team=None):
+def create_news(category, title, body, publish=True, team=None, secondary_team=None, details=None):
     """
     Creates a news event for the website and Discord bot queue.
 
     Pass the actual Team objects involved so Live Activity can render
     club badges from club data rather than guessing names in the copy.
+    Optional details stores a snapshot (for example a completed deal)
+    so later squad moves do not rewrite history.
     """
 
     return NewsPost.objects.create(
@@ -157,6 +159,7 @@ def create_news(category, title, body, publish=True, team=None, secondary_team=N
         discord_sent=False,
         primary_team=team,
         secondary_team=secondary_team,
+        details=details or {},
     )
 
 

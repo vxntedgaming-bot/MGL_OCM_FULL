@@ -1,5 +1,5 @@
 {% load mgl_ui %}
-<article class="mgl-activity-card mgl-activity-card--{{ item.kind }}">
+<article class="mgl-activity-card mgl-activity-card--{{ item.kind }}{% if item.kind == 'transfer' and item.deal %} mgl-deal-card{% endif %}">
     <div class="mgl-activity-icon" aria-hidden="true">
         {% if item.kind == "result" %}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
@@ -34,6 +34,59 @@
             {% if item.home_manager or item.away_manager %}
                 <p class="mgl-activity-managers">{{ item.home_manager }}{% if item.home_manager and item.away_manager %} vs {% endif %}{{ item.away_manager }}</p>
             {% endif %}
+        {% elif item.kind == "transfer" and item.deal %}
+            <h3 class="mgl-activity-headline mgl-deal-clubs">
+                {{ item.deal.selling_club }}
+                <span class="mgl-deal-arrow" aria-hidden="true">{% if item.deal.is_swap %}↔{% else %}→{% endif %}</span>
+                {{ item.deal.buying_club }}
+            </h3>
+            {% if item.deal.is_swap %}
+                <div class="mgl-deal-side">
+                    <p class="mgl-deal-club-label">{{ item.deal.selling_club }}</p>
+                    <p class="mgl-deal-dir">OUT</p>
+                    <div class="mgl-deal-players">
+                        <span class="mgl-deal-player">
+                            <span class="mgl-deal-player-name">{{ item.deal.target.name }}</span>
+                            {% if item.deal.target.overall %}<span class="mgl-deal-player-ovr">{{ item.deal.target.overall }} OVR</span>{% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div class="mgl-deal-side">
+                    <p class="mgl-deal-club-label">{{ item.deal.buying_club }}</p>
+                    <p class="mgl-deal-dir">OUT</p>
+                    <div class="mgl-deal-players">
+                        {% for player in item.deal.swaps %}
+                            <span class="mgl-deal-player">
+                                <span class="mgl-deal-player-name">{{ player.name }}</span>
+                                {% if player.overall %}<span class="mgl-deal-player-ovr">{{ player.overall }} OVR</span>{% endif %}
+                            </span>
+                        {% endfor %}
+                    </div>
+                </div>
+                <p class="mgl-deal-tokens">
+                    <span class="mgl-deal-token-icon" aria-hidden="true"></span>
+                    {% if item.deal.has_fee %}
+                        {{ item.deal.payer }} paid {{ item.deal.amount_display }} TKN
+                    {% else %}
+                        TOKEN PAYMENT {{ item.deal.amount_display }} TKN
+                    {% endif %}
+                </p>
+            {% else %}
+                <p class="mgl-deal-dir">PLAYER</p>
+                <div class="mgl-deal-players">
+                    <span class="mgl-deal-player">
+                        <span class="mgl-deal-player-name">{{ item.deal.target.name }}</span>
+                        {% if item.deal.target.overall %}<span class="mgl-deal-player-ovr">{{ item.deal.target.overall }} OVR</span>{% endif %}
+                    </span>
+                </div>
+                {% if item.deal.has_fee %}
+                    <p class="mgl-deal-tokens">
+                        <span class="mgl-deal-token-icon" aria-hidden="true"></span>
+                        Transfer fee: {{ item.deal.amount_display }} TKN
+                    </p>
+                {% endif %}
+            {% endif %}
+            {% if item.subtitle %}<p class="mgl-deal-status">{{ item.subtitle }}</p>{% endif %}
         {% elif item.kind == "transfer" %}
             <h3 class="mgl-activity-headline">{{ item.player_name|default:item.post.title }}</h3>
             {% if item.from_club or item.to_club %}

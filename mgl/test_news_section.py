@@ -214,7 +214,7 @@ class NewsSectionTests(TestCase):
         self.assertContains(page, "Moveable Mid")
         self.assertContains(page, "Arsenal Test")
         self.assertContains(page, "Chelsea Test")
-        self.assertContains(page, "Transfer completed")
+        self.assertContains(page, "TRANSFER COMPLETED")
         room = self.client.get(reverse("pressroom"))
         self.assertNotContains(room, "Moveable Mid")
 

@@ -181,6 +181,7 @@ class NewsPost(models.Model):
         blank=True,
         related_name="news_as_secondary",
     )
+    details=models.JSONField(default=dict, blank=True)
 
 class Pack(models.Model):
     GOLD="GOLD"; SILVER="SILVER"; BRONZE="BRONZE"; ELITE="ELITE"; YOUTH="YOUTH"

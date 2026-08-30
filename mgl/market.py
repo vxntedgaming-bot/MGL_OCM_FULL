@@ -895,6 +895,32 @@ def _notify_listing_outcome(listing, *, buyer=None, rejected=False):
     )
 
 
+def _player_deal_snapshot(player):
+    return {
+        "id": player.id,
+        "name": player.name,
+        "overall": int(player.overall or 0),
+        "position": player.position or "",
+    }
+
+
+def completed_listing_deal_details(listing, selling_team, buyer_club, offered, price):
+    """Snapshot of the completed deal at approval time.
+
+    Stored on the activity/news record so later squad moves do not
+    rewrite what users see in history.
+    """
+    return {
+        "deal": True,
+        "listing_id": listing.id,
+        "amount": str(Decimal(price)),
+        "selling_club": selling_team.name,
+        "buying_club": buyer_club.name,
+        "target": _player_deal_snapshot(listing.player),
+        "swaps": [_player_deal_snapshot(player) for player in offered],
+    }
+
+
 def _complete_listing_sale(listing, buyer):
     buyer_club = club_for_user(buyer.user)
     if not buyer_club:
@@ -914,6 +940,13 @@ def _complete_listing_sale(listing, buyer):
     assert_swap_roster_space(buyer_club, selling_team, len(offered))
 
     price = Decimal(listing.asking_price)
+    deal_details = completed_listing_deal_details(
+        listing,
+        selling_team,
+        buyer_club,
+        offered,
+        price,
+    )
     if price > 0:
         debit_manager_tokens(
             buyer,
@@ -991,6 +1024,7 @@ def _complete_listing_sale(listing, buyer):
         news_body,
         team=buyer_club,
         secondary_team=selling_team,
+        details=deal_details,
     )
     from mgl.press import maybe_create_signing_press
 

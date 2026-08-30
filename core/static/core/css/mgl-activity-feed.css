@@ -158,6 +158,108 @@
     color: rgba(160, 164, 172, 0.95);
 }
 
+.mgl-deal-card .mgl-activity-icon {
+    color: var(--mgl-orange, #ff5c00);
+    background: rgba(255, 92, 0, 0.08);
+    border-color: rgba(255, 92, 0, 0.55);
+}
+
+.mgl-deal-clubs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 10px;
+}
+
+.mgl-deal-arrow {
+    color: rgba(180, 184, 192, 0.95);
+    font-weight: 700;
+}
+
+.mgl-deal-side {
+    margin-top: 12px;
+}
+
+.mgl-deal-club-label {
+    margin: 0;
+    color: #fff;
+    font-family: "Barlow Condensed", sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+    text-transform: uppercase;
+}
+
+.mgl-deal-dir {
+    margin: 6px 0 8px;
+    color: rgba(160, 164, 172, 0.95);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.mgl-deal-players {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.mgl-deal-player {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    color: rgba(210, 214, 220, 0.96);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.2;
+}
+
+.mgl-deal-player-name {
+    overflow-wrap: anywhere;
+}
+
+.mgl-deal-player-ovr {
+    color: #7cff6b;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+}
+
+.mgl-deal-tokens {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 12px 0 0;
+    color: var(--mgl-orange, #ff5c00);
+    font-size: 14px;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.mgl-deal-token-icon {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    border-radius: 999px;
+    background:
+        radial-gradient(circle at 35% 30%, #ffd36a 0 35%, #ff9a1a 36% 100%);
+    box-shadow: 0 0 0 2px rgba(255, 154, 26, 0.22);
+}
+
+.mgl-deal-status {
+    margin: 10px 0 0;
+    color: rgba(160, 164, 172, 0.95);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
 @media (max-width: 720px) {
     .mgl-activity-card {
         grid-template-columns: auto minmax(0, 1fr);

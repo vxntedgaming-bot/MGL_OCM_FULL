@@ -2,6 +2,7 @@
 
 import re
 from datetime import timedelta
+from decimal import Decimal, InvalidOperation
 
 from django.db.models import Q
 
@@ -276,6 +277,40 @@ def _football_kind(post):
     return None
 
 
+def completed_deal_payload(post):
+    """Build a completed-deal card from the snapshot stored at approval.
+
+    Returns None for older transfer posts that have no deal snapshot so
+    those cards keep the original simple layout.
+    """
+    details = getattr(post, "details", None) or {}
+    if not isinstance(details, dict) or not details.get("deal"):
+        return None
+    try:
+        amount = Decimal(str(details.get("amount") or "0"))
+    except (InvalidOperation, TypeError, ValueError):
+        amount = Decimal("0")
+    swaps = details.get("swaps") or []
+    if not isinstance(swaps, list):
+        swaps = []
+    target = details.get("target") or {}
+    if not isinstance(target, dict):
+        target = {}
+    selling_club = details.get("selling_club") or ""
+    buying_club = details.get("buying_club") or ""
+    return {
+        "selling_club": selling_club,
+        "buying_club": buying_club,
+        "target": target,
+        "swaps": swaps,
+        "is_swap": bool(swaps),
+        "amount": amount,
+        "amount_display": f"{amount:.2f}",
+        "has_fee": amount > 0,
+        "payer": buying_club,
+    }
+
+
 def _player_name(post):
     title = (post.title or "").strip()
     for suffix in (" transferred", " signed", " listed for sale"):
@@ -347,6 +382,11 @@ def activity_payloads(posts):
         if kind == KIND_RESULT and matchweek:
             gw = f"Gameweek {matchweek}"
             meta_line = f"{meta_line} · {gw}" if meta_line else gw
+        deal = completed_deal_payload(post) if kind == KIND_TRANSFER else None
+        if deal:
+            from_club = deal["selling_club"] or from_club
+            to_club = deal["buying_club"] or to_club
+            player_name = deal.get("target", {}).get("name") or player_name
         items.append(
             {
                 "post": post,
@@ -366,8 +406,11 @@ def activity_payloads(posts):
                 "to_club": to_club,
                 "meta_line": meta_line,
                 "occurred_at": post.created_at,
+                "deal": deal,
                 "subtitle": (
-                    "Transfer completed"
+                    "TRANSFER COMPLETED"
+                    if kind == KIND_TRANSFER and deal
+                    else "Transfer completed"
                     if kind == KIND_TRANSFER
                     else "New signing"
                     if kind == KIND_SIGNING
@@ -378,7 +421,7 @@ def activity_payloads(posts):
     return items
 
 
-def record_activity(category, title, body, publish=True, team=None, secondary_team=None):
+def record_activity(category, title, body, publish=True, team=None, secondary_team=None, details=None):
     """Create official live activity. Call only after the existing approval/action."""
     return create_news(
         category,
@@ -387,6 +430,7 @@ def record_activity(category, title, body, publish=True, team=None, secondary_te
         publish=publish,
         team=team,
         secondary_team=secondary_team,
+        details=details,
     )
 
 
