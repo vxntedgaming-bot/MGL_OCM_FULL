@@ -49,7 +49,7 @@ class CompletedDealCardTests(TestCase):
             name="Atletico Test", short_name="ATM", league=self.league, manager=self.user_b
         )
         self.target = Player.objects.create(
-            name="Listed Forward", position="ST", overall=78, mgl_team=self.team_b
+            name="Target Forward", position="ST", overall=78, mgl_team=self.team_b
         )
         self.swap_one = Player.objects.create(
             name="First Swap", position="CM", overall=76, mgl_team=self.team_a
@@ -93,7 +93,7 @@ class CompletedDealCardTests(TestCase):
         self.assertContains(page, "TRANSFER")
         self.assertContains(page, "Atletico Test")
         self.assertContains(page, "Bayer Test")
-        self.assertContains(page, "Listed Forward")
+        self.assertContains(page, "Target Forward")
         self.assertContains(page, "78 OVR")
         self.assertContains(page, "Transfer fee: 3.00 TKN")
         self.assertContains(page, "TRANSFER COMPLETED")
@@ -111,7 +111,7 @@ class CompletedDealCardTests(TestCase):
         html = page.content.decode()
         self.assertContains(page, "Atletico Test")
         self.assertContains(page, "Bayer Test")
-        self.assertContains(page, "Listed Forward")
+        self.assertContains(page, "Target Forward")
         self.assertContains(page, "78 OVR")
         self.assertContains(page, "First Swap")
         self.assertContains(page, "76 OVR")
@@ -126,12 +126,12 @@ class CompletedDealCardTests(TestCase):
             self.listing,
             self.mgr_a,
             "2.00",
-            offered_player=[self.swap_one, self.swap_two, self.swap_three],
+            offered_players=[self.swap_one, self.swap_two, self.swap_three],
         )
         respond_to_transfer_offer(listing, self.user_b, True)
         approve_listing(listing, self.owner)
         page = self._activity()
-        self.assertContains(page, "Listed Forward")
+        self.assertContains(page, "Target Forward")
         self.assertContains(page, "First Swap")
         self.assertContains(page, "Second Swap")
         self.assertContains(page, "Third Swap")
@@ -149,7 +149,7 @@ class CompletedDealCardTests(TestCase):
         page = self._activity()
         self.assertContains(page, "TOKEN PAYMENT 0.00 TKN")
         self.assertContains(page, "First Swap")
-        self.assertContains(page, "Listed Forward")
+        self.assertContains(page, "Target Forward")
         self.assertNotContains(page, "Transfer fee:")
         self.mgr_a.refresh_from_db()
         self.mgr_b.refresh_from_db()
@@ -159,7 +159,7 @@ class CompletedDealCardTests(TestCase):
     def test_player_and_token_deal_shows_both(self):
         self._complete("3.00", offered=[self.swap_one, self.swap_two])
         page = self._activity()
-        self.assertContains(page, "Listed Forward")
+        self.assertContains(page, "Target Forward")
         self.assertContains(page, "First Swap")
         self.assertContains(page, "Second Swap")
         self.assertContains(page, "Bayer Test paid 3.00 TKN")
@@ -172,7 +172,7 @@ class CompletedDealCardTests(TestCase):
         respond_to_transfer_offer(listing, self.user_b, False)
         page = self._activity()
         self.assertNotContains(page, "TRANSFER COMPLETED")
-        self.assertNotContains(page, "Listed Forward")
+        self.assertNotContains(page, "Target Forward")
         self.assertFalse(self._deal_posts().exists())
         self.assertFalse(published_football_activity().filter(category=NewsPost.TRANSFER).exists())
 
@@ -182,13 +182,13 @@ class CompletedDealCardTests(TestCase):
         reject_listing(listing, self.owner)
         page = self._activity()
         self.assertNotContains(page, "TRANSFER COMPLETED")
-        self.assertNotContains(page, "Listed Forward")
+        self.assertNotContains(page, "Target Forward")
         self.assertFalse(self._deal_posts().exists())
 
     def test_snapshot_stays_after_players_move_again(self):
         self._complete("1.00", offered=self.swap_one)
         post = self._deal_posts().get()
-        self.assertEqual(post.details["target"]["name"], "Listed Forward")
+        self.assertEqual(post.details["target"]["name"], "Target Forward")
         self.assertEqual(post.details["target"]["overall"], 78)
         self.assertEqual(post.details["swaps"][0]["name"], "First Swap")
         self.assertEqual(post.details["swaps"][0]["overall"], 76)
@@ -201,7 +201,7 @@ class CompletedDealCardTests(TestCase):
         self.swap_one.save(update_fields=["name", "overall"])
 
         page = self._activity()
-        self.assertContains(page, "Listed Forward")
+        self.assertContains(page, "Target Forward")
         self.assertContains(page, "78 OVR")
         self.assertContains(page, "First Swap")
         self.assertContains(page, "76 OVR")
@@ -209,7 +209,7 @@ class CompletedDealCardTests(TestCase):
         self.assertNotContains(page, "Moved Again")
         self.assertNotContains(page, "99 OVR")
         payload = activity_payloads([post])[0]
-        self.assertEqual(payload["deal"]["target"]["name"], "Listed Forward")
+        self.assertEqual(payload["deal"]["target"]["name"], "Target Forward")
         self.assertEqual(payload["deal"]["swaps"][0]["overall"], 76)
 
     def test_one_completed_deal_creates_one_activity_card(self):
@@ -224,7 +224,7 @@ class CompletedDealCardTests(TestCase):
         home = self.client.get(reverse("home"))
         activity = self._activity()
         self.assertContains(home, "mgl-deal-card")
-        self.assertContains(home, "Listed Forward")
+        self.assertContains(home, "Target Forward")
         self.assertContains(home, "Transfer fee: 3.00 TKN")
         self.assertContains(activity, "mgl-deal-card")
         self.assertContains(activity, "Transfer fee: 3.00 TKN")

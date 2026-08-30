@@ -49,7 +49,7 @@ def published_activity():
 
 def _listing_or_auction_noise():
     return (
-        Q(title__icontains="listed")
+        Q(title__icontains="listed for sale")
         | Q(body__icontains="listed for sale")
         | Q(title__icontains="Auction started")
         | Q(title__icontains="available in an Admin auction")
@@ -271,7 +271,7 @@ def _football_kind(post):
         return KIND_SIGNING
     if post.category == NewsPost.TRANSFER:
         blob = f"{post.title or ''} {post.body or ''}".lower()
-        if "listed" in blob or "auction" in blob:
+        if "listed for sale" in blob or "auction" in blob:
             return None
         return KIND_TRANSFER
     return None
