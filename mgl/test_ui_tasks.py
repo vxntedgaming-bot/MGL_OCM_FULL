@@ -84,7 +84,8 @@ class HomepageNewsAndActivityTests(TestCase):
         page = self.client.get(reverse("live_activity"))
         self.assertEqual(page.status_code, 200)
         self.assertContains(page, "Live Activity")
-        self.assertContains(page, "Karol Knap")
+        self.assertContains(page, "mgl-deal-card")
+        self.assertContains(page, "Buyer FC")
 
 
 class CompetitionSelectorTests(TestCase):
