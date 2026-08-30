@@ -197,6 +197,11 @@ body.mgl-xfers-page {
     min-width: 0;
 }
 
+.mgl-xf-deal .mgl-xf-player a,
+.mgl-xf-deal .mgl-xf-player strong {
+    text-transform: uppercase;
+}
+
 .mgl-xf-player a,
 .mgl-xf-player strong,
 .mgl-xf-mgr-who strong {

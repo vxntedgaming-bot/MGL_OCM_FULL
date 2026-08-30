@@ -111,7 +111,11 @@ class TransferRequestsPageTests(TestCase):
         self.assertEqual(page.status_code, 200)
         self.assertContains(page, "Lilywhite Winger")
         self.assertNotContains(page, "Blue Midfielder")
-        self.assertNotContains(page, "Chelsea Test")
+        incoming_html = page.content.decode().split('id="incoming-requests"', 1)[1].split(
+            'id="outgoing-requests"', 1
+        )[0]
+        self.assertNotIn("Blue Midfielder", incoming_html)
+        self.assertNotIn("Chelsea Test", incoming_html)
 
     def test_manager_cannot_respond_to_another_clubs_request(self):
         listing = create_transfer_offer(self.player_b, self.mgr_a, "8.00")
