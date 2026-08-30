@@ -429,6 +429,7 @@ body.mgl-jobs-body .mgl-main {
     display: grid;
     gap: 8px;
     min-width: 168px;
+    max-width: 220px;
 }
 
 .mgl-jobs-page .mgl-jobs-view,
@@ -436,9 +437,13 @@ body.mgl-jobs-body .mgl-main {
 .mgl-jobs-page .mgl-jobs-submit {
     width: 100%;
     min-height: 44px;
+    padding: 8px 12px;
     font-family: var(--font-display, "Barlow Condensed", sans-serif);
     font-size: 13px;
     letter-spacing: 0.08em;
+    line-height: 1.15;
+    white-space: normal;
+    text-align: center;
 }
 
 .mgl-jobs-page .mgl-jobs-view {
@@ -650,6 +655,7 @@ body.mgl-jobs-body .mgl-main {
     .mgl-jobs-card-stats,
     .mgl-jobs-card-actions {
         grid-template-columns: 1fr;
+        max-width: none;
     }
 
     .mgl-jobs-card-crest .mgl-team-logo,

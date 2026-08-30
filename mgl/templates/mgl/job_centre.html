@@ -53,7 +53,7 @@
                     </svg>
                     <div>
                         <span>MANAGERIAL OPENINGS</span>
-                        <strong>{{ vacant_clubs|length }} OPEN POSITION{{ vacant_clubs|length|pluralize }}</strong>
+                        <strong>{% if vacant_clubs|length == 1 %}1 OPEN POSITION{% else %}{{ vacant_clubs|length }} OPEN POSITIONS{% endif %}</strong>
                     </div>
                 </div>
             </div>
