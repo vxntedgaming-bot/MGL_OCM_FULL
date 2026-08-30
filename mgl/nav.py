@@ -182,7 +182,7 @@ SIGNED_IN_NAV_DROPDOWNS = (
             "youth_academy",
         },
         "items": (
-            {"label": "Transfer Requests", "url_name": "transfer_requests"},
+            {"label": "Transfers", "url_name": "transfer_requests"},
             {"label": "Transfer Market", "url_name": "transfer_market", "divider": True},
             {"label": "Free Agents", "url_name": "free_agents", "divider": True},
             {"label": "Auctions", "url_name": "live_auctions", "divider": True},

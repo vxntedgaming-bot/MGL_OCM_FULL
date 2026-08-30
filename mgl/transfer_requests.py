@@ -1,11 +1,17 @@
-"""Helpers for the manager Transfer Requests page.
+"""Helpers for the manager Transfers page.
 
-Uses the existing PlayerListing offer workflow. Does not invent statuses,
-ownership, or approval rules.
+Uses the existing PlayerListing offer workflow and MarketTransaction history.
+Does not invent statuses, ownership, or approval rules.
 """
 
+from decimal import Decimal
+
+from django.db.models import Q, Sum
+
+from managers.models import ManagerApplication
 from mgl.market import club_for_user, listing_swap_players, transfer_offer_details
-from mgl.models import PlayerListing
+from mgl.models import MarketTransaction, PlayerListing
+from teams.models import Team
 
 
 LISTING_STATUS_LABELS = {
@@ -69,6 +75,15 @@ def listing_status_label(listing):
     return LISTING_STATUS_LABELS.get(listing.status, listing.get_status_display())
 
 
+FILTER_STATUS_MAP = {
+    "pending": {PlayerListing.OFFER},
+    "awaiting-opponent": {PlayerListing.OFFER},
+    "awaiting-admin": {PlayerListing.PENDING},
+    "completed": {PlayerListing.SOLD},
+    "rejected": {PlayerListing.REJECTED},
+}
+
+
 def decorate_transfer_request(listing, buyer_club=None):
     if buyer_club is None and listing.reserved_buyer_id:
         buyer_club = club_for_user(listing.reserved_buyer.user)
@@ -79,4 +94,87 @@ def decorate_transfer_request(listing, buyer_club=None):
     listing.swap_players = listing_swap_players(listing)
     listing.can_seller_respond = listing.status == PlayerListing.OFFER
     listing.transfer_type = details.get("transfer_type") or "Transfer request"
+    listing.filter_key = {
+        PlayerListing.OFFER: "pending",
+        PlayerListing.PENDING: "awaiting-admin",
+        PlayerListing.SOLD: "completed",
+        PlayerListing.REJECTED: "rejected",
+        PlayerListing.CANCELLED: "rejected",
+    }.get(listing.status, "pending")
     return listing
+
+
+def filter_requests(rows, status):
+    wanted = FILTER_STATUS_MAP.get(status)
+    if not wanted:
+        return list(rows)
+    return [row for row in rows if row.status in wanted]
+
+
+def format_tokens(amount):
+    if amount is None:
+        return "0"
+    value = Decimal(str(amount)).quantize(Decimal("0.01"))
+    if value == value.to_integral():
+        return str(int(value))
+    return f"{value:.2f}"
+
+
+def completed_transfers_for(club, *, all_clubs=False, limit=None):
+    rows = (
+        MarketTransaction.objects.filter(status=MarketTransaction.COMPLETED)
+        .select_related("player", "from_team", "to_team", "seller", "buyer")
+        .order_by("-completed_at", "-created_at", "-id")
+    )
+    if club is not None and not all_clubs:
+        rows = rows.filter(Q(from_team=club) | Q(to_team=club))
+    if limit:
+        rows = rows[:limit]
+    return list(rows)
+
+
+def richest_assigned_managers(limit=8):
+    teams = {
+        team.manager_id: team
+        for team in Team.objects.filter(manager__isnull=False).select_related("league")
+    }
+    ranked = []
+    managers = (
+        ManagerApplication.objects.filter(status=ManagerApplication.APPROVED)
+        .select_related("user")
+        .order_by("-tokens", "display_name")
+    )
+    for manager in managers:
+        club = teams.get(manager.user_id)
+        if club is None:
+            continue
+        name = (manager.display_name or manager.user.username or "?").strip()
+        parts = name.split()
+        initials = (
+            f"{parts[0][:1]}{parts[1][:1]}".upper()
+            if len(parts) >= 2
+            else name[:2].upper()
+        )
+        ranked.append(
+            {
+                "manager": manager,
+                "club": club,
+                "tokens": manager.tokens,
+                "tokens_label": format_tokens(manager.tokens),
+                "initials": initials,
+            }
+        )
+        if limit and len(ranked) >= limit:
+            break
+    return ranked
+
+
+def transfer_centre_stats():
+    completed = MarketTransaction.objects.filter(status=MarketTransaction.COMPLETED)
+    spent = completed.aggregate(total=Sum("amount"))["total"] or Decimal("0")
+    active_managers = Team.objects.filter(manager__isnull=False).count()
+    return {
+        "total_transfers": completed.count(),
+        "tokens_spent": format_tokens(spent),
+        "managers_active": active_managers,
+    }

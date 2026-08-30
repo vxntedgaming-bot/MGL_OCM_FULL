@@ -1,91 +1,147 @@
 {% extends "core/base.html" %}
 {% load static mgl_ui %}
 
-{% block title %}Transfer Requests — MGL{% endblock %}
-{% block body_class %}mgl-market-page mgl-tr-page{% endblock %}
+{% block title %}MGL | TRANSFERS{% endblock %}
+{% block body_class %}mgl-xfers-page{% endblock %}
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'core/css/mgl-market.css' %}">
-<link rel="stylesheet" href="{% static 'core/css/mgl-transfers.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/mgl-xfers.css' %}?v=xf-1">
 {% endblock %}
 
 {% block content %}
-<section class="mgl-section mgl-tr-page">
-    <nav class="mgl-market-crumbs" aria-label="Manager location">
-        <a href="{% url 'manager_hub' %}" class="mgl-market-crumb">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10.5V20h11V10.5"/></svg>
-            MANAGER HUB
-        </a>
-        <span class="mgl-market-crumb-sep" aria-hidden="true">›</span>
-        <span class="mgl-market-crumb-current">TRANSFER REQUESTS</span>
-    </nav>
-
-    <div class="mgl-tr-status-bar">
-        <span class="mgl-tr-window{% if not window_open %} is-closed{% endif %}">
-            ● {% if window_open %}WINDOW OPEN{% else %}WINDOW CLOSED{% endif %}
-        </span>
-        {% if club %}
-            <span class="mgl-tr-ticker">
-                {% team_logo club "xs" %}
-                {{ club.name }} · Review deals involving your club
-            </span>
-        {% endif %}
-    </div>
-
-    <header class="mgl-market-hero">
-        <div class="mgl-market-hero-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                <path d="M7 7h11l-3-3M17 17H6l3 3"/>
-            </svg>
-        </div>
+<div class="mgl-xf">
+    <header class="mgl-xf-title">
+        <svg class="mgl-xf-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path d="M4 8h13l-3-3"/><path d="M20 16H7l3 3"/>
+        </svg>
         <div>
-            <div class="eyebrow">MANAGER</div>
-            <h1>TRANSFER REQUESTS</h1>
-            <p class="mgl-tr-copy">Review and manage transfer requests involving your club.</p>
+            <h1>TRANSFERS</h1>
+            <p>All the latest moves, deals and transfer activity.</p>
         </div>
     </header>
 
-    {% if not window_open %}
-        <div class="mgl-tr-banner mgl-tr-banner-warn">
-            <strong>Transfers are paused</strong>
-            <span>The transfer window is closed. Existing requests can still be reviewed.</span>
-        </div>
-    {% endif %}
+    <nav class="mgl-xf-filters" aria-label="Transfer status">
+        <a href="?status=all" class="{% if request_status == 'all' %}is-active{% endif %}">ALL</a>
+        <a href="?status=pending" class="{% if request_status == 'pending' %}is-active{% endif %}">PENDING</a>
+        <a href="?status=awaiting-opponent" class="{% if request_status == 'awaiting-opponent' %}is-active{% endif %}">AWAITING OPPONENT</a>
+        <a href="?status=awaiting-admin" class="{% if request_status == 'awaiting-admin' %}is-active{% endif %}">AWAITING ADMIN</a>
+        <a href="?status=completed" class="{% if request_status == 'completed' %}is-active{% endif %}">COMPLETED</a>
+        <a href="?status=rejected" class="{% if request_status == 'rejected' %}is-active{% endif %}">REJECTED</a>
+    </nav>
 
-    <div class="mgl-tr-banner mgl-tr-banner-cta">
-        <div>
-            <strong>Looking to sign someone?</strong>
-            <span>Browse listed players and send a request through the existing transfer market.</span>
-        </div>
-        <a href="{% url 'transfer_market' %}" class="primary-button">VIEW TRANSFER MARKET</a>
+    <div class="mgl-xf-grid">
+        <section class="mgl-xf-panel" id="here-we-go">
+            <div class="mgl-xf-panel-head">
+                <div>
+                    <h2>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="m8.5 12.2 2.4 2.3 4.7-5"/></svg>
+                        HERE WE GO
+                    </h2>
+                    <p>Completed Transfers</p>
+                </div>
+                <a href="{% url 'transfer_history' %}">VIEW ALL TRANSFERS &gt;</a>
+            </div>
+            <div class="mgl-xf-cols mgl-xf-cols-deals" aria-hidden="true">
+                <span>PLAYER</span><span>FROM</span><span></span><span>TO</span><span>FEE</span><span>DATE</span>
+            </div>
+            {% for row in completed_transfers %}
+                <article class="mgl-xf-deal">
+                    <div class="mgl-xf-player">
+                        {% player_face_url row.player "small" as face %}
+                        {% if face %}
+                            <img src="{{ face }}" alt="" class="mgl-xf-face" loading="lazy" onerror="this.style.display='none'">
+                        {% else %}
+                            <span class="mgl-xf-face-fallback" aria-hidden="true">{{ row.player.name|slice:":1"|default:"?" }}</span>
+                        {% endif %}
+                        <div>
+                            {% if row.player_id %}
+                                <a href="{% url 'player_profile' row.player_id %}">{{ row.player.name|upper }}</a>
+                            {% else %}
+                                <strong>TOKEN MOVEMENT</strong>
+                            {% endif %}
+                            <p>
+                                {% if row.player %}{{ row.player.position }}{% endif %}
+                                {% if row.player and row.player.overall %} · {{ row.player.overall }}{% endif %}
+                                {% if row.player and row.player.age %} · {{ row.player.age }}{% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="mgl-xf-club">{% team_logo row.from_team "xs" %} <span>{{ row.from_team.name|default:"—" }}</span></div>
+                    <span class="mgl-xf-chevron" aria-hidden="true">»</span>
+                    <div class="mgl-xf-club">{% team_logo row.to_team "xs" %} <span>{{ row.to_team.name|default:"—" }}</span></div>
+                    <strong class="mgl-xf-fee">{{ row.fee_label }} TOKENS</strong>
+                    <time>{% if row.completed_at %}{{ row.completed_at|date:"d M Y" }}{% else %}{{ row.created_at|date:"d M Y" }}{% endif %}</time>
+                </article>
+            {% empty %}
+                <p class="mgl-xf-empty">No completed transfers involving your club.</p>
+            {% endfor %}
+            {% if not show_all_completed %}
+                <a class="mgl-xf-more" href="?status={{ request_status }}&amp;completed=all#here-we-go">VIEW ALL COMPLETED TRANSFERS ↓</a>
+            {% endif %}
+        </section>
+
+        <section class="mgl-xf-panel">
+            <div class="mgl-xf-panel-head">
+                <div>
+                    <h2>
+                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3.2 13.7 8h4.8l-3.9 3 1.5 4.8L12 13.1 7.9 15.8 9.4 11 5.5 8h4.8Z"/></svg>
+                        MANAGERS
+                    </h2>
+                    <p>Most Tokens (Richest Managers)</p>
+                </div>
+            </div>
+            <div class="mgl-xf-cols mgl-xf-cols-mgrs" aria-hidden="true">
+                <span>#</span><span>MANAGER</span><span>CLUB</span><span>TOKENS</span>
+            </div>
+            {% for row in richest_managers %}
+                <article class="mgl-xf-mgr">
+                    <span class="mgl-xf-rank {% if forloop.counter <= 3 %}is-top is-{{ forloop.counter }}{% endif %}">{{ forloop.counter }}</span>
+                    <div class="mgl-xf-mgr-who">
+                        <span class="mgl-xf-avatar" aria-hidden="true">{{ row.initials }}</span>
+                        <strong>{{ row.manager.display_name }}</strong>
+                    </div>
+                    <div class="mgl-xf-club">{% team_logo row.club "xs" %} <span>{{ row.club.name }}</span></div>
+                    <strong class="mgl-xf-fee">{{ row.tokens_label }} TOKENS</strong>
+                </article>
+            {% empty %}
+                <p class="mgl-xf-empty">No assigned managers yet.</p>
+            {% endfor %}
+            <a class="mgl-xf-more" href="{% url 'manager_search' %}">VIEW FULL MANAGERS LIST &gt;</a>
+        </section>
     </div>
 
-    <section class="mgl-tr-card" aria-labelledby="incoming-requests">
-        <div class="mgl-tr-card-head">
+    <section class="mgl-xf-panel" aria-labelledby="incoming-requests">
+        <div class="mgl-xf-panel-head">
             <h2 id="incoming-requests">INCOMING REQUESTS</h2>
-            <span class="mgl-tr-count">{{ incoming|length }}</span>
+            <span class="mgl-xf-count">{{ incoming|length }}</span>
         </div>
         {% for row in incoming %}
-            <article class="mgl-tr-row">
-                <div class="mgl-tr-player">
-                    <a href="{% url 'player_profile' row.player_id %}">{{ row.player.name }}</a>
-                    <p class="mgl-tr-meta">
-                        {{ row.transfer_type }}
-                        {% if row.deal.seller_receives %} · {{ row.deal.seller_receives }}{% endif %}
-                    </p>
-                    <p class="mgl-tr-meta">Requesting club: {{ row.deal.requesting_club|default:"—" }}</p>
+            <article class="mgl-xf-req">
+                <div class="mgl-xf-player">
+                    {% player_face_url row.player "small" as req_face %}
+                    {% if req_face %}
+                        <img src="{{ req_face }}" alt="" class="mgl-xf-face" loading="lazy" onerror="this.style.display='none'">
+                    {% endif %}
+                    <div>
+                        <a href="{% url 'player_profile' row.player_id %}">{{ row.player.name }}</a>
+                        <p class="mgl-tr-meta">
+                            {{ row.transfer_type }}
+                            {% if row.deal.seller_receives %} · {{ row.deal.seller_receives }}{% endif %}
+                        </p>
+                        <p class="mgl-tr-meta">Requesting club: {{ row.deal.requesting_club|default:"—" }}</p>
+                    </div>
                 </div>
-                <div class="mgl-tr-clubs">
-                    <span class="mgl-tr-club">{% team_logo row.team "xs" %} {{ row.team.short_name|default:row.team.name }}</span>
-                    <span class="mgl-tr-arrow" aria-hidden="true">→</span>
-                    <span class="mgl-tr-club">
+                <div class="mgl-xf-clubs">
+                    <span class="mgl-xf-club">{% team_logo row.team "xs" %} {{ row.team.short_name|default:row.team.name }}</span>
+                    <span aria-hidden="true">→</span>
+                    <span class="mgl-xf-club">
                         {% if row.buyer_club %}{% team_logo row.buyer_club "xs" %} {{ row.buyer_club.short_name|default:row.buyer_club.name }}{% else %}—{% endif %}
                     </span>
                 </div>
                 <div>
-                    <span class="mgl-tr-status is-{{ row.status_label|lower }}">{{ row.status_label|upper }}</span>
-                    <p class="mgl-tr-meta">{{ row.created_at|date:"j M Y, H:i" }}</p>
+                    <span class="mgl-xf-status is-{{ row.status_label|lower }}">{{ row.status_label|upper }}</span>
+                    <p>{{ row.created_at|date:"j M Y, H:i" }}</p>
                 </div>
-                <div class="mgl-tr-actions">
+                <div class="mgl-xf-actions">
                     {% if row.can_seller_respond %}
                         <form method="post" action="{% url 'respond_transfer_request' row.id %}">
                             {% csrf_token %}
@@ -105,47 +161,61 @@
         {% endfor %}
     </section>
 
-    <section class="mgl-tr-card" aria-labelledby="outgoing-requests">
-        <div class="mgl-tr-card-head">
+    <section class="mgl-xf-panel" aria-labelledby="outgoing-requests">
+        <div class="mgl-xf-panel-head">
             <h2 id="outgoing-requests">OUTGOING REQUESTS</h2>
-            <span class="mgl-tr-count">{{ outgoing|length }}</span>
+            <span class="mgl-xf-count">{{ outgoing|length }}</span>
         </div>
         {% for row in outgoing %}
-            <article class="mgl-tr-row">
-                <div class="mgl-tr-player">
-                    <a href="{% url 'player_profile' row.player_id %}">{{ row.player.name }}</a>
-                    <p class="mgl-tr-meta">
-                        {{ row.transfer_type }}
-                        {% if row.deal.seller_receives %} · {{ row.deal.seller_receives }}{% endif %}
-                    </p>
+            <article class="mgl-xf-req">
+                <div class="mgl-xf-player">
+                    <div>
+                        <a href="{% url 'player_profile' row.player_id %}">{{ row.player.name }}</a>
+                        <p class="mgl-tr-meta">
+                            {{ row.transfer_type }}
+                            {% if row.deal.seller_receives %} · {{ row.deal.seller_receives }}{% endif %}
+                        </p>
+                    </div>
                 </div>
-                <div class="mgl-tr-clubs">
-                    <span class="mgl-tr-club">{% team_logo row.team "xs" %} {{ row.team.short_name|default:row.team.name }}</span>
-                    <span class="mgl-tr-arrow" aria-hidden="true">→</span>
-                    <span class="mgl-tr-club">
+                <div class="mgl-xf-clubs">
+                    <span class="mgl-xf-club">{% team_logo row.team "xs" %} {{ row.team.short_name|default:row.team.name }}</span>
+                    <span aria-hidden="true">→</span>
+                    <span class="mgl-xf-club">
                         {% if row.buyer_club %}{% team_logo row.buyer_club "xs" %} {{ row.buyer_club.short_name|default:row.buyer_club.name }}{% else %}—{% endif %}
                     </span>
                 </div>
                 <div>
-                    <span class="mgl-tr-status is-{{ row.status_label|lower }}">{{ row.status_label|upper }}</span>
-                    <p class="mgl-tr-meta">{{ row.created_at|date:"j M Y, H:i" }}</p>
+                    <span class="mgl-xf-status is-{{ row.status_label|lower }}">{{ row.status_label|upper }}</span>
+                    <p>{{ row.created_at|date:"j M Y, H:i" }}</p>
                 </div>
-                <div class="mgl-tr-actions"></div>
+                <div class="mgl-xf-actions"></div>
             </article>
         {% empty %}
             <div class="mgl-tr-empty">No outgoing transfer requests.</div>
         {% endfor %}
     </section>
 
-    {% if discord_invite_url %}
-        <section class="discord-banner">
-            <div class="discord-icon" aria-hidden="true">D</div>
-            <div>
-                <h2>JOIN OUR DISCORD</h2>
-                <p>Arrange fixtures, discuss transfers, and stay up to date with the league.</p>
-            </div>
-            <a href="{{ discord_invite_url }}" class="primary-button" target="_blank" rel="noopener">JOIN NOW</a>
-        </section>
-    {% endif %}
-</section>
+    <section class="mgl-xf-stats">
+        <article>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 8h13l-3-3"/><path d="M20 16H7l3 3"/></svg>
+            <strong>{{ transfer_stats.total_transfers }}</strong>
+            <span>TOTAL TRANSFERS</span>
+        </article>
+        <article>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="5" y="3.5" width="14" height="17" rx="1.5"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+            <strong>{{ transfer_stats.tokens_spent }}</strong>
+            <span>TOKENS SPENT</span>
+        </article>
+        <article>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="9" cy="8" r="2.4"/><circle cx="15.5" cy="8.8" r="2"/><path d="M4.8 17.2a4.3 4.3 0 0 1 8.4 0"/><path d="M13.4 16.6a3.6 3.6 0 0 1 5.8 2"/></svg>
+            <strong>{{ transfer_stats.managers_active }}</strong>
+            <span>MANAGERS ACTIVE</span>
+        </article>
+        <article>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v4.2L15 14"/></svg>
+            <strong>{% if window_open %}OPEN{% else %}CLOSED{% endif %}</strong>
+            <span>{% if window_open %}TRANSFER WINDOW OPEN{% else %}TRANSFER WINDOW CLOSED{% endif %}</span>
+        </article>
+    </section>
+</div>
 {% endblock %}

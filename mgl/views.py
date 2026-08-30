@@ -388,11 +388,17 @@ def manager_notification_respond(request, notification_id):
 @login_required
 def transfer_requests(request):
     from mgl.market import transfer_window_is_open
+    from mgl.permissions import is_owner_or_admin
     from mgl.transfer_requests import (
+        completed_transfers_for,
         decorate_transfer_request,
+        filter_requests,
+        format_tokens,
         incoming_offer_count,
         incoming_transfer_requests,
         outgoing_transfer_requests,
+        richest_assigned_managers,
+        transfer_centre_stats,
     )
 
     manager = approved_manager(request.user)
@@ -404,8 +410,23 @@ def transfer_requests(request):
         messages.error(request, "You need a club before you can manage transfer requests.")
         return redirect("manager_hub")
 
-    incoming = [decorate_transfer_request(row) for row in incoming_transfer_requests(club)]
-    outgoing = [decorate_transfer_request(row) for row in outgoing_transfer_requests(manager)]
+    status = (request.GET.get("status") or "all").strip().lower()
+    show_all_completed = request.GET.get("completed") == "all"
+    incoming = filter_requests(
+        [decorate_transfer_request(row) for row in incoming_transfer_requests(club)],
+        status,
+    )
+    outgoing = filter_requests(
+        [decorate_transfer_request(row) for row in outgoing_transfer_requests(manager)],
+        status,
+    )
+    completed = completed_transfers_for(
+        club,
+        all_clubs=is_owner_or_admin(request.user),
+        limit=None if show_all_completed else 8,
+    )
+    for row in completed:
+        row.fee_label = format_tokens(row.amount)
     return render(
         request,
         "mgl/transfer_requests.html",
@@ -416,6 +437,11 @@ def transfer_requests(request):
             "outgoing": outgoing,
             "incoming_count": incoming_offer_count(club),
             "window_open": transfer_window_is_open(),
+            "completed_transfers": completed,
+            "show_all_completed": show_all_completed,
+            "richest_managers": richest_assigned_managers(8),
+            "transfer_stats": transfer_centre_stats(),
+            "request_status": status,
         },
     )
 

@@ -84,7 +84,7 @@ class TransferRequestsPageTests(TestCase):
         self.client.login(username="seller", password="test-pass-123")
         page = self.client.get(reverse("transfer_requests"))
         self.assertEqual(page.status_code, 200)
-        self.assertContains(page, "TRANSFER REQUESTS")
+        self.assertContains(page, "TRANSFERS")
         self.assertContains(page, "INCOMING REQUESTS")
         self.assertContains(page, "Blue Midfielder")
         self.assertContains(page, "Arsenal Test")
@@ -227,6 +227,35 @@ class TransferRequestsPageTests(TestCase):
             self.assertNotContains(page, ">APPROVE</button>")
             self.assertNotContains(page, ">REJECT</button>")
             self.assertNotContains(page, f"listing-{pending.pk}")
+
+    def test_transfers_page_uses_real_completed_deals(self):
+        finished = Player.objects.create(
+            name="Completed Striker",
+            position="ST",
+            overall=82,
+            mgl_team=self.team_a,
+            is_free_agent=False,
+        )
+        MarketTransaction.objects.create(
+            player=finished,
+            seller=self.mgr_b,
+            buyer=self.mgr_a,
+            from_team=self.team_b,
+            to_team=self.team_a,
+            amount=Decimal("9.00"),
+            transaction_type=MarketTransaction.SALE,
+            status=MarketTransaction.COMPLETED,
+        )
+        self.client.login(username="seller", password="test-pass-123")
+        page = self.client.get(reverse("transfer_requests"))
+        self.assertContains(page, "MGL | TRANSFERS")
+        self.assertContains(page, "HERE WE GO")
+        self.assertContains(page, "Completed Striker")
+        self.assertContains(page, "9 TOKENS")
+        self.assertContains(page, "MANAGERS")
+        self.assertContains(page, "Buyer")
+        self.assertContains(page, "TRANSFER WINDOW OPEN")
+        self.assertNotContains(page, "FLORIAN WIRTZ")
 
     def test_nav_and_hub_link_show_pending_count(self):
         create_transfer_offer(self.player_b, self.mgr_a, "8.00")

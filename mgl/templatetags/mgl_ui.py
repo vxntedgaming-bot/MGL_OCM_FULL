@@ -144,6 +144,11 @@ def card_stat_rows(player):
     return rows
 
 
+@register.simple_tag
+def player_face_url(player, size="small"):
+    return card_face_src(player, size) or ""
+
+
 @register.inclusion_tag("mgl/includes/player_card.html")
 def player_card(player, size="standard", linked=True):
     size = size or "standard"
