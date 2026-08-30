@@ -189,6 +189,13 @@ class TeamMarketListingTests(TestCase):
         self.assertContains(market, "5.00")
         self.assertContains(market, "VIEW PLAYER")
         self.assertContains(market, "Starting price")
+        self.assertContains(market, "ASKING PRICE")
+        self.assertContains(market, "FILTER:")
+        self.assertContains(market, "data-pos-filter")
+        self.assertContains(market, "core/css/mgl-market.css")
+        self.assertContains(market, "Alpha")
+        self.assertContains(market, "MANAGER")
+        self.assertContains(market, self.mgr_a.display_name)
 
     def test_http_rejects_other_club_listing_and_seventh_slot(self):
         self.client.login(username="seller", password="test-pass-123")

@@ -1,143 +1,257 @@
 {% extends "core/base.html" %}
-{% load mgl_ui %}
+{% load static mgl_ui %}
 
 {% block title %}Transfer Market — MGL{% endblock %}
+{% block body_class %}mgl-market-page{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/mgl-market.css' %}">
+{% endblock %}
 
 {% block content %}
-<section class="mgl-section">
-    <div class="section-heading">
+<section class="mgl-section mgl-market-page">
+    <nav class="mgl-market-crumbs" aria-label="Market location">
+        {% if user.is_authenticated %}
+            <a href="{% url 'manager_hub' %}" class="mgl-market-crumb">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10.5V20h11V10.5"/></svg>
+                MANAGER HUB
+            </a>
+        {% else %}
+            <a href="{% url 'home' %}" class="mgl-market-crumb">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10.5V20h11V10.5"/></svg>
+                HOME
+            </a>
+        {% endif %}
+        <span class="mgl-market-crumb-sep" aria-hidden="true">›</span>
+        <span class="mgl-market-crumb-current">TRANSFER MARKET</span>
+    </nav>
+
+    <header class="mgl-market-hero">
+        <div class="mgl-market-hero-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M20.6 13.1 13.1 20.6a2 2 0 0 1-2.8 0L3.4 13.7a2 2 0 0 1 0-2.8L10.9 3.4a2 2 0 0 1 1.4-.6H19a2 2 0 0 1 2 2v6.7a2 2 0 0 1-.4 1.6Z"/>
+                <circle cx="16" cy="8" r="1.2"/>
+            </svg>
+        </div>
         <div>
             <div class="eyebrow">MGL MARKET</div>
-            <h2>TRANSFER MARKET</h2>
+            <h1>TRANSFER MARKET</h1>
             <p>{% site_text "market.transfer_intro" %}</p>
         </div>
-        <span class="section-line"></span>
-    </div>
+    </header>
 
     <div class="overview-grid">
-        <div class="overview-stat">
+        <a class="overview-stat" href="#auctions">
             <span>LIVE AUCTIONS</span>
             <strong>{{ auctions|length }}</strong>
             <small>TOKEN BIDS</small>
-        </div>
-        <div class="overview-stat">
+        </a>
+        <a class="overview-stat" href="#sales">
             <span>PLAYERS FOR SALE</span>
             <strong>{{ listings|length }}</strong>
             <small>ASKING PRICE</small>
-        </div>
+        </a>
         <div class="overview-stat">
             <span>UNASSIGNED</span>
             <strong>{{ unassigned_count }}</strong>
             <small>FC26 POOL</small>
         </div>
-        <div class="overview-stat">
+        <a class="overview-stat" href="{% url 'free_agents' %}">
             <span>FREE AGENTS</span>
             <strong>{{ free_agent_count }}</strong>
             <small>AVAILABLE TO SIGN</small>
-        </div>
-    </div>
-</section>
-
-<section class="mgl-section" id="auctions">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">AUCTIONS</div>
-            <h2>LIVE PLAYER AUCTIONS</h2>
-        </div>
+        </a>
     </div>
 
-    {% for auction in auctions %}
-        <article class="mgl-market-listing">
-            {% player_card auction.player "small" %}
-            <div class="mgl-market-meta">
-                <div class="eyebrow">{{ auction.player|player_tier }} · {{ auction.player.position }}</div>
-                <h3>{{ auction.player.name }}</h3>
-                <p>
-                    {% team_logo auction.origin_team "xs" %}
-                    {% if auction.origin_team %}
-                        {{ auction.origin_team.name }}
-                    {% elif auction.player.mgl_team %}
-                        {{ auction.player.mgl_team.name }}
-                    {% else %}
-                        <span class="mgl-status-badge mgl-status-badge--{{ auction.player|market_status_slug }}">{{ auction.player|market_status_label }}</span>
-                    {% endif %}
-                    · {{ auction.player.overall }} OVR · {{ auction.player.position }}
-                </p>
-                <p>Seller: {% if auction.listed_by_manager %}{{ auction.listed_by_manager.display_name }}{% elif auction.listing_kind == "FREE_AGENT" %}League office{% else %}League office{% endif %}</p>
-                <div class="mgl-market-price">{{ auction.winning_bid|default:auction.starting_bid }} TKN</div>
-                <p>Starting bid: {{ auction.starting_bid }} TKN · Current bid: {% if auction.winning_bid %}{{ auction.winning_bid }} TKN{% else %}No bids yet{% endif %}</p>
-                <p>Highest bid: {% if auction.winning_manager %}{{ auction.winning_manager.display_name }}{% else %}No bids yet{% endif %}</p>
-                <p>Time remaining: {{ auction.ends_at|time_left }} · Status: {{ auction.status }}</p>
-                <div class="mgl-market-actions">
-                    <a href="{% url 'player_profile' auction.player.id %}" class="secondary-button">VIEW PLAYER</a>
-                    {% if user.is_authenticated and team %}
-                    <form method="post" action="{% url 'place_bid' auction.id %}" class="mgl-inline-form">
-                        {% csrf_token %}
-                        <input type="hidden" name="next" value="{{ request.path }}">
-                        <input type="number" name="amount" min="1" placeholder="Bid tokens" required>
-                        <button type="submit" class="primary-button">PLACE BID</button>
-                    </form>
-                    {% endif %}
-                </div>
+    <section class="mgl-market-board" id="sales" data-market-board="sales">
+        <div class="mgl-market-board-head">
+            <div>
+                <div class="eyebrow">TRANSFERS</div>
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <path d="M20.6 13.1 13.1 20.6a2 2 0 0 1-2.8 0L3.4 13.7a2 2 0 0 1 0-2.8L10.9 3.4a2 2 0 0 1 1.4-.6H19a2 2 0 0 1 2 2v6.7a2 2 0 0 1-.4 1.6Z"/>
+                        <circle cx="16" cy="8" r="1.2"/>
+                    </svg>
+                    PLAYERS FOR SALE
+                </h2>
             </div>
-        </article>
-    {% empty %}
-        {% include "mgl/includes/empty_state.html" with kicker="AUCTIONS" title="NO LIVE AUCTIONS" body="When the league office releases an unassigned player into auction, managers will be able to bid tokens here." %}
-    {% endfor %}
-</section>
-
-<section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">TRANSFERS</div>
-            <h2>PLAYERS FOR SALE</h2>
+            <span class="mgl-market-count">{{ listings|length }} PLAYER{{ listings|length|pluralize:"S" }}</span>
         </div>
-    </div>
 
-    {% for listing in listings %}
-        <article class="mgl-market-listing">
-            {% player_card listing.player "small" %}
-            <div class="mgl-market-meta">
-                <div class="eyebrow">{{ listing.status }} · {{ listing.player|player_tier }}</div>
-                <h3>{{ listing.player.name }}</h3>
-                <p>{{ listing.player.position }} · {{ listing.player.overall }} OVR</p>
-                <p class="mgl-info-club">
-                    {% team_logo listing.team "xs" %}
-                    {{ listing.team.name }}
-                </p>
-                <p>Seller: {{ listing.seller.display_name }}</p>
-                <div class="mgl-market-price">{{ listing.asking_price }} TKN</div>
-                <p>Starting price · {{ listing.status }}</p>
-                <div class="mgl-market-actions">
-                    <a href="{% url 'player_profile' listing.player.id %}" class="secondary-button">VIEW PLAYER</a>
-                    {% if user.is_authenticated and team and team.id != listing.team_id %}
-                    <form method="post" action="{% url 'buy_player' listing.id %}">
-                        {% csrf_token %}
-                        <button type="submit" class="primary-button">BUY NOW</button>
-                    </form>
-                    {% endif %}
+        <div class="mgl-market-filters" role="group" aria-label="Filter listed players by position">
+            <span class="mgl-market-filters-label">FILTER:</span>
+            <button type="button" class="mgl-pos-filter is-active" data-pos-filter="ALL">ALL</button>
+            <button type="button" class="mgl-pos-filter" data-pos-filter="GK">GK</button>
+            <button type="button" class="mgl-pos-filter" data-pos-filter="CB">CB</button>
+            <button type="button" class="mgl-pos-filter" data-pos-filter="LB">LB</button>
+            <button type="button" class="mgl-pos-filter" data-pos-filter="RB">RB</button>
+            <button type="button" class="mgl-pos-filter" data-pos-filter="LWB">LWB</button>
+            <button type="button" class="mgl-pos-filter" data-pos-filter="RWB">RWB</button>
+            <button type="button" class="mgl-pos-filter" data-pos-filter="CDM">CDM</button>
+            <button type="button" class="mgl-pos-filter" data-pos-filter="CM">CM</button>
+            <button type="button" class="mgl-pos-filter" data-pos-filter="CAM">CAM</button>
+            <button type="button" class="mgl-pos-filter" data-pos-filter="LM">LM</button>
+            <button type="button" class="mgl-pos-filter" data-pos-filter="RM">RM</button>
+            <button type="button" class="mgl-pos-filter" data-pos-filter="LW">LW</button>
+            <button type="button" class="mgl-pos-filter" data-pos-filter="RW">RW</button>
+            <button type="button" class="mgl-pos-filter" data-pos-filter="CF">CF</button>
+            <button type="button" class="mgl-pos-filter" data-pos-filter="ST">ST</button>
+        </div>
+
+        {% if listings %}
+            <div class="mgl-market-table">
+                <div class="mgl-market-cols" aria-hidden="true">
+                    <span>PLAYER</span>
+                    <span>POS</span>
+                    <span>OVR</span>
+                    <span>ASKING PRICE</span>
+                    <span>CLUB</span>
+                    <span>MANAGER</span>
+                    <span>ACTIONS</span>
                 </div>
+                {% for listing in listings %}
+                    <article class="mgl-market-row" data-position="{{ listing.player.position }}">
+                        <div class="mgl-market-player">
+                            <span class="mgl-market-mobile-label">PLAYER</span>
+                            <a class="mgl-market-player-name" href="{% url 'player_profile' listing.player.id %}">{{ listing.player.name }}</a>
+                        </div>
+                        <div>
+                            <span class="mgl-market-mobile-label">POS</span>
+                            <span class="mgl-pos-badge" data-pos="{{ listing.player.position }}">{{ listing.player.position }}</span>
+                        </div>
+                        <div>
+                            <span class="mgl-market-mobile-label">OVR</span>
+                            <span class="mgl-ovr-badge">{{ listing.player.overall }}</span>
+                        </div>
+                        <div class="mgl-market-price-cell">
+                            <span class="mgl-market-mobile-label">ASKING PRICE</span>
+                            <div class="mgl-market-price">{{ listing.asking_price }} TKN</div>
+                            <p class="mgl-market-price-note">Starting price · {{ listing.status }}</p>
+                        </div>
+                        <div class="mgl-market-club">
+                            <span class="mgl-market-mobile-label">CLUB</span>
+                            {% team_logo listing.team "xs" %}
+                            <span>{{ listing.team.name }}</span>
+                        </div>
+                        <div class="mgl-market-manager">
+                            <span class="mgl-market-mobile-label">MANAGER</span>
+                            <span>{{ listing.seller.display_name }}</span>
+                        </div>
+                        <div class="mgl-market-actions">
+                            <a href="{% url 'player_profile' listing.player.id %}" class="secondary-button">VIEW PLAYER</a>
+                            {% if user.is_authenticated and team and team.id != listing.team_id %}
+                            <form method="post" action="{% url 'buy_player' listing.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="primary-button">BUY NOW</button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </article>
+                {% endfor %}
             </div>
-        </article>
-    {% empty %}
-        {% include "mgl/includes/empty_state.html" with kicker="SALES" title="NO PLAYERS LISTED" body="Managers can list a squad player for a token asking price. Listings go live after owner/admin approval." %}
-    {% endfor %}
-</section>
+            <p class="mgl-market-filter-empty" data-filter-empty hidden>No listed players at this position.</p>
+        {% else %}
+            {% include "mgl/includes/empty_state.html" with kicker="SALES" title="NO PLAYERS LISTED" body="Managers can list a squad player for a token asking price. Listings go live after owner/admin approval." %}
+        {% endif %}
+    </section>
 
-<section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">FREE AGENTS</div>
-            <h2>FREE AGENTS</h2>
+    <section class="mgl-market-board" id="auctions">
+        <div class="mgl-market-board-head">
+            <div>
+                <div class="eyebrow">AUCTIONS</div>
+                <h2>LIVE PLAYER AUCTIONS</h2>
+            </div>
+            <a href="{% url 'live_auctions' %}" class="view-all">VIEW ALL →</a>
         </div>
-        <a href="{% url 'free_agents' %}" class="view-all">VIEW ALL →</a>
-    </div>
-    <div class="mgl-player-card-grid">
-        {% for player in free_agents %}
-            {% player_card player "small" %}
-        {% empty %}
-            {% include "mgl/includes/empty_state.html" with kicker="MARKET" title="NO FREE AGENTS TO SHOW" body="Free Agents appear here only after an unassigned auction closes with no bids." %}
-        {% endfor %}
-    </div>
+
+        {% if auctions %}
+            <div class="mgl-market-table">
+                <div class="mgl-market-cols mgl-market-auction-cols" aria-hidden="true">
+                    <span>PLAYER</span>
+                    <span>POS</span>
+                    <span>OVR</span>
+                    <span>CURRENT BID</span>
+                    <span>CLUB</span>
+                    <span>SELLER</span>
+                    <span>TIME LEFT</span>
+                    <span>ACTIONS</span>
+                </div>
+                {% for auction in auctions %}
+                    <article class="mgl-market-row mgl-market-auction-row">
+                        <div class="mgl-market-player">
+                            <span class="mgl-market-mobile-label">PLAYER</span>
+                            <a class="mgl-market-player-name" href="{% url 'player_profile' auction.player.id %}">{{ auction.player.name }}</a>
+                        </div>
+                        <div>
+                            <span class="mgl-market-mobile-label">POS</span>
+                            <span class="mgl-pos-badge" data-pos="{{ auction.player.position }}">{{ auction.player.position }}</span>
+                        </div>
+                        <div>
+                            <span class="mgl-market-mobile-label">OVR</span>
+                            <span class="mgl-ovr-badge">{{ auction.player.overall }}</span>
+                        </div>
+                        <div class="mgl-market-price-cell">
+                            <span class="mgl-market-mobile-label">CURRENT BID</span>
+                            <div class="mgl-market-price">{{ auction.winning_bid|default:auction.starting_bid }} TKN</div>
+                            <p class="mgl-market-price-note">Starting bid: {{ auction.starting_bid }} TKN · Current bid: {% if auction.winning_bid %}{{ auction.winning_bid }} TKN{% else %}No bids yet{% endif %}</p>
+                            <p class="mgl-market-price-note">Highest bid: {% if auction.winning_manager %}{{ auction.winning_manager.display_name }}{% else %}No bids yet{% endif %}</p>
+                        </div>
+                        <div class="mgl-market-club">
+                            <span class="mgl-market-mobile-label">CLUB</span>
+                            {% team_logo auction.origin_team "xs" %}
+                            {% if auction.origin_team %}
+                                <span>{{ auction.origin_team.name }}</span>
+                            {% elif auction.player.mgl_team %}
+                                <span>{{ auction.player.mgl_team.name }}</span>
+                            {% else %}
+                                <span class="mgl-status-badge mgl-status-badge--{{ auction.player|market_status_slug }}">{{ auction.player|market_status_label }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="mgl-market-manager">
+                            <span class="mgl-market-mobile-label">SELLER</span>
+                            <span>{% if auction.listed_by_manager %}{{ auction.listed_by_manager.display_name }}{% else %}League office{% endif %}</span>
+                        </div>
+                        <div>
+                            <span class="mgl-market-mobile-label">TIME LEFT</span>
+                            <p class="mgl-market-price-note">Time remaining: {{ auction.ends_at|time_left }} · Status: {{ auction.status }}</p>
+                        </div>
+                        <div class="mgl-market-actions">
+                            <a href="{% url 'player_profile' auction.player.id %}" class="secondary-button">VIEW PLAYER</a>
+                            {% if user.is_authenticated and team %}
+                            <form method="post" action="{% url 'place_bid' auction.id %}" class="mgl-inline-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="next" value="{{ request.path }}">
+                                <input type="number" name="amount" min="1" placeholder="Bid tokens" required>
+                                <button type="submit" class="primary-button">PLACE BID</button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            {% include "mgl/includes/empty_state.html" with kicker="AUCTIONS" title="NO LIVE AUCTIONS" body="When the league office releases an unassigned player into auction, managers will be able to bid tokens here." %}
+        {% endif %}
+    </section>
+
+    <section class="mgl-market-board" id="free-agents">
+        <div class="mgl-market-board-head">
+            <div>
+                <div class="eyebrow">FREE AGENTS</div>
+                <h2>FREE AGENTS</h2>
+            </div>
+            <a href="{% url 'free_agents' %}" class="view-all">VIEW ALL →</a>
+        </div>
+        <div class="mgl-player-card-grid mgl-market-fa-grid">
+            {% for player in free_agents %}
+                {% player_card player "small" %}
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with kicker="MARKET" title="NO FREE AGENTS TO SHOW" body="Free Agents appear here only after an unassigned auction closes with no bids." %}
+            {% endfor %}
+        </div>
+    </section>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'core/js/mgl-market-filters.js' %}"></script>
 {% endblock %}
