@@ -13,6 +13,7 @@ from mgl.market import (
     AUCTION_DURATIONS_MINUTES,
     MARKET_SLOT_MESSAGE,
     MAX_ACTIVE_CLUB_LISTINGS,
+    _lock_listing,
     create_free_agent_auction,
     create_manager_auction,
     list_player_for_sale,
@@ -209,6 +210,18 @@ class TeamMarketListingTests(TestCase):
         )
         self.assertEqual(auction.status_code, 302)
         self.assertFalse(PlayerAuction.objects.filter(player=self.owned).exists())
+
+    def test_listing_lock_query_does_not_join_nullable_relations(self):
+        from django.db import connection
+        from django.test.utils import CaptureQueriesContext
+
+        listing = list_player_for_sale(self.owned, self.mgr_a, "3.00")
+        with CaptureQueriesContext(connection) as captured:
+            locked = _lock_listing(listing)
+        self.assertEqual(locked.pk, listing.pk)
+        sql = " ".join(query["sql"] for query in captured.captured_queries).lower()
+        self.assertNotIn(" join ", sql)
+        self.assertIn("from \"mgl_playerlisting\"", sql)
 
     def test_approved_sale_appears_on_market_and_other_channels_stay(self):
         owner = _user("sale-owner", role=User.OWNER)

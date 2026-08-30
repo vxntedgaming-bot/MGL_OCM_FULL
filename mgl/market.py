@@ -773,14 +773,19 @@ def _complete_listing_sale(listing, buyer):
     return listing
 
 
+def _lock_listing(listing):
+    """Lock the listing row only.
+
+    PostgreSQL rejects SELECT FOR UPDATE when select_related() joins a
+    nullable FK (reserved_buyer, sold_to, reviewed_by). Load those after
+    the lock, the same way auction bids are locked.
+    """
+    return PlayerListing.objects.select_for_update().get(pk=listing.pk)
+
+
 @transaction.atomic
 def approve_listing(listing, reviewer):
-    listing = PlayerListing.objects.select_for_update().select_related(
-        "player",
-        "team",
-        "seller",
-        "reserved_buyer",
-    ).get(pk=listing.pk)
+    listing = _lock_listing(listing)
     if listing.status != PlayerListing.PENDING:
         raise ValueError("This listing is not waiting for approval.")
     listing.reviewed_at = timezone.now()
@@ -809,12 +814,7 @@ def approve_listing(listing, reviewer):
 
 @transaction.atomic
 def reject_listing(listing, reviewer):
-    listing = PlayerListing.objects.select_for_update().select_related(
-        "player",
-        "team",
-        "seller",
-        "reserved_buyer",
-    ).get(pk=listing.pk)
+    listing = _lock_listing(listing)
     if listing.status != PlayerListing.PENDING:
         raise ValueError("This listing is not waiting for approval.")
     listing.status = PlayerListing.REJECTED
@@ -922,12 +922,7 @@ def create_transfer_offer(player, buyer, asking_price):
 
 @transaction.atomic
 def respond_to_transfer_offer(listing, seller_user, accept):
-    listing = PlayerListing.objects.select_for_update().select_related(
-        "player",
-        "team",
-        "seller",
-        "reserved_buyer",
-    ).get(pk=listing.pk)
+    listing = _lock_listing(listing)
     if listing.status != PlayerListing.OFFER:
         raise ValueError("This transfer request has already been handled.")
     if listing.team.manager_id != seller_user.id:
