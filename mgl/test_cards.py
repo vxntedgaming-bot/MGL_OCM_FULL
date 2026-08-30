@@ -140,7 +140,7 @@ class PlayerCardAndBadgeTests(TestCase):
         squad = self.client.get(reverse("team_management"))
         self.assertEqual(squad.status_code, 200)
         self.assertContains(squad, "GOLD STRIKER")
-        self.assertContains(squad, "mgl/cards/gold_card.png")
+        self.assertContains(squad, "mgl-squad-table")
         self.assertContains(squad, "TRANSFER LISTED")
         self.assertContains(squad, "WITHDRAW")
         self.assertNotContains(squad, "SELL A PLAYER")

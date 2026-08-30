@@ -2,111 +2,133 @@
 {% load static mgl_ui %}
 
 {% block title %}{% if team %}{{ team.name }} — Squad{% else %}Team Management — MGL{% endif %}{% endblock %}
+{% block body_class %}mgl-team-page{% endblock %}
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'core/css/mgl-starting-xi.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/mgl-team.css' %}">
 {% endblock %}
 
 {% block content %}
-<section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">MGL MANAGER HUB</div>
-            {% if team %}
-                <h1 class="mgl-info-club">{% team_logo team "lg" %} {{ team.name }}</h1>
-                <p>Team Management · {{ squad_size }}/{{ team.roster_limit }} players</p>
-            {% else %}
-                <h1>TEAM MANAGEMENT</h1>
-                <p>You are not currently assigned to a club.</p>
-            {% endif %}
-        </div>
-        <span class="section-line"></span>
-    </div>
+<section class="mgl-section mgl-team-page">
+    <nav class="mgl-team-crumbs" aria-label="Team location">
+        {% if user.is_authenticated %}
+            <a href="{% url 'manager_hub' %}" class="mgl-team-crumb">MANAGER HUB</a>
+        {% else %}
+            <a href="{% url 'home' %}" class="mgl-team-crumb">HOME</a>
+        {% endif %}
+        <span class="mgl-team-crumb-sep" aria-hidden="true">›</span>
+        <span class="mgl-team-crumb-current">{% if team %}{{ team.name|upper }} — SQUAD{% else %}TEAM MANAGEMENT{% endif %}</span>
+    </nav>
 
     {% if team %}
-        <div class="overview-grid">
-            <div class="overview-stat">
-                <span>SQUAD SIZE</span>
-                <strong>{{ squad_size }}/{{ team.roster_limit }}</strong>
-            </div>
-            <div class="overview-stat">
-                <span>AVAILABLE SPACES</span>
-                <strong>{{ available_spaces }}</strong>
-            </div>
-            <div class="overview-stat">
-                <span>TOKEN BALANCE</span>
-                <strong>{{ token_balance }}</strong>
-                <small>PERSONAL TOKENS</small>
-            </div>
-            <div class="overview-stat">
-                <span>MARKET LISTINGS</span>
-                <strong>{{ market_listing_count }}/{{ market_listing_limit }}</strong>
-                <small>TRANSFERS + AUCTIONS</small>
-            </div>
-            <div class="overview-stat">
-                <span>AVERAGE OVR</span>
-                <strong>
-                    {% if players %}
-                        {% widthratio total_ovr players|length 1 %}
-                    {% else %}
-                        0
-                    {% endif %}
-                </strong>
-            </div>
-        </div>
-
-        {% if players %}
-        <img
-            class="mgl-starting-xi"
-            src="{% static 'core/img/mgl-starting-xi.png' %}"
-            alt="MGL Starting XI"
-            width="1536"
-            height="1024"
-        >
-        {% endif %}
-
-        {% for label, group in squad_groups %}
-        {% if group %}
-        <section class="mgl-squad-group">
-            <div class="section-heading">
-                <div>
-                    <div class="eyebrow">SQUAD</div>
-                    <h2>{{ label }}</h2>
+        <header class="mgl-team-hero">
+            <div class="mgl-team-hero-main">
+                {% team_logo team "xl" %}
+                <div class="mgl-team-hero-copy">
+                    <h1>{{ team.name }}</h1>
+                    <p class="mgl-team-hero-meta">
+                        <span>Manager: {% if user.manager_application.display_name %}{{ user.manager_application.display_name }}{% else %}{{ user.username }}{% endif %}</span>
+                        {% if team.league %}
+                            <span>League: {{ team.league|league_label }}</span>
+                        {% endif %}
+                    </p>
+                    <span class="mgl-team-token-pill">{{ token_balance }} TOKENS</span>
                 </div>
             </div>
-            <div class="mgl-player-card-grid">
-                {% for player in group %}
-                    <div class="mgl-squad-card">
-                        {% player_card player "standard" %}
-                        <div class="mgl-card-actions">
-                            {% if player.current_listing %}
-                                <span class="mgl-card-status">TRANSFER LISTED · {{ player.current_listing.asking_price }} TKN</span>
-                                <form method="post" action="{% url 'cancel_player_listing' player.current_listing.id %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="secondary-button">WITHDRAW</button>
-                                </form>
-                            {% elif player.current_auction %}
-                                <span class="mgl-card-status">IN AUCTION · {{ player.current_auction.ends_at|time_left }}</span>
-                                <a href="{% url 'live_auctions' %}" class="secondary-button">VIEW AUCTION</a>
-                            {% else %}
-                                <a href="{% url 'team_management' %}?list=transfer&amp;player={{ player.id }}" class="secondary-button">LIST FOR TRANSFER</a>
-                                <a href="{% url 'team_management' %}?list=auction&amp;player={{ player.id }}" class="secondary-button">LIST FOR AUCTION</a>
-                                <a href="{% url 'team_management' %}?list=release&amp;player={{ player.id }}" class="secondary-button">RELEASE</a>
-                            {% endif %}
-                        </div>
-                    </div>
-                {% endfor %}
+            <div class="mgl-team-hero-count">
+                <strong>{{ squad_size }} PLAYERS</strong>
+                <span>MAX {{ team.roster_limit }}</span>
+                <small>{{ squad_size }}/{{ team.roster_limit }} · {{ market_listing_count }}/{{ market_listing_limit }} LISTINGS</small>
             </div>
-        </section>
-        {% endif %}
-        {% endfor %}
-        {% if not players %}
-            {% if squad_size %}
-                {% include "mgl/includes/empty_state.html" with title="SQUAD PLAYERS IN AUCTION" %}
-            {% else %}
-                {% include "mgl/includes/empty_state.html" with title="NO PLAYERS YET" %}
-            {% endif %}
+        </header>
+
+        {% if players %}
+        <div class="mgl-squad-board">
+            <div class="mgl-squad-board-head">
+                <div class="mgl-squad-board-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+                    <h2>SQUAD</h2>
+                </div>
+                <span class="mgl-squad-sort-hint">Click headers to sort</span>
+            </div>
+            <div class="mgl-squad-scroll">
+                <table class="mgl-squad-table" id="mgl-squad-table">
+                    <thead>
+                        <tr>
+                            <th data-sort="name">PLAYER</th>
+                            <th data-sort="pos">POS</th>
+                            <th data-sort="nation">NATION</th>
+                            <th data-sort="ovr">OVR</th>
+                            <th data-sort="listed">TRANSFER LIST</th>
+                            <th>ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for player in players %}
+                        <tr
+                            class="mgl-squad-row"
+                            data-name="{{ player.name|lower }}"
+                            data-pos="{{ player.position }}"
+                            data-nation="{{ player.nationality|default:''|lower }}"
+                            data-ovr="{{ player.overall }}"
+                            data-listed="{% if player.current_listing %}1{% else %}0{% endif %}"
+                        >
+                            <td class="mgl-squad-player">
+                                <a href="{% url 'player_profile' player.id %}">{{ player|card_name }}</a>
+                            </td>
+                            <td>
+                                <span class="mgl-pos-badge mgl-pos-{{ player.position|lower }}{% if player.position == 'GK' %} mgl-pos-gk{% elif player.position == 'CB' or player.position == 'LB' or player.position == 'RB' or player.position == 'LWB' or player.position == 'RWB' %} mgl-pos-def{% elif player.position == 'ST' or player.position == 'CF' or player.position == 'LW' or player.position == 'RW' %} mgl-pos-att{% else %} mgl-pos-mid{% endif %}">{{ player.position }}</span>
+                            </td>
+                            <td class="mgl-squad-nation">{{ player.nationality|default:"—" }}</td>
+                            <td>
+                                <span class="mgl-ovr-badge mgl-ovr-{{ player|player_tier|lower }}">{{ player.overall }}</span>
+                            </td>
+                            <td class="mgl-squad-list">
+                                {% if player.current_listing %}
+                                    <input type="checkbox" checked disabled aria-label="TRANSFER LISTED">
+                                    <span class="mgl-visually-hidden">LIST FOR TRANSFER</span>
+                                {% elif player.current_auction %}
+                                    <input type="checkbox" disabled aria-label="IN AUCTION">
+                                    <span class="mgl-visually-hidden">LIST FOR TRANSFER</span>
+                                {% else %}
+                                    <a href="{% url 'team_management' %}?list=transfer&amp;player={{ player.id }}" class="mgl-squad-check-link" title="LIST FOR TRANSFER">
+                                        <input type="checkbox" tabindex="-1" aria-hidden="true">
+                                        <span class="mgl-visually-hidden">LIST FOR TRANSFER</span>
+                                    </a>
+                                {% endif %}
+                            </td>
+                            <td class="mgl-squad-actions">
+                                {% if player.current_listing %}
+                                    <span class="mgl-card-status">TRANSFER LISTED · {{ player.current_listing.asking_price }} TKN</span>
+                                    <form method="post" action="{% url 'cancel_player_listing' player.current_listing.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="secondary-button">WITHDRAW</button>
+                                    </form>
+                                {% elif player.current_auction %}
+                                    <span class="mgl-card-status">IN AUCTION · {{ player.current_auction.ends_at|time_left }}</span>
+                                    <a href="{% url 'live_auctions' %}" class="secondary-button">VIEW AUCTION</a>
+                                {% else %}
+                                    <a href="{% url 'team_management' %}?list=auction&amp;player={{ player.id }}" class="secondary-button">LIST FOR AUCTION</a>
+                                    <a href="{% url 'team_management' %}?list=release&amp;player={{ player.id }}" class="mgl-release-button">RELEASE</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% elif squad_size %}
+            {% include "mgl/includes/empty_state.html" with title="SQUAD PLAYERS IN AUCTION" %}
+        {% else %}
+            {% include "mgl/includes/empty_state.html" with title="NO PLAYERS YET" %}
         {% endif %}
     {% else %}
+        <header class="mgl-team-hero">
+            <div class="mgl-team-hero-copy">
+                <h1>TEAM MANAGEMENT</h1>
+                <p class="mgl-team-hero-meta">You are not currently assigned to a club.</p>
+            </div>
+        </header>
         {% include "mgl/includes/empty_state.html" with title="NO CLUB ASSIGNED" body="Apply for a vacant Premier League club from the Job Centre. Your token balance stays with this account." %}
     {% endif %}
 </section>
@@ -172,4 +194,33 @@
     </div>
 </div>
 {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    var table = document.getElementById("mgl-squad-table");
+    if (!table) return;
+    var body = table.tBodies[0];
+    var headers = table.querySelectorAll("th[data-sort]");
+    var current = { key: "name", dir: 1 };
+    headers.forEach(function (th) {
+        th.addEventListener("click", function () {
+            var key = th.getAttribute("data-sort");
+            current.dir = current.key === key ? -current.dir : 1;
+            current.key = key;
+            var rows = Array.prototype.slice.call(body.rows);
+            rows.sort(function (a, b) {
+                var av = a.getAttribute("data-" + key) || "";
+                var bv = b.getAttribute("data-" + key) || "";
+                if (key === "ovr" || key === "listed") {
+                    return (Number(av) - Number(bv)) * current.dir;
+                }
+                return av.localeCompare(bv) * current.dir;
+            });
+            rows.forEach(function (row) { body.appendChild(row); });
+        });
+    });
+})();
+</script>
 {% endblock %}
