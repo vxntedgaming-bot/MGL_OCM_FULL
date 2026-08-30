@@ -58,7 +58,6 @@
                             <th data-sort="pos">POS</th>
                             <th data-sort="nation">NATION</th>
                             <th data-sort="ovr">OVR</th>
-                            <th data-sort="listed">TRANSFER LIST</th>
                             <th>ACTION</th>
                         </tr>
                     </thead>
@@ -70,7 +69,6 @@
                             data-pos="{{ player.position }}"
                             data-nation="{{ player.nationality|default:''|lower }}"
                             data-ovr="{{ player.overall }}"
-                            data-listed="{% if player.current_listing %}1{% else %}0{% endif %}"
                         >
                             <td class="mgl-squad-player">
                                 <a href="{% url 'player_profile' player.id %}">{{ player|card_name }}</a>
@@ -82,33 +80,20 @@
                             <td>
                                 <span class="mgl-ovr-badge mgl-ovr-{{ player|player_tier|lower }}">{{ player.overall }}</span>
                             </td>
-                            <td class="mgl-squad-list">
-                                {% if player.current_listing %}
-                                    <input type="checkbox" checked disabled aria-label="TRANSFER LISTED">
-                                    <span class="mgl-visually-hidden">LIST FOR TRANSFER</span>
-                                {% elif player.current_auction %}
-                                    <input type="checkbox" disabled aria-label="IN AUCTION">
-                                    <span class="mgl-visually-hidden">LIST FOR TRANSFER</span>
-                                {% else %}
-                                    <a href="{% url 'team_management' %}?list=transfer&amp;player={{ player.id }}" class="mgl-squad-check-link" title="LIST FOR TRANSFER">
-                                        <input type="checkbox" tabindex="-1" aria-hidden="true">
-                                        <span class="mgl-visually-hidden">LIST FOR TRANSFER</span>
-                                    </a>
-                                {% endif %}
-                            </td>
                             <td class="mgl-squad-actions">
                                 {% if player.current_listing %}
                                     <span class="mgl-card-status">TRANSFER LISTED · {{ player.current_listing.asking_price }} TKN</span>
                                     <form method="post" action="{% url 'cancel_player_listing' player.current_listing.id %}">
                                         {% csrf_token %}
-                                        <button type="submit" class="secondary-button">WITHDRAW</button>
+                                        <button type="submit" class="mgl-squad-action">WITHDRAW</button>
                                     </form>
                                 {% elif player.current_auction %}
                                     <span class="mgl-card-status">IN AUCTION · {{ player.current_auction.ends_at|time_left }}</span>
-                                    <a href="{% url 'live_auctions' %}" class="secondary-button">VIEW AUCTION</a>
+                                    <a href="{% url 'live_auctions' %}" class="mgl-squad-action">VIEW AUCTION</a>
                                 {% else %}
-                                    <a href="{% url 'team_management' %}?list=auction&amp;player={{ player.id }}" class="secondary-button">LIST FOR AUCTION</a>
-                                    <a href="{% url 'team_management' %}?list=release&amp;player={{ player.id }}" class="mgl-release-button">RELEASE</a>
+                                    <a href="{% url 'team_management' %}?list=transfer&amp;player={{ player.id }}" class="mgl-squad-action">TRANSFER</a>
+                                    <a href="{% url 'team_management' %}?list=release&amp;player={{ player.id }}" class="mgl-squad-action">RELEASE</a>
+                                    <a href="{% url 'team_management' %}?list=auction&amp;player={{ player.id }}" class="mgl-squad-action">AUCTION</a>
                                 {% endif %}
                             </td>
                         </tr>
@@ -213,7 +198,7 @@
             rows.sort(function (a, b) {
                 var av = a.getAttribute("data-" + key) || "";
                 var bv = b.getAttribute("data-" + key) || "";
-                if (key === "ovr" || key === "listed") {
+                if (key === "ovr") {
                     return (Number(av) - Number(bv)) * current.dir;
                 }
                 return av.localeCompare(bv) * current.dir;
