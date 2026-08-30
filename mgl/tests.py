@@ -26,7 +26,7 @@ class HomeAndUrlTests(PhaseAClientTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, "NAPOLI")
         self.assertContains(response, "No upcoming fixtures have been released.")
-        self.assertContains(response, "No published news yet.")
+        self.assertContains(response, "NO PUBLISHED NEWS YET")
 
     def test_homepage_uses_published_news(self):
         NewsPost.objects.create(

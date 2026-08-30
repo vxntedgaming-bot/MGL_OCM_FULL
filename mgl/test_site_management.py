@@ -406,7 +406,7 @@ class SiteManagementTests(TestCase):
         self.assertEqual(self.team.league_id, original_pk)
         tables = self.client.get(reverse("leagues_page"))
         self.assertContains(tables, "MGL PREMIER")
-        self.assertContains(tables, "Top division copy.")
+        self.assertNotContains(tables, "Top division copy.")
 
     def test_mgl_player_states_untouched_after_site_management(self):
         self._login(self.owner)
