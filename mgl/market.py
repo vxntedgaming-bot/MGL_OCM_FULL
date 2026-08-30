@@ -632,9 +632,14 @@ def list_player_for_sale(player, manager, asking_price):
         team=team,
         seller=manager,
         asking_price=price,
-        status=PlayerListing.PENDING,
+        status=PlayerListing.LIVE,
     )
-    _notify_control_of_sale_listing(listing)
+    create_news(
+        NewsPost.TRANSFER,
+        f"{player.name} listed for sale",
+        f"{team.name} listed {player.name} for {price} tokens.",
+        team=team,
+    )
     return listing
 
 
@@ -645,10 +650,12 @@ def _notify_control_of_sale_listing(listing):
     from mgl.models import ManagerNotification
     from mgl.notifications import notify_user
 
+    buyer = listing.reserved_buyer
     details = {
         "player": listing.player.name,
         "current_club": listing.team.name,
-        "transfer_type": "For sale",
+        "requesting_club": buyer.display_name if buyer else "",
+        "transfer_type": "Transfer request",
         "amount": str(listing.asking_price),
     }
     for user in User.objects.filter(
@@ -659,10 +666,10 @@ def _notify_control_of_sale_listing(listing):
             user,
             source_key=f"admin-listing-{listing.pk}",
             notification_type="TRANSFER",
-            title="PLAYER LISTED FOR SALE",
+            title="TRANSFER REQUEST",
             message=(
-                f"{listing.team.name} listed {listing.player.name} "
-                f"for {listing.asking_price} TKN."
+                f"{listing.team.name} accepted a transfer request for "
+                f"{listing.player.name} at {listing.asking_price} TKN."
             ),
             actor=listing.seller.display_name,
             action_url=reverse("control_centre"),
@@ -1030,6 +1037,7 @@ def respond_to_transfer_offer(listing, seller_user, accept):
                     "status": "PENDING ADMIN",
                 },
             )
+        _notify_control_of_sale_listing(listing)
         return listing
 
     listing.status = PlayerListing.REJECTED

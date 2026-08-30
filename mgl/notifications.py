@@ -121,10 +121,19 @@ class ResultSubmissionSource(NotificationSource):
             Q(home_team=club) | Q(away_team=club)
         )
         submitted_ids = set(
-            MatchSubmission.objects.filter(fixture__in=club_fixtures).values_list(
-                "fixture_id", flat=True
-            )
+            MatchSubmission.objects.filter(fixture__in=club_fixtures)
+            .exclude(status=ApprovalStatus.REJECTED)
+            .values_list("fixture_id", flat=True)
         )
+        rejected_other_ids = set(
+            MatchSubmission.objects.filter(
+                fixture__in=club_fixtures,
+                status=ApprovalStatus.REJECTED,
+            )
+            .exclude(submitted_by=user)
+            .values_list("fixture_id", flat=True)
+        )
+        submitted_ids |= rejected_other_ids
         for fixture in (
             club_fixtures.filter(status="SCHEDULED", is_released=True)
             .select_related("home_team", "away_team")
@@ -183,17 +192,20 @@ class ControlQueueSource(NotificationSource):
         if getattr(user, "role", None) not in (User.OWNER, User.ADMIN):
             return
         for listing in (
-            PlayerListing.objects.filter(status=PlayerListing.PENDING)
-            .select_related("player", "team")
+            PlayerListing.objects.filter(
+                status=PlayerListing.PENDING,
+                reserved_buyer__isnull=False,
+            )
+            .select_related("player", "team", "reserved_buyer")
             .order_by("-created_at")[:12]
         ):
             yield NotificationItem(
                 key=f"admin-listing-{listing.pk}",
                 type="TRANSFER",
-                title="PLAYER LISTED FOR SALE",
+                title="TRANSFER REQUEST",
                 description=(
-                    f"{listing.team.name} listed {listing.player.name} "
-                    "and it needs approval."
+                    f"{listing.reserved_buyer.display_name} wants {listing.player.name} "
+                    f"from {listing.team.name}."
                 ),
                 url=reverse("control_centre"),
                 cta="REVIEW",
@@ -204,7 +216,10 @@ class ControlQueueSource(NotificationSource):
                 listing_id=listing.pk,
             )
         for submission in (
-            MatchSubmission.objects.filter(status=ApprovalStatus.PENDING)
+            MatchSubmission.objects.filter(
+                status=ApprovalStatus.PENDING,
+                opponent_response=ApprovalStatus.APPROVED,
+            )
             .select_related("fixture__home_team", "fixture__away_team", "submitted_by")
             .order_by("-submitted_at")[:12]
         ):
@@ -215,7 +230,7 @@ class ControlQueueSource(NotificationSource):
                 title="RESULT",
                 description=(
                     f"{fixture.home_team.name} vs {fixture.away_team.name} "
-                    "needs approval."
+                    "needs Owner/Admin approval."
                 ),
                 url=reverse("control_centre"),
                 cta="REVIEW",
@@ -360,8 +375,10 @@ def sync_pending_notifications(user):
     to_create = []
     for row in pending:
         is_admin_listing = row["key"].startswith("admin-listing-")
+        is_admin_result = row["key"].startswith("admin-result-")
+        is_admin_action = is_admin_listing or is_admin_result
         if row["key"] in existing:
-            if is_admin_listing:
+            if is_admin_action:
                 ManagerNotification.objects.filter(
                     recipient=user,
                     source_key=row["key"],
@@ -392,7 +409,7 @@ def sync_pending_notifications(user):
                 is_action=True,
                 response_status=(
                     ManagerNotification.PENDING
-                    if is_admin_listing
+                    if is_admin_action
                     else ManagerNotification.NONE
                 ),
             )
@@ -495,6 +512,9 @@ def _detail_rows(item):
     mapping = (
         ("scoreline", "Submitted score"),
         ("fixture", "Match"),
+        ("submitted_by", "Submitted by"),
+        ("submitted_at", "Submitted"),
+        ("match_stats", "Match stats"),
         ("player", "Player"),
         ("requesting_club", "Requesting club"),
         ("current_club", "Current club"),
@@ -544,6 +564,67 @@ def inbox_for_user(user):
     return decorate_inbox_items(items)
 
 
+def _match_submission_details(fixture, submission, submitted_by):
+    rows = {row.team_id: row for row in submission.team_stats.all()}
+    home = rows.get(fixture.home_team_id)
+    away = rows.get(fixture.away_team_id)
+    home_goals = getattr(home, "goals", 0)
+    away_goals = getattr(away, "goals", 0)
+    submitter_team = (
+        fixture.home_team
+        if submitted_by.id == fixture.home_team.manager_id
+        else fixture.away_team
+    )
+    submitted_at = submission.submitted_at
+    if submitted_at is not None:
+        submitted_label = timezone.localtime(submitted_at).strftime("%d %b %Y %H:%M")
+    else:
+        submitted_label = ""
+    return {
+        "fixture": f"{fixture.home_team.name} vs {fixture.away_team.name}",
+        "scoreline": (
+            f"{fixture.home_team.name} {home_goals}–{away_goals} {fixture.away_team.name}"
+        ),
+        "home_team": fixture.home_team.name,
+        "away_team": fixture.away_team.name,
+        "home_goals": home_goals,
+        "away_goals": away_goals,
+        "submitter_club": submitter_team.name,
+        "submitted_by": getattr(submitted_by, "username", "") or submitter_team.name,
+        "submitted_at": submitted_label,
+        "match_stats": (
+            f"Shots {getattr(home, 'shots', 0)}-{getattr(away, 'shots', 0)} · "
+            f"Possession {getattr(home, 'possession', 0)}%-{getattr(away, 'possession', 0)}%"
+        ),
+    }
+
+
+def reopen_notification(user, source_key, **kwargs):
+    existing = ManagerNotification.objects.filter(
+        recipient=user,
+        source_key=source_key,
+    ).first()
+    if existing is None:
+        return notify_user(user, source_key=source_key, **kwargs)
+    existing.notification_type = kwargs.get("notification_type", existing.notification_type)
+    existing.title = kwargs.get("title", existing.title)
+    existing.message = kwargs.get("message", existing.message)
+    existing.actor = kwargs.get("actor", existing.actor) or ""
+    existing.action_url = kwargs.get("action_url", existing.action_url) or ""
+    existing.action_label = kwargs.get("action_label", existing.action_label) or "VIEW"
+    existing.team = kwargs.get("team", existing.team)
+    existing.player = kwargs.get("player", existing.player)
+    existing.fixture = kwargs.get("fixture", existing.fixture)
+    existing.listing = kwargs.get("listing", existing.listing)
+    existing.details = kwargs.get("details") or {}
+    existing.response_status = kwargs.get("response_status") or ManagerNotification.PENDING
+    existing.is_action = kwargs.get("is_action", True)
+    existing.read_at = None
+    existing.actioned_at = None
+    existing.save()
+    return existing
+
+
 def notify_opponent_of_score_submission(fixture, submission, submitted_by):
     opponent_team = (
         fixture.away_team
@@ -555,21 +636,11 @@ def notify_opponent_of_score_submission(fixture, submission, submitted_by):
         if submitted_by.id == fixture.home_team.manager_id
         else fixture.away_team
     )
-    stats = {
-        row.team_id: row.goals
-        for row in submission.team_stats.all()
-    }
-    home_goals = stats.get(fixture.home_team_id, 0)
-    away_goals = stats.get(fixture.away_team_id, 0)
-    scoreline = (
-        f"{fixture.home_team.name} {home_goals}–{away_goals} {fixture.away_team.name}"
-    )
-    fixture_name = f"{fixture.home_team.name} vs {fixture.away_team.name}"
     from django.urls import reverse
 
-    return notify_user(
+    return reopen_notification(
         opponent_team.manager,
-        source_key=f"score-submitted-{fixture.pk}",
+        f"score-submitted-{fixture.pk}",
         notification_type="MATCH",
         title="Match Result Submitted",
         message=(
@@ -582,15 +653,52 @@ def notify_opponent_of_score_submission(fixture, submission, submitted_by):
         fixture=fixture,
         is_action=True,
         response_status=ManagerNotification.PENDING,
-        details={
-            "fixture": fixture_name,
-            "scoreline": scoreline,
-            "home_team": fixture.home_team.name,
-            "away_team": fixture.away_team.name,
-            "home_goals": home_goals,
-            "away_goals": away_goals,
-            "submitter_club": submitter_team.name,
-        },
+        details=_match_submission_details(fixture, submission, submitted_by),
+    )
+
+
+def notify_admins_of_confirmed_result(submission):
+    fixture = submission.fixture
+    details = _match_submission_details(fixture, submission, submission.submitted_by)
+    from django.urls import reverse
+
+    notices = []
+    for user in User.objects.filter(
+        role__in=[User.OWNER, User.ADMIN],
+        is_active=True,
+    ):
+        notices.append(
+            reopen_notification(
+                user,
+                f"admin-result-{submission.pk}",
+                notification_type="RESULT",
+                title="RESULT READY FOR APPROVAL",
+                message=(
+                    f"{details['scoreline']} was confirmed by the opposing manager "
+                    "and needs Owner/Admin approval."
+                ),
+                actor=details.get("submitted_by") or "Manager",
+                action_url=reverse("control_centre"),
+                action_label="REVIEW",
+                team=fixture.home_team,
+                fixture=fixture,
+                is_action=True,
+                response_status=ManagerNotification.PENDING,
+                details=details,
+            )
+        )
+    return notices
+
+
+def close_admin_result_notices(submission, status):
+    now = timezone.now()
+    return ManagerNotification.objects.filter(
+        source_key=f"admin-result-{submission.pk}",
+        response_status=ManagerNotification.PENDING,
+    ).update(
+        response_status=status,
+        actioned_at=now,
+        read_at=now,
     )
 
 

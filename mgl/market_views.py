@@ -28,6 +28,7 @@ from .models import (
     ApprovalStatus,
     ClubApplication,
     MarketTransaction,
+    MatchSubmission,
     NewsPost,
     PlayerListing,
     PressConference,
@@ -134,8 +135,7 @@ def sell_player(request, player_id):
         listing = list_player_for_sale(player, manager, request.POST.get("asking_price"))
         messages.success(
             request,
-            f"{player.name} listed for {listing.asking_price} tokens. "
-            "An owner or admin must approve the listing before it goes live.",
+            f"{player.name} is now listed for {listing.asking_price} tokens.",
         )
     except ValueError as exc:
         messages.error(request, str(exc))
@@ -339,8 +339,21 @@ def control_centre(request):
         status=ManagerApplication.PENDING
     ).select_related("user")
     pending_listings = PlayerListing.objects.filter(
-        status=PlayerListing.PENDING
+        status=PlayerListing.PENDING,
+        reserved_buyer__isnull=False,
     ).select_related("player", "team", "seller", "reserved_buyer")
+    pending_results = (
+        MatchSubmission.objects.filter(
+            status=ApprovalStatus.PENDING,
+            opponent_response=ApprovalStatus.APPROVED,
+        )
+        .select_related(
+            "fixture__home_team",
+            "fixture__away_team",
+            "submitted_by",
+        )
+        .order_by("-submitted_at")
+    )
     pending_jobs = ClubApplication.objects.filter(
         status=ApprovalStatus.PENDING
     ).select_related("manager", "team")
@@ -363,6 +376,7 @@ def control_centre(request):
         {
             "pending_managers": pending_managers,
             "pending_listings": pending_listings,
+            "pending_results": pending_results,
             "pending_jobs": pending_jobs,
             "pending_press": pending_press,
             "live_auctions": live_auctions,
@@ -401,6 +415,34 @@ def control_approve_listing(request, listing_id):
             )
     except ValueError as exc:
         messages.error(request, str(exc))
+    return control_centre_redirect(request)
+
+
+@owner_admin_required
+@require_POST
+def control_approve_result(request, submission_id):
+    from mgl.admin import approve_match_submission
+
+    submission = get_object_or_404(MatchSubmission, pk=submission_id)
+    ok, message = approve_match_submission(submission, request.user)
+    if ok:
+        messages.success(request, message)
+    else:
+        messages.error(request, message)
+    return control_centre_redirect(request)
+
+
+@owner_admin_required
+@require_POST
+def control_reject_result(request, submission_id):
+    from mgl.admin import reject_match_submission
+
+    submission = get_object_or_404(MatchSubmission, pk=submission_id)
+    ok, message = reject_match_submission(submission, request.user)
+    if ok:
+        messages.success(request, message)
+    else:
+        messages.error(request, message)
     return control_centre_redirect(request)
 
 

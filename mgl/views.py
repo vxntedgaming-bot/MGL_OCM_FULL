@@ -565,7 +565,7 @@ def fixture_list(request):
 @login_required
 @transaction.atomic
 def submit_match(request, fixture_id):
-    from mgl.match_submit import MatchSubmitError, save_match_submission
+    from mgl.match_submit import MatchSubmitError, save_match_submission, submission_blocks_resubmit
 
     fixture = get_object_or_404(
         Fixture.objects.select_related(
@@ -597,7 +597,8 @@ def submit_match(request, fixture_id):
         )
         return redirect("fixture_list")
 
-    if MatchSubmission.objects.filter(fixture=fixture).exists():
+    existing = MatchSubmission.objects.filter(fixture=fixture).first()
+    if existing is not None and submission_blocks_resubmit(existing):
         messages.error(
             request,
             "This match has already been submitted.",
@@ -615,7 +616,7 @@ def submit_match(request, fixture_id):
         notify_opponent_of_score_submission(fixture, submission, request.user)
         messages.success(
             request,
-            "Match submitted to Admin for approval. Statistics stay unofficial until approved.",
+            "Match submitted to the opposing manager. Statistics stay unofficial until approved.",
         )
         return redirect("fixture_list")
 

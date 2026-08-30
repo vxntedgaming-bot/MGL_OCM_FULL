@@ -266,9 +266,16 @@ class TeamMarketListingTests(TestCase):
         self.client.login(username="seller", password="test-pass-123")
         self.client.post(reverse("sell_player", args=[self.owned.id]), {"asking_price": "6.50"})
         listing = PlayerListing.objects.get(player=self.owned)
-        self.assertEqual(listing.status, PlayerListing.PENDING)
+        self.assertEqual(listing.status, PlayerListing.LIVE)
+        self.assertFalse(
+            ManagerNotification.objects.filter(
+                recipient=owner,
+                source_key=f"admin-listing-{listing.pk}",
+            ).exists()
+        )
         pending = self.client.get(reverse("transfer_market"))
-        self.assertContains(pending, "NO PLAYERS LISTED")
+        self.assertContains(pending, "Club Striker")
+        self.assertContains(pending, "6.50")
         self.assertNotContains(pending, "LIVE PLAYER AUCTIONS")
         self.assertNotContains(pending, "Bid Target")
         self.assertNotContains(pending, "LOOSE AGENT")
@@ -276,18 +283,6 @@ class TeamMarketListingTests(TestCase):
         self.assertContains(auctions_page, "Bid Target")
         fa_page = self.client.get(reverse("free_agents"))
         self.assertContains(fa_page, "LOOSE AGENT")
-
-        self.client.logout()
-        self.client.login(username="sale-owner", password="test-pass-123")
-        notice = ManagerNotification.objects.get(
-            recipient=owner,
-            source_key=f"admin-listing-{listing.pk}",
-        )
-        self.client.post(reverse("control_approve_listing", args=[listing.id]))
-        listing.refresh_from_db()
-        self.assertEqual(listing.status, PlayerListing.LIVE)
-        notice.refresh_from_db()
-        self.assertEqual(notice.response_status, ManagerNotification.ACCEPTED)
 
         live = self.client.get(reverse("transfer_market"))
         self.assertContains(live, "Club Striker")

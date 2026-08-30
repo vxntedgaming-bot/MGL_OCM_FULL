@@ -116,9 +116,29 @@ def parse_side(post, prefix, team):
     }
 
 
+def submission_blocks_resubmit(submission):
+    if submission is None:
+        return False
+    if submission.status == "APPROVED":
+        return True
+    if submission.status == "REJECTED":
+        return False
+    return submission.opponent_response != "REJECTED"
+
+
+def clear_match_submission(submission):
+    submission.team_stats.all().delete()
+    submission.delete()
+
+
 def save_match_submission(fixture, user, post):
-    if MatchSubmission.objects.filter(fixture=fixture).exists():
-        raise MatchSubmitError("This match has already been submitted.")
+    existing = MatchSubmission.objects.filter(fixture=fixture).first()
+    if existing is not None:
+        if existing.status == "APPROVED":
+            raise MatchSubmitError("This match has already been approved.")
+        if submission_blocks_resubmit(existing):
+            raise MatchSubmitError("This match has already been submitted.")
+        clear_match_submission(existing)
     home = parse_side(post, "home_", fixture.home_team)
     away = parse_side(post, "away_", fixture.away_team)
     if home["possession"] + away["possession"] != 100:

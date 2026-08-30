@@ -13,6 +13,7 @@ from mgl.models import (
     Fixture,
     MatchSubmission,
     NewsPost,
+    PlayerListing,
     PressConference,
     TeamMatchStats,
 )
@@ -83,6 +84,7 @@ class NewsSectionTests(TestCase):
             fixture=fixture,
             submitted_by=self.user_a,
             status=ApprovalStatus.PENDING,
+            opponent_response=ApprovalStatus.APPROVED,
         )
         TeamMatchStats.objects.create(
             submission=submission, team=self.team_a, goals=home_goals, shots=10, possession=52
@@ -178,7 +180,7 @@ class NewsSectionTests(TestCase):
 
     def test_pending_listing_is_not_a_completed_transfer(self):
         listing = list_player_for_sale(self.player, self.mgr_a, 8)
-        self.assertEqual(listing.status, "PENDING")
+        self.assertEqual(listing.status, "LIVE")
         page = self.client.get(reverse("live_activity"))
         self.assertNotContains(page, "Moveable Mid")
         self.assertFalse(
@@ -187,13 +189,15 @@ class NewsSectionTests(TestCase):
 
     def test_rejected_listing_is_not_live_activity(self):
         listing = list_player_for_sale(self.player, self.mgr_a, 8)
+        listing.status = PlayerListing.PENDING
+        listing.reserved_buyer = self.mgr_b
+        listing.save(update_fields=["status", "reserved_buyer"])
         reject_listing(listing, self.owner)
         page = self.client.get(reverse("live_activity"))
         self.assertNotContains(page, "Moveable Mid")
 
     def test_approved_completed_transfer_appears_on_live_activity(self):
         listing = list_player_for_sale(self.player, self.mgr_a, 8)
-        approve_listing(listing, self.owner)
         listed_page = self.client.get(reverse("live_activity"))
         self.assertNotContains(listed_page, "listed for sale")
         buy_listed_player(listing, self.mgr_b)

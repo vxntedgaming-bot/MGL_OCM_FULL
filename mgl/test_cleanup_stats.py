@@ -276,6 +276,8 @@ class MatchSubmitAndApprovalTests(TestCase):
             self._payload(),
         )
         submission = MatchSubmission.objects.get(fixture=self.fixture)
+        submission.opponent_response = ApprovalStatus.APPROVED
+        submission.save(update_fields=["opponent_response"])
         ok, _ = approve_match_submission(submission, self.owner)
         self.assertTrue(ok)
         self.home_st.refresh_from_db()

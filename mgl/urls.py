@@ -248,6 +248,16 @@ urlpatterns = [
         name="control_reject_listing",
     ),
     path(
+        "control/results/<int:submission_id>/approve/",
+        views_market.control_approve_result,
+        name="control_approve_result",
+    ),
+    path(
+        "control/results/<int:submission_id>/reject/",
+        views_market.control_reject_result,
+        name="control_reject_result",
+    ),
+    path(
         "control/auctions/<int:auction_id>/close/",
         views_market.control_close_auction,
         name="control_close_auction",

@@ -152,7 +152,7 @@ class OcmEndToEndTests(TestCase):
             {"asking_price": "12"},
         )
         listing = PlayerListing.objects.get(player=self.player)
-        self.assertEqual(listing.status, PlayerListing.PENDING)
+        self.assertEqual(listing.status, PlayerListing.LIVE)
         self.client.post(
             reverse("sell_player", args=[self.player.id]),
             {"asking_price": "15"},
@@ -180,19 +180,8 @@ class OcmEndToEndTests(TestCase):
             PlayerListing.objects.filter(player=self.player, seller=application_b).count(),
             0,
         )
-        buy_early = self.client.post(reverse("buy_player", args=[listing.id]))
-        self.assertEqual(buy_early.status_code, 302)
-        self.club_a.refresh_from_db()
-        self.club_b.refresh_from_db()
-        self.assertEqual(self.club_a.tokens, Decimal("50.00"))
-        self.assertEqual(self.club_b.tokens, Decimal("50.00"))
-        self.client.logout()
-
-        self.client.login(username="owner", password="test-pass-123")
-        self.client.post(reverse("control_approve_listing", args=[listing.id]))
         listing.refresh_from_db()
         self.assertEqual(listing.status, PlayerListing.LIVE)
-        self.client.logout()
 
         self.client.login(username="alice", password="Ocm-pass-12345")
         own_buy = self.client.post(reverse("buy_player", args=[listing.id]))
@@ -223,7 +212,7 @@ class OcmEndToEndTests(TestCase):
         self.assertEqual(tx.amount, Decimal("12.00"))
         self.assertEqual(tx.from_team_id, self.club_a.id)
         self.assertEqual(tx.to_team_id, self.club_b.id)
-        self.assertEqual(tx.approved_by_id, self.owner.id)
+        self.assertIsNone(tx.approved_by_id)
 
         history = self.client.get(reverse("manager_rewards"))
         self.assertContains(history, "Player X")
@@ -319,7 +308,7 @@ class OcmEndToEndTests(TestCase):
             PlayerListing.objects.filter(
                 player=self.player,
                 asking_price=Decimal("11.00"),
-                status=PlayerListing.PENDING,
+                status=PlayerListing.LIVE,
             ).exists()
         )
         other = User.objects.create_user(username="other", password="test-pass-123")
@@ -331,11 +320,11 @@ class OcmEndToEndTests(TestCase):
         )
         self.club_b.manager = other
         self.club_b.save(update_fields=["manager"])
-        listing = PlayerListing.objects.get(player=self.player, status=PlayerListing.PENDING)
+        listing = PlayerListing.objects.get(player=self.player, status=PlayerListing.LIVE)
         self.client.login(username="other", password="test-pass-123")
         self.client.post(reverse("cancel_player_listing", args=[listing.id]))
         listing.refresh_from_db()
-        self.assertEqual(listing.status, PlayerListing.PENDING)
+        self.assertEqual(listing.status, PlayerListing.LIVE)
 
     def test_squad_generator_fills_empty_clubs_only(self):
         Team.objects.all().delete()

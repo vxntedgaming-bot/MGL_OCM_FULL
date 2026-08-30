@@ -8,7 +8,7 @@ from accounts.models import User
 from leagues.services import ensure_premier_league
 from managers.models import ManagerApplication
 from mgl.admin import approve_match_submission
-from mgl.market import approve_listing, create_transfer_offer
+from mgl.market import approve_listing, create_transfer_offer, respond_to_transfer_offer
 from mgl.models import (
     ApprovalStatus,
     Fixture,
@@ -366,59 +366,33 @@ class InboxActionWorkflowTests(TestCase):
         self.assertEqual(notice.response_status, ManagerNotification.REJECTED)
         self.assertIsNotNone(notice.actioned_at)
 
-    def test_owner_inbox_accept_puts_sale_listing_on_market(self):
+    def test_sale_listing_goes_live_without_admin(self):
         from mgl.market import list_player_for_sale
 
         listing = list_player_for_sale(self.player_b, self.mgr_b, "7.00")
-        self.assertEqual(listing.status, PlayerListing.PENDING)
-        pending_market = self.client.get(reverse("transfer_market"))
-        self.assertContains(pending_market, "NO PLAYERS LISTED")
-        self.assertNotContains(pending_market, "Blue Midfielder")
-
-        notice = ManagerNotification.objects.get(
-            recipient=self.owner,
-            source_key=f"admin-listing-{listing.pk}",
-        )
-        self.assertEqual(notice.response_status, ManagerNotification.PENDING)
-        self.assertEqual(notice.listing_id, listing.id)
-
-        self.client.login(username="kai", password="test-pass-123")
-        stolen = self.client.post(
-            reverse("manager_notification_respond", args=[notice.id]),
-            {"action": "accept"},
-        )
-        self.assertEqual(stolen.status_code, 302)
-        listing.refresh_from_db()
-        self.assertEqual(listing.status, PlayerListing.PENDING)
-
-        self.client.login(username="owner", password="test-pass-123")
-        inbox = self.client.get(reverse("manager_notifications"))
-        self.assertContains(inbox, "PLAYER LISTED FOR SALE")
-        self.assertContains(inbox, "ACCEPT")
-        approved = self.client.post(
-            reverse("manager_notification_respond", args=[notice.id]),
-            {"action": "accept"},
-        )
-        self.assertEqual(approved.status_code, 302)
-        listing.refresh_from_db()
         self.assertEqual(listing.status, PlayerListing.LIVE)
-
+        self.assertFalse(
+            ManagerNotification.objects.filter(
+                source_key=f"admin-listing-{listing.pk}"
+            ).exists()
+        )
+        self.client.login(username="kai", password="test-pass-123")
         market = self.client.get(reverse("transfer_market"))
         self.assertContains(market, "Blue Midfielder")
         self.assertContains(market, "7.00")
         self.assertContains(market, "Chelsea Test")
+        self.assertContains(market, reverse("buy_player", args=[listing.id]))
         self.assertNotContains(market, "NO PLAYERS LISTED")
 
-        self.client.logout()
-        self.client.login(username="kai", password="test-pass-123")
-        buyer_market = self.client.get(reverse("transfer_market"))
-        self.assertContains(buyer_market, "Blue Midfielder")
-        self.assertContains(buyer_market, reverse("buy_player", args=[listing.id]))
+        self.client.login(username="owner", password="test-pass-123")
+        inbox = self.client.get(reverse("manager_notifications"))
+        self.assertNotContains(inbox, "PLAYER LISTED FOR SALE")
 
-    def test_owner_inbox_reject_keeps_sale_listing_off_market(self):
-        from mgl.market import list_player_for_sale
-
-        listing = list_player_for_sale(self.player_b, self.mgr_b, "4.00")
+    def test_owner_inbox_reject_keeps_transfer_request_off_squad(self):
+        listing = create_transfer_offer(self.player_b, self.mgr_a, "4.00")
+        respond_to_transfer_offer(listing, self.user_b, True)
+        listing.refresh_from_db()
+        self.assertEqual(listing.status, PlayerListing.PENDING)
         notice = ManagerNotification.objects.get(
             recipient=self.owner,
             source_key=f"admin-listing-{listing.pk}",
@@ -430,6 +404,7 @@ class InboxActionWorkflowTests(TestCase):
         )
         listing.refresh_from_db()
         self.assertEqual(listing.status, PlayerListing.REJECTED)
+        self.player_b.refresh_from_db()
+        self.assertEqual(self.player_b.mgl_team_id, self.team_b.id)
         market = self.client.get(reverse("transfer_market"))
-        self.assertContains(market, "NO PLAYERS LISTED")
-        self.assertNotContains(market, "Blue Midfielder")
+        self.assertNotContains(market, reverse("buy_player", args=[listing.id]))

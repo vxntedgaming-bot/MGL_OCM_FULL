@@ -313,6 +313,7 @@ class LiveActivityAndPressTests(TestCase):
             fixture=fixture,
             submitted_by=self.user_a,
             status=ApprovalStatus.PENDING,
+            opponent_response=ApprovalStatus.APPROVED,
         )
         home_stats = TeamMatchStats.objects.create(
             submission=submission, team=self.team_a, goals=3, shots=10, possession=55

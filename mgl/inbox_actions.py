@@ -5,9 +5,15 @@ from django.db import transaction
 from django.utils import timezone
 
 from accounts.models import User
+from mgl.admin import approve_match_submission, reject_match_submission
 from mgl.market import approve_listing, reject_listing, respond_to_transfer_offer
 from mgl.models import ApprovalStatus, ManagerNotification, MatchSubmission, PlayerListing
-from mgl.notifications import inbox_queryset_for_user, mark_notification_response, notify_user
+from mgl.notifications import (
+    inbox_queryset_for_user,
+    mark_notification_response,
+    notify_admins_of_confirmed_result,
+    notify_user,
+)
 
 
 class InboxActionError(ValueError):
@@ -74,11 +80,14 @@ def respond_to_match_notification(notification, user, accept):
             f"{fixture_name} was confirmed by the opposing manager. "
             "It still needs Owner/Admin approval before it is official."
         )
+        notify_admins_of_confirmed_result(submission)
     else:
-        title = "RESULT DISPUTED"
+        submission.status = ApprovalStatus.REJECTED
+        submission.save(update_fields=["status"])
+        title = "RESULT REJECTED"
         message = (
             f"{fixture_name} was rejected by the opposing manager. "
-            "The league office still has to review the original submission."
+            "Correct the score and submit it again. The league office will not see it until the opponent approves."
         )
     notify_user(
         submission.submitted_by,
@@ -105,7 +114,11 @@ def respond_to_inbox_notification(user, notification, accept):
     source = notification.source_key or ""
     if source.startswith("admin-listing-"):
         return respond_to_admin_listing_notification(notification, user, accept)
-    if source.startswith("score-submitted-") or notification.fixture_id:
+    if source.startswith("admin-result-"):
+        return respond_to_admin_result_notification(notification, user, accept)
+    if source.startswith("score-submitted-") or (
+        notification.fixture_id and not source.startswith("admin-")
+    ):
         return respond_to_match_notification(notification, user, accept)
     if source.startswith("transfer-offer-") or notification.listing_id:
         listing = notification.listing
@@ -134,3 +147,32 @@ def respond_to_admin_listing_notification(notification, user, accept):
         inbox_status = ManagerNotification.REJECTED
     mark_notification_response(user, notification.source_key, inbox_status)
     return result
+
+
+@transaction.atomic
+def respond_to_admin_result_notification(notification, user, accept):
+    if getattr(user, "role", None) not in (User.OWNER, User.ADMIN):
+        raise PermissionDenied("Only an owner or admin can approve a match result.")
+    submission = None
+    if notification.fixture_id:
+        submission = (
+            MatchSubmission.objects.select_for_update()
+            .filter(fixture_id=notification.fixture_id)
+            .first()
+        )
+    if submission is None:
+        suffix = (notification.source_key or "").rsplit("-", 1)[-1]
+        if suffix.isdigit():
+            submission = MatchSubmission.objects.select_for_update().filter(pk=int(suffix)).first()
+    if submission is None:
+        raise InboxActionError("That match submission is no longer available.")
+    if accept:
+        ok, message = approve_match_submission(submission, user)
+        inbox_status = ManagerNotification.ACCEPTED
+    else:
+        ok, message = reject_match_submission(submission, user)
+        inbox_status = ManagerNotification.REJECTED
+    if not ok:
+        raise InboxActionError(message)
+    mark_notification_response(user, notification.source_key, inbox_status)
+    return submission

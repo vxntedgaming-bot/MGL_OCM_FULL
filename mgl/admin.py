@@ -51,6 +51,8 @@ def approve_match_submission(sub, reviewer):
 
     if sub.status != ApprovalStatus.PENDING:
         return False, "Match is no longer pending."
+    if sub.opponent_response != ApprovalStatus.APPROVED:
+        return False, "The opposing manager must approve this result first."
 
     fixture = sub.fixture
 
@@ -270,8 +272,11 @@ def approve_match_submission(sub, reviewer):
     create_match_press_questions(fixture, home_stats, away_stats)
     maybe_create_odd_matchday_interview(fixture)
 
-    from mgl.notifications import notify_user
+    from mgl.notifications import close_admin_result_notices, notify_user
     from django.urls import reverse
+    from mgl.models import ManagerNotification
+
+    close_admin_result_notices(sub, ManagerNotification.ACCEPTED)
 
     scoreline = (
         f"{fixture.home_team.name} {home_stats.goals}–{away_stats.goals} "
@@ -294,6 +299,48 @@ def approve_match_submission(sub, reviewer):
         )
 
     return True, "Match approved successfully."
+
+
+@transaction.atomic
+def reject_match_submission(sub, reviewer):
+    sub = (
+        MatchSubmission.objects.select_for_update()
+        .select_related("fixture__home_team", "fixture__away_team", "submitted_by")
+        .get(pk=sub.pk)
+    )
+    if sub.status != ApprovalStatus.PENDING:
+        return False, "Match is no longer pending."
+    if sub.opponent_response != ApprovalStatus.APPROVED:
+        return False, "The opposing manager must approve this result before the league office can reject it."
+
+    sub.status = ApprovalStatus.REJECTED
+    sub.reviewed_by = reviewer
+    sub.reviewed_at = timezone.now()
+    sub.save(update_fields=["status", "reviewed_by", "reviewed_at"])
+
+    from django.urls import reverse
+    from mgl.models import ManagerNotification
+    from mgl.notifications import close_admin_result_notices, notify_user
+
+    close_admin_result_notices(sub, ManagerNotification.REJECTED)
+    fixture = sub.fixture
+    message = (
+        f"{fixture.home_team.name} vs {fixture.away_team.name} "
+        "was rejected by the league office. Submit a corrected result."
+    )
+    notify_user(
+        sub.submitted_by,
+        source_key=f"score-rejected-{sub.pk}",
+        notification_type="SCORE",
+        title="RESULT REJECTED",
+        message=message,
+        actor="MGL Admin",
+        action_url=reverse("submit_match", args=[fixture.pk]),
+        action_label="RESUBMIT",
+        team=fixture.home_team if sub.submitted_by_id == fixture.home_team.manager_id else fixture.away_team,
+        fixture=fixture,
+    )
+    return True, "Match rejected. The submitting manager can resubmit."
 
 
 @admin.action(description="Approve selected match submissions")
@@ -337,48 +384,19 @@ def approve_matches(modeladmin, request, queryset):
 
 @admin.action(description="Reject selected match submissions")
 def reject_matches(modeladmin, request, queryset):
-
-    pending = list(
-        queryset.filter(status=ApprovalStatus.PENDING).select_related(
-            "fixture__home_team",
-            "fixture__away_team",
-            "submitted_by",
-        )
-    )
-    updated = queryset.filter(
-        status=ApprovalStatus.PENDING
-    ).update(
-        status=ApprovalStatus.REJECTED,
-        reviewed_by=request.user,
-        reviewed_at=timezone.now(),
-    )
-
-    from django.urls import reverse
-    from mgl.notifications import notify_user
-
-    for submission in pending:
-        fixture = submission.fixture
-        message = (
-            f"{fixture.home_team.name} vs {fixture.away_team.name} "
-            "was rejected and needs to be submitted again."
-        )
-        recipients = {submission.submitted_by, fixture.home_team.manager, fixture.away_team.manager}
-        for manager_user in recipients:
-            notify_user(
-                manager_user,
-                source_key=f"score-rejected-{submission.pk}",
-                notification_type="SCORE",
-                title="RESULT REJECTED",
-                message=message,
-                actor="MGL Admin",
-                action_url=reverse("fixture_list"),
-                action_label="VIEW FIXTURES",
-            )
-
-    messages.success(
-        request,
-        f"{updated} match submission(s) rejected.",
-    )
+    rejected = 0
+    skipped = 0
+    for submission in queryset:
+        success, message = reject_match_submission(submission, request.user)
+        if success:
+            rejected += 1
+        else:
+            skipped += 1
+            messages.error(request, f"{submission}: {message}")
+    if rejected:
+        messages.success(request, f"{rejected} match submission(s) rejected.")
+    if skipped:
+        messages.warning(request, f"{skipped} match submission(s) were skipped or failed.")
 
 
 @admin.register(MatchSubmission)
