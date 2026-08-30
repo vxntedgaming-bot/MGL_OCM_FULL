@@ -281,6 +281,7 @@
             var searchOk = !query || name.indexOf(query) !== -1 || leagueName.indexOf(query) !== -1;
             var show = leagueOk && searchOk;
             card.hidden = !show;
+            card.classList.toggle("is-filtered-out", !show);
             if (show) visible += 1;
         });
         if (empty) empty.hidden = visible !== 0;

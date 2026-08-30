@@ -19,6 +19,11 @@ body.mgl-jobs-body .mgl-main {
     padding: 0 0 88px;
 }
 
+.mgl-jobs-page [hidden],
+.mgl-jobs-page .is-filtered-out {
+    display: none !important;
+}
+
 .mgl-jobs-page .visually-hidden {
     position: absolute;
     width: 1px;
