@@ -4,19 +4,22 @@
 {% block title %}{% if team %}{{ team.name }} — Squad{% else %}Team Management — MGL{% endif %}{% endblock %}
 {% block body_class %}mgl-team-page{% endblock %}
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'core/css/mgl-team.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/mgl-team.css' %}?v=sq-1">
 {% endblock %}
 
 {% block content %}
 <section class="mgl-section mgl-team-page">
     <nav class="mgl-team-crumbs" aria-label="Team location">
-        {% if user.is_authenticated %}
-            <a href="{% url 'manager_hub' %}" class="mgl-team-crumb">MANAGER HUB</a>
-        {% else %}
-            <a href="{% url 'home' %}" class="mgl-team-crumb">HOME</a>
-        {% endif %}
+        <svg class="mgl-team-crumb-pitch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M3 12h18M12 5v14M3 9h3.5v6H3M21 9h-3.5v6H21"/></svg>
+        <a href="{% url 'manager_hub' %}" class="mgl-team-crumb">MY CLUB</a>
         <span class="mgl-team-crumb-sep" aria-hidden="true">›</span>
-        <span class="mgl-team-crumb-current">{% if team %}{{ team.name|upper }} — SQUAD{% else %}TEAM MANAGEMENT{% endif %}</span>
+        {% if team %}
+            <span class="mgl-team-crumb-club">{{ team.name|upper }}</span>
+            <span class="mgl-team-crumb-sep" aria-hidden="true">›</span>
+            <span class="mgl-team-crumb-current">SQUAD</span>
+        {% else %}
+            <span class="mgl-team-crumb-current">TEAM MANAGEMENT</span>
+        {% endif %}
     </nav>
 
     {% if team %}
@@ -30,77 +33,178 @@
                         {% if team.league %}
                             <span>League: {{ team.league|league_label }}</span>
                         {% endif %}
+                        <span>Squad Size: {{ squad_size }}/{{ team.roster_limit }}</span>
                     </p>
                     <span class="mgl-team-token-pill">{{ token_balance }} TOKENS</span>
                 </div>
             </div>
+            <div class="mgl-team-hero-lines">
+                <div>
+                    <span>ATTACKERS</span>
+                    <strong>{{ line_counts.attackers }}</strong>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v5l3 2"/></svg>
+                </div>
+                <div>
+                    <span>MIDFIELDERS</span>
+                    <strong>{{ line_counts.midfielders }}</strong>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg>
+                </div>
+                <div>
+                    <span>DEFENDERS</span>
+                    <strong>{{ line_counts.defenders }}</strong>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 3 20 7v6c0 5-3.5 7.5-8 8-4.5-.5-8-3-8-8V7l8-4z"/></svg>
+                </div>
+                <div>
+                    <span>GOALKEEPERS</span>
+                    <strong>{{ line_counts.keepers }}</strong>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="4" y="7" width="16" height="10" rx="1"/><path d="M4 12h16M12 7v10"/></svg>
+                </div>
+            </div>
             <div class="mgl-team-hero-count">
-                <strong>{{ squad_size }} PLAYERS</strong>
-                <span>MAX {{ team.roster_limit }}</span>
+                <span>SQUAD SIZE</span>
+                <strong>{{ squad_size }} / {{ team.roster_limit }}</strong>
+                <small>MAX {{ team.roster_limit }}</small>
                 <small>{{ squad_size }}/{{ team.roster_limit }} · {{ market_listing_count }}/{{ market_listing_limit }} LISTINGS</small>
             </div>
         </header>
 
         {% if players %}
-        <div class="mgl-squad-board">
-            <div class="mgl-squad-board-head">
-                <div class="mgl-squad-board-title">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
-                    <h2>SQUAD</h2>
+        <div class="mgl-sq-layout">
+            <div class="mgl-squad-board">
+                <div class="mgl-squad-board-head">
+                    <div class="mgl-sq-tabs" role="tablist">
+                        <button type="button" class="is-active" data-sq-tab="all">ALL PLAYERS</button>
+                        <button type="button" data-sq-tab="keepers">GOALKEEPERS</button>
+                        <button type="button" data-sq-tab="defenders">DEFENDERS</button>
+                        <button type="button" data-sq-tab="midfielders">MIDFIELDERS</button>
+                        <button type="button" data-sq-tab="attackers">ATTACKERS</button>
+                    </div>
+                    <div class="mgl-sq-tools">
+                        <label>
+                            <span class="visually-hidden">Position</span>
+                            <select id="sq-pos">
+                                <option value="">ALL POSITIONS</option>
+                                {% for pos in squad_positions %}
+                                    <option value="{{ pos }}">{{ pos }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                        <details class="mgl-sq-filters">
+                            <summary>FILTERS</summary>
+                            <label>
+                                <span class="visually-hidden">Search players</span>
+                                <input type="search" id="sq-search" placeholder="Search players">
+                            </label>
+                        </details>
+                    </div>
                 </div>
-                <span class="mgl-squad-sort-hint">Click headers to sort</span>
+                <div class="mgl-squad-scroll">
+                    <table class="mgl-squad-table" id="mgl-squad-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th data-sort="name">PLAYER</th>
+                                <th data-sort="pos">POS</th>
+                                <th data-sort="nation">NATION</th>
+                                <th data-sort="age">AGE</th>
+                                <th>ACTIONS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for player in players %}
+                            <tr
+                                class="mgl-squad-row"
+                                data-name="{{ player.name|lower }}"
+                                data-pos="{{ player.position }}"
+                                data-nation="{{ player.nationality|default:''|lower }}"
+                                data-ovr="{{ player.overall }}"
+                                data-age="{{ player.age|default:'' }}"
+                                data-line="{{ player.line }}"
+                            >
+                                <td class="mgl-sq-num">{{ forloop.counter }}</td>
+                                <td class="mgl-squad-player">
+                                    {% player_face_url player "small" as face %}
+                                    {% if face %}
+                                        <img src="{{ face }}" alt="" class="mgl-sq-face" loading="lazy" onerror="this.style.display='none'">
+                                    {% endif %}
+                                    <a href="{% url 'player_profile' player.id %}">{{ player|card_name }}</a>
+                                </td>
+                                <td>
+                                    {% if player.position %}
+                                        <span class="mgl-pos-badge mgl-pos-{{ player.position|lower }}{% if player.position == 'GK' %} mgl-pos-gk{% elif player.position == 'CB' or player.position == 'LB' or player.position == 'RB' or player.position == 'LWB' or player.position == 'RWB' %} mgl-pos-def{% elif player.position == 'ST' or player.position == 'CF' or player.position == 'LW' or player.position == 'RW' %} mgl-pos-att{% else %} mgl-pos-mid{% endif %}">{{ player.position }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="mgl-squad-nation">
+                                    {% if player.nationality %}
+                                        {% with iso=player.nationality|flag_code %}
+                                            {% if iso %}
+                                                <img class="mgl-sq-flag" src="https://flagcdn.com/w40/{{ iso }}.png" alt="" loading="lazy" onerror="this.style.display='none'">
+                                            {% endif %}
+                                        {% endwith %}
+                                        {{ player.nationality }}
+                                    {% endif %}
+                                </td>
+                                <td>{% if player.age %}{{ player.age }}{% endif %}</td>
+                                <td class="mgl-squad-actions">
+                                    <a href="{% url 'player_profile' player.id %}" class="mgl-sq-view" aria-label="View {{ player.name }}">VIEW</a>
+                                    {% if player.current_listing %}
+                                        <span class="mgl-card-status">TRANSFER LISTED · {{ player.current_listing.asking_price }} TKN</span>
+                                        <form method="post" action="{% url 'cancel_player_listing' player.current_listing.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="mgl-squad-action">WITHDRAW</button>
+                                        </form>
+                                    {% elif player.current_auction %}
+                                        <span class="mgl-card-status">IN AUCTION · {{ player.current_auction.ends_at|time_left }}</span>
+                                        <a href="{% url 'live_auctions' %}" class="mgl-squad-action">VIEW AUCTION</a>
+                                    {% else %}
+                                        <a href="{% url 'team_management' %}?list=transfer&amp;player={{ player.id }}" class="mgl-squad-action">TRANSFER</a>
+                                        <a href="{% url 'team_management' %}?list=release&amp;player={{ player.id }}" class="mgl-squad-action">RELEASE</a>
+                                        <a href="{% url 'team_management' %}?list=auction&amp;player={{ player.id }}" class="mgl-squad-action">AUCTION</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mgl-sq-pager">
+                    <p id="sq-range">Showing {{ players|length }} player{{ players|length|pluralize }}</p>
+                    <div>
+                        <div id="sq-pages" class="mgl-sq-pages"></div>
+                        <label>
+                            <select id="sq-page-size">
+                                <option value="8">8 per page</option>
+                                <option value="16">16 per page</option>
+                                <option value="0">All</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
             </div>
-            <div class="mgl-squad-scroll">
-                <table class="mgl-squad-table" id="mgl-squad-table">
-                    <thead>
-                        <tr>
-                            <th data-sort="name">PLAYER</th>
-                            <th data-sort="pos">POS</th>
-                            <th data-sort="nation">NATION</th>
-                            <th data-sort="ovr">OVR</th>
-                            <th>ACTION</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for player in players %}
-                        <tr
-                            class="mgl-squad-row"
-                            data-name="{{ player.name|lower }}"
-                            data-pos="{{ player.position }}"
-                            data-nation="{{ player.nationality|default:''|lower }}"
-                            data-ovr="{{ player.overall }}"
-                        >
-                            <td class="mgl-squad-player">
-                                <a href="{% url 'player_profile' player.id %}">{{ player|card_name }}</a>
-                            </td>
-                            <td>
-                                <span class="mgl-pos-badge mgl-pos-{{ player.position|lower }}{% if player.position == 'GK' %} mgl-pos-gk{% elif player.position == 'CB' or player.position == 'LB' or player.position == 'RB' or player.position == 'LWB' or player.position == 'RWB' %} mgl-pos-def{% elif player.position == 'ST' or player.position == 'CF' or player.position == 'LW' or player.position == 'RW' %} mgl-pos-att{% else %} mgl-pos-mid{% endif %}">{{ player.position }}</span>
-                            </td>
-                            <td class="mgl-squad-nation">{{ player.nationality|default:"—" }}</td>
-                            <td>
-                                <span class="mgl-ovr-badge mgl-ovr-{{ player|player_tier|lower }}">{{ player.overall }}</span>
-                            </td>
-                            <td class="mgl-squad-actions">
-                                {% if player.current_listing %}
-                                    <span class="mgl-card-status">TRANSFER LISTED · {{ player.current_listing.asking_price }} TKN</span>
-                                    <form method="post" action="{% url 'cancel_player_listing' player.current_listing.id %}">
-                                        {% csrf_token %}
-                                        <button type="submit" class="mgl-squad-action">WITHDRAW</button>
-                                    </form>
-                                {% elif player.current_auction %}
-                                    <span class="mgl-card-status">IN AUCTION · {{ player.current_auction.ends_at|time_left }}</span>
-                                    <a href="{% url 'live_auctions' %}" class="mgl-squad-action">VIEW AUCTION</a>
-                                {% else %}
-                                    <a href="{% url 'team_management' %}?list=transfer&amp;player={{ player.id }}" class="mgl-squad-action">TRANSFER</a>
-                                    <a href="{% url 'team_management' %}?list=release&amp;player={{ player.id }}" class="mgl-squad-action">RELEASE</a>
-                                    <a href="{% url 'team_management' %}?list=auction&amp;player={{ player.id }}" class="mgl-squad-action">AUCTION</a>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+
+            <aside class="mgl-sq-side">
+                <section>
+                    <h3>SQUAD SUMMARY</h3>
+                    <p><span>Attackers</span><strong>{{ line_counts.attackers }}</strong></p>
+                    <p><span>Midfielders</span><strong>{{ line_counts.midfielders }}</strong></p>
+                    <p><span>Defenders</span><strong>{{ line_counts.defenders }}</strong></p>
+                    <p><span>Goalkeepers</span><strong>{{ line_counts.keepers }}</strong></p>
+                </section>
+                <section>
+                    <h3>AGE BREAKDOWN</h3>
+                    <p><span>Under 23</span><strong>{{ age_counts.u23 }}</strong></p>
+                    <p><span>23-29</span><strong>{{ age_counts.prime }}</strong></p>
+                    <p><span>30+</span><strong>{{ age_counts.veteran }}</strong></p>
+                </section>
+                <section>
+                    <h3>POSITION BREAKDOWN</h3>
+                    <p><span>Goalkeepers</span><strong>{{ line_counts.keepers }}</strong></p>
+                    <p><span>Defenders</span><strong>{{ line_counts.defenders }}</strong></p>
+                    <p><span>Midfielders</span><strong>{{ line_counts.midfielders }}</strong></p>
+                    <p><span>Attackers</span><strong>{{ line_counts.attackers }}</strong></p>
+                </section>
+                <span class="mgl-sq-report" aria-disabled="true">SQUAD REPORT</span>
+            </aside>
         </div>
         {% elif squad_size %}
             {% include "mgl/includes/empty_state.html" with title="SQUAD PLAYERS IN AUCTION" %}
@@ -182,30 +286,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-(function () {
-    var table = document.getElementById("mgl-squad-table");
-    if (!table) return;
-    var body = table.tBodies[0];
-    var headers = table.querySelectorAll("th[data-sort]");
-    var current = { key: "name", dir: 1 };
-    headers.forEach(function (th) {
-        th.addEventListener("click", function () {
-            var key = th.getAttribute("data-sort");
-            current.dir = current.key === key ? -current.dir : 1;
-            current.key = key;
-            var rows = Array.prototype.slice.call(body.rows);
-            rows.sort(function (a, b) {
-                var av = a.getAttribute("data-" + key) || "";
-                var bv = b.getAttribute("data-" + key) || "";
-                if (key === "ovr") {
-                    return (Number(av) - Number(bv)) * current.dir;
-                }
-                return av.localeCompare(bv) * current.dir;
-            });
-            rows.forEach(function (row) { body.appendChild(row); });
-        });
-    });
-})();
-</script>
+<script src="{% static 'core/js/mgl-team.js' %}?v=sq-1"></script>
 {% endblock %}

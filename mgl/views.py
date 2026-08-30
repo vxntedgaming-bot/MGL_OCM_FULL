@@ -1426,6 +1426,39 @@ def team_management(request):
     if ungrouped:
         squad_groups.append(("SQUAD", ungrouped))
 
+    def _line(position):
+        pos = (position or "").upper()
+        if pos in gk:
+            return "keepers"
+        if pos in defence:
+            return "defenders"
+        if pos in midfield:
+            return "midfielders"
+        if pos in attack:
+            return "attackers"
+        return "other"
+
+    for player in players:
+        player.line = _line(player.position)
+    line_counts = {
+        "attackers": sum(1 for player in players if player.line == "attackers"),
+        "midfielders": sum(1 for player in players if player.line == "midfielders"),
+        "defenders": sum(1 for player in players if player.line == "defenders"),
+        "keepers": sum(1 for player in players if player.line == "keepers"),
+    }
+    age_counts = {
+        "u23": sum(1 for player in players if player.age is not None and player.age < 23),
+        "prime": sum(
+            1
+            for player in players
+            if player.age is not None and 23 <= player.age <= 29
+        ),
+        "veteran": sum(1 for player in players if player.age is not None and player.age >= 30),
+    }
+    squad_positions = sorted(
+        {player.position for player in players if player.position}
+    )
+
     return render(
         request,
         "mgl/team_management.html",
@@ -1436,6 +1469,9 @@ def team_management(request):
             "total_ovr": total_ovr,
             "available_spaces": available_spaces,
             "squad_groups": squad_groups,
+            "line_counts": line_counts,
+            "age_counts": age_counts,
+            "squad_positions": squad_positions,
             "token_balance": token_balance_for_user(request.user),
             "auction_durations": AUCTION_DURATION_CHOICES,
             "market_listing_count": active_market_listing_count(team),
