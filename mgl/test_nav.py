@@ -263,7 +263,15 @@ class NavigationDropdownTests(TestCase):
         self.assertNotContains(hub, "ACTION REQUIRED")
         self.assertNotContains(hub, "Propose Transfer")
         self.assertNotContains(hub, "Recruitment Drive")
-        self.assertNotContains(hub, "Premier League Stats")
+        self.assertContains(hub, "TABLES")
+        self.assertContains(hub, "STATISTICS")
+        self.assertContains(hub, "Premier League Stats")
+        self.assertContains(hub, reverse("leagues_page"))
+        self.assertContains(
+            hub, reverse("league_stats", kwargs={"slug": "premier-league"})
+        )
+        self.assertIn('data-nav-dropdown="leagues"', html)
+        self.assertIn('data-nav-dropdown="stats"', html)
         self.assertNotContains(hub, "WAITING ROOM")
         self.assertNotContains(hub, reverse("compare_players"))
         self.assertNotContains(hub, reverse("control_centre"))
@@ -272,8 +280,56 @@ class NavigationDropdownTests(TestCase):
         self.assertNotContains(hub, 'data-nav-dropdown="my-team"')
         self.assertNotContains(hub, 'data-nav-dropdown="transfers"')
         self.assertNotContains(hub, 'data-nav-dropdown="recruitment"')
-        self.assertNotContains(hub, 'data-nav-dropdown="stats"')
-        self.assertNotContains(hub, 'data-nav-dropdown="leagues"')
+
+    def test_signed_in_nav_shows_tables_and_stats_for_every_role(self):
+        User.objects.create_user(
+            username="navadmin",
+            password="test-pass-123",
+            role=User.ADMIN,
+        )
+        User.objects.create_user(
+            username="navowner2",
+            password="test-pass-123",
+            role=User.OWNER,
+        )
+        tables = reverse("leagues_page")
+        stats = reverse("league_stats", kwargs={"slug": "premier-league"})
+        for username in ("navuser", "navadmin", "navowner2"):
+            self.client.logout()
+            self.client.login(username=username, password="test-pass-123")
+            page = self.client.get("/")
+            self.assertEqual(page.status_code, 200, username)
+            nav = page.content.decode().split('<nav class="mgl-nav"', 1)[1].split(
+                "</nav>", 1
+            )[0]
+            self.assertIn("HOME", nav)
+            self.assertIn("MY CLUB", nav)
+            self.assertIn("MARKET", nav)
+            self.assertIn("COMMUNITY", nav)
+            self.assertIn("TABLES", nav)
+            self.assertIn("STATISTICS", nav)
+            self.assertIn("NEWS", nav)
+            self.assertIn("JOBS", nav)
+            self.assertIn(tables, nav)
+            self.assertIn(stats, nav)
+            self.assertIn('data-nav-dropdown="leagues"', nav)
+            self.assertIn('data-nav-dropdown="stats"', nav)
+            tables_page = self.client.get(tables)
+            self.assertEqual(tables_page.status_code, 200, username)
+            self.assertContains(tables_page, "LEAGUE TABLES")
+            stats_page = self.client.get(stats)
+            self.assertEqual(stats_page.status_code, 200, username)
+            self.assertContains(stats_page, "PREMIER LEAGUE STATS")
+        self.client.logout()
+        public = self.client.get("/")
+        public_nav = public.content.decode().split('<nav class="mgl-nav"', 1)[1].split(
+            "</nav>", 1
+        )[0]
+        self.assertIn("TABLES", public_nav)
+        self.assertIn("STATISTICS", public_nav)
+        self.assertNotIn("MY CLUB", public_nav)
+        self.assertNotIn("MARKET", public_nav)
+        self.assertNotIn("COMMUNITY", public_nav)
 
 
 class PlayerSearchAndCardNameTests(TestCase):

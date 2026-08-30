@@ -197,6 +197,66 @@ SIGNED_IN_NAV_DROPDOWNS = (
         ),
     },
     {
+        "id": "leagues",
+        "label": "TABLES",
+        "current": {"leagues_page", "competition_page"},
+        "items": (
+            {"label": "All Leagues", "url_name": "leagues_page"},
+            {
+                "label": "Premier League",
+                "url_name": "competition_page",
+                "url_kwargs": {"slug": "premier-league"},
+                "style": "sub",
+            },
+            {
+                "label": "Championship",
+                "url_name": "competition_page",
+                "url_kwargs": {"slug": "championship"},
+                "style": "sub",
+            },
+            {
+                "label": "League One",
+                "url_name": "competition_page",
+                "url_kwargs": {"slug": "league-one"},
+                "style": "sub",
+            },
+            {
+                "label": "Cups",
+                "url_name": "competition_page",
+                "url_kwargs": {"slug": "cups"},
+                "divider": True,
+            },
+        ),
+    },
+    {
+        "id": "stats",
+        "label": "STATISTICS",
+        "current": {
+            "stats_page",
+            "league_stats",
+        },
+        "items": (
+            {
+                "label": "Premier League Stats",
+                "url_name": "league_stats",
+                "url_kwargs": {"slug": "premier-league"},
+                "style": "sub",
+            },
+            {
+                "label": "Championship Stats",
+                "url_name": "league_stats",
+                "url_kwargs": {"slug": "championship"},
+                "style": "sub",
+            },
+            {
+                "label": "League One Stats",
+                "url_name": "league_stats",
+                "url_kwargs": {"slug": "league-one"},
+                "style": "sub",
+            },
+        ),
+    },
+    {
         "id": "news",
         "label": "NEWS",
         "current": {
