@@ -398,6 +398,7 @@ class ApprovalWorkflowAuditTests(TestCase):
         self.client.login(username="owner", password="test-pass-123")
         control = self.client.get(reverse("control_centre"))
         self.assertEqual(control.status_code, 200)
-        self.assertContains(control, "OWNER / ADMIN CONTROL")
+        self.assertContains(control, "MGL ADMIN")
+        self.assertContains(control, ">CONTROL</h1>")
         self.assertContains(control, "MATCH RESULTS")
         self.assertContains(control, "TRANSFER REQUESTS")

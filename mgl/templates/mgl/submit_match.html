@@ -2,16 +2,13 @@
 {% load static %}
 
 {% block title %}Submit Match — MGL{% endblock %}
+{% block body_class %}mgl-page{% endblock %}
 
 {% block content %}
 <section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">MATCH CENTRE</div>
-            <h2>{{ fixture.home_team.name }} VS {{ fixture.away_team.name }}</h2>
-        </div>
-        <a href="{% url 'fixture_list' %}" class="view-all">FIXTURES →</a>
-    </div>
+    {% url 'fixture_list' as fixtures_url %}
+    {% include "mgl/includes/page_header.html" with category="MGL FIXTURES" title="SUBMIT RESULT" icon="⚽" parent_label="FIXTURES" parent_url=fixtures_url %}
+    <a href="{% url 'fixture_list' %}" class="view-all">FIXTURES →</a>
 
     <form method="post" class="mgl-form mgl-match-form" id="mgl-match-form">
         {% csrf_token %}

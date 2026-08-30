@@ -2,28 +2,24 @@
 {% load mgl_ui %}
 
 {% block title %}{{ team.name }} Squad — MGL{% endblock %}
+{% block body_class %}mgl-page{% endblock %}
 
 {% block content %}
 
 <section class="mgl-section">
-
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">OWNER / ADMIN</div>
-            <h1 class="mgl-info-club">{% team_logo team "md" %} {{ team.name|upper }} SQUAD</h1>
-            <p>
-                {{ team.short_name }}
-                ·
-                {{ team.league.name }}
-                ·
-                {{ players|length }}/{{ team.roster_limit }} players
-            </p>
-        </div>
-
-        <a href="{% url 'club_management_admin' %}" class="view-all">
-            BACK TO CLUBS →
-        </a>
-    </div>
+    {% url 'club_management_admin' as clubs_admin_url %}
+    {% include "mgl/includes/page_header.html" with category="MGL ADMIN" title=team.name|upper|add:" SQUAD" icon="⚙️" root="control" parent_label="CLUB MANAGEMENT" parent_url=clubs_admin_url %}
+    <p class="mgl-info-club">
+        {% team_logo team "md" %}
+        {{ team.short_name }}
+        ·
+        {{ team.league.name }}
+        ·
+        {{ players|length }}/{{ team.roster_limit }} players
+    </p>
+    <a href="{% url 'club_management_admin' %}" class="view-all">
+        BACK TO CLUBS →
+    </a>
 
 
     <div class="overview-grid">

@@ -2,18 +2,16 @@
 {% load static mgl_ui %}
 
 {% block title %}Free Agents — MGL{% endblock %}
-{% block body_class %}mgl-fa-page{% endblock %}
+{% block body_class %}mgl-fa-page mgl-page{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'core/css/mgl-free-agents.css' %}">
 {% endblock %}
 
 {% block content %}
 <section class="mgl-section mgl-fa-page">
+    {% include "mgl/includes/page_header.html" with category="MGL MARKET" title="FREE AGENTS" icon="🆓" %}
     <div class="mgl-fa-head">
-        <div>
-            <div class="eyebrow">MGL MARKET</div>
-            <h1>FREE AGENTS</h1>
-        </div>
+        <div></div>
         <div>
             {% if page_obj %}
                 <p class="mgl-fa-page-meta">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</p>

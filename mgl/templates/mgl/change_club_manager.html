@@ -1,24 +1,14 @@
 {% extends "core/base.html" %}
 
 {% block title %}Change Manager — MGL{% endblock %}
+{% block body_class %}mgl-page{% endblock %}
 
 {% block content %}
 
 <section class="mgl-section">
-
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">OWNER / ADMIN</div>
-
-            <h1>CHANGE MANAGER</h1>
-
-            <p>
-                {{ team.name }}
-            </p>
-        </div>
-
-        <span class="section-line"></span>
-    </div>
+    {% url 'club_management_admin' as clubs_admin_url %}
+    {% include "mgl/includes/page_header.html" with category="MGL ADMIN" title="CHANGE MANAGER" icon="⚙️" root="control" parent_label="CLUB MANAGEMENT" parent_url=clubs_admin_url %}
+    <p>{{ team.name }}</p>
 
 
     <div class="dashboard-panel">

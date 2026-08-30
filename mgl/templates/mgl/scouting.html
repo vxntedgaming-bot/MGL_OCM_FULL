@@ -2,16 +2,11 @@
 {% load mgl_ui %}
 
 {% block title %}Scouting — MGL{% endblock %}
+{% block body_class %}mgl-page{% endblock %}
 
 {% block content %}
 <section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">MARKET</div>
-            <h1>SCOUT HEADQUARTERS</h1>
-        </div>
-        <span class="section-line"></span>
-    </div>
+    {% include "mgl/includes/page_header.html" with category="MGL SCOUTING" title="SCOUTING" icon="🔎" %}
 
     <div class="mgl-scout-hq">
         <div class="mgl-scout-hq-copy">

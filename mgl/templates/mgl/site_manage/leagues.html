@@ -1,16 +1,13 @@
 {% extends "core/base.html" %}
 
 {% block title %}Leagues — Site Management{% endblock %}
+{% block body_class %}mgl-page{% endblock %}
 
 {% block content %}
 <section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">SITE MANAGEMENT</div>
-            <h1>LEAGUES</h1>
-        </div>
-        <a href="{% url 'site_management' %}" class="view-all">BACK →</a>
-    </div>
+    {% url 'site_management' as site_manage_url %}
+    {% include "mgl/includes/page_header.html" with category="MGL ADMIN" title="LEAGUES" icon="⚙️" root="control" parent_label="SITE MANAGEMENT" parent_url=site_manage_url %}
+    <a href="{% url 'site_management' %}" class="view-all">BACK →</a>
     <div class="sm-team-grid">
         {% for league in leagues %}
             <article class="sm-team-card">

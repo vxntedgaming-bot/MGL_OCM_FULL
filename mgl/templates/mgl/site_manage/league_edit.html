@@ -1,17 +1,13 @@
 {% extends "core/base.html" %}
 
 {% block title %}Edit {{ league.public_name }} — Site Management{% endblock %}
+{% block body_class %}mgl-page{% endblock %}
 
 {% block content %}
 <section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">SITE MANAGEMENT · LEAGUES</div>
-            <h1>EDIT {{ league.public_name|upper }}</h1>
-            <p>League ID {{ league.id }} stays unchanged. Canonical name {{ league.name }} / {{ league.short_name }} is not rewritten, so existing structure jobs cannot overwrite your public label.</p>
-        </div>
-        <a href="{% url 'site_management_leagues' %}" class="view-all">LEAGUES →</a>
-    </div>
+    {% url 'site_management_leagues' as leagues_manage_url %}
+    {% include "mgl/includes/page_header.html" with category="MGL ADMIN" title=league.public_name|upper icon="⚙️" current="EDIT LEAGUE" root="control" parent_label="LEAGUES" parent_url=leagues_manage_url subtitle="League ID stays unchanged. Canonical name is not rewritten." %}
+    <a href="{% url 'site_management_leagues' %}" class="view-all">LEAGUES →</a>
 
     {% if errors %}
         <div class="mgl-messages">

@@ -1544,14 +1544,7 @@ def historical_tables(request):
 
 
 def head_to_head(request):
-    from mgl.site_cms import get_content
-
-    return _feature_page(
-        request,
-        "Head to Head",
-        "STATS & HISTORY",
-        get_content("community.h2h_intro"),
-    )
+    raise Http404("Head to Head has been removed.")
 
 
 def compare_players(request):
@@ -1787,9 +1780,4 @@ def auction_free_agent(request, player_id):
 
 
 def youth_academy(request):
-    return _feature_page(
-        request,
-        "Youth Academy",
-        "MARKET",
-        "Youth Academy is not live yet. The FC26 player pool already includes every registered player available to MGL.",
-    )
+    raise Http404("Youth Academy has been removed.")

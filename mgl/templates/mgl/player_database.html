@@ -2,20 +2,14 @@
 {% load static mgl_ui %}
 
 {% block title %}Player Database — MGL{% endblock %}
+{% block body_class %}mgl-page{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'core/css/mgl-player-database.css' %}">
 {% endblock %}
 
 {% block content %}
 <section class="mgl-section mgl-pdb-page">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">FC26 PLAYER POOL</div>
-            <h1>PLAYER DATABASE</h1>
-            <p class="mgl-filter-meta">{{ total_player_count }} PLAYERS</p>
-        </div>
-        <span class="section-line"></span>
-    </div>
+    {% include "mgl/includes/page_header.html" with category="MGL PLAYERS" title="PLAYER DATABASE" icon="👥" %}
 
     <form method="get" class="mgl-pdb-layout" role="search">
         <div>

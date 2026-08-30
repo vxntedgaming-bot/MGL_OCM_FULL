@@ -2,16 +2,12 @@
 {% load static mgl_ui %}
 
 {% block title %}{{ competition_name }} — MGL{% endblock %}
+{% block body_class %}mgl-page{% endblock %}
 
 {% block content %}
 <section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">COMPETITION</div>
-            <h1>{{ competition_name|upper }}</h1>
-        </div>
-        <a href="{% url 'leagues_page' %}" class="view-all">ALL LEAGUES →</a>
-    </div>
+    {% include "mgl/includes/page_header.html" with category="MGL COMPETITION" title=competition_name|upper icon="🏆" %}
+    <a href="{% url 'leagues_page' %}" class="view-all">ALL LEAGUES →</a>
     {% include "mgl/includes/competition_selector.html" %}
     {% if is_live %}
         <div class="dashboard-panel">

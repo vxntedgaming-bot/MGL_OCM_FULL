@@ -2,17 +2,13 @@
 {% load mgl_ui %}
 
 {% block title %}Edit {{ team.name }} — Site Management{% endblock %}
+{% block body_class %}mgl-page{% endblock %}
 
 {% block content %}
 <section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">SITE MANAGEMENT · TEAMS</div>
-            <h1>EDIT {{ team.name|upper }}</h1>
-            <p>Team ID {{ team.id }} stays unchanged. Manager, tokens, league assignment, squad and fixtures are not edited here.</p>
-        </div>
-        <a href="{% url 'site_management_teams' %}" class="view-all">TEAMS →</a>
-    </div>
+    {% url 'site_management_teams' as teams_manage_url %}
+    {% include "mgl/includes/page_header.html" with category="MGL ADMIN" title=team.name|upper icon="⚙️" current="EDIT TEAM" root="control" parent_label="TEAMS" parent_url=teams_manage_url subtitle="Team ID stays unchanged. Manager, tokens, league assignment, squad and fixtures are not edited here." %}
+    <a href="{% url 'site_management_teams' %}" class="view-all">TEAMS →</a>
 
     {% if errors %}
         <div class="mgl-messages">

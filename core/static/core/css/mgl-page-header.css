@@ -1,0 +1,138 @@
+/* Shared page header for the listed MGL section pages. Does not recolour the rest of the site. */
+
+body.mgl-page {
+    --mgl-blue: #7eb8dc;
+    --mgl-blue-2: #9dceea;
+    background:
+        radial-gradient(ellipse at 82% 12%, rgba(126, 184, 220, 0.10), transparent 42%),
+        repeating-linear-gradient(90deg, transparent 0 72px, rgba(255, 255, 255, 0.02) 72px 73px),
+        #050505;
+}
+
+.mgl-page-crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 28px;
+}
+
+.mgl-page-crumb,
+.mgl-page-crumb-current {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 34px;
+    padding: 0 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: #10141c;
+    color: rgba(255, 255, 255, 0.72);
+    font-family: var(--font-display, "Barlow Condensed", sans-serif);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.mgl-page-crumb svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
+.mgl-page-crumb-sep {
+    color: rgba(255, 255, 255, 0.28);
+    font-size: 12px;
+}
+
+.mgl-page-crumb-current {
+    border-color: rgba(126, 184, 220, 0.75);
+    color: #fff;
+}
+
+.mgl-page-hero {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin: 0 0 36px;
+}
+
+.mgl-page-hero-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: rgba(126, 184, 220, 0.12);
+    border: 1px solid rgba(126, 184, 220, 0.4);
+    color: var(--mgl-blue);
+    flex-shrink: 0;
+    font-size: 24px;
+    line-height: 1;
+}
+
+.mgl-page-kicker {
+    color: var(--mgl-blue);
+    font-family: var(--font-display, "Barlow Condensed", sans-serif);
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+}
+
+.mgl-page-hero h1 {
+    margin: 6px 0 0;
+    color: #fff;
+    font-family: var(--font-display, "Barlow Condensed", sans-serif);
+    font-size: clamp(36px, 6vw, 64px);
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    line-height: 0.95;
+    text-transform: uppercase;
+}
+
+.mgl-page-copy {
+    max-width: 68ch;
+    margin: 12px 0 0;
+    color: rgba(255, 255, 255, 0.62);
+    font-size: 15px;
+    line-height: 1.55;
+}
+
+body.mgl-page .mgl-main .primary-button {
+    background: var(--mgl-blue);
+    border-color: var(--mgl-blue);
+    color: #061018;
+}
+
+body.mgl-page .mgl-main .primary-button:hover {
+    background: var(--mgl-blue-2);
+    border-color: var(--mgl-blue-2);
+}
+
+body.mgl-page .mgl-main .view-all {
+    color: var(--mgl-blue);
+}
+
+@media (max-width: 720px) {
+    .mgl-page-crumbs {
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+
+    .mgl-page-hero {
+        margin-bottom: 28px;
+    }
+
+    .mgl-page-hero-icon {
+        width: 46px;
+        height: 46px;
+        font-size: 22px;
+    }
+
+    .mgl-page-hero h1 {
+        font-size: clamp(32px, 9vw, 48px);
+    }
+}

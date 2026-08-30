@@ -2,16 +2,12 @@
 {% load mgl_ui %}
 
 {% block title %}History — MGL{% endblock %}
+{% block body_class %}mgl-page{% endblock %}
 
 {% block content %}
 <section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">COMMUNITY</div>
-            <h1>HISTORY</h1>
-        </div>
-        <a href="{% url 'leagues_page' %}" class="view-all">CURRENT TABLE →</a>
-    </div>
+    {% include "mgl/includes/page_header.html" with category="MGL HISTORY" title="HISTORY" icon="📜" %}
+    <a href="{% url 'leagues_page' %}" class="view-all">CURRENT TABLE →</a>
 
     <div class="mgl-history-seasons">
         {% for season in history_seasons %}

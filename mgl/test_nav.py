@@ -191,6 +191,46 @@ class NavigationDropdownTests(TestCase):
         self.assertNotContains(home, "WAITING ROOM")
         self.assertNotContains(home, reverse("compare_players"))
 
+    def test_academy_and_head_to_head_are_gone(self):
+        academy = self.client.get(reverse("youth_academy"))
+        self.assertEqual(academy.status_code, 404)
+        h2h = self.client.get(reverse("head_to_head"))
+        self.assertEqual(h2h.status_code, 404)
+        home = self.client.get("/")
+        self.assertNotContains(home, reverse("youth_academy"))
+        self.assertNotContains(home, reverse("head_to_head"))
+        self.assertNotContains(home, "Youth Academy")
+        self.assertNotContains(home, "Head To Head")
+
+    def test_section_pages_use_shared_page_header(self):
+        cases = (
+            (reverse("leagues_page"), "MGL COMPETITION", "LEAGUE TABLES", "🏆"),
+            (reverse("job_centre"), "MGL CAREERS", "JOBS", "💼"),
+            (reverse("live_activity"), "MGL NEWS", "LIVE ACTIVITY", "📡"),
+            (reverse("pressroom"), "MGL NEWS", "PRESSROOM", "📰"),
+            (
+                reverse("competition_page", kwargs={"slug": "premier-league"}),
+                "MGL COMPETITION",
+                "PREMIER LEAGUE",
+                "🏆",
+            ),
+            (
+                reverse("league_stats", kwargs={"slug": "premier-league"}),
+                "MGL STATISTICS",
+                "PREMIER LEAGUE STATS",
+                "📊",
+            ),
+        )
+        for url, category, title, icon in cases:
+            page = self.client.get(url)
+            self.assertEqual(page.status_code, 200, url)
+            self.assertContains(page, "mgl-page-header.css")
+            self.assertContains(page, "mgl-page-hero")
+            self.assertContains(page, category)
+            self.assertContains(page, f">{title}</h1>")
+            self.assertContains(page, icon)
+            self.assertContains(page, "mgl-page-crumb-current")
+
     def test_context_marks_open_menu_for_request(self):
         factory = RequestFactory()
         request = factory.get(reverse("free_agents"))
@@ -246,13 +286,14 @@ class NavigationDropdownTests(TestCase):
         self.assertContains(hub, "MY CLUB")
         self.assertContains(hub, "MARKET")
         self.assertContains(hub, "Scouting")
-        self.assertContains(hub, "Academy")
-        self.assertContains(hub, "Head To Head")
         self.assertContains(hub, "History")
         self.assertContains(hub, "Live Activity")
         self.assertContains(hub, "Pressroom")
         self.assertContains(hub, reverse("scouting"))
-        self.assertContains(hub, reverse("youth_academy"))
+        self.assertNotContains(hub, "Academy")
+        self.assertNotContains(hub, "Head To Head")
+        self.assertNotContains(hub, reverse("youth_academy"))
+        self.assertNotContains(hub, reverse("head_to_head"))
         self.assertContains(hub, reverse("live_activity"))
         self.assertContains(hub, reverse("pressroom"))
         self.assertContains(hub, reverse("historical_tables"))
