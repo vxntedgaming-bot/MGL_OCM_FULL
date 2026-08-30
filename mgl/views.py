@@ -735,6 +735,13 @@ def release_my_player(request, player_id):
     return redirect("team_management")
 
 
+FREE_AGENT_POSITION_GROUPS = {
+    "DEFENDERS": ("CB", "LB", "RB", "LWB", "RWB"),
+    "MIDFIELDERS": ("CDM", "CM", "CAM", "LM", "RM"),
+    "ATTACKERS": ("LW", "RW", "ST", "CF"),
+}
+
+
 @login_required
 def free_agents(request):
     search = request.GET.get("search", "").strip()
@@ -744,7 +751,9 @@ def free_agents(request):
     players = free_agent_qs()
     if search:
         players = apply_player_search(players, search)
-    if position:
+    if position in FREE_AGENT_POSITION_GROUPS:
+        players = players.filter(position__in=FREE_AGENT_POSITION_GROUPS[position])
+    elif position:
         players = players.filter(position=position)
     if min_ovr.isdigit():
         players = players.filter(overall__gte=int(min_ovr))

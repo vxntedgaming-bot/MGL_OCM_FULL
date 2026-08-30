@@ -1,0 +1,337 @@
+/* Free Agents page only. Loaded on /mgl/free-agents/. Does not restyle other pages. */
+
+body.mgl-fa-page {
+    background:
+        radial-gradient(ellipse at 50% 0%, rgba(255, 92, 0, 0.08), transparent 42%),
+        repeating-linear-gradient(90deg, transparent 0 72px, rgba(255, 255, 255, 0.02) 72px 73px),
+        #050505;
+}
+
+.mgl-fa-page .mgl-fa-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px 24px;
+    margin: 0 0 28px;
+}
+
+.mgl-fa-page .mgl-fa-head h1 {
+    margin: 8px 0 0;
+    color: #fff;
+    font-size: clamp(36px, 6vw, 64px);
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    line-height: 0.95;
+}
+
+.mgl-fa-page .mgl-fa-head p {
+    max-width: 68ch;
+    margin: 12px 0 0;
+    color: rgba(255, 255, 255, 0.62);
+    font-size: 15px;
+    line-height: 1.55;
+}
+
+.mgl-fa-page-meta {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.mgl-fa-controls {
+    display: grid;
+    gap: 18px;
+    margin: 0 0 22px;
+}
+
+.mgl-fa-search {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    min-height: 56px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    background: #10141c;
+}
+
+.mgl-fa-search input[type="search"] {
+    flex: 1;
+    min-width: 0;
+    padding: 0 20px;
+    border: 0;
+    background: transparent;
+    color: #fff;
+    font-size: 16px;
+}
+
+.mgl-fa-search input[type="search"]::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.mgl-fa-search-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    flex-shrink: 0;
+    border: 0;
+    background: var(--mgl-orange, #ff5c00);
+    color: #fff;
+    cursor: pointer;
+}
+
+.mgl-fa-search-btn:hover {
+    background: var(--mgl-orange-2, #ff7a24);
+}
+
+.mgl-fa-search-btn svg {
+    width: 22px;
+    height: 22px;
+}
+
+.mgl-fa-sort label,
+.mgl-fa-min label {
+    display: block;
+    margin-bottom: 8px;
+    color: rgba(255, 255, 255, 0.45);
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+}
+
+.mgl-fa-sort select,
+.mgl-fa-min input {
+    width: 100%;
+    min-height: 48px;
+    padding: 0 14px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    background: #10141c;
+    color: #fff;
+}
+
+.mgl-fa-tools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 14px 20px;
+}
+
+.mgl-fa-min {
+    width: min(180px, 100%);
+}
+
+.mgl-fa-count {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 13px;
+}
+
+.mgl-fa-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.mgl-fa-filter {
+    min-height: 32px;
+    padding: 0 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 999px;
+    background: #0b0e14;
+    color: rgba(255, 255, 255, 0.68);
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+}
+
+.mgl-fa-filter:hover,
+.mgl-fa-filter.is-active {
+    border-color: var(--mgl-orange, #ff5c00);
+    background: rgba(255, 92, 0, 0.14);
+    color: #fff;
+}
+
+.mgl-fa-board {
+    padding: 8px 18px 10px;
+    background: #10141c;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.mgl-fa-cols,
+.mgl-fa-row {
+    display: grid;
+    grid-template-columns: 52px minmax(160px, 1.6fr) 80px 80px minmax(160px, 1fr);
+    gap: 12px 16px;
+    align-items: center;
+}
+
+.mgl-fa-cols {
+    padding: 14px 8px 12px;
+    color: rgba(255, 255, 255, 0.42);
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+}
+
+.mgl-fa-row {
+    padding: 16px 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.mgl-fa-row:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.mgl-fa-index {
+    color: rgba(255, 255, 255, 0.78);
+    font-weight: 700;
+}
+
+.mgl-fa-name {
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.mgl-fa-name:hover {
+    color: var(--mgl-orange, #ff5c00);
+}
+
+.mgl-fa-pos {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 46px;
+    height: 26px;
+    padding: 0 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 92, 0, 0.35);
+    background: rgba(255, 92, 0, 0.1);
+    color: #fff;
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.mgl-fa-pos[data-pos="GK"] {
+    border-color: rgba(201, 162, 39, 0.45);
+    background: rgba(201, 162, 39, 0.12);
+}
+
+.mgl-fa-pos[data-pos="CB"],
+.mgl-fa-pos[data-pos="LB"],
+.mgl-fa-pos[data-pos="RB"],
+.mgl-fa-pos[data-pos="LWB"],
+.mgl-fa-pos[data-pos="RWB"] {
+    border-color: rgba(80, 150, 220, 0.45);
+    background: rgba(80, 150, 220, 0.12);
+}
+
+.mgl-fa-pos[data-pos="CDM"],
+.mgl-fa-pos[data-pos="CM"],
+.mgl-fa-pos[data-pos="CAM"],
+.mgl-fa-pos[data-pos="LM"],
+.mgl-fa-pos[data-pos="RM"] {
+    border-color: rgba(255, 92, 0, 0.5);
+    background: rgba(255, 92, 0, 0.14);
+}
+
+.mgl-fa-pos[data-pos="LW"],
+.mgl-fa-pos[data-pos="RW"],
+.mgl-fa-pos[data-pos="CF"],
+.mgl-fa-pos[data-pos="ST"] {
+    border-color: rgba(220, 80, 90, 0.5);
+    background: rgba(220, 80, 90, 0.14);
+}
+
+.mgl-fa-ovr {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 92, 0, 0.7);
+    color: #fff;
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.mgl-fa-action {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.mgl-fa-action form {
+    margin: 0;
+}
+
+.mgl-fa-action .secondary-button,
+.mgl-fa-action .primary-button {
+    white-space: nowrap;
+}
+
+.mgl-fa-mobile-label {
+    display: none;
+}
+
+.mgl-fa-page .mgl-pagination {
+    margin-top: 22px;
+}
+
+@media (max-width: 860px) {
+    .mgl-fa-cols {
+        display: none;
+    }
+
+    .mgl-fa-row {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px 16px;
+        padding: 18px 4px;
+    }
+
+    .mgl-fa-name-cell {
+        grid-column: 1 / -1;
+    }
+
+    .mgl-fa-action {
+        grid-column: 1 / -1;
+        justify-content: flex-start;
+    }
+
+    .mgl-fa-mobile-label {
+        display: block;
+        margin-bottom: 6px;
+        color: rgba(255, 255, 255, 0.4);
+        font-family: var(--font-display);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+    }
+}
+
+@media (max-width: 640px) {
+    .mgl-fa-board {
+        padding: 6px 12px 8px;
+    }
+
+    .mgl-fa-row {
+        grid-template-columns: 1fr;
+    }
+
+    .mgl-fa-min {
+        width: 100%;
+    }
+}

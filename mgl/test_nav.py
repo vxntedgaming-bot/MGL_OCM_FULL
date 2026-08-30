@@ -501,3 +501,42 @@ class PlayerSearchAndCardNameTests(TestCase):
         response = self.client.get(reverse("free_agents"), {"search": "van Dijk"})
         self.assertContains(response, "VIRGIL VAN DIJK")
         self.assertNotContains(response, ">DIJK<")
+
+    def test_free_agents_page_uses_table_layout_and_group_filters(self):
+        public = self.client.get(reverse("free_agents"))
+        self.assertContains(public, "core/css/mgl-free-agents.css")
+        self.assertContains(public, "DEFENDERS")
+        self.assertContains(public, "MIDFIELDERS")
+        self.assertContains(public, "ATTACKERS")
+        self.assertContains(public, "MIN OVR")
+        self.assertContains(public, ">PLAYER</span>")
+        self.assertContains(public, ">ACTION</span>")
+        self.assertContains(public, "VIEW PLAYER")
+        self.assertNotContains(public, "SIGN FOR 0 TKN")
+        self.assertNotContains(public, "REQUEST TO SIGN")
+        self.assertNotContains(public, "Ander Guevara")
+
+        defenders = self.client.get(reverse("free_agents"), {"position": "DEFENDERS"})
+        self.assertContains(defenders, "VIRGIL VAN DIJK")
+        self.assertContains(defenders, "ACHRAF HAKIMI")
+        self.assertNotContains(defenders, "KYLIAN MBAPPÉ")
+        self.assertNotContains(defenders, "MOHAMED SALAH")
+
+        attackers = self.client.get(reverse("free_agents"), {"position": "ATTACKERS"})
+        self.assertContains(attackers, "KYLIAN MBAPPÉ")
+        self.assertNotContains(attackers, "VIRGIL VAN DIJK")
+
+        club = Team.objects.create(
+            name="Search Club",
+            short_name="SCH",
+            league=self.league,
+            manager=self.user,
+        )
+        signed_in = self.client.get(reverse("free_agents"))
+        self.assertContains(signed_in, "SIGN FOR 0 TKN")
+        self.assertContains(signed_in, reverse("sign_free_agent", args=[self.vvd.id]))
+
+        self.client.logout()
+        guest = self.client.get(reverse("free_agents"))
+        self.assertEqual(guest.status_code, 302)
+        self.assertIn("/login/", guest["Location"])
