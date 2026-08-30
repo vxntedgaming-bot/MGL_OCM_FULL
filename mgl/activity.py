@@ -288,7 +288,17 @@ def _football_kind(post):
     return None
 
 
-def completed_deal_payload(post):
+def _team_named(teams, name):
+    needle = (name or "").strip().lower()
+    if not needle:
+        return None
+    for team in teams or []:
+        if (getattr(team, "name", "") or "").strip().lower() == needle:
+            return team
+    return None
+
+
+def completed_deal_payload(post, teams=None):
     """Build a completed-deal card from the snapshot stored at approval.
 
     Returns None for older transfer posts that have no deal snapshot so
@@ -311,9 +321,13 @@ def completed_deal_payload(post):
     buying_club = details.get("buying_club") or ""
     target_list = [target] if target.get("name") else []
     swap_list = [row for row in swaps if isinstance(row, dict) and row.get("name")]
+    selling_team = _team_named(teams, selling_club) or getattr(post, "secondary_team", None)
+    buying_team = _team_named(teams, buying_club) or getattr(post, "primary_team", None)
     return {
         "selling_club": selling_club,
         "buying_club": buying_club,
+        "selling_team": selling_team,
+        "buying_team": buying_team,
         "target": target,
         "swaps": swap_list,
         "is_swap": bool(swap_list),
@@ -399,7 +413,7 @@ def activity_payloads(posts):
         if kind == KIND_RESULT and matchweek:
             gw = f"Gameweek {matchweek}"
             meta_line = f"{meta_line} · {gw}" if meta_line else gw
-        deal = completed_deal_payload(post) if kind == KIND_TRANSFER else None
+        deal = completed_deal_payload(post, teams) if kind == KIND_TRANSFER else None
         if deal:
             from_club = deal["selling_club"] or from_club
             to_club = deal["buying_club"] or to_club

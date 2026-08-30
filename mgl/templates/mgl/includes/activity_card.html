@@ -37,9 +37,9 @@
             {% if item.subtitle %}<p class="mgl-deal-status">{{ item.subtitle }}</p>{% endif %}
         {% elif item.kind == "transfer" and item.deal %}
             <h3 class="mgl-activity-headline mgl-deal-clubs">
-                {{ item.deal.selling_club }}
+                {% team_logo item.deal.selling_team "md" %}
                 <span class="mgl-deal-arrow" aria-hidden="true">→</span>
-                {{ item.deal.buying_club }}
+                {% team_logo item.deal.buying_team "md" %}
             </h3>
             <div class="mgl-deal-sides">
                 <div class="mgl-deal-side">

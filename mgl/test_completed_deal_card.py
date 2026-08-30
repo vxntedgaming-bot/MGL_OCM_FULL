@@ -6,7 +6,7 @@ from django.urls import reverse
 from accounts.models import User
 from leagues.models import League
 from managers.models import ManagerApplication
-from mgl.activity import activity_payloads, published_football_activity
+from mgl.activity import activity_payloads, completed_deal_payload, published_football_activity
 from mgl.market import (
     approve_listing,
     create_listed_purchase_offer,
@@ -294,6 +294,37 @@ class CompletedDealCardTests(TestCase):
         self.assertNotContains(page, "Scouted Mid")
         self.assertNotContains(page, "has left Bayer Test")
         self.assertFalse(published_football_activity().exclude(category__in=["RESULTS", "TRANSFER"]).exists())
+
+    def test_transfer_header_uses_existing_club_logos(self):
+        self.team_a.badge_code = "B04"
+        self.team_b.badge_code = "ATM"
+        self.team_a.save(update_fields=["badge_code"])
+        self.team_b.save(update_fields=["badge_code"])
+        self._complete("3.00")
+        page = self._activity()
+        html = page.content.decode()
+        header = html.split("mgl-deal-sides", 1)[0]
+        self.assertIn("mgl-team-logo", header)
+        self.assertIn('title="Atletico Test"', header)
+        self.assertIn('title="Bayer Test"', header)
+        self.assertIn("core/img/clubs/ATM.svg", header)
+        self.assertIn("core/img/clubs/B04.svg", header)
+        self.assertIn("mgl-deal-arrow", header)
+        self.assertIn("→", header)
+        self.assertContains(page, "Atletico Test")
+        self.assertContains(page, "Bayer Test")
+        deal = activity_payloads(self._deal_posts())[0]["deal"]
+        self.assertEqual(deal["selling_team"].id, self.team_b.id)
+        self.assertEqual(deal["buying_team"].id, self.team_a.id)
+
+    def test_header_logos_follow_snapshot_clubs(self):
+        self._complete("3.00")
+        post = self._deal_posts().get()
+        post.primary_team = self.team_b
+        post.secondary_team = self.team_a
+        deal = completed_deal_payload(post, [self.team_a, self.team_b])
+        self.assertEqual(deal["selling_team"].id, self.team_b.id)
+        self.assertEqual(deal["buying_team"].id, self.team_a.id)
 
     def test_legacy_transfer_without_snapshot_keeps_simple_card(self):
         NewsPost.objects.create(
