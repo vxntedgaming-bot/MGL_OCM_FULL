@@ -8,7 +8,6 @@
         <div>
             <div class="eyebrow">CONTROL CENTRE</div>
             <h1>SITE MANAGEMENT</h1>
-            <p>Manage clubs, leagues, website content and site settings. Player ownership, fixtures, tokens and statistics are not edited here.</p>
         </div>
         <a href="{% url 'control_centre' %}" class="view-all">CONTROL →</a>
     </div>
@@ -16,22 +15,18 @@
         <a class="sm-hub-card" href="{% url 'site_management_teams' %}">
             <div class="eyebrow">CLUBS</div>
             <h2>TEAMS</h2>
-            <p>Edit club display names, short names, logos and descriptions. Existing Team IDs stay the same.</p>
         </a>
         <a class="sm-hub-card" href="{% url 'site_management_leagues' %}">
             <div class="eyebrow">COMPETITION</div>
             <h2>LEAGUES</h2>
-            <p>Edit public league labels, descriptions and logos. Canonical league records are not duplicated.</p>
         </a>
         <a class="sm-hub-card" href="{% url 'site_management_content' %}">
             <div class="eyebrow">COPY</div>
             <h2>WEBSITE CONTENT</h2>
-            <p>Edit homepage, jobs, market, news, rules and footer wording without changing the public layout.</p>
         </a>
         <a class="sm-hub-card" href="{% url 'site_management_settings' %}">
             <div class="eyebrow">CONFIG</div>
             <h2>SITE SETTINGS</h2>
-            <p>Website name, tagline, contact email, Discord invite and social links.</p>
         </a>
     </div>
 </section>
@@ -51,7 +46,7 @@
                 <small>{% if row.user %}{{ row.user.username }}{% else %}—{% endif %}</small>
             </div>
         {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO SITE MANAGEMENT CHANGES YET" body="Name, logo, content and settings edits will be listed here." %}
+            {% include "mgl/includes/empty_state.html" with title="NO SITE MANAGEMENT CHANGES YET" %}
         {% endfor %}
     </div>
 </section>

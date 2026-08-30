@@ -9,7 +9,6 @@
         <div>
             <div class="eyebrow">STATISTICS</div>
             <h1>{{ competition_name|upper }} STATS</h1>
-            <p>Official {{ competition_name }} numbers from approved match results only. Pending submissions do not appear here.</p>
         </div>
         <span class="section-line"></span>
     </div>
@@ -43,7 +42,7 @@
                     </div>
                 </div>
             {% empty %}
-                {% include "mgl/includes/empty_state.html" with title="NO STATISTICS AVAILABLE YET." body="Official scorers appear after match results are approved by an admin or owner." %}
+                {% include "mgl/includes/empty_state.html" with title="NO STATISTICS AVAILABLE YET." %}
             {% endfor %}
         </div>
         <div class="dashboard-panel">
@@ -61,7 +60,7 @@
                     </div>
                 </div>
             {% empty %}
-                {% include "mgl/includes/empty_state.html" with title="NO STATISTICS AVAILABLE YET." body="Official assists appear after match results are approved." %}
+                {% include "mgl/includes/empty_state.html" with title="NO STATISTICS AVAILABLE YET." %}
             {% endfor %}
         </div>
     </div>
@@ -90,7 +89,7 @@
                     </div>
                 </div>
             {% empty %}
-                {% include "mgl/includes/empty_state.html" with title="NO STATISTICS AVAILABLE YET." body="Defender ratings appear after approved match submissions." %}
+                {% include "mgl/includes/empty_state.html" with title="NO STATISTICS AVAILABLE YET." %}
             {% endfor %}
         </div>
         <div class="dashboard-panel">
@@ -108,7 +107,7 @@
                     </div>
                 </div>
             {% empty %}
-                {% include "mgl/includes/empty_state.html" with title="NO STATISTICS AVAILABLE YET." body="Goalkeeper saves appear after approved match submissions." %}
+                {% include "mgl/includes/empty_state.html" with title="NO STATISTICS AVAILABLE YET." %}
             {% endfor %}
         </div>
         <div class="dashboard-panel">
@@ -126,7 +125,7 @@
                     </div>
                 </div>
             {% empty %}
-                {% include "mgl/includes/empty_state.html" with title="NO STATISTICS AVAILABLE YET." body="Manager records appear after official MGL career statistics are stored." %}
+                {% include "mgl/includes/empty_state.html" with title="NO STATISTICS AVAILABLE YET." %}
             {% endfor %}
         </div>
     </div>

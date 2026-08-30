@@ -9,7 +9,6 @@
         <div>
             <div class="eyebrow">SITE MANAGEMENT</div>
             <h1>TEAMS</h1>
-            <p>Every existing club. Editing a name or logo changes display identity only. The Team ID, squad, fixtures and tokens stay attached.</p>
         </div>
         <a href="{% url 'site_management' %}" class="view-all">BACK →</a>
     </div>
@@ -36,7 +35,7 @@
                 <a href="{% url 'site_management_team_edit' team.id %}" class="primary-button">EDIT</a>
             </article>
         {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO CLUBS" body="Site Management cannot create clubs. Existing Team records appear here." %}
+            {% include "mgl/includes/empty_state.html" with title="NO CLUBS" %}
         {% endfor %}
     </div>
 </section>

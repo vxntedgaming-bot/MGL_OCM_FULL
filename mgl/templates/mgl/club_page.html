@@ -59,7 +59,7 @@
                     <strong class="mgl-standings-club">{% team_logo fixture.away_team "xs" %} <a href="{% club_url fixture.away_team %}">{{ fixture.away_team.name }}</a></strong>
                 </div>
             {% empty %}
-                {% include "mgl/includes/empty_state.html" with title="NO UPCOMING FIXTURES" body="Released fixtures for this club will appear here." %}
+                {% include "mgl/includes/empty_state.html" with title="NO UPCOMING FIXTURES" %}
             {% endfor %}
         </div>
         <div class="dashboard-panel">
@@ -72,7 +72,7 @@
                     <strong>{{ fixture.away_team.short_name }}</strong>
                 </div>
             {% empty %}
-                {% include "mgl/includes/empty_state.html" with title="NO RESULTS YET" body="Approved results for this club will appear here." %}
+                {% include "mgl/includes/empty_state.html" with title="NO RESULTS YET" %}
             {% endfor %}
         </div>
     </div>

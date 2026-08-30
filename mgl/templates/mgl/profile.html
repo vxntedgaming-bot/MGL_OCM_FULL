@@ -73,7 +73,7 @@
             <div class="overview-stat"><span>MANAGER OF THE WEEK</span><strong>{{ career.manager_of_week }}</strong></div>
         </div>
     {% else %}
-        {% include "mgl/includes/empty_state.html" with title="NO DATA YET" body="Wins, draws, losses and goal records appear after official MGL match statistics are submitted and approved." %}
+        {% include "mgl/includes/empty_state.html" with title="NO DATA YET" %}
     {% endif %}
 </section>
 
@@ -92,7 +92,7 @@
                 <small>{{ trophy.awarded_at|date:"d M Y" }}</small>
             </div>
         {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO DATA YET" body="League titles, cups and awards will be recorded here as seasons are completed." %}
+            {% include "mgl/includes/empty_state.html" with title="NO DATA YET" %}
         {% endfor %}
     </div>
 </section>

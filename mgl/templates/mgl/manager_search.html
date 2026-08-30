@@ -8,7 +8,6 @@
         <div>
             <div class="eyebrow">STATS &amp; HISTORY</div>
             <h1>MANAGER SEARCH</h1>
-            <p>Search approved MGL managers by display name, gamertag or username.</p>
         </div>
         <span class="section-line"></span>
     </div>
@@ -26,7 +25,7 @@
                 <b>{{ manager.user.username }}</b>
             </div>
         {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO MANAGERS FOUND" body="Approved managers will appear here. Pending applications are not listed." %}
+            {% include "mgl/includes/empty_state.html" with title="NO MANAGERS FOUND" %}
         {% endfor %}
     </div>
 </section>

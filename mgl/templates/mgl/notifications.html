@@ -13,7 +13,7 @@
         <div>
             <div class="eyebrow">MANAGER INBOX</div>
             <h1>NOTIFICATIONS</h1>
-            <p>Only your account can see these. They come from real MGL actions for @{{ user.username }}{% if manager %} · {{ manager.display_name }}{% endif %}.</p>
+            <p>@{{ user.username }}{% if manager %} · {{ manager.display_name }}{% endif %}</p>
         </div>
         <span class="section-line"></span>
     </div>
@@ -97,7 +97,7 @@
                 </article>
             {% endif %}
         {% empty %}
-            <p class="mgl-notify-empty">No notifications yet. Match submissions, transfers, approvals and other MGL actions will appear here for your account only.</p>
+            <p class="mgl-notify-empty">No notifications yet.</p>
         {% endfor %}
     </div>
 </section>

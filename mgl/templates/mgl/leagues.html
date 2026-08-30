@@ -9,7 +9,6 @@
         <div>
             <div class="eyebrow">COMPETITION</div>
             <h2>LEAGUE TABLES</h2>
-            <p>{% site_text "leagues.page_intro" %}</p>
         </div>
         <span class="section-line"></span>
     </div>
@@ -29,23 +28,6 @@
         <div>
             <div class="eyebrow">SEASON {{ block.league.season|default:"1" }}</div>
             <h3>{{ block.league|league_label|upper }}</h3>
-            <p>
-                {% if block.league.description %}
-                    {{ block.league.description }}
-                {% elif block.league.short_name == "PL" %}
-                    {% site_text "leagues.premier_description" %}
-                {% elif block.table %}
-                    {% if block.league.short_name == "CH" %}
-                        {% site_text "leagues.championship_description" %}
-                    {% elif block.league.short_name == "L1" %}
-                        {% site_text "leagues.league_one_description" %}
-                    {% else %}
-                        Active division.
-                    {% endif %}
-                {% else %}
-                    No clubs assigned yet.
-                {% endif %}
-            </p>
         </div>
     </div>
     <div class="dashboard-panel" style="margin-top:24px">
@@ -53,6 +35,6 @@
     </div>
 </section>
 {% empty %}
-    {% include "mgl/includes/empty_state.html" with kicker="LEAGUES" title="NO LEAGUES PUBLISHED YET" body="Premier League will appear here once the league office is set up." %}
+    {% include "mgl/includes/empty_state.html" with kicker="LEAGUES" title="NO LEAGUES PUBLISHED YET" %}
 {% endfor %}
 {% endblock %}

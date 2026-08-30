@@ -9,7 +9,6 @@
         <div>
             <div class="eyebrow">MARKET</div>
             <h1>TRANSFERS</h1>
-            <p>Completed token movements. No cash deals and no invented history.</p>
         </div>
         <a href="{% url 'transfer_market' %}" class="view-all">MARKET →</a>
     </div>
@@ -22,7 +21,7 @@
                 <b>{{ row.amount }} TKN</b>
             </div>
         {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO TRANSFERS YET" body="Completed auctions, sales and assignments will be listed here with token amounts." %}
+            {% include "mgl/includes/empty_state.html" with title="NO TRANSFERS YET" %}
         {% endfor %}
     </div>
     {% if page_obj and page_obj.has_other_pages %}

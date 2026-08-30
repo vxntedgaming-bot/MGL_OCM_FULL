@@ -9,7 +9,6 @@
         <div>
             <div class="eyebrow">TEAMS</div>
             <h2>MGL CLUBS</h2>
-            <p>Open a club page to view the current squad. Editing stays with the appointed manager and league office.</p>
         </div>
         <a href="{% url 'leagues_page' %}" class="view-all">TABLES →</a>
     </div>
@@ -21,7 +20,7 @@
                 <span>{{ team.league|league_label }} · {% if team.manager %}{{ team.manager.username }}{% else %}VACANT{% endif %}</span>
             </a>
         {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO CLUBS YET" body="Official MGL clubs will appear here once they are created." %}
+            {% include "mgl/includes/empty_state.html" with title="NO CLUBS YET" %}
         {% endfor %}
     </div>
 </section>

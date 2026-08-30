@@ -9,7 +9,6 @@
         <div>
             <div class="eyebrow">MATCH CENTRE</div>
             <h2>{% if active_league %}{{ active_league|league_label|upper }} FIXTURES{% else %}FIXTURES{% endif %}</h2>
-            <p>Arrange your matches, then submit results for owner or admin approval.</p>
         </div>
         <span class="section-line"></span>
     </div>
@@ -30,7 +29,7 @@
             {% endif %}
         </article>
     {% empty %}
-        {% include "mgl/includes/empty_state.html" with kicker="UPCOMING FIXTURES" title="NO FIXTURES HAVE BEEN RELEASED YET" body="Fixtures will appear here once the MGL schedule is published by the league office." %}
+        {% include "mgl/includes/empty_state.html" with kicker="UPCOMING FIXTURES" title="NO FIXTURES HAVE BEEN RELEASED YET" %}
     {% endfor %}
 </section>
 {% endblock %}

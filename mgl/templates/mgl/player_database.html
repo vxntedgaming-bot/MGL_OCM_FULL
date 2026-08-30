@@ -9,7 +9,6 @@
         <div>
             <div class="eyebrow">FC26 PLAYER POOL</div>
             <h1>PLAYER DATABASE</h1>
-            <p>Browse the official MGL player pool as Bronze, Silver and Gold cards. Unassigned players, Free Agents, auction players and club players are separate states.</p>
         </div>
         <span class="section-line"></span>
     </div>
@@ -59,7 +58,7 @@
         {% for player in players %}
             {% player_card player %}
         {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO PLAYERS FOUND" body="Try another search, or import the FC26 player pool if this database is empty." %}
+            {% include "mgl/includes/empty_state.html" with title="NO PLAYERS FOUND" body="Try another search." %}
         {% endfor %}
     </div>
 

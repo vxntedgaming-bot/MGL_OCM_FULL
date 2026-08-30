@@ -12,7 +12,6 @@
         <div>
             <div class="eyebrow">NEWS</div>
             <h2>PRESSROOM</h2>
-            <p>{% site_text "news.pressroom_intro" %}</p>
         </div>
         <a href="{% url 'live_activity' %}" class="view-all">LIVE ACTIVITY →</a>
     </div>
@@ -26,7 +25,7 @@
     {% for press in page %}
         {% include "mgl/includes/press_article.html" %}
     {% empty %}
-        {% include "mgl/includes/empty_state.html" with title="NO PRESS CONFERENCES YET" body="Interviews appear here once Admin approves a manager's answer." %}
+        {% include "mgl/includes/empty_state.html" with title="NO PRESS CONFERENCES YET" %}
     {% endfor %}
 </section>
 {% endblock %}

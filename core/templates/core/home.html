@@ -57,7 +57,7 @@
                     </div>
                     {% endif %}
                 {% empty %}
-                    {% include "mgl/includes/empty_state.html" with title="NO PUBLISHED NEWS YET" body="No published news yet. Transfers, auctions and results will be posted here as the season develops." %}
+                    {% include "mgl/includes/empty_state.html" with title="NO PUBLISHED NEWS YET" %}
                 {% endfor %}
             {% endfor %}
             <p style="margin-top:16px"><a href="{% url 'news_centre' %}" class="view-all">ALL NEWS →</a></p>
@@ -83,7 +83,7 @@
                         <a href="{% url 'fixture_list' %}" class="secondary-button">ALL FIXTURES</a>
                     </div>
                 {% else %}
-                    {% include "mgl/includes/empty_state.html" with kicker="UPCOMING FIXTURES" title="NO FIXTURES HAVE BEEN RELEASED YET" body="Fixtures will appear here once the MGL schedule is published." %}
+                    {% include "mgl/includes/empty_state.html" with kicker="UPCOMING FIXTURES" title="NO FIXTURES HAVE BEEN RELEASED YET" body="No upcoming fixtures have been released." %}
                 {% endif %}
             {% endwith %}
         </article>
@@ -101,7 +101,6 @@
         <div>
             <div class="eyebrow">LEAGUE LIVE UPDATES</div>
             <h2>LIVE ACTIVITY</h2>
-            <p>{% site_text "home.news_intro" %}</p>
         </div>
         <a href="{% url 'live_activity' %}" class="view-all">ALL UPDATES →</a>
     </div>
@@ -109,7 +108,7 @@
         {% for item in live_feed %}
             {% include "mgl/includes/activity_card.html" %}
         {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO LIVE ACTIVITY YET" body="Approved results, transfers and signings will appear here." %}
+            {% include "mgl/includes/empty_state.html" with title="NO LIVE ACTIVITY YET" %}
         {% endfor %}
     </div>
 </section>
@@ -247,7 +246,7 @@
                 <strong class="mgl-standings-club">{% team_logo fixture.away_team "xs" %} {{ fixture.away_team.name }}</strong>
             </div>
             {% empty %}
-            {% include "mgl/includes/empty_state.html" with kicker="UPCOMING FIXTURES" title="NO FIXTURES HAVE BEEN RELEASED YET" body="No upcoming fixtures have been released. Fixtures will appear here once the MGL schedule is published." %}
+            {% include "mgl/includes/empty_state.html" with kicker="UPCOMING FIXTURES" title="NO FIXTURES HAVE BEEN RELEASED YET" body="No upcoming fixtures have been released." %}
             {% endfor %}
         </div>
         <div class="match-panel">
@@ -260,7 +259,7 @@
                 <strong class="mgl-standings-club">{% team_logo fixture.away_team "xs" %} {{ fixture.away_team.name }}</strong>
             </div>
             {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO APPROVED RESULTS YET" body="Official results will appear here after admins approve submitted matches." %}
+            {% include "mgl/includes/empty_state.html" with title="NO APPROVED RESULTS YET" %}
             {% endfor %}
         </div>
     </div>

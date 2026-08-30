@@ -12,7 +12,6 @@
         <div>
             <div class="eyebrow">NEWS</div>
             <h2>MGL NEWSROOM</h2>
-            <p>{% site_text "news.newsroom_intro" %}</p>
         </div>
         {% if discord_invite_url %}
             <a href="{{ discord_invite_url }}" class="primary-button" target="_blank" rel="noopener">JOIN THE MGL COMMUNITY</a>
@@ -31,7 +30,7 @@
     {% for press in press_articles %}
         {% include "mgl/includes/press_article.html" %}
     {% empty %}
-        {% include "mgl/includes/empty_state.html" with title="NO PRESS CONFERENCES YET" body="Answered interviews appear here after a manager submits a reply." %}
+        {% include "mgl/includes/empty_state.html" with title="NO PRESS CONFERENCES YET" %}
     {% endfor %}
 </section>
 {% else %}
@@ -41,13 +40,13 @@
             {% for item in official_items %}
                 {% include "mgl/includes/activity_card.html" with show_body=True %}
             {% empty %}
-                {% include "mgl/includes/empty_state.html" with title="NO OFFICIAL NEWS YET" body="Approved results, transfers and league notices will appear here." %}
+                {% include "mgl/includes/empty_state.html" with title="NO OFFICIAL NEWS YET" %}
             {% endfor %}
         {% else %}
             {% for item in latest_items %}
                 {% include "mgl/includes/activity_card.html" with show_body=True %}
             {% empty %}
-                {% include "mgl/includes/empty_state.html" with title="NO PUBLISHED NEWS YET" body="No published news yet. Transfers, auctions and results will be posted here as the season develops." %}
+                {% include "mgl/includes/empty_state.html" with title="NO PUBLISHED NEWS YET" %}
             {% endfor %}
         {% endif %}
     </div>

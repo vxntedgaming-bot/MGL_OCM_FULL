@@ -31,7 +31,7 @@
                 <small>{{ row.status }}{% if row.approved_by %} · {{ row.approved_by.username }}{% endif %}</small>
             </div>
         {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO MARKET TRANSACTIONS YET" body="Sales, auction wins and refunds are recorded with player, clubs, amount and status." %}
+            {% include "mgl/includes/empty_state.html" with title="NO MARKET TRANSACTIONS YET" %}
         {% endfor %}
     </div>
 
@@ -44,7 +44,7 @@
                 <small>{{ reward.created_at|date:"d M Y" }}</small>
             </div>
         {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO REWARDS YET" body="Approved matches, TOTW and press conferences credit tokens here." %}
+            {% include "mgl/includes/empty_state.html" with title="NO REWARDS YET" %}
         {% endfor %}
     </div>
 </section>

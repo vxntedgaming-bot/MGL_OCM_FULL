@@ -9,11 +9,6 @@
         <div>
             <div class="eyebrow">COMPETITION</div>
             <h1>{{ competition_name|upper }}</h1>
-            {% if is_live %}
-                <p>{{ competition_name }} is an active MGL division.</p>
-            {% else %}
-                <p>This competition is not currently live. Premier League, Championship and League One are the active divisions.</p>
-            {% endif %}
         </div>
         <a href="{% url 'leagues_page' %}" class="view-all">ALL LEAGUES →</a>
     </div>
@@ -22,7 +17,7 @@
             {% include "mgl/includes/league_table.html" with table=table league=league %}
         </div>
     {% else %}
-        {% include "mgl/includes/empty_state.html" with kicker="NOT LIVE" title=competition_name|upper body="No table, clubs or fixtures are generated for this competition." %}
+        {% include "mgl/includes/empty_state.html" with kicker="NOT LIVE" title=competition_name|upper %}
     {% endif %}
 </section>
 {% endblock %}

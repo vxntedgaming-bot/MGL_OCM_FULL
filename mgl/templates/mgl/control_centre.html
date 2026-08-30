@@ -10,8 +10,7 @@
             <h2>OWNER / ADMIN CONTROL</h2>
             <p>
                 Signed in as
-                <span class="mgl-role-badge mgl-role-badge--{{ user.role|lower }}">{{ user.role }}</span>.
-                Approve managers, listings and club applications. Clubs and squads are never deleted when a manager leaves.
+                <span class="mgl-role-badge mgl-role-badge--{{ user.role|lower }}">{{ user.role }}</span>
             </p>
         </div>
         <a href="{% url 'site_management_teams' %}" class="view-all">TEAMS →</a>
@@ -23,7 +22,6 @@
         <a class="sm-hub-card" href="{% url 'site_management' %}">
             <div class="eyebrow">OWNER / ADMIN</div>
             <h2>SITE MANAGEMENT</h2>
-            <p>Manage clubs, leagues, website content and site settings.</p>
         </a>
     </div>
 </section>
@@ -41,7 +39,7 @@
                     <form method="post" action="{% url 'control_reject_manager' app.id %}">{% csrf_token %}<button class="header-button" type="submit">REJECT</button></form>
                 </div>
             {% empty %}
-                {% include "mgl/includes/empty_state.html" with title="NO PENDING APPLICATIONS" body="New manager registrations will appear here for owner or admin approval. Approved managers start with 20 tokens." %}
+                {% include "mgl/includes/empty_state.html" with title="NO PENDING APPLICATIONS" %}
             {% endfor %}
         </div>
 
@@ -60,7 +58,7 @@
                     <form method="post" action="{% url 'control_reject_listing' listing.id %}">{% csrf_token %}<button class="header-button" type="submit">REJECT</button></form>
                 </div>
             {% empty %}
-                {% include "mgl/includes/empty_state.html" with title="NO TRANSFER REQUESTS" body="When a manager accepts a transfer request, approve it here before the player changes club. Player-for-sale listings go live without this step." %}
+                {% include "mgl/includes/empty_state.html" with title="NO TRANSFER REQUESTS" %}
             {% endfor %}
         </div>
         <div class="dashboard-panel">
@@ -73,7 +71,7 @@
                     <form method="post" action="{% url 'control_reject_result' submission.id %}">{% csrf_token %}<button class="header-button" type="submit">REJECT</button></form>
                 </div>
             {% empty %}
-                {% include "mgl/includes/empty_state.html" with title="NO CONFIRMED RESULTS" body="Results appear here only after the opposing manager approves them." %}
+                {% include "mgl/includes/empty_state.html" with title="NO CONFIRMED RESULTS" %}
             {% endfor %}
         </div>
     </div>
@@ -92,7 +90,7 @@
                     <form method="post" action="{% url 'control_reject_press' press.id %}">{% csrf_token %}<button class="header-button" type="submit">REJECT</button></form>
                 </div>
             {% empty %}
-                {% include "mgl/includes/empty_state.html" with title="NO ANSWERS WAITING" body="Manager press conference answers appear here until you approve or reject them. Nothing reaches the public Pressroom without approval." %}
+                {% include "mgl/includes/empty_state.html" with title="NO ANSWERS WAITING" %}
             {% endfor %}
         </div>
         <div class="dashboard-panel">
@@ -105,7 +103,7 @@
                     <form method="post" action="{% url 'control_reject_job' app.id %}">{% csrf_token %}<button class="header-button" type="submit">REJECT</button></form>
                 </div>
             {% empty %}
-                {% include "mgl/includes/empty_state.html" with title="NO CLUB APPLICATIONS" body="Approved managers can apply for vacant clubs from the Job Centre." %}
+                {% include "mgl/includes/empty_state.html" with title="NO CLUB APPLICATIONS" %}
             {% endfor %}
         </div>
         <div class="dashboard-panel">
@@ -118,7 +116,7 @@
                     <form method="post" action="{% url 'control_cancel_auction' auction.id %}">{% csrf_token %}<button class="header-button" type="submit">CANCEL</button></form>
                 </div>
             {% empty %}
-                {% include "mgl/includes/empty_state.html" with title="NO LIVE AUCTIONS" body="Release an unassigned player to auction from this page. Closing an auction settles the winner on the server. No bids makes the player a Free Agent." %}
+                {% include "mgl/includes/empty_state.html" with title="NO LIVE AUCTIONS" %}
             {% endfor %}
         </div>
     </div>
@@ -129,7 +127,7 @@
         <div>
             <div class="eyebrow">AUCTIONS</div>
             <h2>RELEASE AN UNASSIGNED PLAYER</h2>
-            <p>Choose any unassigned FC26 player and a server-side timer. Maximum length is 12 hours. Starting bid 0–10 TKN. The initial starting pool is 64–70 OVR; after that any unassigned overall can be released. Managers cannot use this control.</p>
+            <p>Maximum length 12 hours. Starting bid 0–10 TKN.</p>
         </div>
     </div>
     <form method="get" class="mgl-filter-bar mgl-filter-bar--auction-ovr" role="search">
@@ -144,7 +142,6 @@
     <p class="mgl-filter-meta">
         Showing {{ free_agents|length }} of {{ free_agent_match_count }} matching unassigned players
         ({{ free_agent_total_count }} unassigned in the pool).
-        Selection only — ratings are unchanged. These are not Free Agents.
     </p>
     <div class="dashboard-panel">
         {% for player in free_agents %}
@@ -165,7 +162,7 @@
                 </form>
             </div>
         {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO UNASSIGNED PLAYERS IN THIS RANGE" body="No unassigned players match that OVR filter. Choose All to browse the unused FC26 pool. Ratings are not changed." %}
+            {% include "mgl/includes/empty_state.html" with title="NO UNASSIGNED PLAYERS IN THIS RANGE" %}
         {% endfor %}
     </div>
 </section>
@@ -186,7 +183,7 @@
                 <a href="{% url 'club_squad_admin' team.id %}">SQUAD →</a>
             </div>
         {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO CLUBS YET" body="Create MGL clubs in Django admin. Squads and token balances stay with the club when a manager leaves." %}
+            {% include "mgl/includes/empty_state.html" with title="NO CLUBS YET" %}
         {% endfor %}
     </div>
 </section>
@@ -209,7 +206,7 @@
                 <small>{{ row.status }}{% if row.approved_by %} · {{ row.approved_by.username }}{% endif %}</small>
             </div>
         {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO TRANSACTIONS YET" body="Auctions, sales and refunds are stored here with player, clubs, amount and status." %}
+            {% include "mgl/includes/empty_state.html" with title="NO TRANSACTIONS YET" %}
         {% endfor %}
     </div>
 </section>

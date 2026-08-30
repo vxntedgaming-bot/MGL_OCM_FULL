@@ -292,7 +292,8 @@ class SiteManagementTests(TestCase):
         )
         self.assertEqual(get_content("jobs.page_intro"), "Admin jobs intro.")
         jobs = self.client.get(reverse("job_centre"))
-        self.assertContains(jobs, "Admin jobs intro.")
+        self.assertContains(jobs, "VACANT CLUBS")
+        self.assertNotContains(jobs, "Admin jobs intro.")
 
     def test_manager_cannot_edit_content(self):
         self._login(self.manager_user)

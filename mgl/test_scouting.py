@@ -404,7 +404,6 @@ class ScoutPageTests(TestCase):
         page = self.client.get(reverse("scouting"))
         self.assertContains(page, "LEVEL 1 / 3")
         self.assertContains(page, "UPGRADE YOUR SCOUTING NETWORK")
-        self.assertContains(page, "One upgrade improves Bronze, Silver &amp; Gold scouts.")
         self.assertContains(page, "UPGRADE TO LEVEL 2")
         self.assertContains(page, "18 TOKENS")
         self.assertContains(page, "8 Hours")

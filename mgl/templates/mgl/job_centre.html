@@ -12,7 +12,6 @@
         <div>
             <div class="eyebrow">JOB CENTRE</div>
             <h2>VACANT CLUBS</h2>
-            <p>{% site_text "jobs.page_intro" %}</p>
         </div>
         <span class="section-line"></span>
     </div>
@@ -128,7 +127,7 @@
     {% endfor %}
     </div>
     {% else %}
-        {% include "mgl/includes/empty_state.html" with kicker="VACANCIES" title="NO VACANT CLUBS" body="When a manager leaves, the club stays listed here with its squad ready for a new appointment." %}
+        {% include "mgl/includes/empty_state.html" with kicker="VACANCIES" title="NO VACANT CLUBS" %}
     {% endif %}
 </section>
 {% endblock %}

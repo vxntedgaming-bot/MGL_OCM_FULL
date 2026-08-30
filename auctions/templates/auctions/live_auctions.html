@@ -9,7 +9,6 @@
         <div>
             <div class="eyebrow">MGL MARKET</div>
             <h2>PLAYER AUCTIONS</h2>
-            <p>{% site_text "market.auctions_intro" %}</p>
         </div>
         <a href="{% url 'transfer_market' %}" class="view-all">FULL MARKET →</a>
     </div>
@@ -47,7 +46,7 @@
             </div>
         </article>
     {% empty %}
-        {% include "mgl/includes/empty_state.html" with kicker="AUCTIONS" title="NO LIVE AUCTIONS" body="Admins can release unassigned players into auction from Control Centre. Managers can list their own club players from Team Management." %}
+        {% include "mgl/includes/empty_state.html" with kicker="AUCTIONS" title="NO LIVE AUCTIONS" %}
     {% endfor %}
 </section>
 {% endblock %}

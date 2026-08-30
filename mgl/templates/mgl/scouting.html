@@ -9,7 +9,6 @@
         <div>
             <div class="eyebrow">MARKET</div>
             <h1>SCOUT HEADQUARTERS</h1>
-            <p>{% site_text "market.scouting_intro" %}</p>
         </div>
         <span class="section-line"></span>
     </div>
@@ -18,7 +17,6 @@
         <div class="mgl-scout-hq-copy">
             <div class="eyebrow">SCOUTING LEVEL</div>
             <h2>LEVEL {{ scout_level }} / {{ max_level }}</h2>
-            <p>Current scouting times apply to every scout you send.</p>
             <ul class="mgl-scout-times">
                 {% for row in current_times %}
                     <li>
@@ -38,7 +36,6 @@
             <div class="eyebrow">UPGRADE YOUR SCOUTING NETWORK</div>
             {% if upgrade %}
                 <h3>UPGRADE TO LEVEL {{ upgrade.level }}</h3>
-                <p>One upgrade improves Bronze, Silver &amp; Gold scouts.</p>
                 <p class="mgl-scout-upgrade-cost">{{ upgrade.cost_label }} TOKENS</p>
                 <ul class="mgl-scout-times mgl-scout-times--next">
                     {% for row in upgrade.times %}
@@ -56,7 +53,6 @@
             {% else %}
                 <h3>MAX LEVEL</h3>
                 <p>LEVEL {{ scout_level }} / {{ max_level }}</p>
-                <p>Your scouting network is fully upgraded. All three scouts use the Level 3 times.</p>
             {% endif %}
         </div>
     </div>
@@ -67,7 +63,6 @@
         <div>
             <div class="eyebrow">DISPATCH</div>
             <h2>SEND YOUR SCOUT</h2>
-            <p>Choose a scout, a region and a position. When the wait ends, an eligible FC26 player is recruited to your club.</p>
         </div>
     </div>
     {% if roster_full %}
@@ -134,7 +129,6 @@
         <div>
             <div class="eyebrow">REPORTS</div>
             <h2>RECENT SCOUT REPORTS</h2>
-            <p>Only reports from this manager. Recruited players are existing FC26 records assigned to your club.</p>
         </div>
     </div>
     <div class="mgl-report-list">
@@ -158,7 +152,7 @@
                 </div>
             </article>
         {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO REPORTS YET" body="Dispatch a bronze, silver or gold scout. When the wait ends, an eligible FC26 player is recruited to your club." %}
+            {% include "mgl/includes/empty_state.html" with title="NO REPORTS YET" %}
         {% endfor %}
     </div>
 </section>

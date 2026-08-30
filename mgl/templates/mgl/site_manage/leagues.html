@@ -8,7 +8,6 @@
         <div>
             <div class="eyebrow">SITE MANAGEMENT</div>
             <h1>LEAGUES</h1>
-            <p>Edit public display information only. League IDs, clubs, fixtures and statistics are not changed here. New leagues are not created.</p>
         </div>
         <a href="{% url 'site_management' %}" class="view-all">BACK →</a>
     </div>
@@ -37,7 +36,7 @@
                 <a href="{% url 'site_management_league_edit' league.id %}" class="primary-button">EDIT</a>
             </article>
         {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO LEAGUES" body="Site Management cannot create leagues." %}
+            {% include "mgl/includes/empty_state.html" with title="NO LEAGUES" %}
         {% endfor %}
     </div>
 </section>

@@ -11,7 +11,6 @@
         <div>
             <div class="eyebrow">OWNER / ADMIN</div>
             <h1>CLUB MANAGEMENT</h1>
-            <p>Manage MGL clubs, managers and squads.</p>
         </div>
 
         <span class="section-line"></span>
@@ -123,7 +122,7 @@
         </div>
 
         {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO CLUBS YET" body="Add MGL clubs in Django admin. Clubs, squads and token balances stay in the league if a manager leaves." %}
+            {% include "mgl/includes/empty_state.html" with title="NO CLUBS YET" %}
         {% endfor %}
 
     </div>

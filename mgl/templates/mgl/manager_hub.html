@@ -48,8 +48,6 @@
                     {% endif %}
                 </div>
                 <p class="mgl-dash-balance"><span>PERSONAL BALANCE</span> {{ token_balance }} TKN</p>
-                {% site_text "my_club.hub_intro" as hub_intro %}
-                {% if hub_intro %}<p class="mgl-dash-intro">{{ hub_intro }}</p>{% endif %}
             </div>
         </div>
         <div class="mgl-dash-stats" aria-label="Club statistics">
@@ -134,7 +132,6 @@
                 <div>
                     <small>JOB CENTRE</small>
                     <strong>APPLY FOR A CLUB</strong>
-                    <p>Vacant MGL clubs keep their squad. Your token balance stays with you.</p>
                 </div>
             </a>
         </div>
@@ -154,7 +151,6 @@
                 </span>
                 <div>
                     <strong>TRANSFER MARKET</strong>
-                    <small>Auctions, listings and deals</small>
                 </div>
             </a>
             <a href="{% url 'free_agents' %}" class="mgl-dash-card">

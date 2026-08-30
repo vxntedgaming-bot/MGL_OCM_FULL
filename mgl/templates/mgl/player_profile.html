@@ -129,7 +129,7 @@
                 <span>{{ history.source }} · {{ history.created_at|date:"d M Y" }}</span>
             </div>
         {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO OWNERSHIP HISTORY YET" body="Club moves will be listed here after official transfers." %}
+            {% include "mgl/includes/empty_state.html" with title="NO OWNERSHIP HISTORY YET" %}
         {% endfor %}
     </div>
 
@@ -141,7 +141,7 @@
                 <span>{{ selection.slot }}</span>
             </div>
         {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO TEAM OF THE WEEK SELECTIONS YET" body="TOTW appearances will be recorded here when the league office publishes a team." %}
+            {% include "mgl/includes/empty_state.html" with title="NO TEAM OF THE WEEK SELECTIONS YET" %}
         {% endfor %}
     </div>
 

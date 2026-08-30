@@ -35,7 +35,6 @@
         <div>
             <div class="eyebrow">MGL MARKET</div>
             <h1>TRANSFER MARKET</h1>
-            <p>{% site_text "market.transfer_intro" %}</p>
         </div>
     </header>
 
@@ -150,7 +149,7 @@
             </div>
             <p class="mgl-market-filter-empty" data-filter-empty hidden>No listed players at this position.</p>
         {% else %}
-            {% include "mgl/includes/empty_state.html" with kicker="SALES" title="NO PLAYERS LISTED" body="Managers can list a squad player for a token asking price. Listings go live after owner/admin approval." %}
+            {% include "mgl/includes/empty_state.html" with kicker="SALES" title="NO PLAYERS LISTED" %}
         {% endif %}
     </section>
 </section>
