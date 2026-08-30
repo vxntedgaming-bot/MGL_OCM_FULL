@@ -44,7 +44,7 @@
                         {% if mgl_unread_notification_count %}● {{ mgl_unread_notification_count }} Notification{% if mgl_unread_notification_count != 1 %}s{% endif %}{% else %}Notifications{% endif %}
                     </a>
                     {% if team %}
-                        <a class="mgl-dash-pill mgl-dash-pill-ghost" href="{% url 'manager_profile' %}">Club Profile</a>
+                        <a class="mgl-dash-pill mgl-dash-pill-ghost" href="{% url 'manager_hub' %}?resign=1">RESIGN</a>
                     {% endif %}
                 </div>
                 <p class="mgl-dash-balance"><span>PERSONAL BALANCE</span> {{ token_balance }} TKN</p>
@@ -313,27 +313,24 @@
         </aside>
     </section>
     {% endif %}
-
-    <section class="mgl-dash-section mgl-dash-welcome">
-        <div class="mgl-dash-section-head">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 19V7l8-3 8 3v12"/><path d="M12 8v11"/></svg>
-            <h2>NEW MANAGER? START HERE</h2>
-            <span></span>
-        </div>
-        <div class="mgl-dash-grid mgl-dash-grid-3">
-            <a href="{% url 'job_centre' %}" class="mgl-dash-card mgl-dash-card-quiet">
-                <strong>JOBS</strong>
-                <p>Take over an official MGL club. Approval is required before you are appointed.</p>
-            </a>
-            <a href="{% url 'leagues_page' %}" class="mgl-dash-card mgl-dash-card-quiet">
-                <strong>LEAGUES</strong>
-                <p>Official standings. Click a club to open its squad and club page.</p>
-            </a>
-            <a href="{% url 'transfer_market' %}" class="mgl-dash-card mgl-dash-card-quiet">
-                <strong>MARKET</strong>
-                <p>Auctions, listed club players and Free Agents. All deals use MGL tokens.</p>
-            </a>
-        </div>
-    </section>
 </div>
+
+{% if confirm_resign and team %}
+<div class="mgl-modal-backdrop">
+    <div class="mgl-modal" role="dialog" aria-modal="true">
+        <div class="eyebrow">CLUB</div>
+        <h2>RESIGN FROM CLUB?</h2>
+        <p>Are you sure you want to leave your current MGL club?</p>
+        <p>Resigning does not delete your account. Your profile, tokens, statistics and club history stay with this manager. {{ team.name }} keeps its squad and becomes available in the Job Centre.</p>
+        <form method="post" action="{% url 'resign_from_club' %}" class="mgl-modal-form">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="hub">
+            <div class="mgl-modal-actions">
+                <a href="{% url 'manager_hub' %}" class="secondary-button">STAY</a>
+                <button type="submit" class="mgl-danger-button">RESIGN</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
 {% endblock %}

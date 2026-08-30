@@ -446,7 +446,8 @@ class NotificationAndPressroomTests(TestCase):
         self.assertContains(hub, reverse("manager_notifications"))
         self.assertContains(hub, "1 Notification")
         self.assertContains(hub, f'href="{reverse("manager_profile")}"')
-        self.assertContains(hub, "Club Profile")
+        self.assertContains(hub, "RESIGN")
+        self.assertNotContains(hub, "Club Profile")
 
         inbox = self.client.get(reverse("manager_notifications"))
         self.assertEqual(inbox.status_code, 200)

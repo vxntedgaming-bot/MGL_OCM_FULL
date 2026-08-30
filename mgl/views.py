@@ -530,6 +530,7 @@ def manager_hub(request):
             "standings_row": standings_row,
             "form": form,
             "table": table[:8],
+            "confirm_resign": bool(team) and request.GET.get("resign") == "1",
         },
     )
 
@@ -908,20 +909,21 @@ def manager_profile(request):
 @require_POST
 def resign_from_club(request):
     manager = approved_manager(request.user)
+    next_page = "manager_hub" if request.POST.get("next") == "hub" else "manager_profile"
     if not manager:
         messages.error(request, "You must be an approved manager to resign from a club.")
-        return redirect("manager_profile")
+        return redirect(next_page)
     try:
         team = resign_manager_from_club(manager)
     except ValueError as exc:
         messages.error(request, str(exc))
-        return redirect("manager_profile")
+        return redirect(next_page)
     messages.success(
         request,
         f"You have resigned from {team.name}. Your personal token balance is unchanged.",
     )
     record_manager_departure(request.user, team)
-    return redirect("manager_profile")
+    return redirect(next_page)
 
 
 @login_required
