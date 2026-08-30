@@ -14,9 +14,11 @@ from .market import (
     approve_listing,
     buy_listed_player,
     cancel_listing,
+    cancel_live_auction,
     close_expired_auctions,
     club_for_user,
     create_transfer_offer,
+    detach_live_club_auction_players,
     list_player_for_sale,
     reject_listing,
     settle_auction,
@@ -332,6 +334,7 @@ def control_reject_manager(request, application_id):
 
 @owner_admin_required
 def control_centre(request):
+    detach_live_club_auction_players()
     pending_managers = ManagerApplication.objects.filter(
         status=ManagerApplication.PENDING
     ).select_related("user")
@@ -419,6 +422,18 @@ def control_close_auction(request, auction_id):
     auction = get_object_or_404(PlayerAuction, pk=auction_id)
     _, message = settle_auction(auction, reviewer=request.user)
     messages.success(request, message)
+    return control_centre_redirect(request)
+
+
+@owner_admin_required
+@require_POST
+def control_cancel_auction(request, auction_id):
+    auction = get_object_or_404(PlayerAuction, pk=auction_id)
+    try:
+        _, message = cancel_live_auction(auction, reviewer=request.user)
+        messages.success(request, message)
+    except ValueError as exc:
+        messages.error(request, str(exc))
     return control_centre_redirect(request)
 
 

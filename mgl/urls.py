@@ -253,6 +253,11 @@ urlpatterns = [
         name="control_close_auction",
     ),
     path(
+        "control/auctions/<int:auction_id>/cancel/",
+        views_market.control_cancel_auction,
+        name="control_cancel_auction",
+    ),
+    path(
         "control/jobs/<int:application_id>/approve/",
         views_market.control_approve_job,
         name="control_approve_job",

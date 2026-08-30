@@ -57,6 +57,27 @@ def club_players():
     return Player.objects.filter(mgl_team__isnull=False)
 
 
+def reserved_club_auction_player_ids(team):
+    if team is None:
+        return PlayerAuction.objects.none().values_list("player_id", flat=True)
+    return PlayerAuction.objects.filter(
+        origin_team=team,
+        listing_kind=PlayerAuction.CLUB,
+        status__in=LIVE_AUCTION_STATUSES,
+    ).values_list("player_id", flat=True)
+
+
+def roster_occupancy(team):
+    """Players on the club plus those held by a live club auction from this club."""
+    if team is None:
+        return 0
+    return (
+        Player.objects.filter(Q(mgl_team=team) | Q(id__in=reserved_club_auction_player_ids(team)))
+        .distinct()
+        .count()
+    )
+
+
 def live_auctions():
     return PlayerAuction.objects.filter(status__in=LIVE_AUCTION_STATUSES)
 

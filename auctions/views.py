@@ -5,7 +5,12 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
 from auctions.models import PlayerAuction
-from mgl.market import close_expired_auctions, place_auction_bid, token_balance_for_user
+from mgl.market import (
+    close_expired_auctions,
+    detach_live_club_auction_players,
+    place_auction_bid,
+    token_balance_for_user,
+)
 from mgl.permissions import approved_manager
 from mgl.services import manager_for_user
 
@@ -13,6 +18,7 @@ from mgl.services import manager_for_user
 @login_required
 def live_auctions(request):
     close_expired_auctions()
+    detach_live_club_auction_players()
     auctions = (
         PlayerAuction.objects.filter(status=PlayerAuction.LIVE)
         .select_related("player", "player__mgl_team", "winning_manager", "listed_by_manager", "origin_team")

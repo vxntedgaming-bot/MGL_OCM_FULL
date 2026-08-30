@@ -257,7 +257,8 @@ class AuctionWorkflowTests(TestCase):
             create_manager_auction(self.unassigned, self.mgr_a, 30)
         auction = create_manager_auction(self.owned, self.mgr_a, 60)
         self.owned.refresh_from_db()
-        self.assertEqual(self.owned.mgl_team_id, self.team_a.id)
+        self.assertIsNone(self.owned.mgl_team_id)
+        self.assertFalse(self.owned.is_free_agent)
         self.assertEqual(auction.origin_team_id, self.team_a.id)
 
     def test_manager_auction_limit_is_server_side(self):

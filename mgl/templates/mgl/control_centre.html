@@ -102,6 +102,7 @@
                     <strong>{{ auction.player.name }}</strong>
                     <span>{{ auction.winning_bid }} TKN</span>
                     <form method="post" action="{% url 'control_close_auction' auction.id %}">{% csrf_token %}<button class="header-button" type="submit">CLOSE</button></form>
+                    <form method="post" action="{% url 'control_cancel_auction' auction.id %}">{% csrf_token %}<button class="header-button" type="submit">CANCEL</button></form>
                 </div>
             {% empty %}
                 {% include "mgl/includes/empty_state.html" with title="NO LIVE AUCTIONS" body="Release an unassigned player to auction from this page. Closing an auction settles the winner on the server. No bids makes the player a Free Agent." %}

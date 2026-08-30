@@ -216,8 +216,10 @@ def assign_player(player, team, source="ADMIN", reference=""):
     player = Player.objects.select_for_update().get(pk=player.pk)
     team = Team.objects.select_for_update().get(pk=team.pk)
 
+    from mgl.player_state import roster_occupancy
+
     roster_limit = getattr(team, "roster_limit", 30) or 30
-    current_size = Player.objects.filter(mgl_team=team).count()
+    current_size = roster_occupancy(team)
 
     if current_size >= roster_limit:
         raise ValueError(

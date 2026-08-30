@@ -177,8 +177,10 @@ def active_market_listing_count(team):
 def assert_roster_space(team, extra=1):
     if team is None:
         raise ValueError("You must manage a club.")
+    from mgl.player_state import roster_occupancy
+
     roster_limit = getattr(team, "roster_limit", 30) or 30
-    current_size = Player.objects.filter(mgl_team=team).count()
+    current_size = roster_occupancy(team)
     if current_size + extra > roster_limit:
         raise ValueError(
             f"{team.name} has reached its {roster_limit}-player roster limit."
@@ -267,7 +269,7 @@ def create_manager_auction(player, manager, duration_minutes, starting_bid=1):
     assert_club_listing_capacity(team)
     bid = parse_auction_starting_bid(starting_bid)
     now = timezone.now()
-    return PlayerAuction.objects.create(
+    auction = PlayerAuction.objects.create(
         player=player,
         created_by=manager.user,
         starting_bid=bid,
@@ -279,6 +281,31 @@ def create_manager_auction(player, manager, duration_minutes, starting_bid=1):
         listed_by_manager=manager,
         origin_team=team,
         duration_minutes=minutes,
+    )
+    _detach_player_for_club_auction(player)
+    return auction
+
+
+def _detach_player_for_club_auction(player):
+    player.mgl_team = None
+    player.is_free_agent = False
+    player.save(update_fields=["mgl_team", "is_free_agent"])
+    return player
+
+
+def detach_live_club_auction_players():
+    """Detach any club-auction player still sitting on a squad."""
+    player_ids = list(
+        PlayerAuction.objects.filter(
+            listing_kind=PlayerAuction.CLUB,
+            status__in=[PlayerAuction.PENDING, PlayerAuction.LIVE],
+        ).values_list("player_id", flat=True)
+    )
+    if not player_ids:
+        return 0
+    return Player.objects.filter(pk__in=player_ids, mgl_team__isnull=False).update(
+        mgl_team=None,
+        is_free_agent=False,
     )
 
 
@@ -308,8 +335,10 @@ def transfer_player(player, from_team, to_team, source="TRANSFER", reference="")
     if from_team and player.mgl_team_id != from_team.id:
         raise ValueError("This player does not belong to the selling club.")
 
+    from mgl.player_state import roster_occupancy
+
     roster_limit = getattr(to_team, "roster_limit", 30) or 30
-    current_size = Player.objects.filter(mgl_team=to_team).count()
+    current_size = roster_occupancy(to_team)
     if current_size >= roster_limit:
         raise ValueError(
             f"{to_team.name} has reached its {roster_limit}-player roster limit."
@@ -535,6 +564,39 @@ def settle_auction(auction, reviewer=None):
         secondary_team=origin,
     )
     return auction, f"{player.name} transferred to {club.name}."
+
+
+@transaction.atomic
+def cancel_live_auction(auction, reviewer=None):
+    auction = PlayerAuction.objects.select_for_update().get(pk=auction.pk)
+    if auction.status != PlayerAuction.LIVE:
+        raise ValueError("This auction is not live.")
+    highest = auction.bids.order_by("-amount", "-created_at").first()
+    if highest:
+        credit_manager_tokens(
+            highest.manager,
+            highest.amount,
+            f"Auction cancelled refund on {auction.player.name}",
+            auction=auction,
+        )
+        record_market_transaction(
+            player=auction.player,
+            seller=None,
+            buyer=highest.manager,
+            from_team=None,
+            to_team=None,
+            amount=highest.amount,
+            transaction_type=MarketTransaction.BID_REFUND,
+            status=MarketTransaction.COMPLETED,
+            auction=auction,
+            approved_by=reviewer,
+            notes="Refunded after auction cancellation",
+        )
+    player = _restore_unsold_player(auction)
+    auction.status = PlayerAuction.CANCELLED
+    auction.save(update_fields=["status"])
+    club_name = auction.origin_team.name if auction.origin_team_id else "the original club"
+    return auction, f"{player.name} returned to {club_name}."
 
 
 def close_expired_auctions(reviewer=None):

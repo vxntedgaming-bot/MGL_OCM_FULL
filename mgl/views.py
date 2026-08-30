@@ -1052,12 +1052,17 @@ def team_management(request):
             {
                 "team": None,
                 "players": [],
+                "squad_size": 0,
                 "total_ovr": 0,
                 "available_spaces": 0,
                 "token_balance": token_balance_for_user(request.user),
             },
         )
 
+    from mgl.market import detach_live_club_auction_players
+    from mgl.player_state import roster_occupancy
+
+    detach_live_club_auction_players()
     players = list(
         team.players.select_related("mgl_team").order_by(
             "position",
@@ -1067,7 +1072,8 @@ def team_management(request):
     )
 
     total_ovr = sum(player.overall for player in players)
-    available_spaces = max(0, team.roster_limit - len(players))
+    squad_size = roster_occupancy(team)
+    available_spaces = max(0, team.roster_limit - squad_size)
     listings = {
         listing.player_id: listing
         for listing in PlayerListing.objects.filter(
@@ -1128,6 +1134,7 @@ def team_management(request):
         {
             "team": team,
             "players": players,
+            "squad_size": squad_size,
             "total_ovr": total_ovr,
             "available_spaces": available_spaces,
             "squad_groups": squad_groups,
@@ -1274,6 +1281,8 @@ def change_club_manager(request, team_id):
 
 @owner_admin_required
 def club_squad_admin(request, team_id):
+    from mgl.player_state import roster_occupancy
+
     team = get_object_or_404(
         Team.objects.select_related("manager", "league"),
         pk=team_id,
@@ -1291,7 +1300,7 @@ def club_squad_admin(request, team_id):
         {
             "team": team,
             "players": players,
-            "available_spaces": max(0, team.roster_limit - len(players)),
+            "available_spaces": max(0, team.roster_limit - roster_occupancy(team)),
         },
     )
 
@@ -1479,7 +1488,9 @@ def scouting(request):
     scout_level = manager_scout_level(manager)
     now = timezone.now()
     team = club_for_user(request.user)
-    roster_count = Player.objects.filter(mgl_team=team).count() if team else 0
+    from mgl.player_state import roster_occupancy
+
+    roster_count = roster_occupancy(team) if team else 0
     roster_full = bool(team) and roster_count >= 30
     panels = []
     for tier, label in ((BRONZE, "Bronze"), (SILVER, "Silver"), (GOLD, "Gold")):

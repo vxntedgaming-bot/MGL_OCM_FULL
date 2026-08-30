@@ -15,12 +15,17 @@ from mgl.market import (
     MARKET_SLOT_MESSAGE,
     MAX_ACTIVE_CLUB_LISTINGS,
     _lock_listing,
+    cancel_live_auction,
+    close_expired_auctions,
     create_free_agent_auction,
     create_manager_auction,
+    detach_live_club_auction_players,
     list_player_for_sale,
     parse_auction_starting_bid,
+    place_auction_bid,
     settle_auction,
 )
+from mgl.player_state import AUCTION, is_unassigned, market_status, roster_occupancy
 from mgl.models import ManagerNotification, PlayerListing
 from mgl.services import release_player
 from players.models import Player
@@ -124,7 +129,9 @@ class TeamMarketListingTests(TestCase):
         auction = create_manager_auction(self.owned, self.mgr_a, 30, starting_bid=0)
         self.assertEqual(auction.starting_bid, 0)
         self.owned.refresh_from_db()
-        self.assertEqual(self.owned.mgl_team_id, self.team_a.id)
+        self.assertIsNone(self.owned.mgl_team_id)
+        self.assertFalse(self.owned.is_free_agent)
+        self.assertEqual(auction.origin_team_id, self.team_a.id)
         with self.assertRaises(ValueError):
             parse_auction_starting_bid("11")
         with self.assertRaises(ValueError):
@@ -153,8 +160,7 @@ class TeamMarketListingTests(TestCase):
             )
             auction = create_manager_auction(player, self.mgr_a, minutes, starting_bid=1)
             self.assertEqual(auction.duration_minutes, minutes)
-            auction.status = PlayerAuction.CANCELLED
-            auction.save(update_fields=["status"])
+            cancel_live_auction(auction)
 
     def test_release_rules(self):
         release_player(self.owned, self.team_a)
@@ -312,3 +318,202 @@ class TeamMarketListingTests(TestCase):
         self.assertNotContains(gone, "LOOSE AGENT")
         self.assertContains(self.client.get(reverse("live_auctions")), "Bid Target")
         self.assertContains(self.client.get(reverse("free_agents")), "LOOSE AGENT")
+
+
+class ClubAuctionSquadLifecycleTests(TestCase):
+    def setUp(self):
+        self.league = League.objects.create(name="Auction League", short_name="AUC", season="1")
+        self.owner = _user("auction-owner", role=User.OWNER)
+        self.user_a = _user("seller")
+        self.user_b = _user("buyer")
+        self.mgr_a = _manager(self.user_a)
+        self.mgr_b = _manager(self.user_b)
+        self.team_a = Team.objects.create(name="Alpha", short_name="ALP", league=self.league, manager=self.user_a)
+        self.team_b = Team.objects.create(name="Beta", short_name="BET", league=self.league, manager=self.user_b)
+        self.owned = Player.objects.create(
+            name="Club Striker",
+            position="ST",
+            overall=74,
+            mgl_team=self.team_a,
+            is_free_agent=False,
+        )
+        self.teammate = Player.objects.create(
+            name="Home Keeper",
+            position="GK",
+            overall=70,
+            mgl_team=self.team_a,
+            is_free_agent=False,
+        )
+        self.client = Client(HTTP_HOST="127.0.0.1")
+
+    def _assert_single_player_row(self):
+        self.assertEqual(Player.objects.filter(pk=self.owned.id).count(), 1)
+        self.assertEqual(Player.objects.filter(name="Club Striker").count(), 1)
+
+    def test_listed_player_leaves_seller_squad_and_team_management(self):
+        occupancy_before = roster_occupancy(self.team_a)
+        self.assertEqual(occupancy_before, 2)
+        self.client.login(username="seller", password="test-pass-123")
+        before = self.client.get(reverse("team_management"))
+        self.assertContains(before, "CLUB STRIKER")
+        self.assertContains(before, "HOME KEEPER")
+
+        created = self.client.post(
+            reverse("list_player_for_auction", args=[self.owned.id]),
+            {"duration": "30", "starting_bid": "1"},
+        )
+        self.assertEqual(created.status_code, 302)
+        self.owned.refresh_from_db()
+        self.assertIsNone(self.owned.mgl_team_id)
+        self.assertFalse(self.owned.is_free_agent)
+        self.assertFalse(is_unassigned(self.owned))
+        self.assertEqual(market_status(self.owned), AUCTION)
+        self.assertEqual(roster_occupancy(self.team_a), occupancy_before)
+        self.assertEqual(self.team_a.players.filter(pk=self.owned.id).count(), 0)
+        self._assert_single_player_row()
+
+        squad = self.client.get(reverse("team_management"))
+        self.assertNotContains(squad, "CLUB STRIKER")
+        self.assertContains(squad, "HOME KEEPER")
+        self.assertContains(squad, "2/30")
+        self.assertEqual(squad.context["available_spaces"], 28)
+        steal = self.client.get(
+            reverse("team_management"),
+            {"list": "auction", "player": self.owned.id},
+        )
+        self.assertEqual(steal.status_code, 302)
+        release = self.client.post(reverse("release_my_player", args=[self.owned.id]))
+        self.assertEqual(release.status_code, 404)
+        self.owned.refresh_from_db()
+        self.assertFalse(self.owned.is_free_agent)
+        self.assertIsNone(self.owned.mgl_team_id)
+
+        auctions = self.client.get(reverse("live_auctions"))
+        self.assertContains(auctions, "Club Striker")
+        fa_page = self.client.get(reverse("free_agents"))
+        self.assertNotContains(fa_page, "Club Striker")
+        self.assertNotContains(fa_page, "CLUB STRIKER")
+
+    def test_active_auction_player_stays_off_squad_after_refresh_and_backfill(self):
+        auction = create_manager_auction(self.owned, self.mgr_a, 30, starting_bid=1)
+        self.owned.mgl_team = self.team_a
+        self.owned.save(update_fields=["mgl_team"])
+        self.assertEqual(self.team_a.players.filter(pk=self.owned.id).count(), 1)
+        detached = detach_live_club_auction_players()
+        self.assertEqual(detached, 1)
+        self.owned.refresh_from_db()
+        self.assertIsNone(self.owned.mgl_team_id)
+        self.assertEqual(auction.status, PlayerAuction.LIVE)
+        self.client.login(username="seller", password="test-pass-123")
+        page = self.client.get(reverse("team_management"))
+        self.assertNotContains(page, "CLUB STRIKER")
+        self.assertEqual(self.team_a.players.filter(pk=self.owned.id).count(), 0)
+
+    def test_winning_bid_moves_player_to_buyer_only(self):
+        auction = create_manager_auction(self.owned, self.mgr_a, 30, starting_bid=1)
+        place_auction_bid(auction, self.mgr_b, 5)
+        settle_auction(auction)
+        self.owned.refresh_from_db()
+        auction.refresh_from_db()
+        self.assertEqual(auction.status, PlayerAuction.ENDED)
+        self.assertEqual(self.owned.mgl_team_id, self.team_b.id)
+        self.assertFalse(self.owned.is_free_agent)
+        self.assertEqual(self.team_a.players.filter(pk=self.owned.id).count(), 0)
+        self.assertEqual(self.team_b.players.filter(pk=self.owned.id).count(), 1)
+        self.assertEqual(Player.objects.filter(mgl_team=self.team_b, name="Club Striker").count(), 1)
+        self._assert_single_player_row()
+        again, message = settle_auction(auction)
+        self.assertIn("no longer live", message)
+        self.owned.refresh_from_db()
+        self.assertEqual(self.owned.mgl_team_id, self.team_b.id)
+        self.client.login(username="seller", password="test-pass-123")
+        seller_page = self.client.get(reverse("team_management"))
+        self.assertNotContains(seller_page, "CLUB STRIKER")
+        self.client.logout()
+        self.client.login(username="buyer", password="test-pass-123")
+        buyer_page = self.client.get(reverse("team_management"))
+        self.assertContains(buyer_page, "CLUB STRIKER")
+
+    def test_expired_unsold_auction_returns_player_to_original_squad(self):
+        auction = create_manager_auction(self.owned, self.mgr_a, 30, starting_bid=1)
+        auction.ends_at = timezone.now() - timedelta(minutes=1)
+        auction.save(update_fields=["ends_at"])
+        closed = close_expired_auctions()
+        self.assertEqual(closed, 1)
+        self.owned.refresh_from_db()
+        auction.refresh_from_db()
+        self.assertEqual(auction.status, PlayerAuction.ENDED)
+        self.assertIsNone(auction.winning_manager_id)
+        self.assertEqual(self.owned.mgl_team_id, self.team_a.id)
+        self.assertFalse(self.owned.is_free_agent)
+        self.assertEqual(self.team_a.players.filter(pk=self.owned.id).count(), 1)
+        self._assert_single_player_row()
+        self.client.login(username="seller", password="test-pass-123")
+        page = self.client.get(reverse("team_management"))
+        self.assertContains(page, "CLUB STRIKER")
+        self.assertContains(page, "LIST FOR AUCTION")
+        auctions = self.client.get(reverse("live_auctions"))
+        self.assertNotContains(auctions, "Club Striker")
+
+    def test_owner_cancel_returns_player_and_refunds_bid(self):
+        auction = create_manager_auction(self.owned, self.mgr_a, 30, starting_bid=1)
+        place_auction_bid(auction, self.mgr_b, 6)
+        self.mgr_b.refresh_from_db()
+        self.assertEqual(self.mgr_b.tokens, Decimal("34.00"))
+        self.client.login(username="auction-owner", password="test-pass-123")
+        response = self.client.post(reverse("control_cancel_auction", args=[auction.id]))
+        self.assertEqual(response.status_code, 302)
+        self.owned.refresh_from_db()
+        auction.refresh_from_db()
+        self.mgr_b.refresh_from_db()
+        self.assertEqual(auction.status, PlayerAuction.CANCELLED)
+        self.assertEqual(self.owned.mgl_team_id, self.team_a.id)
+        self.assertFalse(self.owned.is_free_agent)
+        self.assertEqual(self.mgr_b.tokens, Decimal("40.00"))
+        self.assertEqual(self.team_a.players.filter(pk=self.owned.id).count(), 1)
+        self._assert_single_player_row()
+        with self.assertRaises(ValueError):
+            cancel_live_auction(auction)
+        self.client.logout()
+        self.client.login(username="seller", password="test-pass-123")
+        page = self.client.get(reverse("team_management"))
+        self.assertContains(page, "CLUB STRIKER")
+        self.client.logout()
+        self.client.login(username="buyer", password="test-pass-123")
+        auctions = self.client.get(reverse("live_auctions"))
+        self.assertNotContains(auctions, "Club Striker")
+
+    def test_player_cannot_be_in_two_active_auctions(self):
+        first = create_manager_auction(self.owned, self.mgr_a, 30, starting_bid=1)
+        with self.assertRaises(ValueError):
+            create_manager_auction(self.owned, self.mgr_a, 30, starting_bid=1)
+        with self.assertRaises(ValueError):
+            create_manager_auction(self.owned, self.mgr_b, 30, starting_bid=1)
+        self.assertEqual(
+            PlayerAuction.objects.filter(
+                player=self.owned,
+                status__in=[PlayerAuction.PENDING, PlayerAuction.LIVE],
+            ).count(),
+            1,
+        )
+        self.assertEqual(PlayerAuction.objects.filter(player=self.owned).count(), 1)
+        self.assertEqual(first.status, PlayerAuction.LIVE)
+
+    def test_cancel_and_restore_do_not_duplicate_squad_rows(self):
+        auction = create_manager_auction(self.owned, self.mgr_a, 30, starting_bid=0)
+        cancel_live_auction(auction)
+        self.owned.refresh_from_db()
+        self.assertEqual(self.owned.mgl_team_id, self.team_a.id)
+        self.assertEqual(self.team_a.players.filter(pk=self.owned.id).count(), 1)
+        self._assert_single_player_row()
+        second = create_manager_auction(self.owned, self.mgr_a, 30, starting_bid=0)
+        second.ends_at = timezone.now() - timedelta(minutes=1)
+        second.save(update_fields=["ends_at"])
+        close_expired_auctions()
+        self.owned.refresh_from_db()
+        self.assertEqual(self.owned.mgl_team_id, self.team_a.id)
+        self.assertEqual(Player.objects.filter(mgl_team=self.team_a, pk=self.owned.id).count(), 1)
+        close_expired_auctions()
+        self.owned.refresh_from_db()
+        self.assertEqual(self.team_a.players.filter(pk=self.owned.id).count(), 1)
+        self._assert_single_player_row()

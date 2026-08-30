@@ -207,8 +207,10 @@ def _club_for_manager(manager):
 def _assert_roster_space(team):
     if team is None:
         raise ValueError("You must manage a club before sending a scout.")
+    from mgl.player_state import roster_occupancy
+
     roster_limit = getattr(team, "roster_limit", None) or SQUAD_LIMIT
-    current = Player.objects.filter(mgl_team=team).count()
+    current = roster_occupancy(team)
     if current >= min(roster_limit, SQUAD_LIMIT):
         raise SquadFullError(SQUAD_FULL_MESSAGE)
 
