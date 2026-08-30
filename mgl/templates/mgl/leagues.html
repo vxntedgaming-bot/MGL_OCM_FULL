@@ -2,11 +2,16 @@
 {% load static mgl_ui %}
 
 {% block title %}Leagues — MGL{% endblock %}
-{% block body_class %}mgl-page{% endblock %}
 
 {% block content %}
 <section class="mgl-section">
-    {% include "mgl/includes/page_header.html" with category="MGL COMPETITION" title="LEAGUE TABLES" icon="🏆" %}
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">COMPETITION</div>
+            <h2>LEAGUE TABLES</h2>
+        </div>
+        <span class="section-line"></span>
+    </div>
     {% include "mgl/includes/competition_selector.html" %}
 </section>
 

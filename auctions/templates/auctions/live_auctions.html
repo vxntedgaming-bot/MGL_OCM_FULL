@@ -2,18 +2,23 @@
 {% load static mgl_ui %}
 
 {% block title %}Live Auctions — MGL{% endblock %}
-{% block body_class %}mgl-page{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'core/css/mgl-auctions.css' %}">
 {% endblock %}
 
 {% block content %}
 <section class="mgl-section mgl-auction-page">
-    {% include "mgl/includes/page_header.html" with category="MGL MARKET" title="AUCTIONS" icon="🔨" subtitle="Bid with tokens. Highest bidder wins when the timer ends." %}
-    <a href="{% url 'transfer_market' %}" class="view-all">FULL MARKET →</a>
+    <div class="section-heading mgl-auction-head">
+        <div>
+            <div class="eyebrow">MGL MARKET</div>
+            <h1>LIVE AUCTIONS</h1>
+            <p class="mgl-auction-copy">Bid with tokens. Highest bidder wins when the timer ends.</p>
+        </div>
+        <a href="{% url 'transfer_market' %}" class="view-all">FULL MARKET →</a>
+    </div>
 
     <div>
-        <h2>LIVE AUCTIONS</h2>
+        <h2>LIVE NOW</h2>
         {% if auctions %}
             <div class="mgl-auction-grid">
                 {% for auction in auctions %}

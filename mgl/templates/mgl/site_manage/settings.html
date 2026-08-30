@@ -2,13 +2,17 @@
 {% load mgl_ui %}
 
 {% block title %}Site Settings — Site Management{% endblock %}
-{% block body_class %}mgl-page{% endblock %}
 
 {% block content %}
 <section class="mgl-section">
-    {% url 'site_management' as site_manage_url %}
-    {% include "mgl/includes/page_header.html" with category="MGL ADMIN" title="SITE SETTINGS" icon="⚙️" root="control" parent_label="SITE MANAGEMENT" parent_url=site_manage_url subtitle="Discord buttons use the saved invite URL. Leave it empty to keep the current hide-if-unset behaviour." %}
-    <a href="{% url 'site_management' %}" class="view-all">BACK →</a>
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">SITE MANAGEMENT</div>
+            <h1>SITE SETTINGS</h1>
+            <p>Discord buttons use the saved invite URL. Leave it empty to keep the current hide-if-unset behaviour.</p>
+        </div>
+        <a href="{% url 'site_management' %}" class="view-all">BACK →</a>
+    </div>
 
     {{ values|json_script:"sm-content-values" }}
     <form method="post" class="sm-form">

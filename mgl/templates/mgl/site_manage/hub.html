@@ -1,12 +1,16 @@
 {% extends "core/base.html" %}
 
 {% block title %}Site Management — MGL Control{% endblock %}
-{% block body_class %}mgl-page{% endblock %}
 
 {% block content %}
 <section class="mgl-section">
-    {% include "mgl/includes/page_header.html" with category="MGL ADMIN" title="SITE MANAGEMENT" icon="⚙️" root="control" %}
-    <a href="{% url 'control_centre' %}" class="view-all">CONTROL →</a>
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">CONTROL CENTRE</div>
+            <h1>SITE MANAGEMENT</h1>
+        </div>
+        <a href="{% url 'control_centre' %}" class="view-all">CONTROL →</a>
+    </div>
     <div class="sm-hub-grid">
         <a class="sm-hub-card" href="{% url 'site_management_teams' %}">
             <div class="eyebrow">CLUBS</div>

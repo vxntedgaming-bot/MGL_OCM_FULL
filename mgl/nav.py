@@ -37,6 +37,7 @@ NAV_DROPDOWNS = (
             "unassigned_players",
             "job_centre",
             "scouting",
+            "youth_academy",
             "live_auctions",
             "place_bid",
             "player_database",
@@ -57,6 +58,12 @@ NAV_DROPDOWNS = (
             },
             {"label": "Recruitment Drive", "url_name": "job_centre", "divider": True},
             {"label": "Scouting", "url_name": "scouting", "divider": True},
+            {
+                "label": "Youth Academy",
+                "url_name": "youth_academy",
+                "divider": True,
+                "badge": "NEW",
+            },
             {"label": "Auctions", "url_name": "live_auctions", "divider": True},
             {"label": "All Players", "url_name": "player_database", "divider": True},
         ),
@@ -170,6 +177,7 @@ SIGNED_IN_NAV_DROPDOWNS = (
             "player_database",
             "player_profile",
             "request_player_transfer",
+            "youth_academy",
         },
         "items": (
             {"label": "Transfer Requests", "url_name": "transfer_requests"},
@@ -178,16 +186,19 @@ SIGNED_IN_NAV_DROPDOWNS = (
             {"label": "Auctions", "url_name": "live_auctions", "divider": True},
             {"label": "Scouting", "url_name": "scouting", "divider": True},
             {"label": "Player Database", "url_name": "player_database", "divider": True},
+            {"label": "Academy", "url_name": "youth_academy", "divider": True},
         ),
     },
     {
         "id": "community",
         "label": "COMMUNITY",
         "current": {
+            "head_to_head",
             "historical_tables",
         },
         "items": (
-            {"label": "History", "url_name": "historical_tables"},
+            {"label": "Head To Head", "url_name": "head_to_head"},
+            {"label": "History", "url_name": "historical_tables", "divider": True},
         ),
     },
     {

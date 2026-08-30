@@ -1,16 +1,20 @@
 {% extends "core/base.html" %}
 
 {% block title %}MGL Control — Owner / Admin{% endblock %}
-{% block body_class %}mgl-page{% endblock %}
 
 {% block content %}
 <section class="mgl-section">
-    {% include "mgl/includes/page_header.html" with category="MGL ADMIN" title="CONTROL" icon="⚙️" subtitle="Owner and admin league office." %}
-    <p>
-        Signed in as
-        <span class="mgl-role-badge mgl-role-badge--{{ user.role|lower }}">{{ user.role }}</span>
-    </p>
-    <a href="{% url 'site_management_teams' %}" class="view-all">TEAMS →</a>
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">LEAGUE OFFICE</div>
+            <h2>OWNER / ADMIN CONTROL</h2>
+            <p>
+                Signed in as
+                <span class="mgl-role-badge mgl-role-badge--{{ user.role|lower }}">{{ user.role }}</span>
+            </p>
+        </div>
+        <a href="{% url 'site_management_teams' %}" class="view-all">TEAMS →</a>
+    </div>
 </section>
 
 <section class="mgl-section">

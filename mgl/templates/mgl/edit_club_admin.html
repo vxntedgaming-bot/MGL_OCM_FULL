@@ -2,15 +2,21 @@
 {% load mgl_ui %}
 
 {% block title %}Edit Club — MGL{% endblock %}
-{% block body_class %}mgl-page{% endblock %}
 
 {% block content %}
 
 <section class="mgl-section">
-    {% url 'club_management_admin' as clubs_admin_url %}
-    {% include "mgl/includes/page_header.html" with category="MGL ADMIN" title="EDIT CLUB" icon="⚙️" root="control" parent_label="CLUB MANAGEMENT" parent_url=clubs_admin_url %}
-    <p>{{ team.name }}</p>
-    <div style="margin-top:12px">{% team_logo team "lg" %}</div>
+
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">OWNER / ADMIN</div>
+            <h1>EDIT CLUB</h1>
+            <p>{{ team.name }}</p>
+            <div style="margin-top:12px">{% team_logo team "lg" %}</div>
+        </div>
+
+        <span class="section-line"></span>
+    </div>
 
 
     <div class="dashboard-panel">

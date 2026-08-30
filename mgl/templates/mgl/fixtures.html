@@ -2,11 +2,16 @@
 {% load mgl_ui %}
 
 {% block title %}Fixtures — MGL{% endblock %}
-{% block body_class %}mgl-page{% endblock %}
 
 {% block content %}
 <section class="mgl-section">
-    {% include "mgl/includes/page_header.html" with category="MGL FIXTURES" title="FIXTURES" icon="⚽" %}
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">MATCH CENTRE</div>
+            <h2>{% if active_league %}{{ active_league|league_label|upper }} FIXTURES{% else %}FIXTURES{% endif %}</h2>
+        </div>
+        <span class="section-line"></span>
+    </div>
 
     {% for f in fixtures %}
         <article class="match-panel mgl-fixture-card">

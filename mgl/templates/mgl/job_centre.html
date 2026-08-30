@@ -2,15 +2,19 @@
 {% load static mgl_ui %}
 
 {% block title %}Job Centre — MGL{% endblock %}
-{% block body_class %}mgl-page{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'core/css/mgl-jobs.css' %}">
 {% endblock %}
 
 {% block content %}
 <section class="mgl-section mgl-jobs-page">
-    {% include "mgl/includes/page_header.html" with category="MGL CAREERS" title="JOBS" icon="💼" %}
-    <h2>VACANT CLUBS</h2>
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">JOB CENTRE</div>
+            <h2>VACANT CLUBS</h2>
+        </div>
+        <span class="section-line"></span>
+    </div>
 
     {% if join_discord and jobs_discord_invite %}
         <p class="mgl-job-pending">Application saved. <a href="{{ jobs_discord_invite }}" target="_blank" rel="noopener">Join the MGL Discord</a>.</p>

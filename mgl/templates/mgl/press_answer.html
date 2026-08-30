@@ -2,13 +2,17 @@
 {% load mgl_ui %}
 
 {% block title %}Answer Press Conference — MGL{% endblock %}
-{% block body_class %}mgl-page{% endblock %}
 
 {% block content %}
 <section class="mgl-section">
-    {% url 'pressroom' as pressroom_url %}
-    {% include "mgl/includes/page_header.html" with category="MGL NEWS" title="ANSWER PRESS QUESTION" icon="📰" current="ANSWER PRESS" parent_label="PRESSROOM" parent_url=pressroom_url subtitle="Sky Sports are waiting for your answer. Admin reviews it before it appears in Pressroom." %}
-    <a href="{% url 'pressroom' %}" class="view-all">PRESSROOM →</a>
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">PRESS CONFERENCE</div>
+            <h2>ANSWER PRESS QUESTION</h2>
+            <p>{% if awaiting_approval %}Your answer is with Admin. It will appear in Pressroom only after approval.{% else %}Sky Sports are waiting for your answer. Admin reviews it before it appears in Pressroom.{% endif %}</p>
+        </div>
+        <a href="{% url 'pressroom' %}" class="view-all">PRESSROOM →</a>
+    </div>
     <article class="mgl-press-article">
         <div class="mgl-press-brand">MGL PRESS CONFERENCE</div>
         <div class="mgl-press-club">

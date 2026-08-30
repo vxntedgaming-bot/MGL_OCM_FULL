@@ -2,15 +2,19 @@
 {% load static mgl_ui %}
 
 {% block title %}Pressroom — MGL{% endblock %}
-{% block body_class %}mgl-page{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'core/css/mgl-press-story.css' %}">
 {% endblock %}
 
 {% block content %}
 <section class="mgl-section">
-    {% include "mgl/includes/page_header.html" with category="MGL NEWS" title="PRESSROOM" icon="📰" %}
-    <a href="{% url 'live_activity' %}" class="view-all">LIVE ACTIVITY →</a>
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">NEWS</div>
+            <h2>PRESSROOM</h2>
+        </div>
+        <a href="{% url 'live_activity' %}" class="view-all">LIVE ACTIVITY →</a>
+    </div>
     <nav class="mgl-league-tabs">
         <a href="{% url 'pressroom' %}" class="mgl-league-tab is-active">Pressroom</a>
         <a href="{% url 'live_activity' %}" class="mgl-league-tab">Live Activity</a>
