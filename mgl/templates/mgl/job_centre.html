@@ -2,66 +2,183 @@
 {% load static mgl_ui %}
 
 {% block title %}Job Centre — MGL{% endblock %}
+{% block body_class %}mgl-jobs-body{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'core/css/mgl-jobs.css' %}">
 {% endblock %}
 
 {% block content %}
-<section class="mgl-section mgl-jobs-page">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">JOB CENTRE</div>
-            <h2>VACANT CLUBS</h2>
+{% with first_club=vacant_clubs.0 %}
+<section class="mgl-jobs-page">
+    <div class="mgl-jobs-status" aria-label="League status">
+        <div class="mgl-jobs-status-window">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <circle cx="12" cy="12" r="8.2"/>
+                <path d="M12 8v4.4l2.6 1.6"/>
+            </svg>
+            <div>
+                <span>TRANSFER WINDOW</span>
+                <strong>{% if window_open %}WINDOW OPEN{% else %}WINDOW CLOSED{% endif %}</strong>
+            </div>
         </div>
-        <span class="section-line"></span>
+        {% if latest_result %}
+        <div class="mgl-jobs-status-result">
+            <span>
+                {{ latest_result.home_team.short_name|default:latest_result.home_team.name }}
+                {% if latest_result.home_goals != None and latest_result.away_goals != None %}
+                    {{ latest_result.home_goals }}-{{ latest_result.away_goals }}
+                {% else %}
+                    FT
+                {% endif %}
+                {{ latest_result.away_team.short_name|default:latest_result.away_team.name }}
+            </span>
+            {% if latest_result.league %}
+                <em>{{ latest_result.league|league_label }}</em>
+            {% endif %}
+        </div>
+        <time class="mgl-jobs-status-time" datetime="{{ latest_result.created_at|date:'c' }}">{{ latest_result.created_at|timesince }} ago</time>
+        {% endif %}
+        <a href="{% url 'news_centre' %}" class="mgl-jobs-status-news">ALL NEWS <span aria-hidden="true">›</span></a>
     </div>
 
-    {% if join_discord and jobs_discord_invite %}
-        <p class="mgl-job-pending">Application saved. <a href="{{ jobs_discord_invite }}" target="_blank" rel="noopener">Join the MGL Discord</a>.</p>
-    {% endif %}
-
-    {% if has_club %}
-        {% include "mgl/includes/empty_state.html" with title="YOU ALREADY MANAGE A CLUB" body="Leave through the league office if you want to apply for a different vacant club." %}
-    {% endif %}
-
-    {% if vacant_clubs %}
-    <div class="mgl-job-list">
-    {% for team in vacant_clubs %}
-        <article class="mgl-job-apply-card">
-            <div class="mgl-job-apply-head">
-                <div class="mgl-job-apply-identity">
-                    {% team_logo team "lg" %}
+    <div class="mgl-jobs-shell">
+        <header class="mgl-jobs-hero">
+            <div class="mgl-jobs-hero-copy">
+                <h1><span>JOB</span> <em>CENTRE</em></h1>
+                <p>Looking for your next challenge? Browse available MGL clubs and apply for a managerial position.</p>
+                <div class="mgl-jobs-openings">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <circle cx="12" cy="12" r="8.2"/>
+                        <path d="M12 8v4.4l2.6 1.6"/>
+                    </svg>
                     <div>
-                        <h3>{{ team.name }}</h3>
-                        <p class="mgl-job-meta">
-                            <span>{{ team.league|league_label }}</span>
-                            <span class="mgl-job-status">VACANT / NO MANAGER</span>
-                        </p>
-                        <p class="mgl-job-squad">Squad {{ team.players.all|length }} / {{ team.roster_limit }}</p>
+                        <span>MANAGERIAL OPENINGS</span>
+                        <strong>{{ vacant_clubs|length }} OPEN POSITION{{ vacant_clubs|length|pluralize }}</strong>
                     </div>
                 </div>
-                <div class="mgl-job-apply-actions">
-                    <a href="{% club_url team %}#squad" class="secondary-button">VIEW SQUAD</a>
-                </div>
+            </div>
+            <aside class="mgl-jobs-info">
+                <span class="mgl-jobs-info-icon" aria-hidden="true">i</span>
+                <p>All managerial applications are subject to Owner/Admin approval. You will be contacted through Discord once your application has been reviewed. Submitting this form does not make you the manager.</p>
+            </aside>
+        </header>
+
+        {% if join_discord and jobs_discord_invite %}
+            <p class="mgl-job-pending">Application saved. <a href="{{ jobs_discord_invite }}" target="_blank" rel="noopener">Join the MGL Discord</a>.</p>
+        {% endif %}
+
+        {% if has_club %}
+            {% include "mgl/includes/empty_state.html" with title="YOU ALREADY MANAGE A CLUB" body="Leave through the league office if you want to apply for a different vacant club." %}
+        {% endif %}
+
+        <h2 class="mgl-jobs-vacant-title">VACANT CLUBS</h2>
+
+        {% if vacant_clubs %}
+        <div class="mgl-jobs-toolbar">
+            <div class="mgl-jobs-filters" role="tablist" aria-label="Filter openings by league">
+                <button type="button" class="mgl-jobs-filter is-active" data-league="" aria-pressed="true">ALL OPENINGS</button>
+                {% for league in job_leagues %}
+                    <button type="button" class="mgl-jobs-filter" data-league="{{ league.id }}" aria-pressed="false">{{ league|league_label|upper }}</button>
+                {% endfor %}
+            </div>
+            <div class="mgl-jobs-tools">
+                <label class="mgl-jobs-search">
+                    <span class="visually-hidden">Search clubs</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <circle cx="11" cy="11" r="6.5"/>
+                        <path d="m16 16 4 4"/>
+                    </svg>
+                    <input type="search" id="jobs-search" placeholder="Search clubs..." autocomplete="off">
+                </label>
+                <label class="mgl-jobs-sort">
+                    <span>SORT BY</span>
+                    <select id="jobs-sort">
+                        <option value="league">League</option>
+                        <option value="name">Club</option>
+                        <option value="squad">Squad size</option>
+                    </select>
+                </label>
+            </div>
+        </div>
+
+        <div class="mgl-jobs-layout">
+            <div class="mgl-jobs-list" id="jobs-list">
+                {% for team in vacant_clubs %}
+                <article
+                    class="mgl-jobs-card{% if first_club and team.id == first_club.id %} is-selected{% endif %}"
+                    data-club-id="{{ team.id }}"
+                    data-club-name="{{ team.name }}"
+                    data-league-id="{{ team.league_id }}"
+                    data-league-name="{{ team.league|league_label }}"
+                    data-squad="{{ team.players.all|length }}"
+                    data-apply-url="{% url 'apply_for_club' team.id %}"
+                    data-pending="{% if team.id in pending_team_ids %}1{% else %}0{% endif %}"
+                >
+                    <div class="mgl-jobs-card-crest">
+                        {% team_logo team "lg" %}
+                    </div>
+                    <div class="mgl-jobs-card-identity">
+                        <h3>{{ team.name }}</h3>
+                        <p class="mgl-jobs-card-league">{% if team.league %}{{ team.league|league_label|upper }}{% endif %}</p>
+                        <div class="mgl-jobs-badges">
+                            <span class="mgl-jobs-badge mgl-jobs-badge-vacant">VACANT / NO MANAGER</span>
+                            <span class="mgl-jobs-badge mgl-jobs-badge-open">MANAGER POSITION AVAILABLE</span>
+                        </div>
+                        {% if team.id in pending_team_ids %}
+                            <p class="mgl-job-pending">Your application is pending Owner/Admin review.</p>
+                        {% endif %}
+                    </div>
+                    <dl class="mgl-jobs-card-stats">
+                        <div>
+                            <dt>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="9" cy="8" r="2.4"/><circle cx="15.5" cy="8.8" r="2"/><path d="M4.8 17.2a4.3 4.3 0 0 1 8.4 0"/><path d="M13.4 16.6a3.6 3.6 0 0 1 5.8 2"/></svg>
+                                SQUAD SIZE
+                            </dt>
+                            <dd>{{ team.players.all|length }} Players</dd>
+                        </div>
+                        <div>
+                            <dt>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="4" y="7" width="16" height="12" rx="2"/><path d="M8 7V5.6A2.6 2.6 0 0 1 10.6 3h2.8A2.6 2.6 0 0 1 16 5.6V7"/></svg>
+                                SQUAD LIMIT
+                            </dt>
+                            <dd>{{ team.roster_limit }}</dd>
+                        </div>
+                        <div>
+                            <dt>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M6 15.5 12 4l6 11.5"/><path d="M8.2 20h7.6"/><path d="M12 4v16"/></svg>
+                                COMPETITION
+                            </dt>
+                            <dd>{% if team.league %}{{ team.league|league_label }}{% else %}—{% endif %}</dd>
+                        </div>
+                    </dl>
+                    <div class="mgl-jobs-card-actions">
+                        <a href="{% club_url team %}#squad" class="secondary-button mgl-jobs-view">VIEW SQUAD</a>
+                        <button type="button" class="primary-button mgl-jobs-select" data-apply-url="{% url 'apply_for_club' team.id %}">APPLY FOR {{ team.name|upper }}</button>
+                    </div>
+                </article>
+                {% endfor %}
+                <p class="mgl-jobs-empty-filter" id="jobs-empty-filter" hidden>No vacant clubs match that search or league filter.</p>
             </div>
 
-            {% if team.id in pending_team_ids %}
-                <div class="mgl-job-apply-body">
-                    <p class="mgl-job-apply-title">APPLY FOR {{ team.name|upper }}</p>
-                    <p class="mgl-job-pending">Your application is pending Owner/Admin review.</p>
-                </div>
-            {% elif can_apply %}
-                <form method="post" action="{% url 'apply_for_club' team.id %}" class="mgl-job-form mgl-job-apply-body">
-                    {% csrf_token %}
-                    <p class="mgl-job-apply-title">APPLY FOR {{ team.name|upper }}</p>
-                    <div class="mgl-job-form-grid">
+            <aside class="mgl-jobs-panel" id="jobs-apply-panel">
+                <h2 class="mgl-jobs-panel-title">APPLY FOR <em id="jobs-selected-name">{% if first_club %}{{ first_club.name|upper }}{% endif %}</em></h2>
+
+                {% if can_apply %}
+                    <form
+                        method="post"
+                        action="{% if first_club %}{% url 'apply_for_club' first_club.id %}{% endif %}"
+                        class="mgl-job-form"
+                        id="jobs-apply-form"
+                        {% if first_club and first_club.id in pending_team_ids %}hidden{% endif %}
+                    >
+                        {% csrf_token %}
                         <label>
                             EA ID / GAMERTAG
-                            <input type="text" name="gamertag" value="{{ manager.gamertag }}" required maxlength="64">
+                            <input type="text" name="gamertag" value="{{ manager.gamertag }}" required maxlength="64" placeholder="Enter your EA ID / Gamertag">
                         </label>
                         <label>
                             DISCORD USERNAME
-                            <input type="text" name="discord_username" required maxlength="64" placeholder="yourname">
+                            <input type="text" name="discord_username" required maxlength="64" placeholder="Enter your Discord username">
                         </label>
                         <label>
                             GAMES PER WEEK
@@ -76,20 +193,19 @@
                             REFERRED BY (optional)
                             <input type="text" name="referred_by" maxlength="64" placeholder="Optional">
                         </label>
-                    </div>
-                    <label class="mgl-job-check">
-                        <input type="checkbox" name="new_gen_confirmed" value="on" required>
-                        <span>I confirm I am playing on a new gen console (PS5, Xbox Series X/S or PC). This league is only compatible with new gen.</span>
-                    </label>
-                    <div class="mgl-job-form-foot">
-                        <button type="submit" class="primary-button">APPLY &amp; JOIN DISCORD</button>
-                        <p class="mgl-job-discord-note">After your application is saved you will be invited to the MGL Discord. Make sure your Discord username is correct.</p>
-                    </div>
-                </form>
-            {% else %}
-                <div class="mgl-job-apply-body">
-                    <p class="mgl-job-apply-title">APPLY FOR {{ team.name|upper }}</p>
-                    <div class="mgl-job-form-grid mgl-job-form-grid--preview">
+                        <label class="mgl-job-check">
+                            <input type="checkbox" name="new_gen_confirmed" value="on" required>
+                            <span>I confirm I am playing on a new gen console (PS5, Xbox Series X/S or PC). This league is only compatible with new gen.</span>
+                        </label>
+                        <button type="submit" class="primary-button mgl-jobs-submit">
+                            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19.3 5.2A18 18 0 0 0 14.8 4l-.2.4a16.4 16.4 0 0 1 4 1.5 16.2 16.2 0 0 0-12.2 0 16 16 0 0 1 3.9-1.5L10.1 4A18 18 0 0 0 4.7 5.2C2.1 9.1 1.4 12.8 1.7 16.5A18.4 18.4 0 0 0 7.3 19l.7-1.2a11.8 11.8 0 0 1-1.9-.9l.4-.3a13.3 13.3 0 0 0 11 0l.4.3a12 12 0 0 1-1.9.9l.7 1.2a18.4 18.4 0 0 0 5.6-2.5c.5-4.3-.7-8-2-11.3ZM8.7 14.6c-.8 0-1.5-.8-1.5-1.7s.7-1.7 1.5-1.7 1.5.8 1.5 1.7-.6 1.7-1.5 1.7Zm6.6 0c-.8 0-1.5-.8-1.5-1.7s.7-1.7 1.5-1.7 1.5.8 1.5 1.7-.7 1.7-1.5 1.7Z"/></svg>
+                            APPLY &amp; JOIN DISCORD
+                        </button>
+                        <p class="mgl-job-discord-note">After your application is saved you will be invited to the MGL Discord. Applications stay pending until an owner or admin appoints you.</p>
+                    </form>
+                    <p class="mgl-job-pending" id="jobs-apply-pending" {% if not first_club or first_club.id not in pending_team_ids %}hidden{% endif %}>Your application is pending Owner/Admin review.</p>
+                {% else %}
+                    <div class="mgl-job-form mgl-job-form-grid--preview">
                         <label>
                             EA ID / GAMERTAG
                             <input type="text" disabled placeholder="Required after login">
@@ -108,34 +224,130 @@
                             REFERRED BY (optional)
                             <input type="text" disabled placeholder="Optional">
                         </label>
+                        <p class="mgl-job-check mgl-job-check--preview">I confirm I am playing on a new gen console (PS5, Xbox Series X/S or PC). This league is only compatible with new gen.</p>
+                        <div class="mgl-job-form-foot">
+                            {% if not user.is_authenticated %}
+                                <a href="{% url 'manager_login' %}?next={% url 'job_centre' %}" class="primary-button mgl-jobs-submit">LOGIN TO APPLY</a>
+                            {% elif not manager %}
+                                <a href="{% url 'manager_register' %}" class="primary-button mgl-jobs-submit">REGISTER TO APPLY</a>
+                            {% elif has_club %}
+                                <p class="mgl-job-pending">You already manage a club.</p>
+                            {% else %}
+                                <p class="mgl-job-pending">Your manager application must be approved before you can apply for a club.</p>
+                            {% endif %}
+                        </div>
                     </div>
-                    <p class="mgl-job-check mgl-job-check--preview">I confirm I am playing on a new gen console (PS5, Xbox Series X/S or PC). This league is only compatible with new gen.</p>
-                    <div class="mgl-job-form-foot">
-                        {% if not user.is_authenticated %}
-                            <a href="{% url 'manager_login' %}?next={% url 'job_centre' %}" class="primary-button">LOGIN TO APPLY</a>
-                        {% elif not manager %}
-                            <a href="{% url 'manager_register' %}" class="primary-button">REGISTER TO APPLY</a>
-                        {% elif has_club %}
-                            <p class="mgl-job-pending">You already manage a club.</p>
-                        {% else %}
-                            <p class="mgl-job-pending">Your manager application must be approved before you can apply for a club.</p>
-                        {% endif %}
-                    </div>
-                </div>
-            {% endif %}
-        </article>
-    {% endfor %}
+                {% endif %}
+            </aside>
+        </div>
+        {% else %}
+            {% include "mgl/includes/empty_state.html" with kicker="VACANCIES" title="NO VACANT CLUBS" %}
+        {% endif %}
     </div>
-    {% else %}
-        {% include "mgl/includes/empty_state.html" with kicker="VACANCIES" title="NO VACANT CLUBS" %}
-    {% endif %}
 </section>
+{% endwith %}
 {% endblock %}
 
 {% block extra_js %}
 {% if join_discord and jobs_discord_invite %}
 <script>
     window.open("{{ jobs_discord_invite|escapejs }}", "_blank", "noopener");
+</script>
+{% endif %}
+{% if vacant_clubs %}
+<script>
+(function () {
+    var list = document.getElementById("jobs-list");
+    var search = document.getElementById("jobs-search");
+    var sort = document.getElementById("jobs-sort");
+    var empty = document.getElementById("jobs-empty-filter");
+    var form = document.getElementById("jobs-apply-form");
+    var pending = document.getElementById("jobs-apply-pending");
+    var selectedName = document.getElementById("jobs-selected-name");
+    var filters = document.querySelectorAll(".mgl-jobs-filter");
+    var leagueFilter = "";
+
+    function cards() {
+        return Array.prototype.slice.call(list.querySelectorAll(".mgl-jobs-card"));
+    }
+
+    function applyFilters() {
+        var query = (search.value || "").trim().toLowerCase();
+        var visible = 0;
+        cards().forEach(function (card) {
+            var leagueOk = !leagueFilter || card.getAttribute("data-league-id") === leagueFilter;
+            var name = (card.getAttribute("data-club-name") || "").toLowerCase();
+            var leagueName = (card.getAttribute("data-league-name") || "").toLowerCase();
+            var searchOk = !query || name.indexOf(query) !== -1 || leagueName.indexOf(query) !== -1;
+            var show = leagueOk && searchOk;
+            card.hidden = !show;
+            if (show) visible += 1;
+        });
+        if (empty) empty.hidden = visible !== 0;
+    }
+
+    function applySort() {
+        var key = sort.value;
+        var items = cards();
+        items.sort(function (a, b) {
+            if (key === "squad") {
+                return (Number(a.getAttribute("data-squad")) || 0) - (Number(b.getAttribute("data-squad")) || 0);
+            }
+            if (key === "name") {
+                return (a.getAttribute("data-club-name") || "").localeCompare(b.getAttribute("data-club-name") || "");
+            }
+            var leagueCmp = (a.getAttribute("data-league-name") || "").localeCompare(b.getAttribute("data-league-name") || "");
+            if (leagueCmp) return leagueCmp;
+            return (a.getAttribute("data-club-name") || "").localeCompare(b.getAttribute("data-club-name") || "");
+        });
+        items.forEach(function (card) { list.appendChild(card); });
+        if (empty) list.appendChild(empty);
+    }
+
+    function selectCard(card) {
+        if (!card) return;
+        cards().forEach(function (item) { item.classList.toggle("is-selected", item === card); });
+        if (selectedName) selectedName.textContent = (card.getAttribute("data-club-name") || "").toUpperCase();
+        var applyUrl = card.getAttribute("data-apply-url") || "";
+        var isPending = card.getAttribute("data-pending") === "1";
+        if (form) {
+            if (applyUrl) form.setAttribute("action", applyUrl);
+            form.hidden = isPending;
+        }
+        if (pending) pending.hidden = !isPending;
+    }
+
+    filters.forEach(function (button) {
+        button.addEventListener("click", function () {
+            leagueFilter = button.getAttribute("data-league") || "";
+            filters.forEach(function (item) {
+                var active = item === button;
+                item.classList.toggle("is-active", active);
+                item.setAttribute("aria-pressed", active ? "true" : "false");
+            });
+            applyFilters();
+        });
+    });
+
+    if (search) search.addEventListener("input", applyFilters);
+    if (sort) sort.addEventListener("change", function () {
+        applySort();
+        applyFilters();
+    });
+
+    list.addEventListener("click", function (event) {
+        var button = event.target.closest(".mgl-jobs-select");
+        var card = event.target.closest(".mgl-jobs-card");
+        if (!card) return;
+        if (button || event.target.closest(".mgl-jobs-card-identity, .mgl-jobs-card-crest")) {
+            selectCard(card);
+            if (button && window.matchMedia("(max-width: 980px)").matches) {
+                var panel = document.getElementById("jobs-apply-panel");
+                if (panel) panel.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+        }
+    });
+})();
 </script>
 {% endif %}
 {% endblock %}

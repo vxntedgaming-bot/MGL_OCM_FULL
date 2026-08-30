@@ -25,10 +25,12 @@ from .market import (
     settle_auction,
     token_balance_for_user,
     transfer_offer_details,
+    transfer_window_is_open,
 )
 from .models import (
     ApprovalStatus,
     ClubApplication,
+    Fixture,
     MarketTransaction,
     MatchSubmission,
     NewsPost,
@@ -321,13 +323,36 @@ def league_stats_page(request, slug):
     return render_league_stats(request, slug)
 
 
+def _jobs_latest_result():
+    latest_result = (
+        Fixture.objects.filter(is_released=True, status="COMPLETED")
+        .select_related("home_team", "away_team", "league")
+        .prefetch_related("submission__team_stats")
+        .order_by("-id")
+        .first()
+    )
+    if not latest_result:
+        return None
+    try:
+        stats = {
+            row.team_id: row.goals
+            for row in latest_result.submission.team_stats.all()
+        }
+        latest_result.home_goals = stats.get(latest_result.home_team_id)
+        latest_result.away_goals = stats.get(latest_result.away_team_id)
+    except MatchSubmission.DoesNotExist:
+        latest_result.home_goals = None
+        latest_result.away_goals = None
+    return latest_result
+
+
 def job_centre(request):
     manager = manager_for_user(request.user)
     vacant = (
         Team.objects.filter(manager__isnull=True, league__is_active=True)
         .select_related("league")
         .prefetch_related("players")
-        .order_by("name")
+        .order_by("league__display_order", "league__name", "name")
     )
     pending_team_ids = set()
     if manager:
@@ -337,11 +362,18 @@ def job_centre(request):
             ).values_list("team_id", flat=True)
         )
     can_apply = bool(approved_manager(request.user) and not club_for_user(request.user))
+    job_leagues = []
+    seen_leagues = set()
+    for team in vacant:
+        if team.league_id and team.league_id not in seen_leagues:
+            seen_leagues.add(team.league_id)
+            job_leagues.append(team.league)
     return render(
         request,
         "mgl/job_centre.html",
         {
             "vacant_clubs": vacant,
+            "job_leagues": job_leagues,
             "manager": manager,
             "pending_team_ids": pending_team_ids,
             "has_club": bool(club_for_user(request.user)),
@@ -349,6 +381,8 @@ def job_centre(request):
             "games_per_week_choices": GAMES_PER_WEEK_CHOICES,
             "jobs_discord_invite": JOBS_DISCORD_INVITE,
             "join_discord": request.GET.get("join_discord") == "1",
+            "window_open": transfer_window_is_open(),
+            "latest_result": _jobs_latest_result(),
         },
     )
 
