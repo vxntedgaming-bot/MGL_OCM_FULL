@@ -2,30 +2,85 @@
 {% load static mgl_ui %}
 
 {% block title %}Pressroom — MGL{% endblock %}
+{% block body_class %}mgl-pressroom-page{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'core/css/mgl-press-story.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/mgl-pressroom.css' %}">
 {% endblock %}
 
 {% block content %}
-<section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">NEWS</div>
-            <h2>PRESSROOM</h2>
-        </div>
-        <a href="{% url 'live_activity' %}" class="view-all">LIVE ACTIVITY →</a>
+<section class="mgl-pressroom-hero">
+    <div class="mgl-pressroom-hero-copy">
+        <h1>
+            <span class="mgl-pressroom-the">THE</span>
+            <span class="mgl-pressroom-title">PRESS ROOM</span>
+        </h1>
+        <span class="mgl-pressroom-rule" aria-hidden="true"></span>
+        <p>Managers front up to the media. Read the latest from across the league.</p>
     </div>
-    <nav class="mgl-league-tabs">
+    <div class="mgl-pressroom-hero-media" aria-hidden="true">
+        <img src="{% static 'core/img/pressroom-hero.png' %}" alt="">
+    </div>
+</section>
+
+<section class="mgl-section mgl-pressroom-body">
+    <nav class="mgl-pressroom-crumbs" aria-label="Pressroom location">
+        {% if user.is_authenticated %}
+            <a href="{% url 'manager_hub' %}" class="mgl-pressroom-crumb">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10.5V20h11V10.5"/></svg>
+                MANAGER HUB
+            </a>
+        {% else %}
+            <a href="{% url 'home' %}" class="mgl-pressroom-crumb">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10.5V20h11V10.5"/></svg>
+                HOME
+            </a>
+        {% endif %}
+        <span class="mgl-pressroom-crumb-sep" aria-hidden="true">›</span>
+        <span class="mgl-pressroom-crumb-current">PRESS ROOM</span>
+    </nav>
+
+    <nav class="mgl-league-tabs" aria-label="News">
         <a href="{% url 'pressroom' %}" class="mgl-league-tab is-active">Pressroom</a>
         <a href="{% url 'live_activity' %}" class="mgl-league-tab">Live Activity</a>
     </nav>
-</section>
 
-<section class="mgl-section mgl-press-column">
-    {% for press in page %}
-        {% include "mgl/includes/press_article.html" %}
-    {% empty %}
-        {% include "mgl/includes/empty_state.html" with title="NO PRESS CONFERENCES YET" %}
-    {% endfor %}
+    <div class="mgl-press-column">
+        {% for press in page %}
+            {% include "mgl/includes/pressroom_card.html" %}
+        {% empty %}
+            <div class="mgl-pressroom-empty">
+                <h2>NO PRESSROOM STORIES YET</h2>
+                <p>Managers haven't stepped up to the microphone yet.</p>
+                <p class="mgl-pressroom-empty-note">NO PRESS CONFERENCES YET</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% if page.has_other_pages %}
+        <div class="mgl-pagination">
+            {% if page.has_previous %}
+                <a href="?page={{ page.previous_page_number }}">Previous</a>
+            {% endif %}
+            <span>Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
+            {% if page.has_next %}
+                <a href="?page={{ page.next_page_number }}">Next</a>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <aside class="mgl-pressroom-cta">
+        <div class="mgl-pressroom-cta-copy">
+            <span class="mgl-pressroom-cta-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M4 10v4h3l5 4V6L7 10H4Z"/>
+                    <path d="M16 9a4 4 0 0 1 0 6"/>
+                    <path d="M18.5 7a7 7 0 0 1 0 10"/>
+                </svg>
+            </span>
+            <p>SAY IT. OWN IT.<br>THE MGL WORLD IS WATCHING.</p>
+        </div>
+        <img src="{% static 'core/img/mgl-logo.png' %}" alt="Meta Gaming League" class="mgl-pressroom-cta-logo">
+    </aside>
 </section>
 {% endblock %}

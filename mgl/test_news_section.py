@@ -129,6 +129,12 @@ class NewsSectionTests(TestCase):
         room = self.client.get(reverse("pressroom"))
         self.assertEqual(room.status_code, 200)
         self.assertContains(room, reverse("live_activity"))
+        self.assertContains(room, "mgl-pressroom.css")
+        self.assertContains(room, "PRESS ROOM")
+        self.assertContains(room, "Managers front up to the media.")
+        self.assertContains(room, "NO PRESSROOM STORIES YET")
+        self.assertContains(room, "NO PRESS CONFERENCES YET")
+        self.assertContains(room, "THE MGL WORLD IS WATCHING")
         self.assertNotContains(room, "Latest News")
 
     def test_pending_and_rejected_results_stay_off_live_activity(self):
