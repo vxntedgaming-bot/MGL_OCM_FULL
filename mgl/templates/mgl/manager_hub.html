@@ -38,9 +38,14 @@
                         <span>No squad</span>
                     {% endif %}
                     <span>{{ manager.display_name }}</span>
+                    <span class="mgl-dash-verified">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="m8.5 12.2 2.3 2.3 4.7-5"/></svg>
+                        Verified
+                    </span>
                 </p>
                 <div class="mgl-dash-pills">
                     <a href="{% url 'manager_notifications' %}" class="mgl-dash-pill {% if mgl_unread_notification_count %}mgl-dash-pill-alert{% else %}mgl-dash-pill-ok{% endif %}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 9a6 6 0 0 1 12 0c0 7 2 8 2 8H4s2-1 2-8"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>
                         {% if mgl_unread_notification_count %}● {{ mgl_unread_notification_count }} Notification{% if mgl_unread_notification_count != 1 %}s{% endif %}{% else %}Notifications{% endif %}
                     </a>
                     {% if team %}
@@ -108,7 +113,7 @@
             </a>
             <a href="{% url 'leagues_page' %}" class="mgl-dash-card">
                 <span class="mgl-dash-card-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 7h14M5 12h14M5 17h10"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 20V10M12 20V5M16 20v-6"/><path d="M6 20h12"/></svg>
                 </span>
                 <strong>LEAGUE TABLE</strong>
             </a>
@@ -140,7 +145,7 @@
 
     <section class="mgl-dash-section">
         <div class="mgl-dash-section-head">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M7 7h10v10H7z"/><path d="M10 4h4M10 20h4M4 10v4M20 10v4"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M7 7h13l-2 7H8L6 4H3"/><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/></svg>
             <h2>MARKET</h2>
             <span></span>
         </div>
@@ -176,22 +181,15 @@
             </a>
             <a href="{% url 'scouting' %}" class="mgl-dash-card">
                 <span class="mgl-dash-card-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 5 5"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="10" r="3"/><circle cx="16" cy="10" r="3"/><path d="M5 13.2 3 18h5.2M19 13.2 21 18h-5.2"/></svg>
                 </span>
                 <strong>SCOUTING</strong>
             </a>
             <a href="{% url 'player_database' %}" class="mgl-dash-card">
                 <span class="mgl-dash-card-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="6.5" rx="7" ry="2.5"/><path d="M5 6.5v11c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-11"/><path d="M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/></svg>
                 </span>
                 <strong>PLAYER DATABASE</strong>
-            </a>
-            <a href="{% url 'youth_academy' %}" class="mgl-dash-card">
-                <span class="mgl-dash-badge mgl-dash-badge-new">NEW</span>
-                <span class="mgl-dash-card-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3 4 7l8 4 8-4-8-4Z"/><path d="M4 12l8 4 8-4M4 17l8 4 8-4"/></svg>
-                </span>
-                <strong>ACADEMY</strong>
             </a>
         </div>
     </section>
@@ -202,22 +200,16 @@
             <h2>COMMUNITY</h2>
             <span></span>
         </div>
-        <div class="mgl-dash-grid mgl-dash-grid-3">
-            <a href="{% url 'head_to_head' %}" class="mgl-dash-card">
-                <span class="mgl-dash-card-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="9" r="2.6"/><circle cx="16" cy="9" r="2.6"/><path d="M4.5 18a4.2 4.2 0 0 1 7 0M12.5 18a4.2 4.2 0 0 1 7 0"/></svg>
-                </span>
-                <strong>HEAD TO HEAD</strong>
-            </a>
+        <div class="mgl-dash-grid mgl-dash-grid-2">
             <a href="{% url 'pressroom' %}" class="mgl-dash-card">
                 <span class="mgl-dash-card-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 14a4 4 0 0 0 4-4V7a4 4 0 1 0-8 0v3a4 4 0 0 0 4 4Z"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 10v4l10-2V8L4 10Z"/><path d="M14 9.2A6 6 0 0 1 18 14"/><path d="M14 12.4A3.4 3.4 0 0 1 16.6 15"/></svg>
                 </span>
                 <strong>PRESSROOM</strong>
             </a>
             <a href="{% url 'historical_tables' %}" class="mgl-dash-card">
                 <span class="mgl-dash-card-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 20V10M12 20V5M16 20v-6"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><path d="M12 8v4.4l2.6 1.6"/></svg>
                 </span>
                 <strong>HISTORY</strong>
             </a>
@@ -225,7 +217,7 @@
     </section>
 
     {% if team %}
-    <section class="mgl-dash-board">
+    <section class="mgl-dash-board mgl-dash-board-4">
         <div class="mgl-dash-board-main">
             <article class="mgl-dash-panel">
                 <div class="mgl-dash-panel-head">
