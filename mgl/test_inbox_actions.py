@@ -240,7 +240,9 @@ class InboxActionWorkflowTests(TestCase):
         self.assertContains(inbox, "Blue Midfielder")
         self.assertContains(inbox, "Arsenal Test has submitted a transfer request")
         self.assertContains(inbox, "8.00 TKN")
-        self.assertContains(inbox, "ACCEPT")
+        self.assertContains(inbox, "REVIEW REQUEST")
+        self.assertContains(inbox, reverse("transfer_requests"))
+        self.assertNotContains(inbox, ">ACCEPT</button>")
 
         accepted = self.client.post(
             reverse("manager_notification_respond", args=[notice.id]),

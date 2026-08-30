@@ -1,29 +1,96 @@
 {% extends "core/base.html" %}
-{% load mgl_ui %}
+{% load static mgl_ui %}
 
 {% block title %}Transfers — MGL{% endblock %}
+{% block body_class %}mgl-market-page mgl-tr-page{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/mgl-market.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/mgl-transfers.css' %}">
+{% endblock %}
 
 {% block content %}
-<section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">MARKET</div>
-            <h1>TRANSFERS</h1>
-        </div>
-        <a href="{% url 'transfer_market' %}" class="view-all">MARKET →</a>
+<section class="mgl-section mgl-tr-page">
+    <nav class="mgl-market-crumbs" aria-label="Market location">
+        {% if user.is_authenticated %}
+            <a href="{% url 'manager_hub' %}" class="mgl-market-crumb">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10.5V20h11V10.5"/></svg>
+                MANAGER HUB
+            </a>
+        {% else %}
+            <a href="{% url 'home' %}" class="mgl-market-crumb">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10.5V20h11V10.5"/></svg>
+                HOME
+            </a>
+        {% endif %}
+        <span class="mgl-market-crumb-sep" aria-hidden="true">›</span>
+        <span class="mgl-market-crumb-current">TRANSFERS</span>
+    </nav>
+
+    <div class="mgl-tr-status-bar">
+        <span class="mgl-tr-window{% if not window_open %} is-closed{% endif %}">
+            ● {% if window_open %}WINDOW OPEN{% else %}WINDOW CLOSED{% endif %}
+        </span>
+        {% if latest_result %}
+            <span class="mgl-tr-ticker">
+                {% team_logo latest_result.home_team "xs" %}
+                {{ latest_result.home_team.short_name|default:latest_result.home_team.name }}
+                {% if latest_result.home_goals != None and latest_result.away_goals != None %}
+                    {{ latest_result.home_goals }}-{{ latest_result.away_goals }}
+                {% else %}
+                    FT
+                {% endif %}
+                {% team_logo latest_result.away_team "xs" %}
+                {{ latest_result.away_team.short_name|default:latest_result.away_team.name }}
+            </span>
+            <a href="{% url 'live_activity' %}" class="mgl-tr-all">ALL →</a>
+        {% endif %}
     </div>
 
-    <div class="dashboard-panel">
+    <header class="mgl-market-hero">
+        <div class="mgl-market-hero-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M20.6 13.1 13.1 20.6a2 2 0 0 1-2.8 0L3.4 13.7a2 2 0 0 1 0-2.8L10.9 3.4a2 2 0 0 1 1.4-.6H19a2 2 0 0 1 2 2v6.7a2 2 0 0 1-.4 1.6Z"/>
+                <circle cx="16" cy="8" r="1.2"/>
+            </svg>
+        </div>
+        <div>
+            <div class="eyebrow">MGL MARKET</div>
+            <h1>MGL TRANSFERS</h1>
+            <p class="mgl-tr-copy">Completed deals that have already passed manager and league-office approval.</p>
+        </div>
+    </header>
+
+    <section class="mgl-tr-card" aria-labelledby="historic-transfers">
+        <div class="mgl-tr-card-head">
+            <h2 id="historic-transfers">HISTORIC TRANSFERS</h2>
+            <span class="mgl-tr-count">{{ completed_count }}</span>
+        </div>
         {% for row in transfers %}
-            <div class="table-row">
-                <strong>{{ row.player.name|default:"Token movement" }}</strong>
-                <span class="mgl-info-club">{% team_logo row.from_team "xs" %} {{ row.from_team.short_name|default:"FA" }} → {% team_logo row.to_team "xs" %} {{ row.to_team.short_name|default:"—" }}</span>
-                <b>{{ row.amount }} TKN</b>
-            </div>
+            <article class="mgl-tr-public-row">
+                <div>
+                    <p class="mgl-tr-public-name">
+                        {% if row.player_id %}
+                            <a href="{% url 'player_profile' row.player_id %}">{{ row.player.name }}</a>
+                        {% else %}
+                            Token movement
+                        {% endif %}
+                    </p>
+                    <div class="mgl-tr-clubs">
+                        <span class="mgl-tr-club">{% team_logo row.from_team "xs" %} {{ row.from_team.short_name|default:"FA" }}</span>
+                        <span class="mgl-tr-arrow" aria-hidden="true">→</span>
+                        <span class="mgl-tr-club">{% team_logo row.to_team "xs" %} {{ row.to_team.short_name|default:"—" }}</span>
+                    </div>
+                </div>
+                <span class="mgl-tr-public-date">{{ row.created_at|date:"j M Y" }}</span>
+                {% if row.player_id %}
+                    <a href="{% url 'player_profile' row.player_id %}" class="secondary-button">VIEW</a>
+                {% endif %}
+            </article>
         {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO TRANSFERS YET" %}
+            <div class="mgl-tr-empty">No completed transfers yet.</div>
         {% endfor %}
-    </div>
+    </section>
+
     {% if page_obj and page_obj.has_other_pages %}
         <div class="mgl-pagination">
             {% if page_obj.has_previous %}
@@ -34,6 +101,17 @@
                 <a href="?page={{ page_obj.next_page_number }}">Next</a>
             {% endif %}
         </div>
+    {% endif %}
+
+    {% if discord_invite_url %}
+        <section class="discord-banner">
+            <div class="discord-icon" aria-hidden="true">D</div>
+            <div>
+                <h2>JOIN OUR DISCORD</h2>
+                <p>Arrange fixtures, discuss transfers, and stay up to date with the league.</p>
+            </div>
+            <a href="{{ discord_invite_url }}" class="primary-button" target="_blank" rel="noopener">JOIN NOW</a>
+        </section>
     {% endif %}
 </section>
 {% endblock %}

@@ -145,6 +145,15 @@
             <span></span>
         </div>
         <div class="mgl-dash-grid mgl-dash-grid-3">
+            <a href="{% url 'transfer_requests' %}" class="mgl-dash-card">
+                {% if incoming_transfer_count %}
+                    <span class="mgl-dash-badge">{{ incoming_transfer_count }}</span>
+                {% endif %}
+                <span class="mgl-dash-card-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 7h11l-3-3M17 17H6l3 3"/></svg>
+                </span>
+                <strong>TRANSFER REQUESTS</strong>
+            </a>
             <a href="{% url 'transfer_market' %}" class="mgl-dash-card mgl-dash-card-feature">
                 <span class="mgl-dash-card-icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 7h13l-2 7H8L6 4H3"/><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/></svg>

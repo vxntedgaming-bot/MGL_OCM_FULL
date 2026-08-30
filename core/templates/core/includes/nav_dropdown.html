@@ -9,6 +9,7 @@
         id="mgl-nav-trigger-{{ menu.id }}"
     >
         <span>{{ menu.label }}</span>
+        {% if menu.badge %}<span class="mgl-nav-badge is-count">{{ menu.badge }}</span>{% endif %}
         <span class="mgl-nav-chevron" aria-hidden="true">
             <svg viewBox="0 0 12 8" focusable="false">
                 <path d="M1 1.5 L6 6.5 L11 1.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
@@ -23,7 +24,7 @@
                 role="menuitem"
             >
                 <span class="mgl-nav-item-label">{% if item.style == "sub" %}<span class="mgl-nav-dash">—</span> {% endif %}{{ item.label }}</span>
-                {% if item.badge %}<span class="mgl-nav-badge">{{ item.badge }}</span>{% endif %}
+                {% if item.badge %}<span class="mgl-nav-badge{% if item.badge_class %} {{ item.badge_class }}{% endif %}">{{ item.badge }}</span>{% endif %}
             </a>
         {% endfor %}
     </div>

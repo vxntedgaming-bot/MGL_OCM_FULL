@@ -6,6 +6,7 @@ from mgl.nav import nav_dropdowns_for_request, uses_signed_in_nav
 from mgl.notifications import notifications_for_user, unread_count_for_user
 from mgl.services import manager_for_user
 from mgl.site_cms import site_chrome
+from mgl.transfer_requests import incoming_offer_count_for_user
 
 
 def mgl_nav(request):
@@ -16,6 +17,7 @@ def mgl_nav(request):
     token_balance = None
     notifications = []
     unread_count = 0
+    incoming_transfer_count = 0
     if user is not None and user.is_authenticated:
         is_control = getattr(user, "role", None) in [User.OWNER, User.ADMIN]
         has_club = club_for_user(user) is not None
@@ -25,6 +27,7 @@ def mgl_nav(request):
         if signed_in_nav:
             notifications = notifications_for_user(user)
             unread_count = unread_count_for_user(user)
+            incoming_transfer_count = incoming_offer_count_for_user(user)
     return {
         "mgl_is_control": is_control,
         "mgl_has_club": has_club,
@@ -34,5 +37,6 @@ def mgl_nav(request):
         "mgl_nav_dropdowns": nav_dropdowns_for_request(request),
         "mgl_notifications": notifications,
         "mgl_unread_notification_count": unread_count,
+        "incoming_transfer_count": incoming_transfer_count,
         **site_chrome(),
     }

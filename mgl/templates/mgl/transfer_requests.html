@@ -1,0 +1,151 @@
+{% extends "core/base.html" %}
+{% load static mgl_ui %}
+
+{% block title %}Transfer Requests — MGL{% endblock %}
+{% block body_class %}mgl-market-page mgl-tr-page{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/mgl-market.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/mgl-transfers.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="mgl-section mgl-tr-page">
+    <nav class="mgl-market-crumbs" aria-label="Manager location">
+        <a href="{% url 'manager_hub' %}" class="mgl-market-crumb">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10.5V20h11V10.5"/></svg>
+            MANAGER HUB
+        </a>
+        <span class="mgl-market-crumb-sep" aria-hidden="true">›</span>
+        <span class="mgl-market-crumb-current">TRANSFER REQUESTS</span>
+    </nav>
+
+    <div class="mgl-tr-status-bar">
+        <span class="mgl-tr-window{% if not window_open %} is-closed{% endif %}">
+            ● {% if window_open %}WINDOW OPEN{% else %}WINDOW CLOSED{% endif %}
+        </span>
+        {% if club %}
+            <span class="mgl-tr-ticker">
+                {% team_logo club "xs" %}
+                {{ club.name }} · Review deals involving your club
+            </span>
+        {% endif %}
+    </div>
+
+    <header class="mgl-market-hero">
+        <div class="mgl-market-hero-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M7 7h11l-3-3M17 17H6l3 3"/>
+            </svg>
+        </div>
+        <div>
+            <div class="eyebrow">MANAGER</div>
+            <h1>TRANSFER REQUESTS</h1>
+            <p class="mgl-tr-copy">Review and manage transfer requests involving your club.</p>
+        </div>
+    </header>
+
+    {% if not window_open %}
+        <div class="mgl-tr-banner mgl-tr-banner-warn">
+            <strong>Transfers are paused</strong>
+            <span>The transfer window is closed. Existing requests can still be reviewed.</span>
+        </div>
+    {% endif %}
+
+    <div class="mgl-tr-banner mgl-tr-banner-cta">
+        <div>
+            <strong>Looking to sign someone?</strong>
+            <span>Browse listed players and send a request through the existing transfer market.</span>
+        </div>
+        <a href="{% url 'transfer_market' %}" class="primary-button">VIEW TRANSFER MARKET</a>
+    </div>
+
+    <section class="mgl-tr-card" aria-labelledby="incoming-requests">
+        <div class="mgl-tr-card-head">
+            <h2 id="incoming-requests">INCOMING REQUESTS</h2>
+            <span class="mgl-tr-count">{{ incoming|length }}</span>
+        </div>
+        {% for row in incoming %}
+            <article class="mgl-tr-row">
+                <div class="mgl-tr-player">
+                    <a href="{% url 'player_profile' row.player_id %}">{{ row.player.name }}</a>
+                    <p class="mgl-tr-meta">
+                        {{ row.transfer_type }}
+                        {% if row.deal.seller_receives %} · {{ row.deal.seller_receives }}{% endif %}
+                    </p>
+                    <p class="mgl-tr-meta">Requesting club: {{ row.deal.requesting_club|default:"—" }}</p>
+                </div>
+                <div class="mgl-tr-clubs">
+                    <span class="mgl-tr-club">{% team_logo row.team "xs" %} {{ row.team.short_name|default:row.team.name }}</span>
+                    <span class="mgl-tr-arrow" aria-hidden="true">→</span>
+                    <span class="mgl-tr-club">
+                        {% if row.buyer_club %}{% team_logo row.buyer_club "xs" %} {{ row.buyer_club.short_name|default:row.buyer_club.name }}{% else %}—{% endif %}
+                    </span>
+                </div>
+                <div>
+                    <span class="mgl-tr-status is-{{ row.status_label|lower }}">{{ row.status_label|upper }}</span>
+                    <p class="mgl-tr-meta">{{ row.created_at|date:"j M Y, H:i" }}</p>
+                </div>
+                <div class="mgl-tr-actions">
+                    {% if row.can_seller_respond %}
+                        <form method="post" action="{% url 'respond_transfer_request' row.id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="approve">
+                            <button type="submit" class="primary-button">APPROVE</button>
+                        </form>
+                        <form method="post" action="{% url 'respond_transfer_request' row.id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="reject">
+                            <button type="submit" class="mgl-danger-button">REJECT</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </article>
+        {% empty %}
+            <div class="mgl-tr-empty">No incoming transfer requests.</div>
+        {% endfor %}
+    </section>
+
+    <section class="mgl-tr-card" aria-labelledby="outgoing-requests">
+        <div class="mgl-tr-card-head">
+            <h2 id="outgoing-requests">OUTGOING REQUESTS</h2>
+            <span class="mgl-tr-count">{{ outgoing|length }}</span>
+        </div>
+        {% for row in outgoing %}
+            <article class="mgl-tr-row">
+                <div class="mgl-tr-player">
+                    <a href="{% url 'player_profile' row.player_id %}">{{ row.player.name }}</a>
+                    <p class="mgl-tr-meta">
+                        {{ row.transfer_type }}
+                        {% if row.deal.seller_receives %} · {{ row.deal.seller_receives }}{% endif %}
+                    </p>
+                </div>
+                <div class="mgl-tr-clubs">
+                    <span class="mgl-tr-club">{% team_logo row.team "xs" %} {{ row.team.short_name|default:row.team.name }}</span>
+                    <span class="mgl-tr-arrow" aria-hidden="true">→</span>
+                    <span class="mgl-tr-club">
+                        {% if row.buyer_club %}{% team_logo row.buyer_club "xs" %} {{ row.buyer_club.short_name|default:row.buyer_club.name }}{% else %}—{% endif %}
+                    </span>
+                </div>
+                <div>
+                    <span class="mgl-tr-status is-{{ row.status_label|lower }}">{{ row.status_label|upper }}</span>
+                    <p class="mgl-tr-meta">{{ row.created_at|date:"j M Y, H:i" }}</p>
+                </div>
+                <div class="mgl-tr-actions"></div>
+            </article>
+        {% empty %}
+            <div class="mgl-tr-empty">No outgoing transfer requests.</div>
+        {% endfor %}
+    </section>
+
+    {% if discord_invite_url %}
+        <section class="discord-banner">
+            <div class="discord-icon" aria-hidden="true">D</div>
+            <div>
+                <h2>JOIN OUR DISCORD</h2>
+                <p>Arrange fixtures, discuss transfers, and stay up to date with the league.</p>
+            </div>
+            <a href="{{ discord_invite_url }}" class="primary-button" target="_blank" rel="noopener">JOIN NOW</a>
+        </section>
+    {% endif %}
+</section>
+{% endblock %}

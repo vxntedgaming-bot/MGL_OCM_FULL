@@ -386,6 +386,75 @@ def manager_notification_respond(request, notification_id):
 
 
 @login_required
+def transfer_requests(request):
+    from mgl.market import transfer_window_is_open
+    from mgl.transfer_requests import (
+        decorate_transfer_request,
+        incoming_offer_count,
+        incoming_transfer_requests,
+        outgoing_transfer_requests,
+    )
+
+    manager = approved_manager(request.user)
+    if not manager:
+        messages.error(request, "You must be an approved manager to review transfer requests.")
+        return redirect("manager_hub")
+    club = club_for_user(request.user)
+    if not club:
+        messages.error(request, "You need a club before you can manage transfer requests.")
+        return redirect("manager_hub")
+
+    incoming = [decorate_transfer_request(row) for row in incoming_transfer_requests(club)]
+    outgoing = [decorate_transfer_request(row) for row in outgoing_transfer_requests(manager)]
+    return render(
+        request,
+        "mgl/transfer_requests.html",
+        {
+            "manager": manager,
+            "club": club,
+            "incoming": incoming,
+            "outgoing": outgoing,
+            "incoming_count": incoming_offer_count(club),
+            "window_open": transfer_window_is_open(),
+        },
+    )
+
+
+@login_required
+@require_POST
+def respond_transfer_request(request, listing_id):
+    from mgl.market import respond_to_transfer_offer
+
+    manager = approved_manager(request.user)
+    if not manager:
+        messages.error(request, "You must be an approved manager to review transfer requests.")
+        return redirect("manager_hub")
+    club = club_for_user(request.user)
+    listing = get_object_or_404(PlayerListing, pk=listing_id)
+    if club is None or listing.team_id != club.id or listing.team.manager_id != request.user.id:
+        raise PermissionDenied("You can only respond to transfer requests for your own club.")
+    raw_action = (request.POST.get("action") or "").strip().lower()
+    accept = raw_action in ("accept", "approve")
+    reject = raw_action == "reject"
+    if not accept and not reject:
+        messages.error(request, "Choose Approve or Reject.")
+        return redirect("transfer_requests")
+    try:
+        respond_to_transfer_offer(listing, request.user, accept)
+    except ValueError as exc:
+        messages.error(request, str(exc))
+        return redirect("transfer_requests")
+    if accept:
+        messages.success(
+            request,
+            "Request accepted. The league office still has to approve the transfer.",
+        )
+    else:
+        messages.success(request, "Transfer request rejected.")
+    return redirect("transfer_requests")
+
+
+@login_required
 def manager_hub(request):
     manager = manager_for_user(request.user)
 
@@ -532,6 +601,9 @@ def manager_hub(request):
 
     roster_count = len(squad) if team else 0
     token_balance = token_balance_for_user(request.user)
+    from mgl.transfer_requests import incoming_offer_count
+
+    incoming_transfer_count = incoming_offer_count(team)
 
     return render(
         request,
@@ -544,6 +616,7 @@ def manager_hub(request):
             "transfers": transfers,
             "roster_count": roster_count,
             "token_balance": token_balance,
+            "incoming_transfer_count": incoming_transfer_count,
             "active_league": getattr(team, "league", None) or active_league(),
             "outstanding": outstanding,
             "outstanding_count": len(outstanding),
@@ -1509,18 +1582,41 @@ def manager_search(request):
 
 
 def transfer_history(request):
+    from mgl.market import transfer_window_is_open
+
     transfers = (
         MarketTransaction.objects.filter(status=MarketTransaction.COMPLETED)
         .select_related("player", "from_team", "to_team", "seller", "buyer")
         .order_by("-created_at")
     )
     page = Paginator(transfers, 30).get_page(request.GET.get("page"))
+    latest_result = (
+        Fixture.objects.filter(is_released=True, status="COMPLETED")
+        .select_related("home_team", "away_team")
+        .prefetch_related("submission__team_stats")
+        .order_by("-id")
+        .first()
+    )
+    if latest_result:
+        try:
+            stats = {
+                row.team_id: row.goals
+                for row in latest_result.submission.team_stats.all()
+            }
+            latest_result.home_goals = stats.get(latest_result.home_team_id)
+            latest_result.away_goals = stats.get(latest_result.away_team_id)
+        except MatchSubmission.DoesNotExist:
+            latest_result.home_goals = None
+            latest_result.away_goals = None
     return render(
         request,
         "mgl/transfer_history.html",
         {
             "transfers": page,
             "page_obj": page,
+            "window_open": transfer_window_is_open(),
+            "completed_count": page.paginator.count,
+            "latest_result": latest_result,
         },
     )
 

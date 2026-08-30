@@ -29,6 +29,16 @@ urlpatterns = [
         name="manager_notification_respond",
     ),
     path(
+        "transfer-requests/",
+        views.transfer_requests,
+        name="transfer_requests",
+    ),
+    path(
+        "transfer-requests/<int:listing_id>/respond/",
+        views.respond_transfer_request,
+        name="respond_transfer_request",
+    ),
+    path(
         "live-activity/",
         RedirectView.as_view(pattern_name="live_activity", permanent=False),
         name="live_activity_alias",

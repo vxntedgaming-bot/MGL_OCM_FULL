@@ -165,6 +165,10 @@ SIGNED_IN_NAV_DROPDOWNS = (
         "id": "market",
         "label": "MARKET",
         "current": {
+            "transfer_requests",
+            "respond_transfer_request",
+            "transfer_history",
+            "public_transfers",
             "transfer_market",
             "free_agents",
             "live_auctions",
@@ -176,7 +180,8 @@ SIGNED_IN_NAV_DROPDOWNS = (
             "youth_academy",
         },
         "items": (
-            {"label": "Transfer Market", "url_name": "transfer_market"},
+            {"label": "Transfer Requests", "url_name": "transfer_requests"},
+            {"label": "Transfer Market", "url_name": "transfer_market", "divider": True},
             {"label": "Free Agents", "url_name": "free_agents", "divider": True},
             {"label": "Auctions", "url_name": "live_auctions", "divider": True},
             {"label": "Scouting", "url_name": "scouting", "divider": True},
@@ -335,6 +340,7 @@ def _build_menus(source, url_name, kwargs, is_control, extra_by_id=None):
                     "divider": bool(item.get("divider")),
                     "style": item.get("style") or "",
                     "badge": item.get("badge") or "",
+                    "badge_class": item.get("badge_class") or "",
                     "is_current": _item_is_current(item, url_name, kwargs),
                 }
             )
@@ -345,6 +351,7 @@ def _build_menus(source, url_name, kwargs, is_control, extra_by_id=None):
                 "id": menu["id"],
                 "label": menu["label"],
                 "is_current": url_name in menu["current"],
+                "badge": "",
                 "items": items,
             }
         )
@@ -370,5 +377,22 @@ def nav_dropdowns_for_request(request):
         and getattr(user, "role", None) in ("OWNER", "ADMIN")
     )
     if uses_signed_in_nav(user):
-        return _build_menus(SIGNED_IN_NAV_DROPDOWNS, url_name, kwargs, is_control)
+        menus = _build_menus(SIGNED_IN_NAV_DROPDOWNS, url_name, kwargs, is_control)
+        from mgl.transfer_requests import incoming_offer_count_for_user
+
+        count = incoming_offer_count_for_user(user)
+        if count:
+            try:
+                requests_url = reverse("transfer_requests")
+            except NoReverseMatch:
+                requests_url = ""
+            for menu in menus:
+                if menu["id"] != "market":
+                    continue
+                menu["badge"] = str(count)
+                for item in menu["items"]:
+                    if item["url"] == requests_url:
+                        item["badge"] = str(count)
+                        item["badge_class"] = "is-count"
+        return menus
     return _build_menus(NAV_DROPDOWNS, url_name, kwargs, is_control)

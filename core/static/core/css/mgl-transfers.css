@@ -1,0 +1,231 @@
+.mgl-tr-page {
+    display: grid;
+    gap: 22px;
+}
+
+.mgl-tr-status-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 18px;
+}
+
+.mgl-tr-ticker,
+.mgl-tr-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.mgl-tr-all {
+    margin-left: auto;
+    color: var(--mgl-orange);
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-decoration: none;
+}
+
+.mgl-tr-banner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 16px 18px;
+    border: 1px solid var(--mgl-line);
+    background: var(--mgl-card);
+}
+
+.mgl-tr-banner strong,
+.mgl-tr-banner span {
+    display: block;
+}
+
+.mgl-tr-banner span {
+    color: var(--muted);
+    margin-top: 4px;
+}
+
+.mgl-tr-banner-warn {
+    border-color: rgba(248, 113, 113, 0.45);
+}
+
+.mgl-tr-banner-cta {
+    border-color: rgba(255, 92, 0, 0.28);
+}
+
+.mgl-tr-copy {
+    margin: 8px 0 0;
+    color: var(--muted);
+    max-width: 42rem;
+}
+
+.mgl-tr-window {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 34px;
+    padding: 0 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 92, 0, 0.55);
+    color: var(--mgl-orange);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+}
+
+.mgl-tr-window.is-closed {
+    border-color: #f87171;
+    color: #fca5a5;
+}
+
+.mgl-tr-card {
+    background: var(--mgl-card);
+    border: 1px solid var(--mgl-line);
+}
+
+.mgl-tr-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--mgl-line);
+}
+
+.mgl-tr-card-head h2 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.mgl-tr-count {
+    min-width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--mgl-orange);
+    color: #000;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.mgl-tr-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.2fr) minmax(0, 0.8fr) auto;
+    gap: 14px;
+    align-items: center;
+    padding: 16px 18px;
+    border-top: 1px solid var(--mgl-line);
+}
+
+.mgl-tr-row:first-child {
+    border-top: 0;
+}
+
+.mgl-tr-player a,
+.mgl-tr-public-name a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 800;
+}
+
+.mgl-tr-player a:hover,
+.mgl-tr-public-name a:hover {
+    color: var(--mgl-orange);
+}
+
+.mgl-tr-meta,
+.mgl-tr-public-date {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.mgl-tr-clubs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.mgl-tr-club {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.mgl-tr-arrow {
+    color: var(--mgl-orange);
+    font-weight: 800;
+}
+
+.mgl-tr-status {
+    display: inline-flex;
+    align-items: center;
+    min-height: 26px;
+    padding: 0 10px;
+    border: 1px solid var(--mgl-line);
+    color: #fff;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+}
+
+.mgl-tr-status.is-pending {
+    border-color: var(--mgl-orange);
+    color: var(--mgl-orange);
+}
+
+.mgl-tr-status.is-accepted,
+.mgl-tr-status.is-completed {
+    border-color: rgba(255, 92, 0, 0.45);
+}
+
+.mgl-tr-status.is-rejected {
+    border-color: #f87171;
+    color: #fca5a5;
+}
+
+.mgl-tr-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.mgl-tr-empty {
+    padding: 36px 18px;
+    text-align: center;
+    color: var(--muted);
+}
+
+.mgl-tr-public-list {
+    background: var(--mgl-card);
+    border: 1px solid var(--mgl-line);
+}
+
+.mgl-tr-public-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 16px;
+    align-items: center;
+    padding: 16px 18px;
+    border-top: 1px solid var(--mgl-line);
+}
+
+.mgl-tr-public-row:first-child {
+    border-top: 0;
+}
+
+@media (max-width: 860px) {
+    .mgl-tr-row,
+    .mgl-tr-public-row {
+        grid-template-columns: 1fr;
+    }
+
+    .mgl-tr-actions {
+        justify-content: flex-start;
+    }
+}

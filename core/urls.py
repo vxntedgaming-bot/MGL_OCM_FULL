@@ -41,6 +41,7 @@ urlpatterns = [
     path("jobs/", job_centre, name="job_centre"),
     path("market/", transfer_market, name="transfer_market"),
     path("market/transfers/", transfer_history, name="transfer_history"),
+    path("transfers/", transfer_history, name="public_transfers"),
     path("market/scouting/", scouting, name="scouting"),
     path("market/youth-academy/", youth_academy, name="youth_academy"),
     path("mgl/", include("mgl.urls")),

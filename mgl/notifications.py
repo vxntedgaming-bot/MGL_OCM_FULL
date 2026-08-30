@@ -540,9 +540,20 @@ def _detail_rows(item):
 
 
 def decorate_inbox_items(items):
+    from django.urls import NoReverseMatch, reverse
+
     for item in items:
         status = getattr(item, "response_status", "") or ManagerNotification.NONE
         item.can_respond = status == ManagerNotification.PENDING
+        source = getattr(item, "source_key", "") or ""
+        if source.startswith("transfer-offer-"):
+            item.can_respond = False
+            if status == ManagerNotification.PENDING:
+                try:
+                    item.action_url = reverse("transfer_requests")
+                except NoReverseMatch:
+                    pass
+                item.action_label = "REVIEW REQUEST"
         if status == ManagerNotification.PENDING:
             item.status_label = "PENDING"
         elif status == ManagerNotification.ACCEPTED:
