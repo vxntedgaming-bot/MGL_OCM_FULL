@@ -496,9 +496,11 @@ def control_centre(request):
         fixture = submission.fixture
         home = rows.get(fixture.home_team_id)
         away = rows.get(fixture.away_team_id)
+        submission.home_goals = getattr(home, "goals", 0)
+        submission.away_goals = getattr(away, "goals", 0)
         submission.scoreline = (
-            f"{fixture.home_team.name} {getattr(home, 'goals', 0)}-"
-            f"{getattr(away, 'goals', 0)} {fixture.away_team.name}"
+            f"{fixture.home_team.name} {submission.home_goals}-"
+            f"{submission.away_goals} {fixture.away_team.name}"
         )
     pending_jobs = ClubApplication.objects.filter(
         status=ApprovalStatus.PENDING
@@ -508,8 +510,23 @@ def control_centre(request):
 
     pending_press = pending_press_reviews()
     recent_activity = MarketTransaction.objects.select_related(
-        "player", "seller", "buyer"
+        "player", "seller", "buyer", "from_team", "to_team", "approved_by"
     ).order_by("-created_at")[:20]
+    pending_counts = {
+        "managers": pending_managers.count(),
+        "listings": len(pending_listings),
+        "results": len(pending_results),
+        "jobs": pending_jobs.count(),
+        "press": pending_press.count(),
+        "auctions": live_auctions.count(),
+    }
+    pending_counts["approvals"] = (
+        pending_counts["managers"]
+        + pending_counts["listings"]
+        + pending_counts["results"]
+        + pending_counts["jobs"]
+        + pending_counts["press"]
+    )
     ovr_filter = parse_free_agent_ovr_filter(request.GET.get("ovr"))
     unassigned_pool = unassigned_players()
     filtered_unassigned = apply_free_agent_ovr_filter(unassigned_pool, ovr_filter)
@@ -525,6 +542,7 @@ def control_centre(request):
             "pending_results": pending_results,
             "pending_jobs": pending_jobs,
             "pending_press": pending_press,
+            "pending_counts": pending_counts,
             "live_auctions": live_auctions,
             "recent_activity": recent_activity,
             "teams": Team.objects.select_related("manager", "league").order_by("name"),
