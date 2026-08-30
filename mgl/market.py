@@ -565,12 +565,66 @@ def list_player_for_sale(player, manager, asking_price):
     _assert_no_live_auction(player)
     assert_club_listing_capacity(team)
 
-    return PlayerListing.objects.create(
+    listing = PlayerListing.objects.create(
         player=player,
         team=team,
         seller=manager,
         asking_price=price,
         status=PlayerListing.PENDING,
+    )
+    _notify_control_of_sale_listing(listing)
+    return listing
+
+
+def _notify_control_of_sale_listing(listing):
+    from django.urls import reverse
+
+    from accounts.models import User
+    from mgl.models import ManagerNotification
+    from mgl.notifications import notify_user
+
+    details = {
+        "player": listing.player.name,
+        "current_club": listing.team.name,
+        "transfer_type": "For sale",
+        "amount": str(listing.asking_price),
+    }
+    for user in User.objects.filter(
+        role__in=[User.OWNER, User.ADMIN],
+        is_active=True,
+    ):
+        notify_user(
+            user,
+            source_key=f"admin-listing-{listing.pk}",
+            notification_type="TRANSFER",
+            title="PLAYER LISTED FOR SALE",
+            message=(
+                f"{listing.team.name} listed {listing.player.name} "
+                f"for {listing.asking_price} TKN."
+            ),
+            actor=listing.seller.display_name,
+            action_url=reverse("control_centre"),
+            action_label="REVIEW",
+            team=listing.team,
+            player=listing.player,
+            listing=listing,
+            is_action=True,
+            response_status=ManagerNotification.PENDING,
+            details=details,
+        )
+
+
+def _close_admin_listing_notices(listing, status):
+    from mgl.models import ManagerNotification
+
+    now = timezone.now()
+    ManagerNotification.objects.filter(
+        source_key=f"admin-listing-{listing.pk}",
+        response_status=ManagerNotification.PENDING,
+    ).update(
+        response_status=status,
+        actioned_at=now,
+        read_at=now,
     )
 
 
@@ -733,7 +787,11 @@ def approve_listing(listing, reviewer):
     listing.reviewed_by = reviewer
     if listing.reserved_buyer_id:
         listing.save(update_fields=["reviewed_at", "reviewed_by"])
-        return _complete_listing_sale(listing, listing.reserved_buyer)
+        result = _complete_listing_sale(listing, listing.reserved_buyer)
+        from mgl.models import ManagerNotification
+
+        _close_admin_listing_notices(listing, ManagerNotification.ACCEPTED)
+        return result
     listing.status = PlayerListing.LIVE
     listing.save(update_fields=["status", "reviewed_at", "reviewed_by"])
     create_news(
@@ -743,6 +801,9 @@ def approve_listing(listing, reviewer):
         team=listing.team,
     )
     _notify_listing_outcome(listing)
+    from mgl.models import ManagerNotification
+
+    _close_admin_listing_notices(listing, ManagerNotification.ACCEPTED)
     return listing
 
 
@@ -761,6 +822,9 @@ def reject_listing(listing, reviewer):
     listing.reviewed_by = reviewer
     listing.save(update_fields=["status", "reviewed_at", "reviewed_by"])
     _notify_listing_outcome(listing, rejected=True)
+    from mgl.models import ManagerNotification
+
+    _close_admin_listing_notices(listing, ManagerNotification.REJECTED)
     return listing
 
 

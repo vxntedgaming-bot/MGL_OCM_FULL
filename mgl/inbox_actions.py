@@ -4,8 +4,9 @@ from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.utils import timezone
 
-from mgl.market import respond_to_transfer_offer
-from mgl.models import ApprovalStatus, ManagerNotification, MatchSubmission
+from accounts.models import User
+from mgl.market import approve_listing, reject_listing, respond_to_transfer_offer
+from mgl.models import ApprovalStatus, ManagerNotification, MatchSubmission, PlayerListing
 from mgl.notifications import inbox_queryset_for_user, mark_notification_response, notify_user
 
 
@@ -102,6 +103,8 @@ def respond_to_inbox_notification(user, notification, accept):
         raise InboxActionError("This notification has already been handled.")
 
     source = notification.source_key or ""
+    if source.startswith("admin-listing-"):
+        return respond_to_admin_listing_notification(notification, user, accept)
     if source.startswith("score-submitted-") or notification.fixture_id:
         return respond_to_match_notification(notification, user, accept)
     if source.startswith("transfer-offer-") or notification.listing_id:
@@ -110,3 +113,24 @@ def respond_to_inbox_notification(user, notification, accept):
             raise InboxActionError("This notification is missing transfer details.")
         return respond_to_transfer_offer(listing, user, accept)
     raise InboxActionError("This notification does not require a response.")
+
+
+@transaction.atomic
+def respond_to_admin_listing_notification(notification, user, accept):
+    if getattr(user, "role", None) not in (User.OWNER, User.ADMIN):
+        raise PermissionDenied("Only an owner or admin can approve a sale listing.")
+    listing = notification.listing
+    if listing is None:
+        suffix = (notification.source_key or "").rsplit("-", 1)[-1]
+        if suffix.isdigit():
+            listing = PlayerListing.objects.filter(pk=int(suffix)).first()
+    if listing is None:
+        raise InboxActionError("This notification is missing transfer details.")
+    if accept:
+        result = approve_listing(listing, user)
+        inbox_status = ManagerNotification.ACCEPTED
+    else:
+        result = reject_listing(listing, user)
+        inbox_status = ManagerNotification.REJECTED
+    mark_notification_response(user, notification.source_key, inbox_status)
+    return result

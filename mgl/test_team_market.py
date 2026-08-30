@@ -19,7 +19,7 @@ from mgl.market import (
     parse_auction_starting_bid,
     settle_auction,
 )
-from mgl.models import PlayerListing
+from mgl.models import ManagerNotification, PlayerListing
 from mgl.services import release_player
 from players.models import Player
 from teams.models import Team
@@ -209,3 +209,72 @@ class TeamMarketListingTests(TestCase):
         )
         self.assertEqual(auction.status_code, 302)
         self.assertFalse(PlayerAuction.objects.filter(player=self.owned).exists())
+
+    def test_approved_sale_appears_on_market_and_other_channels_stay(self):
+        owner = _user("sale-owner", role=User.OWNER)
+        fa = Player.objects.create(
+            name="Loose Agent",
+            position="CM",
+            overall=70,
+            is_free_agent=True,
+        )
+        auction_player = Player.objects.create(
+            name="Bid Target",
+            position="ST",
+            overall=72,
+            is_free_agent=False,
+        )
+        auction = PlayerAuction.objects.create(
+            player=auction_player,
+            starting_bid=1,
+            minimum_increment=1,
+            starts_at=timezone.now() - timedelta(minutes=1),
+            ends_at=timezone.now() + timedelta(hours=1),
+            status=PlayerAuction.LIVE,
+            listing_kind=PlayerAuction.FREE_AGENT,
+        )
+        self.client.login(username="seller", password="test-pass-123")
+        self.client.post(reverse("sell_player", args=[self.owned.id]), {"asking_price": "6.50"})
+        listing = PlayerListing.objects.get(player=self.owned)
+        self.assertEqual(listing.status, PlayerListing.PENDING)
+        pending = self.client.get(reverse("transfer_market"))
+        self.assertContains(pending, "NO PLAYERS LISTED")
+        self.assertContains(pending, "Bid Target")
+        self.assertContains(pending, "LOOSE AGENT")
+
+        self.client.logout()
+        self.client.login(username="sale-owner", password="test-pass-123")
+        notice = ManagerNotification.objects.get(
+            recipient=owner,
+            source_key=f"admin-listing-{listing.pk}",
+        )
+        self.client.post(reverse("control_approve_listing", args=[listing.id]))
+        listing.refresh_from_db()
+        self.assertEqual(listing.status, PlayerListing.LIVE)
+        notice.refresh_from_db()
+        self.assertEqual(notice.response_status, ManagerNotification.ACCEPTED)
+
+        live = self.client.get(reverse("transfer_market"))
+        self.assertContains(live, "Club Striker")
+        self.assertContains(live, "6.50")
+        self.assertContains(live, "Alpha")
+        self.assertContains(live, "Bid Target")
+        self.assertContains(live, "LOOSE AGENT")
+        self.assertEqual(PlayerAuction.objects.get(pk=auction.pk).status, PlayerAuction.LIVE)
+
+        self.client.logout()
+        self.client.login(username="buyer", password="test-pass-123")
+        buyer = self.client.get(reverse("transfer_market"))
+        self.assertContains(buyer, "Club Striker")
+        self.assertContains(buyer, reverse("buy_player", args=[listing.id]))
+
+        self.client.logout()
+        self.client.login(username="seller", password="test-pass-123")
+        self.client.post(reverse("cancel_player_listing", args=[listing.id]))
+        listing.refresh_from_db()
+        self.assertEqual(listing.status, PlayerListing.CANCELLED)
+        gone = self.client.get(reverse("transfer_market"))
+        self.assertContains(gone, "NO PLAYERS LISTED")
+        self.assertNotContains(gone, reverse("buy_player", args=[listing.id]))
+        self.assertContains(gone, "Bid Target")
+        self.assertContains(gone, "LOOSE AGENT")

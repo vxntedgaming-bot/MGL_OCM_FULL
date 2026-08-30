@@ -284,7 +284,8 @@ def player_profile(request, player_id):
 @login_required
 def manager_notifications(request):
     manager = manager_for_user(request.user)
-    if not manager:
+    is_control = getattr(request.user, "role", None) in ("OWNER", "ADMIN")
+    if not manager and not is_control:
         messages.error(
             request,
             "You do not have a manager account.",
@@ -316,7 +317,8 @@ def manager_notification_respond(request, notification_id):
     )
 
     manager = manager_for_user(request.user)
-    if not manager:
+    is_control = getattr(request.user, "role", None) in ("OWNER", "ADMIN")
+    if not manager and not is_control:
         messages.error(request, "You do not have a manager account.")
         return redirect("manager_login")
 
@@ -341,7 +343,13 @@ def manager_notification_respond(request, notification_id):
     except ValueError as exc:
         messages.error(request, str(exc))
         return redirect("manager_notifications")
-    if accept:
+    source = notification.source_key or ""
+    if accept and source.startswith("admin-listing-"):
+        messages.success(
+            request,
+            "Listing approved. The player is now live on the transfer market.",
+        )
+    elif accept:
         messages.success(
             request,
             "Response recorded. Owner/Admin approval is still required where applicable.",

@@ -42,6 +42,7 @@ class NotificationItem:
     created_at: object = None
     team_id: int = None
     player_id: int = None
+    listing_id: int = None
 
     @property
     def complete(self):
@@ -63,6 +64,7 @@ class NotificationItem:
             "created_at": self.created_at,
             "team_id": self.team_id,
             "player_id": self.player_id,
+            "listing_id": self.listing_id,
         }
 
 
@@ -188,7 +190,7 @@ class ControlQueueSource(NotificationSource):
             yield NotificationItem(
                 key=f"admin-listing-{listing.pk}",
                 type="TRANSFER",
-                title="TRANSFER",
+                title="PLAYER LISTED FOR SALE",
                 description=(
                     f"{listing.team.name} listed {listing.player.name} "
                     "and it needs approval."
@@ -199,6 +201,7 @@ class ControlQueueSource(NotificationSource):
                 created_at=listing.created_at,
                 team_id=listing.team_id,
                 player_id=listing.player_id,
+                listing_id=listing.pk,
             )
         for submission in (
             MatchSubmission.objects.filter(status=ApprovalStatus.PENDING)
@@ -356,7 +359,22 @@ def sync_pending_notifications(user):
     ) if pending_keys else set()
     to_create = []
     for row in pending:
+        is_admin_listing = row["key"].startswith("admin-listing-")
         if row["key"] in existing:
+            if is_admin_listing:
+                ManagerNotification.objects.filter(
+                    recipient=user,
+                    source_key=row["key"],
+                ).exclude(response_status__in=[
+                    ManagerNotification.ACCEPTED,
+                    ManagerNotification.REJECTED,
+                ]).update(
+                    listing_id=row.get("listing_id"),
+                    response_status=ManagerNotification.PENDING,
+                    is_action=True,
+                    title=row["title"],
+                    message=row["description"],
+                )
             continue
         to_create.append(
             ManagerNotification(
@@ -370,7 +388,13 @@ def sync_pending_notifications(user):
                 action_label=row.get("cta") or "VIEW",
                 team_id=row.get("team_id"),
                 player_id=row.get("player_id"),
+                listing_id=row.get("listing_id"),
                 is_action=True,
+                response_status=(
+                    ManagerNotification.PENDING
+                    if is_admin_listing
+                    else ManagerNotification.NONE
+                ),
             )
         )
     if to_create:
