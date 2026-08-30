@@ -10,7 +10,7 @@ from mgl.models import ApprovalStatus, MatchSubmission, NewsPost, PressConferenc
 from mgl.services import create_news, manager_for_user
 from teams.models import Team
 
-FOOTBALL_CATEGORIES = (NewsPost.RESULTS, NewsPost.TRANSFER, NewsPost.SIGNING)
+FOOTBALL_CATEGORIES = (NewsPost.RESULTS, NewsPost.TRANSFER)
 KIND_RESULT = "result"
 KIND_TRANSFER = "transfer"
 KIND_SIGNING = "signing"
@@ -47,25 +47,34 @@ def published_activity():
     )
 
 
-def _listing_or_auction_noise():
+def _non_m2m_transfer_noise():
+    """Hide listings, auctions, releases and free-agent copy from the feed.
+
+    Those systems keep working on their own pages. Live Activity only
+    shows completed manager-to-manager transfers and official results.
+    """
     return (
         Q(title__icontains="listed for sale")
         | Q(body__icontains="listed for sale")
-        | Q(title__icontains="Auction started")
-        | Q(title__icontains="available in an Admin auction")
+        | Q(title__icontains="auction")
+        | Q(body__icontains="auction")
+        | Q(title__icontains="free agent")
+        | Q(body__icontains="free agent")
+        | Q(title__icontains="released")
+        | Q(body__icontains="released")
     )
 
 
 def published_football_activity():
-    """Official results, completed transfers and signings only.
+    """Official completed matches and manager-to-manager transfers only.
 
-    Pending, rejected and unpublished records are excluded in the query.
-    Press conferences never appear here.
+    Pending, rejected, unpublished, signing, auction, scouting and
+    admin records are excluded here. Those systems are unchanged.
     """
     return (
         published_activity()
         .filter(category__in=FOOTBALL_CATEGORIES)
-        .exclude(_listing_or_auction_noise())
+        .exclude(_non_m2m_transfer_noise())
     )
 
 
@@ -75,7 +84,7 @@ def activity_label(post):
     blob = f"{title} {body}"
     category = post.category
     if category == NewsPost.RESULTS:
-        return "RESULT"
+        return "MATCH RESULT"
     if category == NewsPost.TRANSFER:
         if "released" in blob or "free agent" in blob:
             return "PLAYER RELEASED"
@@ -273,6 +282,8 @@ def _football_kind(post):
         blob = f"{post.title or ''} {post.body or ''}".lower()
         if "listed for sale" in blob or "auction" in blob:
             return None
+        if "free agent" in blob or "released" in blob:
+            return None
         return KIND_TRANSFER
     return None
 
@@ -298,16 +309,22 @@ def completed_deal_payload(post):
         target = {}
     selling_club = details.get("selling_club") or ""
     buying_club = details.get("buying_club") or ""
+    target_list = [target] if target.get("name") else []
+    swap_list = [row for row in swaps if isinstance(row, dict) and row.get("name")]
     return {
         "selling_club": selling_club,
         "buying_club": buying_club,
         "target": target,
-        "swaps": swaps,
-        "is_swap": bool(swaps),
+        "swaps": swap_list,
+        "is_swap": bool(swap_list),
         "amount": amount,
         "amount_display": f"{amount:.2f}",
         "has_fee": amount > 0,
         "payer": buying_club,
+        "seller_in": swap_list,
+        "seller_out": target_list,
+        "buyer_in": target_list,
+        "buyer_out": swap_list,
     }
 
 
@@ -408,12 +425,12 @@ def activity_payloads(posts):
                 "occurred_at": post.created_at,
                 "deal": deal,
                 "subtitle": (
-                    "TRANSFER COMPLETED"
+                    "MATCH COMPLETED"
+                    if kind == KIND_RESULT
+                    else "TRANSFER COMPLETED"
                     if kind == KIND_TRANSFER and deal
                     else "Transfer completed"
                     if kind == KIND_TRANSFER
-                    else "New signing"
-                    if kind == KIND_SIGNING
                     else ""
                 ),
             }

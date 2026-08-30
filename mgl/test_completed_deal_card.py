@@ -95,13 +95,20 @@ class CompletedDealCardTests(TestCase):
         self.assertContains(page, "Bayer Test")
         self.assertContains(page, "Target Forward")
         self.assertContains(page, "78 OVR")
-        self.assertContains(page, "Transfer fee: 3.00 TKN")
+        self.assertContains(page, "Bayer Test paid 3.00 TKN")
         self.assertContains(page, "TRANSFER COMPLETED")
+        self.assertContains(page, reverse("player_profile", args=[self.target.id]))
         self.assertIn("→", html)
-        self.assertNotIn("OUT", html)
+        self.assertIn("IN", html)
+        self.assertIn("OUT", html)
+        self.assertIn("—", html)
         self.assertEqual(self._deal_posts().count(), 1)
         post = self._deal_posts().get()
-        self.assertTrue(post.details.get("deal"))
+        deal = activity_payloads([post])[0]["deal"]
+        self.assertEqual([row["name"] for row in deal["seller_out"]], ["Target Forward"])
+        self.assertEqual(deal["seller_in"], [])
+        self.assertEqual([row["name"] for row in deal["buyer_in"]], ["Target Forward"])
+        self.assertEqual(deal["buyer_out"], [])
         self.assertEqual(post.details["swaps"], [])
         self.assertEqual(post.details["amount"], "3.00")
 
@@ -117,9 +124,18 @@ class CompletedDealCardTests(TestCase):
         self.assertContains(page, "76 OVR")
         self.assertContains(page, "Bayer Test paid 2.00 TKN")
         self.assertContains(page, "TRANSFER COMPLETED")
-        self.assertIn("↔", html)
-        self.assertGreaterEqual(html.count("OUT"), 2)
-        self.assertEqual(html.count("First Swap"), 1)
+        self.assertContains(page, reverse("player_profile", args=[self.target.id]))
+        self.assertContains(page, reverse("player_profile", args=[self.swap_one.id]))
+        self.assertIn("→", html)
+        self.assertNotIn("↔", html)
+        post = self._deal_posts().get()
+        deal = activity_payloads([post])[0]["deal"]
+        self.assertEqual([row["name"] for row in deal["seller_out"]], ["Target Forward"])
+        self.assertEqual([row["name"] for row in deal["seller_in"]], ["First Swap"])
+        self.assertEqual([row["name"] for row in deal["buyer_in"]], ["Target Forward"])
+        self.assertEqual([row["name"] for row in deal["buyer_out"]], ["First Swap"])
+        self.assertEqual(html.count("First Swap"), 2)
+        self.assertEqual(html.count("Target Forward"), 2)
 
     def test_multiple_swap_players_all_appear(self):
         listing = create_listed_purchase_offer(
@@ -139,15 +155,24 @@ class CompletedDealCardTests(TestCase):
         self.assertContains(page, "74 OVR")
         self.assertContains(page, "71 OVR")
         self.assertContains(page, "Bayer Test paid 2.00 TKN")
+        self.assertContains(page, reverse("player_profile", args=[self.swap_two.id]))
+        self.assertContains(page, reverse("player_profile", args=[self.swap_three.id]))
         post = self._deal_posts().get()
+        deal = activity_payloads([post])[0]["deal"]
         self.assertEqual(len(post.details["swaps"]), 3)
         names = {row["name"] for row in post.details["swaps"]}
         self.assertEqual(names, {"First Swap", "Second Swap", "Third Swap"})
+        self.assertEqual(
+            [row["name"] for row in deal["buyer_out"]],
+            [row["name"] for row in deal["seller_in"]],
+        )
+        self.assertEqual([row["name"] for row in deal["buyer_in"]], ["Target Forward"])
+        self.assertEqual(len(deal["seller_in"]), 3)
 
     def test_player_only_swap_shows_zero_tokens(self):
         self._complete("0", offered=self.swap_one)
         page = self._activity()
-        self.assertContains(page, "TOKEN PAYMENT 0.00 TKN")
+        self.assertContains(page, "Bayer Test paid 0.00 TKN")
         self.assertContains(page, "First Swap")
         self.assertContains(page, "Target Forward")
         self.assertNotContains(page, "Transfer fee:")
@@ -225,9 +250,50 @@ class CompletedDealCardTests(TestCase):
         activity = self._activity()
         self.assertContains(home, "mgl-deal-card")
         self.assertContains(home, "Target Forward")
-        self.assertContains(home, "Transfer fee: 3.00 TKN")
+        self.assertContains(home, "Bayer Test paid 3.00 TKN")
         self.assertContains(activity, "mgl-deal-card")
-        self.assertContains(activity, "Transfer fee: 3.00 TKN")
+        self.assertContains(activity, "Bayer Test paid 3.00 TKN")
+
+    def test_live_activity_hides_free_agent_auction_and_scouting(self):
+        NewsPost.objects.create(
+            category=NewsPost.SIGNING,
+            title="Free Signing signed",
+            body="Free Signing joined Bayer Test on a free signing.",
+            published=True,
+            primary_team=self.team_a,
+        )
+        NewsPost.objects.create(
+            category=NewsPost.AUCTION,
+            title="Auction started for Pool Player",
+            body="Pool Player is now available in an Admin auction.",
+            published=True,
+        )
+        NewsPost.objects.create(
+            category=NewsPost.FREE_AGENT,
+            title="Pool Player is a Free Agent",
+            body="Pool Player is now available as a Free Agent after an auction received no bids.",
+            published=True,
+        )
+        NewsPost.objects.create(
+            category=NewsPost.SCOUTING,
+            title="Scouted Mid recruited",
+            body="Bayer Test recruited Scouted Mid through the MGL scouting network.",
+            published=True,
+            primary_team=self.team_a,
+        )
+        NewsPost.objects.create(
+            category=NewsPost.MANAGER,
+            title="Buyer has left Bayer Test",
+            body="Buyer has left Bayer Test.",
+            published=True,
+            primary_team=self.team_a,
+        )
+        page = self._activity()
+        self.assertNotContains(page, "Free Signing")
+        self.assertNotContains(page, "Pool Player")
+        self.assertNotContains(page, "Scouted Mid")
+        self.assertNotContains(page, "has left Bayer Test")
+        self.assertFalse(published_football_activity().exclude(category__in=["RESULTS", "TRANSFER"]).exists())
 
     def test_legacy_transfer_without_snapshot_keeps_simple_card(self):
         NewsPost.objects.create(

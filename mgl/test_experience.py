@@ -464,8 +464,8 @@ class LiveActivityAndPressTests(TestCase):
         self.assertTrue(NewsPost.objects.filter(category=NewsPost.SIGNING).exists())
         activity = self.client.get(reverse("live_activity"))
         self.assertNotContains(activity, "MANAGER APPOINTED")
-        self.assertContains(activity, "SIGNING")
-        self.assertContains(activity, "Free Signing")
+        self.assertNotContains(activity, "SIGNING")
+        self.assertNotContains(activity, "Free Signing")
 
     def test_auction_no_bid_creates_free_agent_activity(self):
         player = Player.objects.create(

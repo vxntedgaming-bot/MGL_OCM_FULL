@@ -149,6 +149,7 @@ class NewsSectionTests(TestCase):
         self.assertTrue(ok)
         page = self.client.get(reverse("live_activity"))
         self.assertContains(page, "RESULT")
+        self.assertContains(page, "MATCH COMPLETED")
         self.assertContains(page, "Arsenal Test")
         self.assertContains(page, "Chelsea Test")
         self.assertContains(page, "5 - 8")
@@ -218,7 +219,7 @@ class NewsSectionTests(TestCase):
         room = self.client.get(reverse("pressroom"))
         self.assertNotContains(room, "Moveable Mid")
 
-    def test_approved_signing_appears_on_live_activity(self):
+    def test_approved_signing_does_not_appear_on_live_activity(self):
         fa = Player.objects.create(
             name="New Signing",
             position="ST",
@@ -226,11 +227,14 @@ class NewsSectionTests(TestCase):
             is_free_agent=True,
         )
         sign_free_agent(fa, self.mgr_a)
+        self.assertTrue(NewsPost.objects.filter(category=NewsPost.SIGNING).exists())
         page = self.client.get(reverse("live_activity"))
-        self.assertContains(page, "SIGNING")
-        self.assertContains(page, "New Signing")
-        self.assertContains(page, "Arsenal Test")
-        self.assertContains(page, "New signing")
+        self.assertNotContains(page, "SIGNING")
+        self.assertNotContains(page, "New Signing")
+        self.assertNotContains(page, "New signing")
+        self.assertFalse(
+            published_football_activity().filter(category=NewsPost.SIGNING).exists()
+        )
         room = self.client.get(reverse("pressroom"))
         self.assertNotContains(room, "New Signing")
 
