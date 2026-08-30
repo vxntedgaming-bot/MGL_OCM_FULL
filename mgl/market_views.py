@@ -24,6 +24,7 @@ from .market import (
     reject_listing,
     settle_auction,
     token_balance_for_user,
+    transfer_offer_details,
 )
 from .models import (
     ApprovalStatus,
@@ -423,11 +424,22 @@ def control_centre(request):
     pending_managers = ManagerApplication.objects.filter(
         status=ManagerApplication.PENDING
     ).select_related("user")
-    pending_listings = PlayerListing.objects.filter(
-        status=PlayerListing.PENDING,
-        reserved_buyer__isnull=False,
-    ).select_related("player", "team", "seller", "reserved_buyer", "offered_player").prefetch_related("offered_players")
-    pending_results = (
+    pending_listings = list(
+        PlayerListing.objects.filter(
+            status=PlayerListing.PENDING,
+            reserved_buyer__isnull=False,
+        ).select_related(
+            "player",
+            "team",
+            "seller",
+            "reserved_buyer",
+            "reserved_buyer__user",
+            "offered_player",
+        ).prefetch_related("offered_players")
+    )
+    for listing in pending_listings:
+        listing.deal = transfer_offer_details(listing)
+    pending_results = list(
         MatchSubmission.objects.filter(
             status=ApprovalStatus.PENDING,
             opponent_response=ApprovalStatus.APPROVED,
@@ -437,8 +449,18 @@ def control_centre(request):
             "fixture__away_team",
             "submitted_by",
         )
+        .prefetch_related("team_stats")
         .order_by("-submitted_at")
     )
+    for submission in pending_results:
+        rows = {row.team_id: row for row in submission.team_stats.all()}
+        fixture = submission.fixture
+        home = rows.get(fixture.home_team_id)
+        away = rows.get(fixture.away_team_id)
+        submission.scoreline = (
+            f"{fixture.home_team.name} {getattr(home, 'goals', 0)}-"
+            f"{getattr(away, 'goals', 0)} {fixture.away_team.name}"
+        )
     pending_jobs = ClubApplication.objects.filter(
         status=ApprovalStatus.PENDING
     ).select_related("manager", "team")

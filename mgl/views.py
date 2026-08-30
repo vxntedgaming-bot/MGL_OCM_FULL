@@ -708,6 +708,10 @@ def press_conference(request, fixture_id):
 def release_my_player(request, player_id):
     from .services import release_player
 
+    if approved_manager(request.user) is None:
+        messages.error(request, "You do not have an approved manager profile.")
+        return redirect("manager_hub")
+
     team = getattr(request.user, "managed_team", None)
 
     if not team:

@@ -157,6 +157,8 @@ class ApprovalWorkflowAuditTests(TestCase):
         self.client.login(username="owner", password="test-pass-123")
         control = self.client.get(reverse("control_centre"))
         self.assertContains(control, "Arsenal Test vs Chelsea Test")
+        self.assertContains(control, "Arsenal Test 2-1 Chelsea Test")
+        self.assertContains(control, "Opponent approved")
         approved = self.client.post(reverse("control_approve_result", args=[submission.id]))
         self.assertEqual(approved.status_code, 302)
         submission.refresh_from_db()

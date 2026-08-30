@@ -47,16 +47,16 @@
             <div class="panel-heading"><span>TRANSFER REQUESTS</span></div>
             {% for listing in pending_listings %}
                 <div class="table-row">
-                    <strong>{{ listing.player.name }}</strong>
+                    <strong>{{ listing.deal.player|default:listing.player.name }}</strong>
                     <span>
-                        {{ listing.team.short_name }} · {{ listing.asking_price }} TKN
-                        {% if listing.reserved_buyer %}
-                            · BID FROM {{ listing.reserved_buyer.display_name }}
-                        {% endif %}
-                        {% if listing.offered_players.all %}
-                            · SWAP {% for swap in listing.offered_players.all %}{{ swap.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
-                        {% elif listing.offered_player %}
-                            · SWAP {{ listing.offered_player.name }}
+                        {{ listing.deal.current_club|default:listing.team.name }}
+                        →
+                        {{ listing.deal.requesting_club|default:listing.reserved_buyer.display_name }}
+                        · {{ listing.deal.amount|default:listing.asking_price }} TKN
+                        · SELLER RECEIVES {{ listing.deal.seller_receives|default:listing.asking_price }}
+                        · BUYER RECEIVES {{ listing.deal.buyer_receives|default:listing.player.name }}
+                        {% if listing.deal.buyer_manager %}
+                            · BUYER {{ listing.deal.buyer_manager }}
                         {% endif %}
                     </span>
                     <form method="post" action="{% url 'control_approve_listing' listing.id %}">{% csrf_token %}<button class="header-button" type="submit">APPROVE</button></form>
@@ -71,7 +71,7 @@
             {% for submission in pending_results %}
                 <div class="table-row">
                     <strong>{{ submission.fixture.home_team.name }} vs {{ submission.fixture.away_team.name }}</strong>
-                    <span>Confirmed by opponent · {{ submission.submitted_by.username }}</span>
+                    <span>{{ submission.scoreline }} · Opponent approved · {{ submission.submitted_by.username }}</span>
                     <form method="post" action="{% url 'control_approve_result' submission.id %}">{% csrf_token %}<button class="header-button" type="submit">APPROVE</button></form>
                     <form method="post" action="{% url 'control_reject_result' submission.id %}">{% csrf_token %}<button class="header-button" type="submit">REJECT</button></form>
                 </div>
