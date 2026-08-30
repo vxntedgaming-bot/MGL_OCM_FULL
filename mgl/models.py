@@ -288,6 +288,11 @@ class PlayerListing(models.Model):
         blank=True,
         related_name="listings_as_swap_offer",
     )
+    offered_players = models.ManyToManyField(
+        "players.Player",
+        blank=True,
+        related_name="listings_offered_in",
+    )
 
     class Meta:
         ordering = ["-created_at"]

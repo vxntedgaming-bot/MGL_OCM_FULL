@@ -516,12 +516,13 @@ def _detail_rows(item):
         ("submitted_at", "Submitted"),
         ("match_stats", "Match stats"),
         ("player", "Player"),
+        ("buyer_manager", "Buyer manager"),
         ("requesting_club", "Requesting club"),
         ("current_club", "Current club"),
         ("transfer_type", "Transfer type"),
         ("buyer_receives", "Buying club receives"),
         ("seller_receives", "Selling club receives"),
-        ("offered_player", "Player offered"),
+        ("offered_player", "Players offered"),
         ("amount", "Proposed amount"),
     )
     for key, label in mapping:

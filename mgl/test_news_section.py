@@ -7,7 +7,13 @@ from accounts.models import User
 from leagues.services import ensure_premier_league
 from managers.models import ManagerApplication
 from mgl.admin import approve_match_submission
-from mgl.market import approve_listing, buy_listed_player, list_player_for_sale, reject_listing
+from mgl.market import (
+    approve_listing,
+    create_listed_purchase_offer,
+    list_player_for_sale,
+    reject_listing,
+    respond_to_transfer_offer,
+)
 from mgl.models import (
     ApprovalStatus,
     Fixture,
@@ -200,7 +206,9 @@ class NewsSectionTests(TestCase):
         listing = list_player_for_sale(self.player, self.mgr_a, 8)
         listed_page = self.client.get(reverse("live_activity"))
         self.assertNotContains(listed_page, "listed for sale")
-        buy_listed_player(listing, self.mgr_b)
+        offer = create_listed_purchase_offer(listing, self.mgr_b, "8")
+        respond_to_transfer_offer(offer, self.user_a, True)
+        approve_listing(offer, self.owner)
         page = self.client.get(reverse("live_activity"))
         self.assertContains(page, "TRANSFER")
         self.assertContains(page, "Moveable Mid")

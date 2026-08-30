@@ -68,13 +68,12 @@ class PurchaseSwapWorkflowTests(TestCase):
         self.client.login(username="buyer", password="test-pass-123")
         market = self.client.get(reverse("transfer_market"))
         html = market.content.decode()
-        self.assertIn(">OFFER</button>", html)
+        self.assertNotIn(">OFFER</button>", html)
         self.assertIn("VIEW PLAYER", html)
         self.assertIn(">BUY</a>", html)
-        self.assertLess(html.index(">OFFER</button>"), html.index("VIEW PLAYER"))
         self.assertLess(html.index("VIEW PLAYER"), html.index(">BUY</a>"))
         self.assertContains(market, reverse("purchase_listing", args=[self.listing.id]))
-        self.assertContains(market, reverse("buy_player", args=[self.listing.id]))
+        self.assertNotContains(market, reverse("buy_player", args=[self.listing.id]))
 
         page = self.client.get(reverse("purchase_listing", args=[self.listing.id]))
         self.assertEqual(page.status_code, 200)
@@ -82,8 +81,8 @@ class PurchaseSwapWorkflowTests(TestCase):
         self.assertContains(page, "Atletico Test")
         self.assertContains(page, "Bayern Test")
         self.assertContains(page, "Kai Player")
-        self.assertContains(page, "TOKENS ONLY")
         self.assertContains(page, "SEND OFFER")
+        self.assertContains(page, 'type="checkbox"')
         self.assertContains(page, f'value="{self.swap.id}"')
         self.assertNotContains(page, f'value="{self.target.id}"')
         self.assertNotContains(page, f'value="{self.other_club_player.id}"')
@@ -113,9 +112,10 @@ class PurchaseSwapWorkflowTests(TestCase):
         self.client.login(username="buyer", password="test-pass-123")
         posted = self.client.post(
             reverse("purchase_listing", args=[self.listing.id]),
-            {"asking_price": "2.00", "offered_player": ""},
+            {"asking_price": "2.00"},
         )
         self.assertEqual(posted.status_code, 302)
+        self.assertEqual(posted["Location"], reverse("manager_hub"))
         self.listing.refresh_from_db()
         self.assertEqual(self.listing.status, PlayerListing.OFFER)
         self.assertEqual(self.listing.reserved_buyer_id, self.mgr_a.id)
@@ -168,6 +168,7 @@ class PurchaseSwapWorkflowTests(TestCase):
         listing = create_listed_purchase_offer(self.listing, self.mgr_a, "2.00", offered_player=self.swap)
         self.assertEqual(listing.status, PlayerListing.OFFER)
         self.assertEqual(listing.offered_player_id, self.swap.id)
+        self.assertEqual(list(listing.offered_players.values_list("id", flat=True)), [self.swap.id])
         notice = ManagerNotification.objects.get(
             recipient=self.user_b,
             source_key=f"transfer-offer-{listing.pk}",
@@ -267,14 +268,76 @@ class PurchaseSwapWorkflowTests(TestCase):
         self.target.refresh_from_db()
         self.assertEqual(self.target.mgl_team_id, self.team_b.id)
 
-    def test_existing_offer_button_still_buys_live_listing(self):
+    def test_buy_player_url_cannot_transfer_immediately(self):
         self.client.login(username="buyer", password="test-pass-123")
         bought = self.client.post(reverse("buy_player", args=[self.listing.id]))
         self.assertEqual(bought.status_code, 302)
+        self.assertEqual(bought["Location"], reverse("purchase_listing", args=[self.listing.id]))
         self.listing.refresh_from_db()
         self.target.refresh_from_db()
-        self.assertEqual(self.listing.status, PlayerListing.SOLD)
+        self.mgr_a.refresh_from_db()
+        self.assertEqual(self.listing.status, PlayerListing.LIVE)
+        self.assertEqual(self.target.mgl_team_id, self.team_b.id)
+        self.assertEqual(self.mgr_a.tokens, Decimal("40.00"))
+
+    def test_multiple_swap_players_move_together_after_final_approval(self):
+        extra = Player.objects.create(
+            name="Second Swap", position="ST", overall=72, mgl_team=self.team_a
+        )
+        third = Player.objects.create(
+            name="Third Swap", position="CB", overall=71, mgl_team=self.team_a
+        )
+        self.client.login(username="buyer", password="test-pass-123")
+        posted = self.client.post(
+            reverse("purchase_listing", args=[self.listing.id]),
+            {
+                "asking_price": "2.00",
+                "offered_players": [str(self.swap.id), str(extra.id), str(third.id)],
+            },
+        )
+        self.assertEqual(posted.status_code, 302)
+        self.assertEqual(posted["Location"], reverse("manager_hub"))
+        self.listing.refresh_from_db()
+        self.assertEqual(self.listing.status, PlayerListing.OFFER)
+        self.assertEqual(self.listing.offered_players.count(), 3)
+        self.target.refresh_from_db()
+        extra.refresh_from_db()
+        third.refresh_from_db()
+        self.mgr_a.refresh_from_db()
+        self.assertEqual(self.target.mgl_team_id, self.team_b.id)
+        self.assertEqual(self.swap.mgl_team_id, self.team_a.id)
+        self.assertEqual(extra.mgl_team_id, self.team_a.id)
+        self.assertEqual(third.mgl_team_id, self.team_a.id)
+        self.assertEqual(self.mgr_a.tokens, Decimal("40.00"))
+
+        self.client.login(username="seller", password="test-pass-123")
+        inbox = self.client.get(reverse("manager_notifications"))
+        self.assertContains(inbox, "Kai Player")
+        self.assertContains(inbox, "Second Swap")
+        self.assertContains(inbox, "Third Swap")
+        respond_to_transfer_offer(self.listing, self.user_b, True)
+        self.listing.refresh_from_db()
+        self.assertEqual(self.listing.status, PlayerListing.PENDING)
+        self.target.refresh_from_db()
+        self.assertEqual(self.target.mgl_team_id, self.team_b.id)
+
+        self.client.login(username="owner", password="test-pass-123")
+        control = self.client.get(reverse("control_centre"))
+        self.assertContains(control, "Kai Player")
+        self.assertContains(control, "Second Swap")
+        approve_listing(self.listing, self.owner)
+        self.target.refresh_from_db()
+        self.swap.refresh_from_db()
+        extra.refresh_from_db()
+        third.refresh_from_db()
+        self.mgr_a.refresh_from_db()
+        self.mgr_b.refresh_from_db()
         self.assertEqual(self.target.mgl_team_id, self.team_a.id)
+        self.assertEqual(self.swap.mgl_team_id, self.team_b.id)
+        self.assertEqual(extra.mgl_team_id, self.team_b.id)
+        self.assertEqual(third.mgl_team_id, self.team_b.id)
+        self.assertEqual(self.mgr_a.tokens, Decimal("38.00"))
+        self.assertEqual(self.mgr_b.tokens, Decimal("42.00"))
 
     def test_existing_unlisted_transfer_request_still_works(self):
         unlisted = Player.objects.create(

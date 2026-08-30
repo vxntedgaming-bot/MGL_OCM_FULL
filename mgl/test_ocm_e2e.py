@@ -12,7 +12,7 @@ from auctions.models import PlayerAuction
 from leagues.models import League
 from managers.models import ManagerApplication
 from mgl.market import place_auction_bid
-from mgl.models import MarketTransaction, PlayerListing
+from mgl.models import ManagerNotification, MarketTransaction, PlayerListing
 from players.models import Player
 from teams.models import Team
 
@@ -191,8 +191,36 @@ class OcmEndToEndTests(TestCase):
         self.client.logout()
 
         self.client.login(username="bob", password="Ocm-pass-12345")
-        self.client.post(reverse("buy_player", args=[listing.id]), {"asking_price": "12"})
-        self.client.post(reverse("buy_player", args=[listing.id]))
+        instant = self.client.post(reverse("buy_player", args=[listing.id]), {"asking_price": "12"})
+        self.assertEqual(instant.status_code, 302)
+        self.assertEqual(instant["Location"], reverse("purchase_listing", args=[listing.id]))
+        self.player.refresh_from_db()
+        self.assertEqual(self.player.mgl_team_id, self.club_a.id)
+        sent = self.client.post(
+            reverse("purchase_listing", args=[listing.id]),
+            {"asking_price": "12"},
+        )
+        self.assertEqual(sent.status_code, 302)
+        self.assertEqual(sent["Location"], reverse("manager_hub"))
+        listing.refresh_from_db()
+        self.assertEqual(listing.status, PlayerListing.OFFER)
+        self.player.refresh_from_db()
+        self.assertEqual(self.player.mgl_team_id, self.club_a.id)
+        notice = ManagerNotification.objects.get(
+            recipient=user_a,
+            source_key=f"transfer-offer-{listing.pk}",
+        )
+        self.client.login(username="alice", password="Ocm-pass-12345")
+        self.client.post(
+            reverse("manager_notification_respond", args=[notice.id]),
+            {"action": "accept"},
+        )
+        listing.refresh_from_db()
+        self.assertEqual(listing.status, PlayerListing.PENDING)
+        self.player.refresh_from_db()
+        self.assertEqual(self.player.mgl_team_id, self.club_a.id)
+        self.client.login(username="owner", password="test-pass-123")
+        self.client.post(reverse("control_approve_listing", args=[listing.id]))
         self.player.refresh_from_db()
         application_a.refresh_from_db()
         application_b.refresh_from_db()
@@ -212,8 +240,8 @@ class OcmEndToEndTests(TestCase):
         self.assertEqual(tx.amount, Decimal("12.00"))
         self.assertEqual(tx.from_team_id, self.club_a.id)
         self.assertEqual(tx.to_team_id, self.club_b.id)
-        self.assertIsNone(tx.approved_by_id)
 
+        self.client.login(username="bob", password="Ocm-pass-12345")
         history = self.client.get(reverse("manager_rewards"))
         self.assertContains(history, "Player X")
         self.assertContains(history, "AFC")

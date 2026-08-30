@@ -12,7 +12,6 @@ from teams.models import Team
 from .market import (
     AUCTION_DURATION_CHOICES,
     approve_listing,
-    buy_listed_player,
     cancel_listing,
     cancel_live_auction,
     close_expired_auctions,
@@ -208,28 +207,28 @@ def purchase_listing(request, listing_id):
         return redirect("transfer_market")
 
     if request.method == "POST":
-        offered = None
-        offered_id = (request.POST.get("offered_player") or "").strip()
-        if offered_id:
-            offered = get_object_or_404(Player, pk=offered_id)
+        offered_ids = [
+            value
+            for value in request.POST.getlist("offered_players")
+            if str(value).strip()
+        ]
+        if not offered_ids:
+            single = (request.POST.get("offered_player") or "").strip()
+            if single:
+                offered_ids = [single]
+        offered = [get_object_or_404(Player, pk=player_id) for player_id in offered_ids]
         try:
             created = create_listed_purchase_offer(
                 listing,
                 manager,
                 request.POST.get("asking_price") or request.POST.get("amount") or "",
-                offered_player=offered,
+                offered_players=offered,
             )
-            if created.offered_player_id:
-                extra = f" plus {created.offered_player.name}"
-            else:
-                extra = ""
             messages.success(
                 request,
-                f"Transfer request sent for {created.player.name} "
-                f"({created.asking_price} TKN{extra}). The selling manager must respond, "
-                "and Owner/Admin approval is still required.",
+                f"Transfer offer sent to {created.seller.display_name}.",
             )
-            return redirect("manager_notifications")
+            return redirect("manager_hub")
         except ValueError as exc:
             messages.error(request, str(exc))
             return redirect("purchase_listing", listing_id)
@@ -273,15 +272,16 @@ def purchase_listing(request, listing_id):
 @require_POST
 def buy_player(request, listing_id):
     manager = approved_manager(request.user)
-    if not manager:
-        messages.error(request, "You must be an approved manager to buy a player.")
-        return redirect("transfer_market")
     listing = get_object_or_404(PlayerListing, pk=listing_id)
-    try:
-        buy_listed_player(listing, manager)
-        messages.success(request, f"{listing.player.name} is now at your club.")
-    except ValueError as exc:
-        messages.error(request, str(exc))
+    buyer_club = club_for_user(request.user)
+    if (
+        manager
+        and buyer_club
+        and listing.team_id != buyer_club.id
+        and listing.status == PlayerListing.LIVE
+    ):
+        return redirect("purchase_listing", listing.id)
+    messages.error(request, "Listed players must be bought through the BUY page.")
     return redirect("transfer_market")
 
 
@@ -426,7 +426,7 @@ def control_centre(request):
     pending_listings = PlayerListing.objects.filter(
         status=PlayerListing.PENDING,
         reserved_buyer__isnull=False,
-    ).select_related("player", "team", "seller", "reserved_buyer", "offered_player")
+    ).select_related("player", "team", "seller", "reserved_buyer", "offered_player").prefetch_related("offered_players")
     pending_results = (
         MatchSubmission.objects.filter(
             status=ApprovalStatus.PENDING,

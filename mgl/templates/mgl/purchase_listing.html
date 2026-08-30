@@ -99,19 +99,12 @@
                         <p>{{ manager.display_name }} · {{ buyer_squad|length }} players</p>
                     </div>
                 </div>
-                <p class="mgl-purchase-note">Select one of your own players to include a swap, or leave tokens only selected.</p>
+                <p class="mgl-purchase-note">Select any number of your own eligible players to include in the deal, or leave them unchecked for tokens only.</p>
                 <ul class="mgl-purchase-squad">
-                    <li class="mgl-purchase-player is-choice">
-                        <label>
-                            <input type="radio" name="offered_player" value="" checked>
-                            <span class="mgl-purchase-player-name">TOKENS ONLY</span>
-                            <span class="mgl-purchase-lock">NO SWAP</span>
-                        </label>
-                    </li>
                     {% for row in buyer_squad %}
                     <li class="mgl-purchase-player is-choice{% if row.swap_locked %} is-locked{% endif %}">
                         <label>
-                            <input type="radio" name="offered_player" value="{{ row.id }}" {% if row.swap_locked %}disabled{% endif %}>
+                            <input type="checkbox" name="offered_players" value="{{ row.id }}" {% if row.swap_locked %}disabled{% endif %}>
                             <span class="mgl-purchase-player-name">{{ row.name }}</span>
                             <span class="mgl-pos-badge">{{ row.position }}</span>
                             <span class="mgl-ovr-badge">{{ row.overall }}</span>
@@ -132,7 +125,7 @@
         <section class="mgl-purchase-offer">
             <div class="eyebrow">YOUR OFFER</div>
             <h2>TOKENS AND SWAP</h2>
-            <p>You receive {{ player.name }}. The selling club receives any selected squad player plus the token amount below. Leave the amount at 0 only if you are offering a player swap.</p>
+            <p>BUYER IS OFFERING any selected squad players plus the token amount below FOR {{ player.name }}. Leave the amount at 0 only if you are offering players and no tokens. SEND OFFER creates a request only — nothing moves until the seller and Owner/Admin approve.</p>
             <label class="mgl-purchase-amount">
                 OFFER AMOUNT
                 <input type="number" name="asking_price" min="0" step="0.01" value="{{ listing.asking_price }}" required>

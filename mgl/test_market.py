@@ -9,7 +9,15 @@ from accounts.models import User
 from auctions.models import PlayerAuction
 from leagues.models import League
 from managers.models import ManagerApplication
-from mgl.market import buy_listed_player, list_player_for_sale, place_auction_bid, settle_auction
+from mgl.market import (
+    approve_listing,
+    buy_listed_player,
+    create_listed_purchase_offer,
+    list_player_for_sale,
+    place_auction_bid,
+    respond_to_transfer_offer,
+    settle_auction,
+)
 from mgl.models import MarketTransaction, PlayerListing
 from players.models import Player
 from teams.models import Team
@@ -76,7 +84,11 @@ class MarketEconomyTests(TestCase):
         listing = list_player_for_sale(self.player, self.mgr_a, 12)
         listing.status = PlayerListing.LIVE
         listing.save(update_fields=["status"])
-        buy_listed_player(listing, self.mgr_b)
+        with self.assertRaises(ValueError):
+            buy_listed_player(listing, self.mgr_b)
+        offer = create_listed_purchase_offer(listing, self.mgr_b, "12")
+        respond_to_transfer_offer(offer, self.user_a, True)
+        approve_listing(offer, self.owner)
         self.player.refresh_from_db()
         self.mgr_a.refresh_from_db()
         self.mgr_b.refresh_from_db()
@@ -100,7 +112,7 @@ class MarketEconomyTests(TestCase):
         listing.status = PlayerListing.LIVE
         listing.save(update_fields=["status"])
         with self.assertRaises(ValueError):
-            buy_listed_player(listing, self.mgr_b)
+            create_listed_purchase_offer(listing, self.mgr_b, "80")
 
     def test_outbid_refunds_previous_club(self):
         auction = PlayerAuction.objects.create(

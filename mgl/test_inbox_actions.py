@@ -381,7 +381,8 @@ class InboxActionWorkflowTests(TestCase):
         self.assertContains(market, "Blue Midfielder")
         self.assertContains(market, "7.00")
         self.assertContains(market, "Chelsea Test")
-        self.assertContains(market, reverse("buy_player", args=[listing.id]))
+        self.assertContains(market, reverse("purchase_listing", args=[listing.id]))
+        self.assertNotContains(market, reverse("buy_player", args=[listing.id]))
         self.assertNotContains(market, "NO PLAYERS LISTED")
 
         self.client.login(username="owner", password="test-pass-123")

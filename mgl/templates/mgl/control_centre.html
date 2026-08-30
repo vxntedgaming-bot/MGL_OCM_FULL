@@ -53,7 +53,9 @@
                         {% if listing.reserved_buyer %}
                             · BID FROM {{ listing.reserved_buyer.display_name }}
                         {% endif %}
-                        {% if listing.offered_player %}
+                        {% if listing.offered_players.all %}
+                            · SWAP {% for swap in listing.offered_players.all %}{{ swap.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                        {% elif listing.offered_player %}
                             · SWAP {{ listing.offered_player.name }}
                         {% endif %}
                     </span>

@@ -224,12 +224,21 @@ def _assert_player_unlocked(player, exclude_listing_id=None):
             PlayerListing.OFFER,
         ],
     )
+    multi_swaps = PlayerListing.objects.filter(
+        offered_players=player,
+        status__in=[
+            PlayerListing.PENDING,
+            PlayerListing.LIVE,
+            PlayerListing.OFFER,
+        ],
+    )
     if exclude_listing_id:
         listings = listings.exclude(pk=exclude_listing_id)
         swaps = swaps.exclude(pk=exclude_listing_id)
+        multi_swaps = multi_swaps.exclude(pk=exclude_listing_id)
     if listings.exists():
         raise ValueError("This player is listed on the transfer market.")
-    if swaps.exists():
+    if swaps.exists() or multi_swaps.exists():
         raise ValueError("This player is already part of another transfer offer.")
 
 
@@ -248,11 +257,15 @@ def locked_squad_player_ids(team):
         status__in=[PlayerListing.PENDING, PlayerListing.LIVE, PlayerListing.OFFER],
         offered_player__mgl_team=team,
     ).values_list("offered_player_id", flat=True)
+    offered_many = PlayerListing.objects.filter(
+        status__in=[PlayerListing.PENDING, PlayerListing.LIVE, PlayerListing.OFFER],
+        offered_players__mgl_team=team,
+    ).values_list("offered_players", flat=True)
     auctions = PlayerAuction.objects.filter(
         player__mgl_team=team,
         status__in=[PlayerAuction.PENDING, PlayerAuction.LIVE],
     ).values_list("player_id", flat=True)
-    return {player_id for player_id in (*listed, *offered, *auctions) if player_id}
+    return {player_id for player_id in (*listed, *offered, *offered_many, *auctions) if player_id}
 
 
 def parse_offer_amount(value, *, allow_zero=False):
@@ -277,11 +290,22 @@ def _player_deal_line(player):
     return f"{player.name} — {player.position} — {player.overall} OVR"
 
 
+def listing_swap_players(listing):
+    if listing is None:
+        return []
+    players = list(listing.offered_players.all().order_by("name", "id"))
+    if players:
+        return players
+    if listing.offered_player_id:
+        return [listing.offered_player]
+    return []
+
+
 def transfer_offer_details(listing, buyer_club=None, extra=None):
     buyer = listing.reserved_buyer
     if buyer_club is None and buyer is not None:
         buyer_club = club_for_user(buyer.user)
-    offered = listing.offered_player
+    offered = listing_swap_players(listing)
     amount = listing.asking_price
     details = {
         "player": listing.player.name,
@@ -290,12 +314,13 @@ def transfer_offer_details(listing, buyer_club=None, extra=None):
         "transfer_type": "Player swap" if offered else "Transfer request",
         "amount": str(amount),
         "buyer_receives": _player_deal_line(listing.player),
+        "buyer_manager": buyer.display_name if buyer else "",
     }
     if offered:
-        seller_bits = [_player_deal_line(offered)]
+        seller_bits = [_player_deal_line(player) for player in offered]
         if amount and amount > 0:
             seller_bits.append(f"{amount} TKN")
-        details["offered_player"] = _player_deal_line(offered)
+        details["offered_player"] = ", ".join(_player_deal_line(player) for player in offered)
         details["seller_receives"] = " + ".join(seller_bits)
     elif amount is not None:
         details["seller_receives"] = f"{amount} TKN"
@@ -314,6 +339,35 @@ def assert_swap_player_for_buyer(offered_player, buyer_club, *, exclude_listing_
         raise ValueError("You cannot offer a free agent as a swap player.")
     _assert_player_unlocked(player, exclude_listing_id=exclude_listing_id)
     return player
+
+
+def assert_swap_players_for_buyer(offered_players, buyer_club, *, target_id=None, exclude_listing_id=None):
+    validated = []
+    seen = set()
+    for raw in offered_players or []:
+        if raw is None:
+            continue
+        player = assert_swap_player_for_buyer(
+            raw,
+            buyer_club,
+            exclude_listing_id=exclude_listing_id,
+        )
+        if player.id in seen:
+            continue
+        if target_id and player.id == target_id:
+            raise ValueError("The swap player must be different from the player being bought.")
+        seen.add(player.id)
+        validated.append(player)
+    return validated
+
+
+def assert_swap_roster_space(buyer_club, selling_team, swap_count):
+    buyer_extra = 1 - swap_count
+    seller_extra = swap_count - 1
+    if buyer_extra > 0:
+        assert_roster_space(buyer_club, extra=buyer_extra)
+    if seller_extra > 0:
+        assert_roster_space(selling_team, extra=seller_extra)
 
 
 @transaction.atomic
@@ -851,17 +905,13 @@ def _complete_listing_sale(listing, buyer):
         raise ValueError("You cannot buy your own listing.")
     assert_transfer_window()
     selling_team = listing.team
-    offered = None
-    if listing.offered_player_id:
-        offered = assert_swap_player_for_buyer(
-            listing.offered_player,
-            buyer_club,
-            exclude_listing_id=listing.pk,
-        )
-        if offered.id == listing.player_id:
-            raise ValueError("The swap player must be different from the player being bought.")
-    else:
-        assert_roster_space(buyer_club)
+    offered = assert_swap_players_for_buyer(
+        listing_swap_players(listing),
+        buyer_club,
+        target_id=listing.player_id,
+        exclude_listing_id=listing.pk,
+    )
+    assert_swap_roster_space(buyer_club, selling_team, len(offered))
 
     price = Decimal(listing.asking_price)
     if price > 0:
@@ -882,15 +932,15 @@ def _complete_listing_sale(listing, buyer):
         buyer_club,
         source="TRANSFER",
         reference=f"listing:{listing.id}",
-        enforce_roster_limit=offered is None,
+        enforce_roster_limit=not offered,
     )
-    if offered:
+    for index, swap in enumerate(offered):
         transfer_player(
-            offered,
+            swap,
             buyer_club,
             selling_team,
             source="TRANSFER",
-            reference=f"listing:{listing.id}:swap",
+            reference=f"listing:{listing.id}:swap:{index}",
             enforce_roster_limit=False,
         )
 
@@ -911,9 +961,9 @@ def _complete_listing_sale(listing, buyer):
         approved_by=listing.reviewed_by,
         listing=listing,
     )
-    if offered:
+    for swap in offered:
         record_market_transaction(
-            player=offered,
+            player=swap,
             seller=buyer,
             buyer=listing.seller,
             from_team=buyer_club,
@@ -929,9 +979,10 @@ def _complete_listing_sale(listing, buyer):
         f"{listing.player.name} has joined {buyer_club.name} from {selling_team.name}."
     )
     if offered:
+        swap_names = ", ".join(player.name for player in offered)
         news_body = (
             f"{listing.player.name} has joined {buyer_club.name} from {selling_team.name} "
-            f"in exchange for {offered.name}"
+            f"in exchange for {swap_names}"
             f"{f' and {price} TKN' if price > 0 else ''}."
         )
     create_news(
@@ -1043,12 +1094,10 @@ def buy_listed_player(listing, buyer):
         "seller",
     ).get(pk=listing.pk)
 
-    if listing.status != PlayerListing.LIVE:
-        raise ValueError("This player is not available for purchase.")
-    if listing.reserved_buyer_id and listing.reserved_buyer_id != buyer.id:
-        raise ValueError("This listing is reserved for another club.")
-
-    return _complete_listing_sale(listing, buyer)
+    raise ValueError(
+        "Listed players must be bought through a transfer request. "
+        "The selling manager and Owner/Admin must approve the deal."
+    )
 
 
 def seller_application_for_team(team):
@@ -1114,11 +1163,12 @@ def _notify_seller_of_transfer_offer(listing, buyer_club):
 
     player = listing.player
     selling_team = listing.team
-    offered = listing.offered_player
+    offered = listing_swap_players(listing)
     if offered:
+        swap_names = ", ".join(item.name for item in offered)
         message = (
             f"{buyer_club.name} has submitted a transfer request for {player.name}, "
-            f"offering {offered.name}"
+            f"offering {swap_names}"
             f"{f' and {listing.asking_price} TKN' if listing.asking_price > 0 else ''}."
         )
     else:
@@ -1145,7 +1195,13 @@ def _notify_seller_of_transfer_offer(listing, buyer_club):
 
 
 @transaction.atomic
-def create_listed_purchase_offer(listing, buyer, asking_price, offered_player=None):
+def create_listed_purchase_offer(
+    listing,
+    buyer,
+    asking_price,
+    offered_player=None,
+    offered_players=None,
+):
     listing = _lock_listing(listing)
     if listing.status != PlayerListing.LIVE:
         raise ValueError("This player is not available for purchase.")
@@ -1161,36 +1217,36 @@ def create_listed_purchase_offer(listing, buyer, asking_price, offered_player=No
     )
     if listing.team_id != selling_team.id or listing.seller_id != seller.id:
         raise ValueError("This listing no longer matches the selling club.")
-    offered = None
-    if offered_player is not None:
-        offered = assert_swap_player_for_buyer(
-            offered_player,
-            buyer_club,
-            exclude_listing_id=listing.pk,
-        )
-        if offered.id == player.id:
-            raise ValueError("The swap player must be different from the player being bought.")
-    price = parse_offer_amount(asking_price, allow_zero=offered is not None)
-    if offered is None and price <= 0:
+    raw_swaps = list(offered_players or [])
+    if not raw_swaps and offered_player is not None:
+        raw_swaps = [offered_player]
+    offered = assert_swap_players_for_buyer(
+        raw_swaps,
+        buyer_club,
+        target_id=player.id,
+        exclude_listing_id=listing.pk,
+    )
+    price = parse_offer_amount(asking_price, allow_zero=bool(offered))
+    if not offered and price <= 0:
         raise ValueError("Offer tokens or include a player from your squad.")
     if buyer.tokens < price:
         raise ValueError("You do not have enough tokens.")
-    if offered is None:
-        assert_roster_space(buyer_club)
+    assert_swap_roster_space(buyer_club, selling_team, len(offered))
     listing.reserved_buyer = buyer
     listing.asking_price = price
-    listing.offered_player = offered
+    listing.offered_player = offered[0] if offered else None
     listing.status = PlayerListing.OFFER
     listing.save(
         update_fields=["reserved_buyer", "asking_price", "offered_player", "status"]
     )
+    listing.offered_players.set(offered)
     listing = PlayerListing.objects.select_related(
         "player",
         "team",
         "seller",
         "reserved_buyer",
         "offered_player",
-    ).get(pk=listing.pk)
+    ).prefetch_related("offered_players").get(pk=listing.pk)
     _notify_seller_of_transfer_offer(listing, buyer_club)
     return listing
 
@@ -1210,17 +1266,20 @@ def respond_to_transfer_offer(listing, seller_user, accept):
 
     now = timezone.now()
     if accept:
-        if listing.offered_player_id:
+        swaps = listing_swap_players(listing)
+        if swaps:
             if not listing.reserved_buyer_id:
                 raise ValueError("This transfer request is missing a buying club.")
             buyer_club = club_for_user(listing.reserved_buyer.user)
             if not buyer_club:
                 raise ValueError("The buying club is no longer valid.")
-            assert_swap_player_for_buyer(
-                listing.offered_player,
+            assert_swap_players_for_buyer(
+                swaps,
                 buyer_club,
+                target_id=player.id,
                 exclude_listing_id=listing.pk,
             )
+            assert_swap_roster_space(buyer_club, listing.team, len(swaps))
         assert_club_listing_capacity(listing.team)
         listing.status = PlayerListing.PENDING
         listing.save(update_fields=["status"])
