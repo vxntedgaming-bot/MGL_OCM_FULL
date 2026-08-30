@@ -1,0 +1,42 @@
+{% load mgl_ui %}
+<article
+    class="mgl-fx-row"
+    data-fx-row
+    data-fx-kind="{% if f.is_home_for_club %}home{% elif f.is_away_for_club %}away{% else %}all{% endif %}"
+    data-fx-state="{% if f.display_status == 'upcoming' %}upcoming{% elif f.display_status == 'approved' or f.display_status == 'completed' %}result{% else %}pending{% endif %}"
+>
+    <span class="mgl-fx-num">{{ f.display_index }}</span>
+    <span class="mgl-fx-venue {% if f.is_home_for_club %}is-home{% elif f.is_away_for_club %}is-away{% endif %}" title="{% if f.is_home_for_club %}HOME{% elif f.is_away_for_club %}AWAY{% else %}FIXTURE{% endif %}">
+        {% if f.is_away_for_club %}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 14h7l3-4h6l-2 6H4z"/><path d="M8 10 6 6h4"/></svg>
+        {% else %}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 11 12 5l8 6v8H4z"/><path d="M10 19v-6h4v6"/></svg>
+        {% endif %}
+    </span>
+    <div class="mgl-fx-club-name mgl-fx-home {% if team and f.home_team_id == team.id %}is-own{% endif %}">
+        {% team_logo f.home_team "xs" %}
+        <a href="{% club_url f.home_team %}">{{ f.home_team.name|upper }}</a>
+    </div>
+    <div class="mgl-fx-ko">
+        {% if f.is_official and f.home_goals is not None and f.away_goals is not None %}
+            <span class="mgl-fx-score">{{ f.home_goals }}–{{ f.away_goals }}</span>
+        {% elif f.home_goals is not None and f.away_goals is not None %}
+            <span class="mgl-fx-score is-pending">{{ f.home_goals }}–{{ f.away_goals }}</span>
+        {% elif f.scheduled_at %}
+            <span>{{ f.scheduled_at|date:"H:i" }}</span>
+        {% else %}
+            <span>TBC</span>
+        {% endif %}
+    </div>
+    <div class="mgl-fx-club-name mgl-fx-away {% if team and f.away_team_id == team.id %}is-own{% endif %}">
+        {% team_logo f.away_team "xs" %}
+        <a href="{% club_url f.away_team %}">{{ f.away_team.name|upper }}</a>
+    </div>
+    <div class="mgl-fx-when">
+        <span>{% if f.scheduled_at %}{{ f.scheduled_at|date:"D, d M Y" }}{% else %}Date TBC{% endif %}</span>
+        <b class="mgl-fx-badge is-{{ f.display_status }}">{{ f.display_status_label }}</b>
+    </div>
+    <a class="mgl-fx-arrow" href="{% url 'fixture_stats' f.id %}" aria-label="Open match statistics for {{ f.home_team.name }} vs {{ f.away_team.name }}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+    </a>
+</article>

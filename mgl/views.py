@@ -43,7 +43,7 @@ from .market import (
     token_balance_for_user,
 )
 from .nav import COMPETITIONS, LIVE_COMPETITION_SLUGS, live_competition_choices
-from .permissions import approved_manager, owner_admin_required
+from .permissions import approved_manager, is_owner_or_admin, owner_admin_required
 from .player_state import (
     AUCTION,
     CLUB_PLAYER,
@@ -635,29 +635,88 @@ def manager_hub(request):
 
 
 def fixture_list(request):
+    from mgl.fixture_display import (
+        annotate_fixtures,
+        calendar_months,
+        club_standings,
+        deadline_context,
+        group_by_month,
+        summary_for,
+    )
+
     league = active_league()
+    team = None
+    if request.user.is_authenticated:
+        team = (
+            Team.objects.select_related("league")
+            .filter(manager=request.user)
+            .first()
+        )
+
+    divisions = list(
+        League.objects.filter(is_active=True).order_by("display_order", "id")
+    )
+    admin_view = is_owner_or_admin(request.user) if request.user.is_authenticated else False
+    if team and team.league_id and not admin_view:
+        league = team.league
+    elif request.GET.get("league"):
+        picked = next(
+            (row for row in divisions if str(row.id) == str(request.GET.get("league"))),
+            None,
+        )
+        if picked is not None and (admin_view or not team):
+            league = picked
+
     fixtures = (
-        Fixture.objects
-        .filter(is_released=True)
+        Fixture.objects.filter(is_released=True)
         .select_related(
             "home_team",
             "away_team",
+            "home_team__manager",
+            "away_team__manager",
             "league",
         )
+        .order_by("matchweek", "scheduled_at", "id")
     )
     if league:
         fixtures = fixtures.filter(league=league)
-    team = None
-    if request.user.is_authenticated:
-        team = getattr(request.user, "managed_team", None)
+    if team and not admin_view:
+        fixtures = fixtures.filter(Q(home_team=team) | Q(away_team=team))
 
+    viewer = request.user if request.user.is_authenticated else None
+    fixtures = annotate_fixtures(fixtures, team, viewer)
+    standings_row, league_size = (None, 0)
+    if team:
+        standings_row, league_size = club_standings(team.league, team)
+    roster_count = team.players.count() if team else 0
+    upcoming = [
+        row
+        for row in fixtures
+        if not row.is_official
+    ]
+    results = [
+        row
+        for row in fixtures
+        if row.is_official or row.submission_row is not None
+    ]
     return render(
         request,
         "mgl/fixtures.html",
         {
             "fixtures": fixtures,
+            "fixture_groups": group_by_month(upcoming or fixtures),
+            "result_groups": group_by_month(results),
+            "calendar_months": calendar_months(fixtures),
             "team": team,
             "active_league": league,
+            "divisions": divisions,
+            "admin_view": admin_view,
+            "standings_row": standings_row,
+            "league_size": league_size,
+            "roster_count": roster_count,
+            "summary": summary_for(fixtures, standings_row),
+            "deadline_info": deadline_context(fixtures),
+            "manager": approved_manager(request.user) if request.user.is_authenticated else None,
         },
     )
 
@@ -676,9 +735,13 @@ def submit_match(request, fixture_id):
         is_released=True,
     )
 
-    manager = approved_manager(request.user)
+    from mgl.fixture_display import side_review, workflow_step
+    from mgl.models import ManagerNotification
 
-    if not manager:
+    manager = approved_manager(request.user)
+    admin_view = is_owner_or_admin(request.user)
+
+    if not manager and not admin_view:
         messages.error(
             request,
             "You must be an approved manager to submit a result.",
@@ -689,23 +752,40 @@ def submit_match(request, fixture_id):
         fixture.home_team.manager_id,
         fixture.away_team.manager_id,
     ]
+    involved = request.user.id in allowed_managers
 
-    if request.user.id not in allowed_managers:
+    if not involved and not admin_view:
         messages.error(
             request,
             "You can only submit a result for a fixture that involves your club.",
         )
         return redirect("fixture_list")
 
-    existing = MatchSubmission.objects.filter(fixture=fixture).first()
-    if existing is not None and submission_blocks_resubmit(existing):
-        messages.error(
-            request,
-            "This match has already been submitted.",
+    existing = (
+        MatchSubmission.objects.filter(fixture=fixture)
+        .prefetch_related(
+            "team_stats__goal_events__player",
+            "team_stats__assist_events__player",
+            "team_stats__defender_ratings__player",
+            "team_stats__gk_saves__player",
         )
-        return redirect("fixture_list")
+        .first()
+    )
+    readonly = bool(existing is not None and submission_blocks_resubmit(existing))
 
     if request.method == "POST":
+        if not involved:
+            messages.error(
+                request,
+                "You can only submit a result for a fixture that involves your club.",
+            )
+            return redirect("fixture_list")
+        if readonly:
+            messages.error(
+                request,
+                "This match has already been submitted.",
+            )
+            return redirect("fixture_list")
         try:
             submission = save_match_submission(fixture, request.user, request.POST)
         except MatchSubmitError as exc:
@@ -730,16 +810,31 @@ def submit_match(request, fixture_id):
         )
         defenders = [row for row in players if row.position in {"CB", "LB", "RB", "LWB", "RWB"}]
         keepers = [row for row in players if (row.position or "").upper() == "GK"]
-        sides.append(
-            {
-                "team": team,
-                "prefix": prefix,
-                "label": "HOME" if prefix == "home" else "AWAY",
-                "players": players,
-                "defenders": defenders,
-                "keepers": keepers,
-            }
-        )
+        side = {
+            "team": team,
+            "prefix": prefix,
+            "label": "HOME" if prefix == "home" else "AWAY",
+            "players": players,
+            "defenders": defenders,
+            "keepers": keepers,
+        }
+        if readonly:
+            side = side_review(side, existing)
+        sides.append(side)
+
+    opponent_notice = None
+    if (
+        existing is not None
+        and existing.opponent_response == "PENDING"
+        and involved
+        and existing.submitted_by_id != request.user.id
+    ):
+        opponent_notice = ManagerNotification.objects.filter(
+            recipient=request.user,
+            fixture=fixture,
+            source_key=f"score-submitted-{fixture.pk}",
+            response_status=ManagerNotification.PENDING,
+        ).first()
 
     return render(
         request,
@@ -748,6 +843,11 @@ def submit_match(request, fixture_id):
             "fixture": fixture,
             "sides": sides,
             "card_choices": range(0, 12),
+            "readonly": readonly,
+            "submission": existing,
+            "workflow_step": workflow_step(existing),
+            "opponent_notice": opponent_notice,
+            "can_submit": involved and not readonly,
         },
     )
 

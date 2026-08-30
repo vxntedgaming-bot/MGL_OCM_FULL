@@ -1,0 +1,257 @@
+/* Match stats entry page only. */
+
+body.mgl-ms-page {
+    background:
+        radial-gradient(ellipse at 50% 0%, rgba(197, 157, 95, 0.08), transparent 42%),
+        #050505;
+}
+
+.mgl-ms-page .mgl-main {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 24px 20px 64px;
+}
+
+.mgl-ms {
+    display: grid;
+    gap: 22px;
+    color: #fff;
+    font-family: var(--font-body, "Manrope", Arial, Helvetica, sans-serif);
+}
+
+.mgl-ms-back {
+    width: fit-content;
+    color: #c59d5f;
+    font-family: var(--font-display, "Barlow Condensed", sans-serif);
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-decoration: none;
+}
+
+.mgl-ms-hero {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 16px;
+    padding: 22px 10px 8px;
+}
+
+.mgl-ms-side {
+    display: grid;
+    justify-items: center;
+    gap: 10px;
+    text-align: center;
+}
+
+.mgl-ms-side h1 {
+    margin: 0;
+    font-family: var(--font-display, "Barlow Condensed", sans-serif);
+    font-size: clamp(22px, 3vw, 36px);
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.mgl-ms-side .mgl-team-logo,
+.mgl-ms-side .mgl-team-logo-xl {
+    width: 88px;
+    height: 88px;
+}
+
+.mgl-ms-vs {
+    text-align: center;
+}
+
+.mgl-ms-vs strong {
+    display: block;
+    color: #c59d5f;
+    font-family: var(--font-display, "Barlow Condensed", sans-serif);
+    font-size: 28px;
+}
+
+.mgl-ms-vs p {
+    display: grid;
+    gap: 4px;
+    margin: 8px 0 0;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.mgl-ms-steps {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.mgl-ms-steps li {
+    padding: 10px 6px;
+    border-bottom: 3px solid rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.4);
+    font-family: var(--font-display, "Barlow Condensed", sans-serif);
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-align: center;
+}
+
+.mgl-ms-steps li.is-current,
+.mgl-ms-steps li.is-done {
+    color: #c59d5f;
+    border-bottom-color: #c59d5f;
+}
+
+.mgl-ms-alert {
+    padding: 12px 16px;
+    border: 1px solid rgba(197, 157, 95, 0.45);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.mgl-ms-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.mgl-ms-col {
+    padding: 20px;
+    background: #0d1118;
+    border: 1px solid rgba(197, 157, 95, 0.28);
+    border-radius: 12px;
+}
+
+.mgl-ms-col h2 {
+    margin: 0 0 16px;
+    font-family: var(--font-display, "Barlow Condensed", sans-serif);
+    font-size: 22px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.mgl-ms-col h3 {
+    margin: 18px 0 8px;
+    color: #c59d5f;
+    font-family: var(--font-display, "Barlow Condensed", sans-serif);
+    font-size: 13px;
+    letter-spacing: 0.12em;
+}
+
+.mgl-ms-topline,
+.mgl-ms-cards,
+.mgl-ms-players {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.mgl-ms-cards,
+.mgl-ms-players {
+    grid-template-columns: 1fr 1fr;
+}
+
+.mgl-ms-col label,
+.mgl-ms-topline > div {
+    display: grid;
+    gap: 6px;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+}
+
+.mgl-ms-col input,
+.mgl-ms-col select,
+.mgl-match-slots select {
+    min-height: 40px;
+    padding: 0 10px;
+    border: 1px solid rgba(197, 157, 95, 0.45);
+    border-radius: 6px;
+    background: #080b10;
+    color: #fff;
+}
+
+.mgl-ms-topline strong {
+    color: #fff;
+    font-family: var(--font-display, "Barlow Condensed", sans-serif);
+    font-size: 28px;
+}
+
+.mgl-match-slots {
+    display: grid;
+    gap: 8px;
+}
+
+.mgl-match-slots label {
+    display: grid;
+    gap: 6px;
+}
+
+.mgl-ms-event {
+    margin: 0 0 6px;
+}
+
+.mgl-ms-muted {
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 13px;
+}
+
+.mgl-ms-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.mgl-ms-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 18px;
+    border-radius: 6px;
+    font-family: var(--font-display, "Barlow Condensed", sans-serif);
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.mgl-ms-btn-ghost {
+    border: 1px solid #c59d5f;
+    background: transparent;
+    color: #fff;
+}
+
+.mgl-ms-btn-solid {
+    border: 1px solid #c59d5f;
+    background: #c59d5f;
+    color: #111;
+}
+
+@media (max-width: 860px) {
+    .mgl-ms-hero,
+    .mgl-ms-grid,
+    .mgl-ms-steps,
+    .mgl-ms-topline,
+    .mgl-ms-cards,
+    .mgl-ms-players {
+        grid-template-columns: 1fr;
+    }
+
+    .mgl-ms-actions {
+        justify-content: stretch;
+    }
+
+    .mgl-ms-btn,
+    .mgl-ms-actions form {
+        width: 100%;
+    }
+}

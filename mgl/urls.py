@@ -142,6 +142,11 @@ urlpatterns = [
         views.submit_match,
         name="submit_match",
     ),
+    path(
+        "fixtures/<int:fixture_id>/stats/",
+        views.submit_match,
+        name="fixture_stats",
+    ),
 
     path(
         "fixtures/<int:fixture_id>/press/",

@@ -1,35 +1,234 @@
 {% extends "core/base.html" %}
-{% load mgl_ui %}
+{% load static mgl_ui %}
 
 {% block title %}Fixtures — MGL{% endblock %}
+{% block body_class %}mgl-fx-page{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/mgl-fixtures.css' %}?v=fx-1">
+{% endblock %}
 
 {% block content %}
-<section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">MATCH CENTRE</div>
-            <h2>{% if active_league %}{{ active_league|league_label|upper }} FIXTURES{% else %}FIXTURES{% endif %}</h2>
+<div class="mgl-fx">
+    <header class="mgl-fx-title">
+        <div class="mgl-fx-title-copy">
+            <svg class="mgl-fx-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <rect x="3.5" y="5" width="17" height="16" rx="2"/>
+                <path d="M8 3.5v3M16 3.5v3M3.5 10h17"/>
+            </svg>
+            <div>
+                <h1>FIXTURES</h1>
+                <p>VIEW ALL FIXTURES AND RESULTS.</p>
+            </div>
         </div>
-        <span class="section-line"></span>
+        <form class="mgl-fx-filters" method="get" action="{% url 'fixture_list' %}">
+            <label>
+                <span>LEAGUE</span>
+                <select name="league" {% if team and not admin_view %}disabled{% endif %} onchange="this.form.submit()">
+                    {% for row in divisions %}
+                        <option value="{{ row.id }}" {% if active_league and row.id == active_league.id %}selected{% endif %}>{{ row|league_label|upper }}</option>
+                    {% empty %}
+                        <option>{% if active_league %}{{ active_league|league_label|upper }}{% else %}NO ACTIVE LEAGUE{% endif %}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>
+                <span>SEASON</span>
+                <select disabled>
+                    <option>{% if active_league and active_league.season %}SEASON {{ active_league.season }}{% else %}CURRENT SEASON{% endif %}</option>
+                </select>
+            </label>
+        </form>
+    </header>
+
+    <section class="mgl-fx-club">
+        <div class="mgl-fx-club-main">
+            <div class="mgl-fx-club-badge">
+                {% if team %}
+                    {% team_logo team "xl" %}
+                {% else %}
+                    <span class="mgl-fx-club-badge-empty" aria-hidden="true">MGL</span>
+                {% endif %}
+            </div>
+            <div>
+                <h2>{% if team %}{{ team.name }}{% else %}FIXTURE CENTRE{% endif %}</h2>
+                <p class="mgl-fx-club-meta">
+                    {% if user.is_authenticated %}<span>@{{ user.username }}</span>{% endif %}
+                    {% if team and team.league %}
+                        <span>{{ team.league|league_label }}</span>
+                        <span>Squad: {{ roster_count }}/{{ team.roster_limit }}</span>
+                    {% elif active_league %}
+                        <span>{{ active_league|league_label }}</span>
+                    {% endif %}
+                </p>
+                {% if user.is_authenticated %}
+                    <a class="mgl-fx-notify" href="{% url 'manager_notifications' %}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 9a6 6 0 0 1 12 0c0 7 2 8 2 8H4s2-1 2-8"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>
+                        NOTIFICATIONS
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="mgl-fx-club-stats">
+            <div>
+                <span>POSITION</span>
+                <strong>{% if standings_row %}{{ standings_row.position }}{% if league_size %} / {{ league_size }}{% endif %}{% else %}—{% endif %}</strong>
+            </div>
+            <div>
+                <span>POINTS</span>
+                <strong>{% if standings_row %}{{ standings_row.points }}{% else %}0{% endif %}</strong>
+            </div>
+            <div>
+                <span>PLAYED</span>
+                <strong>{% if standings_row %}{{ standings_row.played }}{% else %}0{% endif %}</strong>
+            </div>
+            <div>
+                <span>WINS</span>
+                <strong>{% if standings_row %}{{ standings_row.wins }}{% else %}0{% endif %}</strong>
+            </div>
+            <div>
+                <span>DRAWS</span>
+                <strong>{% if standings_row %}{{ standings_row.draws }}{% else %}0{% endif %}</strong>
+            </div>
+            <div>
+                <span>LOSSES</span>
+                <strong>{% if standings_row %}{{ standings_row.losses }}{% else %}0{% endif %}</strong>
+            </div>
+            <div>
+                <span>GOAL DIFF</span>
+                <strong>{% if standings_row %}{{ standings_row.gd }}{% else %}0{% endif %}</strong>
+            </div>
+        </div>
+    </section>
+
+    {% if deadline_info.has_deadline or deadline_info.batch_number or deadline_info.released_count %}
+        <aside class="mgl-fx-deadline {% if deadline_info.approaching %}is-soon{% endif %} {% if deadline_info.passed %}is-passed{% endif %}">
+            <div>
+                {% if deadline_info.batch_number %}<strong>ROUND {{ deadline_info.batch_number }}</strong>{% endif %}
+                <span>{{ deadline_info.released_count }} FIXTURE{{ deadline_info.released_count|pluralize }} RELEASED</span>
+            </div>
+            {% if deadline_info.has_deadline %}
+                <div>
+                    <span>DEADLINE</span>
+                    <strong>{{ deadline_info.deadline|date:"d M Y"|upper }}</strong>
+                    {% if deadline_info.passed %}
+                        <em>DEADLINE PASSED — AWAITING ADMIN REVIEW</em>
+                    {% elif deadline_info.days_left is not None %}
+                        <em>{{ deadline_info.days_left }} DAY{{ deadline_info.days_left|pluralize }} REMAINING</em>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </aside>
+    {% endif %}
+
+    <div class="mgl-fx-tabs" role="tablist">
+        <button type="button" class="is-active" data-fx-tab="fixtures" role="tab" aria-selected="true">FIXTURES</button>
+        <button type="button" data-fx-tab="results" role="tab" aria-selected="false">RESULTS</button>
+        <button type="button" data-fx-tab="calendar" role="tab" aria-selected="false">CALENDAR</button>
     </div>
 
-    {% for f in fixtures %}
-        <article class="match-panel mgl-fixture-card">
-            <div class="match-row">
-                <span class="match-date">{{ f.scheduled_at|date:"d M"|upper|default:"TBC" }}</span>
-                <strong class="mgl-standings-club">{% team_logo f.home_team "xs" %} <a href="{% club_url f.home_team %}">{{ f.home_team.name }}</a></strong>
-                <span class="vs">VS</span>
-                <strong class="mgl-standings-club">{% team_logo f.away_team "xs" %} <a href="{% club_url f.away_team %}">{{ f.away_team.name }}</a></strong>
-                <span class="match-time">{{ f.status }}</span>
+    <div class="mgl-fx-toolbar">
+        <label class="mgl-fx-filter">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+            <select id="fx-kind">
+                <option value="all">ALL FIXTURES</option>
+                <option value="home">HOME</option>
+                <option value="away">AWAY</option>
+                <option value="upcoming">UPCOMING</option>
+                <option value="pending">PENDING</option>
+            </select>
+        </label>
+        <div class="mgl-fx-key" aria-label="Fixture key">
+            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 11 12 5l8 6v8H4z"/><path d="M10 19v-6h4v6"/></svg> HOME</span>
+            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 14h7l3-4h6l-2 6H4z"/><path d="M8 10 6 6h4"/></svg> AWAY</span>
+            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v4.2L15 14"/></svg> KO TIME (GMT)</span>
+        </div>
+    </div>
+
+    <section data-fx-panel="fixtures">
+        {% for group in fixture_groups %}
+            <h3 class="mgl-fx-month">{{ group.label }}</h3>
+            {% for f in group.fixtures %}
+                {% include "mgl/includes/fixture_row.html" %}
+            {% endfor %}
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with kicker="UPCOMING FIXTURES" title="NO FIXTURES HAVE BEEN RELEASED YET" %}
+        {% endfor %}
+    </section>
+
+    <section data-fx-panel="results" hidden>
+        {% for group in result_groups %}
+            <h3 class="mgl-fx-month">{{ group.label }}</h3>
+            {% for f in group.fixtures %}
+                {% include "mgl/includes/fixture_row.html" %}
+            {% endfor %}
+        {% empty %}
+            <div class="mgl-fx-empty">
+                <p>No match statistics have been submitted for your fixtures yet.</p>
             </div>
-            {% if f.status == 'SCHEDULED' %}
-                {% if team.id == f.home_team_id or team.id == f.away_team_id %}
-                    <a class="primary-button" href="{% url 'submit_match' f.id %}">SUBMIT RESULT / PLAYER STATS</a>
-                {% endif %}
-            {% endif %}
+        {% endfor %}
+    </section>
+
+    <section data-fx-panel="calendar" hidden>
+        {% for month in calendar_months %}
+            <div class="mgl-fx-cal">
+                <h3 class="mgl-fx-month">{{ month.label }}</h3>
+                <div class="mgl-fx-cal-head">
+                    <span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span>
+                </div>
+                {% for week in month.weeks %}
+                    <div class="mgl-fx-cal-week">
+                        {% for day in week %}
+                            <div class="mgl-fx-cal-day {% if day.fixtures %}has-match{% endif %}">
+                                {% if day %}
+                                    <span>{{ day.day }}</span>
+                                    {% for f in day.fixtures %}
+                                        <a href="{% url 'fixture_stats' f.id %}">
+                                            {{ f.home_team.short_name }} v {{ f.away_team.short_name }}
+                                            {% if f.scheduled_at %}{{ f.scheduled_at|date:"H:i" }}{% endif %}
+                                        </a>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% empty %}
+            <div class="mgl-fx-empty">
+                <p>No scheduled dates are available for the current fixtures.</p>
+            </div>
+        {% endfor %}
+    </section>
+
+    <section class="mgl-fx-summary">
+        <article>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M8 3.5v3M16 3.5v3M3.5 10h17"/></svg>
+            <strong>{{ summary.total }}</strong>
+            <span>TOTAL FIXTURES</span>
+            <em>THIS SEASON</em>
         </article>
-    {% empty %}
-        {% include "mgl/includes/empty_state.html" with kicker="UPCOMING FIXTURES" title="NO FIXTURES HAVE BEEN RELEASED YET" %}
-    {% endfor %}
-</section>
+        <article>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="m8.5 12.2 2.4 2.3 4.7-5"/></svg>
+            <strong>{{ summary.played }}</strong>
+            <span>PLAYED</span>
+            <em>{{ summary.played_pct }}%</em>
+        </article>
+        <article>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v4.2L15 14"/></svg>
+            <strong>{{ summary.remaining }}</strong>
+            <span>REMAINING</span>
+            <em>{{ summary.remaining_pct }}%</em>
+        </article>
+        <article>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4v16M4 12h16"/></svg>
+            <strong>{{ summary.average_goals }}</strong>
+            <span>AVERAGE GOALS</span>
+            <em>PER MATCH</em>
+        </article>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'core/js/mgl-fixtures.js' %}?v=fx-1"></script>
 {% endblock %}

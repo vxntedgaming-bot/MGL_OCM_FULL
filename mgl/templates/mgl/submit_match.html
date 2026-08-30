@@ -1,92 +1,199 @@
 {% extends "core/base.html" %}
-{% load static %}
+{% load static mgl_ui %}
 
-{% block title %}Submit Match — MGL{% endblock %}
+{% block title %}Match Stats — {{ fixture.home_team.name }} vs {{ fixture.away_team.name }}{% endblock %}
+{% block body_class %}mgl-ms-page{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/mgl-match-stats.css' %}?v=ms-1">
+{% endblock %}
 
 {% block content %}
-<section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">MATCH CENTRE</div>
-            <h2>{{ fixture.home_team.name }} VS {{ fixture.away_team.name }}</h2>
+<div class="mgl-ms">
+    <a class="mgl-ms-back" href="{% url 'fixture_list' %}">← BACK TO FIXTURES</a>
+
+    <header class="mgl-ms-hero">
+        <div class="mgl-ms-side">
+            {% team_logo fixture.home_team "xl" %}
+            <h1>{{ fixture.home_team.name }}</h1>
         </div>
-        <a href="{% url 'fixture_list' %}" class="view-all">FIXTURES →</a>
+        <div class="mgl-ms-vs">
+            <strong>VS</strong>
+            <p>
+                {% if fixture.scheduled_at %}
+                    <span>{{ fixture.scheduled_at|date:"D, d M Y" }}</span>
+                    <span>{{ fixture.scheduled_at|date:"H:i" }} GMT</span>
+                {% else %}
+                    <span>Date TBC</span>
+                {% endif %}
+                {% if fixture.matchweek %}<span>Gameweek {{ fixture.matchweek }}</span>{% endif %}
+            </p>
+        </div>
+        <div class="mgl-ms-side">
+            {% team_logo fixture.away_team "xl" %}
+            <h1>{{ fixture.away_team.name }}</h1>
+        </div>
+    </header>
+
+    <ol class="mgl-ms-steps">
+        <li class="{% if workflow_step == 1 %}is-current{% elif workflow_step > 1 %}is-done{% endif %}">1. ENTER STATS</li>
+        <li class="{% if workflow_step == 2 %}is-current{% elif workflow_step > 2 %}is-done{% endif %}">2. REVIEW</li>
+        <li class="{% if workflow_step == 3 %}is-current{% elif workflow_step > 3 %}is-done{% endif %}">3. CONFIRM</li>
+        <li class="{% if workflow_step == 4 %}is-current{% elif workflow_step > 4 %}is-done{% endif %}">4. SUBMIT</li>
+        <li class="{% if workflow_step >= 5 %}is-current{% endif %}">5. PENDING APPROVAL</li>
+    </ol>
+
+    <div class="mgl-ms-alert">
+        {% if readonly %}
+            {% if submission and submission.opponent_response == "PENDING" %}
+                Submitted statistics are waiting for the opposing manager. They stay unofficial until both managers confirm and Admin approves.
+            {% elif submission and submission.opponent_response == "APPROVED" and submission.status == "PENDING" %}
+                Both managers have confirmed this result. It is pending Admin approval and has not updated the official table.
+            {% elif submission and submission.status == "APPROVED" %}
+                This result has been approved and is the official MGL record.
+            {% else %}
+                This match has already been submitted.
+            {% endif %}
+        {% else %}
+            Enter the full match statistics for both teams. Player ratings must be between 0 and 10. Goalkeeper saves must be between 0 and 20. Home and away possession must add up to 100%.
+        {% endif %}
     </div>
 
-    <form method="post" class="mgl-form mgl-match-form" id="mgl-match-form">
-        {% csrf_token %}
-        <div class="dashboard-panel mgl-match-score" style="margin-bottom:24px;padding:24px">
-            <div class="panel-heading"><span>MATCH RESULT</span></div>
-            <p class="mgl-hub-note">{{ fixture.home_team.name }} (home) vs {{ fixture.away_team.name }} (away){% if fixture.matchweek %} · Gameweek {{ fixture.matchweek }}{% endif %}</p>
+    {% if readonly %}
+        <div class="mgl-ms-grid">
+            {% for side in sides %}
+                <section class="mgl-ms-col">
+                    <h2>{{ side.label }} · {{ side.team.name }}</h2>
+                    <div class="mgl-ms-topline">
+                        <div><span>GOALS</span><strong>{% if side.stats %}{{ side.stats.goals }}{% else %}—{% endif %}</strong></div>
+                        <div><span>POSSESSION (%)</span><strong>{% if side.stats %}{{ side.stats.possession }}{% else %}—{% endif %}</strong></div>
+                        <div><span>SHOTS</span><strong>{% if side.stats %}{{ side.stats.shots }}{% else %}—{% endif %}</strong></div>
+                    </div>
+                    <h3>GOAL SCORERS</h3>
+                    {% for event in side.scorers %}
+                        <p class="mgl-ms-event">{{ event.player.name }}{% if event.minute %} · {{ event.minute }}′{% endif %}</p>
+                    {% empty %}
+                        <p class="mgl-ms-muted">No scorers recorded.</p>
+                    {% endfor %}
+                    <h3>ASSISTS</h3>
+                    {% for event in side.assists %}
+                        <p class="mgl-ms-event">{{ event.player.name }}</p>
+                    {% empty %}
+                        <p class="mgl-ms-muted">No assists recorded.</p>
+                    {% endfor %}
+                    <h3>YELLOW / RED CARDS</h3>
+                    <p class="mgl-ms-event">{% if side.stats %}{{ side.stats.yellow_cards }} yellow · {{ side.stats.red_cards }} red{% else %}—{% endif %}</p>
+                    <h3>DEFENDER RATINGS (0–10)</h3>
+                    {% for row in side.ratings %}
+                        <p class="mgl-ms-event">{{ row.player.name }} · {{ row.rating }}</p>
+                    {% empty %}
+                        <p class="mgl-ms-muted">No defender ratings recorded.</p>
+                    {% endfor %}
+                    <h3>GOALKEEPER SAVES (0–20)</h3>
+                    {% for row in side.saves %}
+                        <p class="mgl-ms-event">{{ row.player.name }} · {{ row.saves }}</p>
+                    {% empty %}
+                        <p class="mgl-ms-muted">No saves recorded.</p>
+                    {% endfor %}
+                </section>
+            {% endfor %}
         </div>
-        {% for side in sides %}
-            <div class="dashboard-panel mgl-match-side" style="margin-bottom:24px;padding:24px" data-prefix="{{ side.prefix }}">
-                <div class="panel-heading">
-                    <span>{{ side.label }}</span>
-                    <b>{{ side.team.name }}</b>
-                </div>
+        <div class="mgl-ms-actions">
+            <a class="mgl-ms-btn mgl-ms-btn-ghost" href="{% url 'fixture_list' %}">BACK TO FIXTURES</a>
+            {% if opponent_notice %}
+                <form method="post" action="{% url 'manager_notification_respond' opponent_notice.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="accept">
+                    <button class="mgl-ms-btn mgl-ms-btn-solid" type="submit">CONFIRM</button>
+                </form>
+                <form method="post" action="{% url 'manager_notification_respond' opponent_notice.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="reject">
+                    <button class="mgl-ms-btn mgl-ms-btn-ghost" type="submit">REJECT / REQUEST CHANGES</button>
+                </form>
+            {% else %}
+                <a class="mgl-ms-btn mgl-ms-btn-ghost" href="{% url 'manager_notifications' %}">OPEN NOTIFICATIONS</a>
+            {% endif %}
+        </div>
+    {% else %}
+        <form method="post" class="mgl-form mgl-match-form" id="mgl-match-form">
+            {% csrf_token %}
+            <div class="mgl-ms-grid">
+                {% for side in sides %}
+                    <section class="mgl-ms-col mgl-match-side" data-prefix="{{ side.prefix }}">
+                        <h2>{{ side.label }} · {{ side.team.name }}</h2>
+                        <div class="mgl-ms-topline">
+                            <label>GOALS
+                                <input type="number" class="js-goals" name="{{ side.prefix }}_goals" min="0" max="30" value="0" required>
+                            </label>
+                            <label>POSSESSION (%)
+                                <input type="number" name="{{ side.prefix }}_possession" min="0" max="100" value="50">
+                            </label>
+                            <label>SHOTS
+                                <input type="number" name="{{ side.prefix }}_shots" min="0" max="100" value="0">
+                            </label>
+                        </div>
 
-                <div class="mgl-match-grid">
-                    <label>Goals
-                        <input type="number" class="js-goals" name="{{ side.prefix }}_goals" min="0" max="30" value="0" required>
-                    </label>
-                    <label>Shots
-                        <input type="number" name="{{ side.prefix }}_shots" min="0" max="100" value="0">
-                    </label>
-                    <label>Possession %
-                        <input type="number" name="{{ side.prefix }}_possession" min="0" max="100" value="50">
-                    </label>
-                    <label>Yellow cards
-                        <select name="{{ side.prefix }}_yellow_cards">
-                            {% for n in card_choices %}<option value="{{ n }}">{{ n }}</option>{% endfor %}
+                        {% if side.defenders %}
+                            <h3>DEFENDER RATINGS (0.0–10.0)</h3>
+                            <div class="mgl-ms-players">
+                                {% for player in side.defenders %}
+                                    <label>
+                                        <span>{{ player.position }} · {{ player.name }}</span>
+                                        <input type="number" step="0.1" min="0" max="10" name="{{ side.prefix }}_def_{{ player.id }}" placeholder="e.g. 7.4">
+                                    </label>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        {% if side.keepers %}
+                            <h3>GOALKEEPER SAVES (0–20)</h3>
+                            <div class="mgl-ms-players">
+                                {% for player in side.keepers %}
+                                    <label>
+                                        <span>GK · {{ player.name }}</span>
+                                        <input type="number" min="0" max="20" name="{{ side.prefix }}_save_{{ player.id }}">
+                                    </label>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <h3>GOAL SCORERS</h3>
+                        <noscript><p class="mgl-hub-note">Enable JavaScript to add a player dropdown for each goal. The server still checks every selection.</p></noscript>
+                        <div class="js-goal-slots mgl-match-slots"></div>
+                        <h3>GOAL ASSISTS</h3>
+                        <p class="mgl-hub-note">Leave Unassisted if nobody provided the assist.</p>
+                        <div class="js-assist-slots mgl-match-slots"></div>
+
+                        <select class="js-player-options" hidden>
+                            {% for player in side.players %}
+                                <option value="{{ player.id }}">{{ player.name }} — {{ player.position }}</option>
+                            {% endfor %}
                         </select>
-                    </label>
-                    <label>Red cards
-                        <select name="{{ side.prefix }}_red_cards">
-                            {% for n in card_choices %}<option value="{{ n }}">{{ n }}</option>{% endfor %}
-                        </select>
-                    </label>
-                </div>
 
-                <h3>Goals</h3>
-                <noscript><p class="mgl-hub-note">Enable JavaScript to add a player dropdown for each goal. The server still checks every selection.</p></noscript>
-                <div class="js-goal-slots mgl-match-slots"></div>
-                <h3>Assists</h3>
-                <p class="mgl-hub-note">Leave Unassisted if nobody provided the assist.</p>
-                <div class="js-assist-slots mgl-match-slots"></div>
-
-                <select class="js-player-options" hidden>
-                    {% for player in side.players %}
-                        <option value="{{ player.id }}">{{ player.name }} — {{ player.position }}</option>
-                    {% endfor %}
-                </select>
-
-                {% if side.defenders %}
-                <h3>Defender ratings (0.0–10.0)</h3>
-                <div class="mgl-match-grid">
-                    {% for player in side.defenders %}
-                        <label>{{ player.name }}
-                            <input type="number" step="0.1" min="0" max="10" name="{{ side.prefix }}_def_{{ player.id }}" placeholder="e.g. 7.4">
-                        </label>
-                    {% endfor %}
-                </div>
-                {% endif %}
-
-                {% if side.keepers %}
-                <h3>Goalkeeper saves</h3>
-                <div class="mgl-match-grid">
-                    {% for player in side.keepers %}
-                        <label>{{ player.name }}
-                            <input type="number" min="0" max="20" name="{{ side.prefix }}_save_{{ player.id }}">
-                        </label>
-                    {% endfor %}
-                </div>
+                        <div class="mgl-ms-cards">
+                            <label>YELLOW CARDS
+                                <select name="{{ side.prefix }}_yellow_cards">
+                                    {% for n in card_choices %}<option value="{{ n }}">{{ n }}</option>{% endfor %}
+                                </select>
+                            </label>
+                            <label>RED CARDS
+                                <select name="{{ side.prefix }}_red_cards">
+                                    {% for n in card_choices %}<option value="{{ n }}">{{ n }}</option>{% endfor %}
+                                </select>
+                            </label>
+                        </div>
+                    </section>
+                {% endfor %}
+            </div>
+            <div class="mgl-ms-actions">
+                <a class="mgl-ms-btn mgl-ms-btn-ghost" href="{% url 'fixture_list' %}">CANCEL</a>
+                {% if can_submit %}
+                    <button class="mgl-ms-btn mgl-ms-btn-solid" type="submit">SAVE &amp; CONTINUE →</button>
                 {% endif %}
             </div>
-        {% endfor %}
-        <button class="primary-button" type="submit">SEND TO ADMIN APPROVAL</button>
-    </form>
-</section>
+        </form>
+    {% endif %}
+</div>
 {% endblock %}
 
 {% block extra_js %}
