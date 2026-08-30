@@ -136,13 +136,13 @@
                             <span>{{ listing.seller.display_name }}</span>
                         </div>
                         <div class="mgl-market-actions">
-                            <a href="{% url 'player_profile' listing.player.id %}" class="secondary-button">VIEW PLAYER</a>
                             {% if user.is_authenticated and team and team.id != listing.team_id %}
                             <form method="post" action="{% url 'buy_player' listing.id %}">
                                 {% csrf_token %}
-                                <button type="submit" class="primary-button">BUY NOW</button>
+                                <button type="submit" class="mgl-market-action">OFFER</button>
                             </form>
                             {% endif %}
+                            <a href="{% url 'player_profile' listing.player.id %}" class="mgl-market-action">VIEW PLAYER</a>
                         </div>
                     </article>
                 {% endfor %}

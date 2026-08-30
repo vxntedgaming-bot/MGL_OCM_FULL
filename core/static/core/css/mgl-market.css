@@ -337,6 +337,34 @@ body.mgl-market-page {
     gap: 8px;
 }
 
+.mgl-market-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-width: 92px;
+    min-height: 36px;
+    padding: 0 16px;
+    border: 1px solid #ff8b7a;
+    border-radius: 8px;
+    color: #ff8b7a;
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    line-height: 1;
+    text-decoration: none;
+    background: transparent;
+    white-space: nowrap;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.mgl-market-action:hover {
+    background: rgba(255, 139, 122, 0.12);
+}
+
 .mgl-market-actions .mgl-inline-form,
 .mgl-market-actions form {
     display: flex;
@@ -404,6 +432,13 @@ body.mgl-market-page {
 
     .mgl-market-actions {
         grid-column: 1 / -1;
+    }
+
+    .mgl-market-action {
+        min-width: 84px;
+        min-height: 34px;
+        padding: 0 12px;
+        font-size: 12px;
     }
 
     .mgl-market-mobile-label {
