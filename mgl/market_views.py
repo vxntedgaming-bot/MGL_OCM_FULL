@@ -17,9 +17,11 @@ from .market import (
     cancel_live_auction,
     close_expired_auctions,
     club_for_user,
+    create_listed_purchase_offer,
     create_transfer_offer,
     detach_live_club_auction_players,
     list_player_for_sale,
+    locked_squad_player_ids,
     reject_listing,
     settle_auction,
     token_balance_for_user,
@@ -185,6 +187,89 @@ def request_player_transfer(request, player_id):
 
 
 @login_required
+def purchase_listing(request, listing_id):
+    manager = approved_manager(request.user)
+    listing = get_object_or_404(
+        PlayerListing.objects.select_related("player", "team", "seller", "team__manager"),
+        pk=listing_id,
+    )
+    if not manager:
+        messages.error(request, "You must be an approved manager to buy a player.")
+        return redirect("transfer_market")
+    buyer_club = club_for_user(request.user)
+    if not buyer_club:
+        messages.error(request, "You must manage a club to buy a player.")
+        return redirect("transfer_market")
+    if listing.team_id == buyer_club.id:
+        messages.error(request, "You cannot buy your own player.")
+        return redirect("transfer_market")
+    if listing.status != PlayerListing.LIVE:
+        messages.error(request, "This player is not available for purchase.")
+        return redirect("transfer_market")
+
+    if request.method == "POST":
+        offered = None
+        offered_id = (request.POST.get("offered_player") or "").strip()
+        if offered_id:
+            offered = get_object_or_404(Player, pk=offered_id)
+        try:
+            created = create_listed_purchase_offer(
+                listing,
+                manager,
+                request.POST.get("asking_price") or request.POST.get("amount") or "",
+                offered_player=offered,
+            )
+            if created.offered_player_id:
+                extra = f" plus {created.offered_player.name}"
+            else:
+                extra = ""
+            messages.success(
+                request,
+                f"Transfer request sent for {created.player.name} "
+                f"({created.asking_price} TKN{extra}). The selling manager must respond, "
+                "and Owner/Admin approval is still required.",
+            )
+            return redirect("manager_notifications")
+        except ValueError as exc:
+            messages.error(request, str(exc))
+            return redirect("purchase_listing", listing_id)
+
+    seller_squad = list(
+        listing.team.players.select_related("mgl_team").order_by(
+            "position",
+            "-overall",
+            "name",
+        )
+    )
+    buyer_squad = list(
+        buyer_club.players.select_related("mgl_team").order_by(
+            "position",
+            "-overall",
+            "name",
+        )
+    )
+    locked_ids = locked_squad_player_ids(buyer_club)
+    for player in buyer_squad:
+        player.swap_locked = player.id in locked_ids
+        player.swap_eligible = not player.swap_locked
+    return render(
+        request,
+        "mgl/purchase_listing.html",
+        {
+            "listing": listing,
+            "player": listing.player,
+            "selling_team": listing.team,
+            "buying_team": buyer_club,
+            "seller": listing.seller,
+            "manager": manager,
+            "seller_squad": seller_squad,
+            "buyer_squad": buyer_squad,
+            "token_balance": token_balance_for_user(request.user),
+        },
+    )
+
+
+@login_required
 @require_POST
 def buy_player(request, listing_id):
     manager = approved_manager(request.user)
@@ -341,7 +426,7 @@ def control_centre(request):
     pending_listings = PlayerListing.objects.filter(
         status=PlayerListing.PENDING,
         reserved_buyer__isnull=False,
-    ).select_related("player", "team", "seller", "reserved_buyer")
+    ).select_related("player", "team", "seller", "reserved_buyer", "offered_player")
     pending_results = (
         MatchSubmission.objects.filter(
             status=ApprovalStatus.PENDING,

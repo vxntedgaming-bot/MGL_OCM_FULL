@@ -53,6 +53,9 @@
                         {% if listing.reserved_buyer %}
                             · BID FROM {{ listing.reserved_buyer.display_name }}
                         {% endif %}
+                        {% if listing.offered_player %}
+                            · SWAP {{ listing.offered_player.name }}
+                        {% endif %}
                     </span>
                     <form method="post" action="{% url 'control_approve_listing' listing.id %}">{% csrf_token %}<button class="header-button" type="submit">APPROVE</button></form>
                     <form method="post" action="{% url 'control_reject_listing' listing.id %}">{% csrf_token %}<button class="header-button" type="submit">REJECT</button></form>

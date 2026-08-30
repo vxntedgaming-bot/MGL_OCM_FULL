@@ -281,6 +281,13 @@ class PlayerListing(models.Model):
         blank=True,
         related_name="transfer_offers",
     )
+    offered_player = models.ForeignKey(
+        "players.Player",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="listings_as_swap_offer",
+    )
 
     class Meta:
         ordering = ["-created_at"]

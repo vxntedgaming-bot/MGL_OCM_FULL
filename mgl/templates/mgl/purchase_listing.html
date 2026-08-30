@@ -1,0 +1,148 @@
+{% extends "core/base.html" %}
+{% load static mgl_ui %}
+
+{% block title %}Buy {{ player.name }} — MGL{% endblock %}
+{% block body_class %}mgl-purchase-page{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/mgl-purchase.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="mgl-section mgl-purchase-page">
+    <nav class="mgl-purchase-crumbs" aria-label="Purchase location">
+        <a href="{% url 'manager_hub' %}" class="mgl-purchase-crumb">MANAGER HUB</a>
+        <span class="mgl-purchase-crumb-sep" aria-hidden="true">›</span>
+        <a href="{% url 'transfer_market' %}" class="mgl-purchase-crumb">TRANSFER MARKET</a>
+        <span class="mgl-purchase-crumb-sep" aria-hidden="true">›</span>
+        <span class="mgl-purchase-crumb-current">BUY PLAYER</span>
+    </nav>
+
+    <header class="mgl-purchase-hero">
+        <div>
+            <div class="eyebrow">PLAYER TRANSFER</div>
+            <h1>BUY {{ player.name|upper }}</h1>
+            <p class="mgl-purchase-hero-copy">Submit a transfer request to {{ selling_team.name }}. Their manager must accept it, and Owner/Admin approval is still required.</p>
+        </div>
+        <span class="mgl-purchase-token-pill">{{ token_balance }} TOKENS</span>
+    </header>
+
+    <article class="mgl-purchase-target">
+        <div class="eyebrow">PLAYER BEING BOUGHT</div>
+        <div class="mgl-purchase-target-grid">
+            <div>
+                <h2>{{ player.name }}</h2>
+                <p>{{ selling_team.name }} · {{ seller.display_name }}</p>
+            </div>
+            <div class="mgl-purchase-facts">
+                <div>
+                    <span>POS</span>
+                    <strong>{{ player.position }}</strong>
+                </div>
+                <div>
+                    <span>OVR</span>
+                    <strong>{{ player.overall }}</strong>
+                </div>
+                <div>
+                    <span>ASKING PRICE</span>
+                    <strong>{{ listing.asking_price }} TKN</strong>
+                </div>
+                <div>
+                    <span>CLUB</span>
+                    <strong>{{ selling_team.name }}</strong>
+                </div>
+                <div>
+                    <span>MANAGER</span>
+                    <strong>{{ seller.display_name }}</strong>
+                </div>
+            </div>
+        </div>
+    </article>
+
+    <form method="post" action="{% url 'purchase_listing' listing.id %}" class="mgl-purchase-form">
+        {% csrf_token %}
+
+        <div class="mgl-purchase-clubs">
+            <section class="mgl-purchase-club">
+                <div class="mgl-purchase-club-head">
+                    {% team_logo selling_team "md" %}
+                    <div>
+                        <div class="eyebrow">SELLING CLUB</div>
+                        <h2>{{ selling_team.name }}</h2>
+                        <p>{{ seller.display_name }} · {{ seller_squad|length }} players</p>
+                    </div>
+                </div>
+                <p class="mgl-purchase-note">The selling player is locked. You cannot change who you are buying.</p>
+                {% if seller_squad %}
+                <ul class="mgl-purchase-squad">
+                    {% for row in seller_squad %}
+                    <li class="mgl-purchase-player{% if row.id == player.id %} is-target{% endif %}">
+                        <span class="mgl-purchase-player-name">{{ row.name }}</span>
+                        <span class="mgl-pos-badge">{{ row.position }}</span>
+                        <span class="mgl-ovr-badge">{{ row.overall }}</span>
+                        {% if row.id == player.id %}
+                            <span class="mgl-purchase-lock">REQUESTED</span>
+                        {% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                    {% include "mgl/includes/empty_state.html" with title="NO SQUAD PLAYERS" %}
+                {% endif %}
+            </section>
+
+            <section class="mgl-purchase-club">
+                <div class="mgl-purchase-club-head">
+                    {% team_logo buying_team "md" %}
+                    <div>
+                        <div class="eyebrow">BUYING CLUB</div>
+                        <h2>{{ buying_team.name }}</h2>
+                        <p>{{ manager.display_name }} · {{ buyer_squad|length }} players</p>
+                    </div>
+                </div>
+                <p class="mgl-purchase-note">Select one of your own players to include a swap, or leave tokens only selected.</p>
+                <ul class="mgl-purchase-squad">
+                    <li class="mgl-purchase-player is-choice">
+                        <label>
+                            <input type="radio" name="offered_player" value="" checked>
+                            <span class="mgl-purchase-player-name">TOKENS ONLY</span>
+                            <span class="mgl-purchase-lock">NO SWAP</span>
+                        </label>
+                    </li>
+                    {% for row in buyer_squad %}
+                    <li class="mgl-purchase-player is-choice{% if row.swap_locked %} is-locked{% endif %}">
+                        <label>
+                            <input type="radio" name="offered_player" value="{{ row.id }}" {% if row.swap_locked %}disabled{% endif %}>
+                            <span class="mgl-purchase-player-name">{{ row.name }}</span>
+                            <span class="mgl-pos-badge">{{ row.position }}</span>
+                            <span class="mgl-ovr-badge">{{ row.overall }}</span>
+                            {% if row.swap_locked %}
+                                <span class="mgl-purchase-lock">LOCKED</span>
+                            {% endif %}
+                        </label>
+                    </li>
+                    {% empty %}
+                    <li class="mgl-purchase-player">
+                        <span class="mgl-purchase-player-name">No squad players available to swap.</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </section>
+        </div>
+
+        <section class="mgl-purchase-offer">
+            <div class="eyebrow">YOUR OFFER</div>
+            <h2>TOKENS AND SWAP</h2>
+            <p>You receive {{ player.name }}. The selling club receives any selected squad player plus the token amount below. Leave the amount at 0 only if you are offering a player swap.</p>
+            <label class="mgl-purchase-amount">
+                OFFER AMOUNT
+                <input type="number" name="asking_price" min="0" step="0.01" value="{{ listing.asking_price }}" required>
+                <span>TKN</span>
+            </label>
+            <div class="mgl-purchase-actions">
+                <button type="submit" class="mgl-purchase-action">SEND OFFER</button>
+                <a href="{% url 'transfer_market' %}" class="mgl-purchase-action">CANCEL</a>
+            </div>
+        </section>
+    </form>
+</section>
+{% endblock %}

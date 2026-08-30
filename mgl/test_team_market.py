@@ -308,10 +308,13 @@ class TeamMarketListingTests(TestCase):
         buyer = self.client.get(reverse("transfer_market"))
         self.assertContains(buyer, "Club Striker")
         self.assertContains(buyer, reverse("buy_player", args=[listing.id]))
+        self.assertContains(buyer, reverse("purchase_listing", args=[listing.id]))
         self.assertContains(buyer, ">OFFER</button>")
         self.assertContains(buyer, "VIEW PLAYER")
+        self.assertContains(buyer, ">BUY</a>")
         buyer_html = buyer.content.decode()
         self.assertLess(buyer_html.index(">OFFER</button>"), buyer_html.index("VIEW PLAYER"))
+        self.assertLess(buyer_html.index("VIEW PLAYER"), buyer_html.index(">BUY</a>"))
 
         self.client.logout()
         self.client.login(username="seller", password="test-pass-123")

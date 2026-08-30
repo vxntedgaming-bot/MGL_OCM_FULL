@@ -519,6 +519,9 @@ def _detail_rows(item):
         ("requesting_club", "Requesting club"),
         ("current_club", "Current club"),
         ("transfer_type", "Transfer type"),
+        ("buyer_receives", "Buying club receives"),
+        ("seller_receives", "Selling club receives"),
+        ("offered_player", "Player offered"),
         ("amount", "Proposed amount"),
     )
     for key, label in mapping:

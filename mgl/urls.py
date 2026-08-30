@@ -175,6 +175,11 @@ urlpatterns = [
 
     path("market/listings/<int:listing_id>/buy/", views_market.buy_player, name="buy_player"),
     path(
+        "market/listings/<int:listing_id>/purchase/",
+        views_market.purchase_listing,
+        name="purchase_listing",
+    ),
+    path(
         "players/<int:player_id>/request-transfer/",
         views_market.request_player_transfer,
         name="request_player_transfer",
