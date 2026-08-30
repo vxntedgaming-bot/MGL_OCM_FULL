@@ -332,7 +332,7 @@ def transfer_offer_details(listing, buyer_club=None, extra=None):
 def assert_swap_player_for_buyer(offered_player, buyer_club, *, exclude_listing_id=None):
     if offered_player is None:
         return None
-    player = Player.objects.select_for_update().select_related("mgl_team").get(pk=offered_player.pk)
+    player = _lock_player(offered_player)
     if player.mgl_team_id != buyer_club.id:
         raise ValueError("You can only offer a player from your own squad.")
     if player.is_free_agent:
@@ -1041,6 +1041,15 @@ def _lock_listing(listing):
     return PlayerListing.objects.select_for_update().get(pk=listing.pk)
 
 
+def _lock_player(player):
+    """Lock only the player row.
+
+    PostgreSQL rejects SELECT FOR UPDATE when select_related() joins the
+    nullable mgl_team FK. Fetch related rows after the lock.
+    """
+    return Player.objects.select_for_update().get(pk=getattr(player, "pk", player))
+
+
 @transaction.atomic
 def approve_listing(listing, reviewer):
     listing = _lock_listing(listing)
@@ -1140,7 +1149,7 @@ def assert_can_create_transfer_offer(
 
 @transaction.atomic
 def create_transfer_offer(player, buyer, asking_price):
-    player = Player.objects.select_for_update().select_related("mgl_team").get(pk=player.pk)
+    player = _lock_player(player)
     buyer_club, selling_team, seller = assert_can_create_transfer_offer(player, buyer)
     price = parse_asking_price(asking_price)
     if buyer.tokens < price:
@@ -1205,9 +1214,7 @@ def create_listed_purchase_offer(
     listing = _lock_listing(listing)
     if listing.status != PlayerListing.LIVE:
         raise ValueError("This player is not available for purchase.")
-    player = Player.objects.select_for_update().select_related("mgl_team").get(
-        pk=listing.player_id
-    )
+    player = _lock_player(listing.player_id)
     buyer_club, selling_team, seller = assert_can_create_transfer_offer(
         player,
         buyer,

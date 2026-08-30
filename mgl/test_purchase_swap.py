@@ -87,6 +87,11 @@ class PurchaseSwapWorkflowTests(TestCase):
         self.assertNotContains(page, f'value="{self.target.id}"')
         self.assertNotContains(page, f'value="{self.other_club_player.id}"')
 
+    def test_player_lock_query_does_not_join_nullable_team(self):
+        sql = str(Player.objects.select_for_update().filter(pk=self.target.id).query)
+        self.assertNotIn("JOIN", sql.upper())
+        self.assertNotIn("teams_team", sql)
+
     def test_seller_does_not_see_buy_and_cannot_open_own_purchase_page(self):
         self.client.login(username="seller", password="test-pass-123")
         market = self.client.get(reverse("transfer_market"))
