@@ -24,11 +24,17 @@ def live_auctions(request):
         .select_related("player", "player__mgl_team", "winning_manager", "listed_by_manager", "origin_team")
         .order_by("ends_at")
     )
+    ended = (
+        PlayerAuction.objects.filter(status=PlayerAuction.ENDED)
+        .select_related("player", "winning_manager", "origin_team")
+        .order_by("-ends_at", "-id")[:12]
+    )
     return render(
         request,
         "auctions/live_auctions.html",
         {
             "auctions": auctions,
+            "ended_auctions": ended,
             "manager": manager_for_user(request.user),
             "token_balance": token_balance_for_user(request.user),
         },

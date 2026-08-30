@@ -1,0 +1,177 @@
+.mgl-pdb-page {
+    display: grid;
+    gap: 22px;
+}
+
+.mgl-pdb-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
+    gap: 22px;
+    align-items: start;
+}
+
+.mgl-pdb-list {
+    display: grid;
+    gap: 0;
+    min-width: 0;
+    background: var(--mgl-card);
+    border: 1px solid var(--mgl-line);
+}
+
+.mgl-pdb-row {
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr) 64px;
+    gap: 14px;
+    align-items: center;
+    padding: 12px 14px;
+    border-top: 1px solid var(--mgl-line);
+}
+
+.mgl-pdb-row:first-child {
+    border-top: 0;
+}
+
+.mgl-pdb-row .mgl-player-card-link,
+.mgl-pdb-row .mgl-player-card {
+    width: 64px;
+    max-width: 64px;
+}
+
+.mgl-pdb-identity {
+    min-width: 0;
+}
+
+.mgl-pdb-identity a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 800;
+}
+
+.mgl-pdb-identity a:hover {
+    color: var(--mgl-orange);
+}
+
+.mgl-pdb-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    margin-top: 6px;
+}
+
+.mgl-pdb-pos {
+    color: var(--mgl-orange);
+    font-weight: 800;
+    letter-spacing: 0.06em;
+}
+
+.mgl-pdb-ovr {
+    width: 52px;
+    height: 52px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--mgl-orange);
+    border-radius: 50%;
+    color: var(--mgl-orange);
+    font-family: var(--font-display);
+    font-size: 20px;
+}
+
+.mgl-pdb-filters {
+    background: var(--mgl-card);
+    border: 1px solid var(--mgl-line);
+    padding: 16px;
+    display: grid;
+    gap: 14px;
+    min-width: 0;
+}
+
+.mgl-pdb-filters h2 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.mgl-pdb-filters label {
+    display: grid;
+    gap: 6px;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+}
+
+.mgl-pdb-filters input,
+.mgl-pdb-filters select {
+    width: 100%;
+    min-width: 0;
+}
+
+.mgl-pdb-positions {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+}
+
+.mgl-pdb-pos-btn {
+    border: 1px solid var(--mgl-line);
+    background: transparent;
+    color: #fff;
+    padding: 7px 4px;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+}
+
+.mgl-pdb-pos-btn.is-active,
+.mgl-pdb-pos-btn:hover {
+    border-color: var(--mgl-orange);
+    color: var(--mgl-orange);
+}
+
+.mgl-pdb-range,
+.mgl-pdb-face {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.mgl-pdb-face {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.mgl-pdb-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.mgl-pdb-actions .secondary-button,
+.mgl-pdb-actions .primary-button {
+    text-align: center;
+}
+
+@media (max-width: 960px) {
+    .mgl-pdb-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .mgl-pdb-filters {
+        order: -1;
+    }
+}
+
+@media (max-width: 640px) {
+    .mgl-pdb-row {
+        grid-template-columns: 56px minmax(0, 1fr) 48px;
+        gap: 10px;
+    }
+
+    .mgl-pdb-ovr {
+        width: 44px;
+        height: 44px;
+        font-size: 16px;
+    }
+
+    .mgl-pdb-positions,
+    .mgl-pdb-face {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}

@@ -586,7 +586,9 @@ class ManagerHubExperienceTests(TestCase):
         home = self.client.get("/")
         self.assertEqual(home.status_code, 200)
         self.assertContains(home, "COMPETE.")
-        self.assertContains(home, "LIVE ACTIVITY")
+        self.assertContains(home, "LATEST NEWS")
+        self.assertNotContains(home, "LEAGUE LIVE UPDATES")
+        self.assertNotContains(home, "mgl-activity-feed--home")
         self.assertNotContains(home, "MGL CLUBS")
 
 

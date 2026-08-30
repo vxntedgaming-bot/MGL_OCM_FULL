@@ -12,6 +12,7 @@
         </div>
         <a href="{% url 'leagues_page' %}" class="view-all">ALL LEAGUES →</a>
     </div>
+    {% include "mgl/includes/competition_selector.html" %}
     {% if is_live %}
         <div class="dashboard-panel">
             {% include "mgl/includes/league_table.html" with table=table league=league %}

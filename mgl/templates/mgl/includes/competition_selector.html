@@ -1,0 +1,11 @@
+{% if competition_choices %}
+<nav class="mgl-league-tabs mgl-comp-tabs" aria-label="{{ selector_label|default:'Competitions' }}">
+    {% for item in competition_choices %}
+        {% if selector_kind == "stats" %}
+            <a href="{% url 'league_stats' item.slug %}" class="mgl-league-tab{% if item.slug == competition_slug %} is-active{% endif %}">{{ item.label|upper }}</a>
+        {% else %}
+            <a href="{% url 'competition_page' item.slug %}" class="mgl-league-tab{% if item.slug == competition_slug %} is-active{% endif %}">{{ item.label|upper }}</a>
+        {% endif %}
+    {% endfor %}
+</nav>
+{% endif %}

@@ -12,13 +12,7 @@
         </div>
         <span class="section-line"></span>
     </div>
-    {% if tables %}
-    <nav class="mgl-league-tabs" aria-label="League tables">
-        {% for block in tables %}
-            <a href="#table-{{ block.league.short_name|slugify }}" class="mgl-league-tab">{{ block.league.short_name }}</a>
-        {% endfor %}
-    </nav>
-    {% endif %}
+    {% include "mgl/includes/competition_selector.html" %}
 </section>
 
 {% for block in tables %}

@@ -462,7 +462,9 @@ class ClubAuctionSquadLifecycleTests(TestCase):
         self.assertContains(page, "CLUB STRIKER")
         self.assertContains(page, ">AUCTION<")
         auctions = self.client.get(reverse("live_auctions"))
-        self.assertNotContains(auctions, "Club Striker")
+        self.assertContains(auctions, "RECENTLY ENDED")
+        self.assertContains(auctions, "Club Striker")
+        self.assertNotContains(auctions, f'action="{reverse("place_bid", args=[auction.id])}"')
 
     def test_owner_cancel_returns_player_and_refunds_bid(self):
         auction = create_manager_auction(self.owned, self.mgr_a, 30, starting_bid=1)

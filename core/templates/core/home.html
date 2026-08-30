@@ -2,9 +2,6 @@
 {% load static mgl_ui %}
 
 {% block title %}MGL – MetaGamingLeague{% endblock %}
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'core/css/mgl-activity-feed.css' %}">
-{% endblock %}
 
 {% block content %}
 <section class="mgl-hero-pro">
@@ -38,13 +35,7 @@
         <article class="mgl-home-card" id="mgl-news">
             <h2>LATEST NEWS</h2>
             {% for post in news %}
-                <div class="mgl-news-row">
-                    <div class="mgl-news-thumb" aria-hidden="true"></div>
-                    <div>
-                        <strong>{{ post.title }}</strong>
-                        <small>{{ post.get_category_display }} · {{ post.created_at|date:"d M Y" }}</small>
-                    </div>
-                </div>
+                {% include "mgl/includes/home_news_row.html" %}
             {% empty %}
                 {% for item in activity %}
                     {% if forloop.counter <= 4 %}
@@ -93,23 +84,6 @@
             {% include "mgl/includes/league_table.html" with table=table|slice:":8" league=active_league %}
             <p style="margin-top:16px"><a href="{% url 'leagues_page' %}" class="view-all">FULL TABLE →</a></p>
         </article>
-    </div>
-</section>
-
-<section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">LEAGUE LIVE UPDATES</div>
-            <h2>LIVE ACTIVITY</h2>
-        </div>
-        <a href="{% url 'live_activity' %}" class="view-all">ALL UPDATES →</a>
-    </div>
-    <div class="mgl-activity-feed mgl-activity-feed--home">
-        {% for item in live_feed %}
-            {% include "mgl/includes/activity_card.html" %}
-        {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO LIVE ACTIVITY YET" %}
-        {% endfor %}
     </div>
 </section>
 

@@ -7,6 +7,7 @@ from django.shortcuts import render
 from leagues.models import League
 from leagues.services import ensure_premier_league
 from mgl.models import ApprovalStatus, ManagerCareerStat
+from mgl.nav import live_competition_choices
 from players.models import Player
 
 STATS_SLUGS = {
@@ -94,6 +95,9 @@ def render_league_stats(request, slug="premier-league"):
         {
             "competition_name": name,
             "competition_slug": slug,
+            "competition_choices": live_competition_choices(),
+            "selector_kind": "stats",
+            "selector_label": "League statistics",
         }
     )
     return render(request, "mgl/stats.html", context)

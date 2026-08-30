@@ -286,6 +286,19 @@ LIVE_COMPETITION_SLUGS = {
 }
 
 
+def live_competition_choices():
+    """Existing live divisions only. Used by Tables and Statistics selectors."""
+    return [
+        {
+            "slug": slug,
+            "label": COMPETITIONS[slug],
+            "short": short,
+        }
+        for slug, short in LIVE_COMPETITION_SLUGS.items()
+        if slug in COMPETITIONS
+    ]
+
+
 def _item_url(item):
     if item.get("href"):
         return item["href"]

@@ -430,19 +430,55 @@ video {
 
 .mgl-news-row {
     display: grid;
-    grid-template-columns: 64px 1fr;
+    grid-template-columns: 72px 1fr;
     gap: 12px;
     align-items: center;
     padding: 10px 0;
     border-bottom: 1px solid var(--mgl-line);
 }
 
+.mgl-news-logos,
 .mgl-news-thumb {
-    width: 64px;
-    height: 48px;
+    width: 72px;
+    min-height: 40px;
+    display: grid;
+    place-items: center;
+}
+
+.mgl-news-thumb {
+    height: 40px;
     border-radius: 4px;
     background:
         linear-gradient(135deg, rgba(255, 92, 0, 0.55), #1a1a1a);
+}
+
+.mgl-news-logo-pair {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.mgl-news-logos .mgl-team-logo,
+.mgl-news-logo-pair .mgl-team-logo {
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+}
+
+.mgl-news-logo-arrow {
+    color: var(--mgl-orange);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+}
+
+.mgl-league-tab {
+    background: transparent;
+}
+
+.mgl-comp-tabs {
+    margin-bottom: 8px;
 }
 
 .mgl-news-row strong {

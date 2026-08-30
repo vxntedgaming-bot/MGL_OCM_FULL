@@ -12,11 +12,7 @@
         </div>
         <span class="section-line"></span>
     </div>
-    <nav class="mgl-league-tabs" aria-label="League statistics">
-        {% for slug, row in stats_slugs.items %}
-            <a href="{% url 'league_stats' slug %}" class="mgl-league-tab {% if slug == competition_slug %}is-active{% endif %}">{{ row.1 }}</a>
-        {% endfor %}
-    </nav>
+    {% include "mgl/includes/competition_selector.html" %}
 </section>
 
 <section class="mgl-section">

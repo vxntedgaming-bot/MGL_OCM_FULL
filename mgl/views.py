@@ -42,9 +42,13 @@ from .market import (
     create_manager_auction,
     token_balance_for_user,
 )
-from .nav import COMPETITIONS, LIVE_COMPETITION_SLUGS
+from .nav import COMPETITIONS, LIVE_COMPETITION_SLUGS, live_competition_choices
 from .permissions import approved_manager, owner_admin_required
 from .player_state import (
+    AUCTION,
+    CLUB_PLAYER,
+    FREE_AGENT,
+    UNASSIGNED,
     free_agents as free_agent_qs,
     live_auction_player_ids,
     market_counts,
@@ -52,7 +56,7 @@ from .player_state import (
 )
 from .services import manager_for_user
 from .tenure import close_club_spell_for_user, open_club_spell, resign_manager_from_club
-from .activity import activity_payloads, published_football_activity, record_manager_departure
+from .activity import record_manager_departure
 
 
 def _post_int(post, key, default=0):
@@ -66,6 +70,28 @@ def _querystring(request):
     query = request.GET.copy()
     query.pop("page", None)
     return query.urlencode()
+
+
+def _attach_news_logos(posts):
+    """Mark public news rows with the existing club objects for logo rendering."""
+    for post in posts:
+        primary = getattr(post, "primary_team", None)
+        secondary = getattr(post, "secondary_team", None)
+        post.logo_from = None
+        post.logo_to = None
+        post.logo_single = None
+        post.logo_kind = "single"
+        if post.category == NewsPost.RESULTS and primary and secondary:
+            post.logo_from = primary
+            post.logo_to = secondary
+            post.logo_kind = "result"
+        elif post.category == NewsPost.TRANSFER and primary and secondary:
+            post.logo_from = secondary
+            post.logo_to = primary
+            post.logo_kind = "transfer"
+        else:
+            post.logo_single = primary or secondary
+    return posts
 
 
 def _feature_page(request, title, kicker, body):
@@ -117,12 +143,13 @@ def home(request):
 
     upcoming = upcoming_qs[:5]
 
-    news = (
-        NewsPost.objects
-        .filter(published=True)
-        .order_by("-created_at")[:6]
+    news = _attach_news_logos(
+        list(
+            NewsPost.objects.filter(published=True)
+            .select_related("primary_team", "secondary_team")
+            .order_by("-created_at")[:6]
+        )
     )
-    live_feed = activity_payloads(published_football_activity()[:6])
 
     recent_results = []
     completed = completed_qs[:5]
@@ -234,7 +261,6 @@ def home(request):
             ).count(),
             "recent_transfers": recent_transfers,
             "activity": activity,
-            "live_feed": live_feed,
             "active_league": league,
             "table": table,
         },
@@ -930,6 +956,16 @@ def resign_from_club(request):
     return redirect(next_page)
 
 
+PLAYER_DATABASE_FACE_FILTERS = (
+    ("pace_min", "pace"),
+    ("shooting_min", "shooting"),
+    ("passing_min", "passing"),
+    ("dribbling_min", "dribbling"),
+    ("defending_min", "defending"),
+    ("physical_min", "physical"),
+)
+
+
 @login_required
 def player_database(request):
     tier = request.GET.get("tier", "").upper()
@@ -940,8 +976,14 @@ def player_database(request):
     rating_max = request.GET.get("rating_max", "").strip()
     sort = request.GET.get("sort", "-overall")
     free_only = request.GET.get("free") == "1"
+    status = request.GET.get("status", "").strip().upper()
+    nationality = request.GET.get("nationality", "").strip()
+    min_skills = request.GET.get("min_skills", "").strip()
+    min_weak_foot = request.GET.get("min_weak_foot", "").strip()
+    preferred_foot = request.GET.get("preferred_foot", "").strip()
 
     players = Player.objects.select_related("mgl_team")
+    total_player_count = Player.objects.count()
 
     if tier == "GOLD":
         players = players.filter(overall__gte=75)
@@ -972,13 +1014,42 @@ def player_database(request):
     elif club.isdigit():
         players = players.filter(mgl_team_id=int(club))
 
-    if position:
+    if status == "CLUB" or status == CLUB_PLAYER.replace(" ", "_"):
+        players = players.filter(mgl_team__isnull=False)
+    elif status in {"FREE_AGENT", "FA", FREE_AGENT.replace(" ", "_")}:
+        players = players.filter(mgl_team__isnull=True, is_free_agent=True)
+    elif status == UNASSIGNED:
+        players = players.filter(mgl_team__isnull=True, is_free_agent=False).exclude(
+            id__in=live_auction_player_ids()
+        )
+    elif status == AUCTION:
+        players = players.filter(id__in=live_auction_player_ids())
+
+    if position in FREE_AGENT_POSITION_GROUPS:
+        players = players.filter(position__in=FREE_AGENT_POSITION_GROUPS[position])
+    elif position:
         players = players.filter(position=position)
+
+    if nationality:
+        players = players.filter(nationality__iexact=nationality)
 
     if rating_min.isdigit():
         players = players.filter(overall__gte=int(rating_min))
     if rating_max.isdigit():
         players = players.filter(overall__lte=int(rating_max))
+    if min_skills.isdigit():
+        players = players.filter(skill_moves__gte=int(min_skills))
+    if min_weak_foot.isdigit():
+        players = players.filter(weak_foot__gte=int(min_weak_foot))
+    if preferred_foot:
+        players = players.filter(preferred_foot__iexact=preferred_foot)
+
+    face_values = {}
+    for param, field in PLAYER_DATABASE_FACE_FILTERS:
+        raw = request.GET.get(param, "").strip()
+        face_values[param] = raw
+        if raw.isdigit():
+            players = players.filter(**{f"{field}__gte": int(raw)})
 
     allowed_sort = {
         "overall": "overall",
@@ -991,6 +1062,18 @@ def player_database(request):
 
     paginator = Paginator(players, 24)
     page = paginator.get_page(request.GET.get("page"))
+    nationalities = (
+        Player.objects.exclude(nationality="")
+        .order_by("nationality")
+        .values_list("nationality", flat=True)
+        .distinct()
+    )
+    preferred_feet = (
+        Player.objects.exclude(preferred_foot="")
+        .order_by("preferred_foot")
+        .values_list("preferred_foot", flat=True)
+        .distinct()
+    )
 
     return render(
         request,
@@ -1002,14 +1085,23 @@ def player_database(request):
             "search": search,
             "selected_club": club,
             "selected_position": position,
+            "selected_status": status,
+            "selected_nationality": nationality,
+            "min_skills": min_skills,
+            "min_weak_foot": min_weak_foot,
+            "selected_foot": preferred_foot,
             "rating_min": rating_min,
             "rating_max": rating_max,
             "selected_sort": sort,
             "free_only": free_only,
             "clubs": Team.objects.order_by("name"),
             "positions": [choice[0] for choice in Player.POSITION_CHOICES],
+            "nationalities": nationalities,
+            "preferred_feet": preferred_feet,
             "querystring": _querystring(request),
             "result_count": page.paginator.count,
+            "total_player_count": total_player_count,
+            **face_values,
         },
     )
 
@@ -1338,6 +1430,9 @@ def competition_page(request, slug):
             "league": league,
             "table": table,
             "is_live": bool(league),
+            "competition_choices": live_competition_choices(),
+            "selector_kind": "tables",
+            "selector_label": "League tables",
         },
     )
 

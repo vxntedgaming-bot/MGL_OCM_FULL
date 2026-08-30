@@ -1,0 +1,20 @@
+{% load mgl_ui %}
+<div class="mgl-news-row">
+    <div class="mgl-news-logos" aria-hidden="true">
+        {% if post.logo_from and post.logo_to %}
+            <span class="mgl-news-logo-pair">
+                {% team_logo post.logo_from "sm" %}
+                <span class="mgl-news-logo-arrow">{% if post.logo_kind == "result" %}VS{% else %}→{% endif %}</span>
+                {% team_logo post.logo_to "sm" %}
+            </span>
+        {% elif post.logo_single %}
+            {% team_logo post.logo_single "sm" %}
+        {% else %}
+            <div class="mgl-news-thumb"></div>
+        {% endif %}
+    </div>
+    <div>
+        <strong>{{ post.title }}</strong>
+        <small>{{ post.get_category_display }} · {{ post.created_at|date:"d M Y" }}</small>
+    </div>
+</div>

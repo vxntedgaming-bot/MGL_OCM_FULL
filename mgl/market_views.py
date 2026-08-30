@@ -43,6 +43,7 @@ from .job_applications import (
     JOBS_DISCORD_INVITE,
     parse_club_application,
 )
+from .nav import live_competition_choices
 from .permissions import approved_manager, owner_admin_required
 from .services import create_news, manager_for_user
 from .standings import build_league_table
@@ -300,6 +301,10 @@ def leagues_page(request):
                 {"league": league, "table": build_league_table(league)}
                 for league in divisions
             ],
+            "competition_choices": live_competition_choices(),
+            "competition_slug": "",
+            "selector_kind": "tables",
+            "selector_label": "League tables",
         },
     )
 
