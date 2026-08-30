@@ -343,7 +343,7 @@ class InboxActionWorkflowTests(TestCase):
         self.assertEqual(home.status_code, 200)
         club = self.client.get(reverse("club_page", args=[self.team_b.short_name]))
         self.assertEqual(club.status_code, 200)
-        self.assertContains(club, "Blue Midfielder")
+        self.assertContains(club, "BLUE MIDFIELDER")
         self.assertNotContains(club, ">BUY</a>")
         public_player = self.client.get(reverse("player_profile", args=[self.player_b.id]))
         self.assertEqual(public_player.status_code, 200)

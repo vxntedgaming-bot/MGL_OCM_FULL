@@ -36,32 +36,14 @@
             <h2>CURRENT PLAYERS</h2>
         </div>
     </div>
-    <div class="dashboard-panel mgl-squad-table-wrap{% if can_buy_from_club %} mgl-squad-table-wrap--buy{% endif %}">
-        <div class="mgl-squad-table-head">
-            <span>PLAYER</span>
-            <span>POS</span>
-            <span>OVR</span>
-            {% if can_buy_from_club %}<span>MARKET</span>{% endif %}
-        </div>
-        {% for player in players %}
-            <div class="mgl-squad-row">
-                <a href="{% url 'player_profile' player.id %}"><strong>{{ player.name }}</strong></a>
-                <span>{{ player.position }}</span>
-                <b>{{ player.overall }}</b>
-                {% if can_buy_from_club %}
-                    <a href="{% url 'player_profile' player.id %}" class="secondary-button">BUY</a>
-                {% endif %}
-            </div>
-        {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO PLAYERS" body="This club currently has no players assigned." %}
-        {% endfor %}
-    </div>
     {% if players %}
-    <div class="mgl-player-card-grid" style="padding:20px 0">
+    <div class="mgl-player-card-grid">
         {% for player in players %}
             {% player_card player "small" %}
         {% endfor %}
     </div>
+    {% else %}
+        {% include "mgl/includes/empty_state.html" with title="NO PLAYERS" body="This club currently has no players assigned." %}
     {% endif %}
 </section>
 
