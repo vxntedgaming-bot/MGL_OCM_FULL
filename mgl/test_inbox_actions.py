@@ -336,7 +336,8 @@ class InboxActionWorkflowTests(TestCase):
         control = self.client.get(reverse("control_centre"))
         self.assertEqual(control.status_code, 200)
         self.assertContains(control, "Blue Midfielder")
-        self.assertContains(control, "BID FROM Kai")
+        self.assertContains(control, "BUYER Kai")
+        self.assertContains(control, "SELLER RECEIVES")
 
         self.client.logout()
         home = self.client.get("/")
