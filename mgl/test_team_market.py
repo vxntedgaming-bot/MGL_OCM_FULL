@@ -1,5 +1,6 @@
 from datetime import timedelta
 from decimal import Decimal
+from pathlib import Path
 
 from django.test import Client, TestCase
 from django.urls import reverse
@@ -196,6 +197,9 @@ class TeamMarketListingTests(TestCase):
         self.assertContains(market, "Alpha")
         self.assertContains(market, "MANAGER")
         self.assertContains(market, self.mgr_a.display_name)
+        css = (Path(__file__).resolve().parents[1] / "core/static/core/css/mgl-market.css").read_text(encoding="utf-8")
+        self.assertIn(".mgl-market-row[hidden]", css)
+        self.assertIn("display: none !important", css)
 
     def test_http_rejects_other_club_listing_and_seventh_slot(self):
         self.client.login(username="seller", password="test-pass-123")

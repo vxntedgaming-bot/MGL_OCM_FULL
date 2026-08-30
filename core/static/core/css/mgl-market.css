@@ -213,6 +213,11 @@ body.mgl-market-page {
     border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+.mgl-market-row[hidden],
+.mgl-market-filter-empty[hidden] {
+    display: none !important;
+}
+
 .mgl-market-row:hover {
     background: rgba(255, 255, 255, 0.02);
 }
