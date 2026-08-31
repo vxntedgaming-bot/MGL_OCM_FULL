@@ -8,6 +8,7 @@ from mgl.models import (
     GKSave,
     GoalEvent,
     MatchSubmission,
+    PlayerMatchRating,
     TeamMatchStats,
 )
 from players.models import Player
@@ -42,9 +43,9 @@ def _decimal_rating(raw):
     try:
         value = Decimal(str(raw))
     except (InvalidOperation, TypeError, ValueError) as exc:
-        raise MatchSubmitError("Defender ratings must be a number between 0.0 and 10.0.") from exc
-    if value < Decimal("0.0") or value > Decimal("10.0"):
-        raise MatchSubmitError("Defender ratings must be between 0.0 and 10.0.")
+        raise MatchSubmitError("Player ratings must be a number between 1.0 and 10.0.") from exc
+    if value < Decimal("1.0") or value > Decimal("10.0"):
+        raise MatchSubmitError("Player ratings must be between 1.0 and 10.0.")
     return value.quantize(Decimal("0.1"))
 
 
@@ -90,18 +91,32 @@ def parse_side(post, prefix, team):
         if _player_id(post, f"{prefix}goal_{index}"):
             raise MatchSubmitError("Too many goalscorers for the number of goals.")
     ratings = []
+    tackles = {}
     for player in Player.objects.filter(mgl_team=team, position__in=DEFENDER_POSITIONS):
         value = _decimal_rating(post.get(f"{prefix}def_{player.id}"))
         if value is not None:
             ratings.append((player, value))
+        tackle_raw = post.get(f"{prefix}tack_{player.id}")
+        if tackle_raw not in (None, ""):
+            tackles[player.id] = _int(post, f"{prefix}tack_{player.id}", 0, 0, 50)
+    outfield = []
+    for player in Player.objects.filter(mgl_team=team).exclude(
+        position__in=DEFENDER_POSITIONS + ("GK",)
+    ):
+        value = _decimal_rating(post.get(f"{prefix}rate_{player.id}"))
+        if value is not None:
+            outfield.append((player, value))
     saves = []
+    gk_ratings = {}
     for player in Player.objects.filter(mgl_team=team, position="GK"):
         raw = post.get(f"{prefix}save_{player.id}")
-        if raw in (None, ""):
-            continue
-        count = _int(post, f"{prefix}save_{player.id}", 0, 0, 20)
-        if count:
-            saves.append((player, count))
+        if raw not in (None, ""):
+            count = _int(post, f"{prefix}save_{player.id}", 0, 0, 20)
+            if count:
+                saves.append((player, count))
+        gk_value = _decimal_rating(post.get(f"{prefix}gk_rate_{player.id}"))
+        if gk_value is not None:
+            gk_ratings[player.id] = gk_value
     return {
         "team": team,
         "goals": goals,
@@ -112,7 +127,10 @@ def parse_side(post, prefix, team):
         "scorers": scorers,
         "assists": assists,
         "ratings": ratings,
+        "tackles": tackles,
+        "outfield": outfield,
         "saves": saves,
+        "gk_ratings": gk_ratings,
     }
 
 
@@ -166,8 +184,27 @@ def save_match_submission(fixture, user, post):
                 AssistEvent.objects.create(team_stats=stats, player=player)
         for player, rating in side["ratings"]:
             DefenderRating.objects.create(
+                team_stats=stats,
+                player=player,
+                rating=rating,
+                tackles=side["tackles"].get(player.id, 0),
+            )
+        for player, rating in side["outfield"]:
+            PlayerMatchRating.objects.create(
                 team_stats=stats, player=player, rating=rating
             )
         for player, count in side["saves"]:
-            GKSave.objects.create(team_stats=stats, player=player, saves=count)
+            GKSave.objects.create(
+                team_stats=stats,
+                player=player,
+                saves=count,
+                rating=side["gk_ratings"].get(player.id),
+            )
+        for player_id, rating in side["gk_ratings"].items():
+            if not any(player.id == player_id for player, _count in side["saves"]):
+                keeper = Player.objects.filter(pk=player_id, mgl_team=side["team"]).first()
+                if keeper:
+                    GKSave.objects.create(
+                        team_stats=stats, player=keeper, saves=0, rating=rating
+                    )
     return submission

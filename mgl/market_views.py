@@ -40,7 +40,9 @@ from .models import (
     PlayerListing,
     PressConference,
     RewardTransaction,
+    SiteChangeLog,
     WeeklyAwardBatch,
+    MonthlyAwardBatch,
 )
 from managers.models import ManagerApplication
 from managers.services import STARTING_TOKENS, approve_manager_application, reject_manager_application
@@ -519,7 +521,18 @@ def control_centre(request):
         .prefetch_related("team_stats")
         .order_by("-submitted_at")
     )
-    for submission in pending_results:
+    disputed_results = list(
+        MatchSubmission.objects.filter(status=ApprovalStatus.PENDING)
+        .exclude(opponent_response=ApprovalStatus.APPROVED)
+        .select_related(
+            "fixture__home_team",
+            "fixture__away_team",
+            "submitted_by",
+        )
+        .prefetch_related("team_stats")
+        .order_by("-submitted_at")
+    )
+    for submission in pending_results + disputed_results:
         rows = {row.team_id: row for row in submission.team_stats.all()}
         fixture = submission.fixture
         home = rows.get(fixture.home_team_id)
@@ -547,6 +560,13 @@ def control_centre(request):
         "jobs": pending_jobs.count(),
         "press": pending_press.count(),
         "auctions": live_auctions.count(),
+        "awards": WeeklyAwardBatch.objects.filter(
+            status=WeeklyAwardBatch.PENDING_REVIEW, completed=False
+        ).count()
+        + MonthlyAwardBatch.objects.filter(
+            status=MonthlyAwardBatch.PENDING_REVIEW, completed=False
+        ).count(),
+        "disputed": len(disputed_results),
     }
     pending_counts["approvals"] = (
         pending_counts["managers"]
@@ -554,6 +574,7 @@ def control_centre(request):
         + pending_counts["results"]
         + pending_counts["jobs"]
         + pending_counts["press"]
+        + pending_counts["awards"]
     )
     ovr_filter = parse_free_agent_ovr_filter(request.GET.get("ovr"))
     unassigned_pool = unassigned_players()
@@ -568,6 +589,7 @@ def control_centre(request):
             "pending_managers": pending_managers,
             "pending_listings": pending_listings,
             "pending_results": pending_results,
+            "disputed_results": disputed_results,
             "pending_jobs": pending_jobs,
             "pending_press": pending_press,
             "pending_counts": pending_counts,
@@ -589,6 +611,9 @@ def control_centre(request):
                 "manager", "manager__user", "fixture"
             ).order_by("-created_at")[:40],
             "weekly_award_batches": WeeklyAwardBatch.objects.order_by("-week_start")[:12],
+            "monthly_award_batches": MonthlyAwardBatch.objects.order_by("-month_start")[:12],
+            "ocm_audit_log": SiteChangeLog.objects.select_related("user").order_by("-created_at")[:25],
+            "is_owner": request.user.role == request.user.OWNER,
             "recent_notifications": ManagerNotification.objects.select_related(
                 "recipient", "team", "player"
             ).order_by("-created_at")[:40],
@@ -623,7 +648,11 @@ def control_approve_result(request, submission_id):
     from mgl.admin import approve_match_submission
 
     submission = get_object_or_404(MatchSubmission, pk=submission_id)
-    ok, message = approve_match_submission(submission, request.user)
+    override = (
+        request.POST.get("override") == "1"
+        and getattr(request.user, "role", None) == request.user.OWNER
+    )
+    ok, message = approve_match_submission(submission, request.user, override=override)
     if ok:
         messages.success(request, message)
     else:
@@ -642,6 +671,70 @@ def control_reject_result(request, submission_id):
         messages.success(request, message)
     else:
         messages.error(request, message)
+    return control_centre_redirect(request)
+
+
+@owner_admin_required
+@require_POST
+def control_rollback_result(request, submission_id):
+    from mgl.match_official import unapprove_match_submission
+
+    submission = get_object_or_404(MatchSubmission, pk=submission_id)
+    ok, message = unapprove_match_submission(submission, request.user)
+    if ok:
+        messages.success(request, message)
+    else:
+        messages.error(request, message)
+    return control_centre_redirect(request)
+
+
+@owner_admin_required
+@require_POST
+def control_approve_weekly_awards(request, batch_id):
+    from mgl.weekly_awards import approve_weekly_awards
+
+    batch = get_object_or_404(WeeklyAwardBatch, pk=batch_id)
+    try:
+        approve_weekly_awards(batch, request.user)
+        messages.success(request, "Weekly awards approved. Token rewards released once.")
+    except ValueError as exc:
+        messages.error(request, str(exc))
+    return control_centre_redirect(request)
+
+
+@owner_admin_required
+@require_POST
+def control_reject_weekly_awards(request, batch_id):
+    from mgl.weekly_awards import reject_weekly_awards
+
+    batch = get_object_or_404(WeeklyAwardBatch, pk=batch_id)
+    reject_weekly_awards(batch, request.user)
+    messages.success(request, "Weekly awards rejected. Tokens were not released.")
+    return control_centre_redirect(request)
+
+
+@owner_admin_required
+@require_POST
+def control_recalculate_weekly_awards(request, batch_id):
+    from mgl.weekly_awards import recalculate_weekly_awards
+
+    batch = get_object_or_404(WeeklyAwardBatch, pk=batch_id)
+    try:
+        recalculate_weekly_awards(batch, request.user)
+        messages.success(request, "Weekly awards recalculated. Review the new draft.")
+    except ValueError as exc:
+        messages.error(request, str(exc))
+    return control_centre_redirect(request)
+
+
+@owner_admin_required
+@require_POST
+def control_approve_monthly_awards(request, batch_id):
+    from mgl.monthly_awards import approve_monthly_awards
+
+    batch = get_object_or_404(MonthlyAwardBatch, pk=batch_id)
+    approve_monthly_awards(batch, request.user)
+    messages.success(request, "Monthly awards approved. Token rewards released once.")
     return control_centre_redirect(request)
 
 
@@ -730,6 +823,17 @@ def control_approve_job(request, application_id):
         action_url=reverse("manager_hub"),
         action_label="OPEN HUB",
         team=team,
+    )
+    from mgl.audit import log_ocm_action
+
+    log_ocm_action(
+        request.user,
+        action="job.approve",
+        object_type="ClubApplication",
+        object_id=application.pk,
+        object_label=team.name,
+        new_value="APPROVED",
+        summary=f"Appointed {application.manager.display_name} to {team.name}.",
     )
     messages.success(
         request,

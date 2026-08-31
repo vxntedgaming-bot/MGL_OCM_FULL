@@ -41,6 +41,7 @@
             <a href="#awards">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M8 4h8v4a4 4 0 0 1-8 0V4Z"/><path d="M8 6H5.5A2.5 2.5 0 0 0 8 8.5"/><path d="M16 6h2.5A2.5 2.5 0 0 1 16 8.5"/><path d="M12 12v8"/><path d="M8 20h8"/></svg>
                 Weekly Awards
+                {% if pending_counts.awards %}<span class="mgl-cp-badge">{{ pending_counts.awards }}</span>{% endif %}
             </a>
             <a href="#rewards">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="7"/><path d="M12 8v8M9 11h6"/></svg>
@@ -159,6 +160,20 @@
                 {% empty %}
                     {% include "mgl/includes/empty_state.html" with title="NO CONFIRMED RESULTS" %}
                 {% endfor %}
+                {% if disputed_results %}
+                    <p class="mgl-cp-kicker">AWAITING OPPONENT / DISPUTED</p>
+                    {% for submission in disputed_results %}
+                        <div class="table-row mgl-cp-row">
+                            <strong>{{ submission.fixture.home_team.name }} vs {{ submission.fixture.away_team.name }}</strong>
+                            <span>{{ submission.scoreline }} · {{ submission.opponent_response|default:"AWAITING OPPONENT" }}</span>
+                            {% if is_owner %}
+                                <div class="mgl-cp-actions">
+                                    <form method="post" action="{% url 'control_approve_result' submission.id %}">{% csrf_token %}<input type="hidden" name="override" value="1"><button class="header-button mgl-cp-approve" type="submit">OWNER OVERRIDE</button></form>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                {% endif %}
             </div>
 
             <div class="dashboard-panel mgl-cp-panel" id="transfers">
@@ -265,11 +280,37 @@
                 {% for batch in weekly_award_batches %}
                     <div class="table-row mgl-cp-row">
                         <strong>Week of {{ batch.week_start|date:"d M Y" }}</strong>
-                        <span>{% if batch.completed %}COMPLETED{% else %}IN PROGRESS{% endif %}</span>
+                        <span>{% if batch.status %}{{ batch.get_status_display }}{% elif batch.completed %}COMPLETED{% else %}IN PROGRESS{% endif %}{% if batch.has_ties %} · TIE{% endif %}</span>
                         <small>{{ batch.notes|default:"No notes" }}</small>
+                        {% if batch.status == "PENDING_REVIEW" %}
+                            <div class="mgl-cp-actions">
+                                <form method="post" action="{% url 'control_approve_weekly_awards' batch.id %}">{% csrf_token %}<button class="header-button mgl-cp-approve" type="submit">APPROVE REWARDS</button></form>
+                                <form method="post" action="{% url 'control_reject_weekly_awards' batch.id %}">{% csrf_token %}<button class="header-button mgl-cp-reject" type="submit">REJECT</button></form>
+                                <form method="post" action="{% url 'control_recalculate_weekly_awards' batch.id %}">{% csrf_token %}<button class="header-button" type="submit">RECALCULATE</button></form>
+                            </div>
+                        {% endif %}
                     </div>
                 {% empty %}
                     {% include "mgl/includes/empty_state.html" with title="NO WEEKLY AWARDS YET" %}
+                {% endfor %}
+            </div>
+
+            <div class="dashboard-panel mgl-cp-panel">
+                <div class="panel-heading"><span>MONTHLY AWARDS</span></div>
+                <p class="mgl-cp-kicker">MANAGER OF THE MONTH +6 · PLAYER OF THE MONTH +3</p>
+                {% for batch in monthly_award_batches %}
+                    <div class="table-row mgl-cp-row">
+                        <strong>{{ batch.month_start|date:"F Y" }}</strong>
+                        <span>{% if batch.status %}{{ batch.status }}{% elif batch.completed %}COMPLETED{% else %}IN PROGRESS{% endif %}{% if batch.has_ties %} · TIE{% endif %}</span>
+                        <small>{{ batch.notes|default:"No notes" }}</small>
+                        {% if batch.status == "PENDING_REVIEW" %}
+                            <div class="mgl-cp-actions">
+                                <form method="post" action="{% url 'control_approve_monthly_awards' batch.id %}">{% csrf_token %}<button class="header-button mgl-cp-approve" type="submit">APPROVE REWARDS</button></form>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% empty %}
+                    {% include "mgl/includes/empty_state.html" with title="NO MONTHLY AWARDS YET" %}
                 {% endfor %}
             </div>
 
@@ -298,6 +339,20 @@
                     </div>
                 {% empty %}
                     {% include "mgl/includes/empty_state.html" with title="NO NOTIFICATIONS" %}
+                {% endfor %}
+            </div>
+
+            <div class="dashboard-panel mgl-cp-panel" id="audit-log">
+                <div class="panel-heading"><span>OWNER / ADMIN AUDIT</span></div>
+                <p class="mgl-cp-kicker">APPROVALS, OVERRIDES, ROLLBACKS, AWARDS</p>
+                {% for row in ocm_audit_log %}
+                    <div class="table-row mgl-cp-row">
+                        <strong>{{ row.user.username|default:"System" }}</strong>
+                        <span>{{ row.action }} · {{ row.summary }}</span>
+                        <small>{{ row.object_type }} {{ row.object_label }} · {{ row.created_at|date:"d M Y H:i" }}</small>
+                    </div>
+                {% empty %}
+                    {% include "mgl/includes/empty_state.html" with title="NO AUDIT ENTRIES" %}
                 {% endfor %}
             </div>
         </section>

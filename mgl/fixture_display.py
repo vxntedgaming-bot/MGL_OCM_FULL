@@ -306,5 +306,6 @@ def side_review(side, submission):
     side["scorers"] = list(stats.goal_events.all())
     side["assists"] = list(stats.assist_events.all())
     side["ratings"] = list(stats.defender_ratings.all())
+    side["outfield_ratings"] = list(stats.player_ratings.all())
     side["saves"] = list(stats.gk_saves.all())
     return side

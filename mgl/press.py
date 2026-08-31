@@ -23,6 +23,17 @@ from mgl.services import create_news, manager_for_user
 from teams.models import Team
 
 
+def _season_number(fixture=None):
+    if fixture is not None and getattr(fixture, "season_number", None):
+        return fixture.season_number
+    try:
+        from mgl.season_history import current_season_number
+
+        return current_season_number()
+    except Exception:
+        return 1
+
+
 def _format_question(question, team=None):
     club = team.name if team is not None else "the club"
     return question.replace("{club}", club)
@@ -128,6 +139,7 @@ def create_press_question(
         question=_format_question(question, team),
         status=ApprovalStatus.PENDING,
         matchweek=matchweek,
+        season_number=_season_number(fixture),
         available_at=available_at,
         reward=Decimal("0.50"),
     )

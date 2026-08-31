@@ -76,6 +76,7 @@ def player_score(player, week_start, week_end):
             "team_stats__assist_events",
             "team_stats__defender_ratings",
             "team_stats__gk_saves",
+            "team_stats__player_ratings",
         )
     )
 
@@ -104,6 +105,12 @@ def player_score(player, week_start, week_end):
             for save in team_stats.gk_saves.all():
                 if save.player_id == player.id:
                     saves += save.saves
+                    participated = True
+
+            for rating in team_stats.player_ratings.all():
+                if rating.player_id == player.id:
+                    defender_rating_total += float(rating.rating)
+                    defender_rating_count += 1
                     participated = True
 
         if participated:

@@ -24,7 +24,7 @@ from mgl.models import (
 from mgl.notifications import inbox_for_user, unread_count_for_user
 from mgl.press import create_press_question, submit_press_answer
 from mgl.press_schedule import ensure_daily_press_for_user
-from mgl.weekly_awards import mgl_week_start, run_weekly_awards
+from mgl.weekly_awards import approve_weekly_awards, mgl_week_start, run_weekly_awards
 from players.models import Player
 from teams.models import Team
 
@@ -353,10 +353,39 @@ class WeeklyAwardTests(TestCase):
         GoalEvent.objects.create(team_stats=home, player=self.scorer)
         GoalEvent.objects.create(team_stats=home, player=self.scorer)
         AssistEvent.objects.create(team_stats=home, player=self.maker)
+        extra = Fixture.objects.create(
+            league=self.league,
+            home_team=self.team_a,
+            away_team=self.team_b,
+            matchweek=3,
+            scheduled_at=timezone.make_aware(
+                datetime.combine(week + timedelta(days=3), datetime.min.time())
+            ),
+            is_released=True,
+            status="COMPLETED",
+        )
+        extra_sub = MatchSubmission.objects.create(
+            fixture=extra,
+            submitted_by=self.user_a,
+            status=ApprovalStatus.APPROVED,
+            opponent_response=ApprovalStatus.APPROVED,
+        )
+        extra_home = TeamMatchStats.objects.create(
+            submission=extra_sub, team=self.team_a, goals=1
+        )
+        TeamMatchStats.objects.create(submission=extra_sub, team=self.team_b, goals=0)
+        GoalEvent.objects.create(team_stats=extra_home, player=self.scorer)
         self.week_start = week
+        self.owner = _user("award-owner", User.OWNER)
 
     def test_weekly_awards_pay_once(self):
         first = run_weekly_awards(week_start=self.week_start)
+        self.assertEqual(first.status, WeeklyAwardBatch.PENDING_REVIEW)
+        self.assertFalse(first.completed)
+        self.mgr_a.refresh_from_db()
+        self.assertEqual(self.mgr_a.tokens, Decimal("20.00"))
+        approve_weekly_awards(first, self.owner)
+        first.refresh_from_db()
         self.assertTrue(first.completed)
         self.mgr_a.refresh_from_db()
         self.mgr_b.refresh_from_db()

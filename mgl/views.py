@@ -881,6 +881,11 @@ def submit_match(request, fixture_id):
         )
         defenders = [row for row in players if row.position in {"CB", "LB", "RB", "LWB", "RWB"}]
         keepers = [row for row in players if (row.position or "").upper() == "GK"]
+        outfield = [
+            row
+            for row in players
+            if row not in defenders and row not in keepers
+        ]
         side = {
             "team": team,
             "prefix": prefix,
@@ -888,6 +893,7 @@ def submit_match(request, fixture_id):
             "players": players,
             "defenders": defenders,
             "keepers": keepers,
+            "outfield": outfield,
         }
         if readonly:
             side = side_review(side, existing)

@@ -50,6 +50,7 @@ class MatchSubmission(models.Model):
         blank=True,
         related_name="opponent_match_responses",
     )
+    stats_applied = models.BooleanField(default=False)
 
 class TeamMatchStats(models.Model):
     submission = models.ForeignKey(MatchSubmission, on_delete=models.CASCADE, related_name="team_stats")
@@ -76,6 +77,7 @@ class DefenderRating(models.Model):
     team_stats=models.ForeignKey(TeamMatchStats,on_delete=models.CASCADE,related_name="defender_ratings")
     player=models.ForeignKey("players.Player",on_delete=models.CASCADE,related_name="defender_ratings")
     rating=models.DecimalField(max_digits=3,decimal_places=1,validators=[MinValueValidator(Decimal("0.0")),MaxValueValidator(Decimal("10.0"))])
+    tackles=models.PositiveSmallIntegerField(default=0,validators=[MaxValueValidator(50)])
     class Meta:
         constraints=[models.UniqueConstraint(fields=["team_stats","player"],name="unique_defender_rating")]
 
@@ -83,8 +85,18 @@ class GKSave(models.Model):
     team_stats=models.ForeignKey(TeamMatchStats,on_delete=models.CASCADE,related_name="gk_saves")
     player=models.ForeignKey("players.Player",on_delete=models.CASCADE,related_name="gk_saves")
     saves=models.PositiveSmallIntegerField(validators=[MinValueValidator(0),MaxValueValidator(20)])
+    rating=models.DecimalField(max_digits=3,decimal_places=1,null=True,blank=True,validators=[MinValueValidator(Decimal("0.0")),MaxValueValidator(Decimal("10.0"))])
     class Meta:
         constraints=[models.UniqueConstraint(fields=["team_stats","player"],name="unique_gk_save")]
+
+class PlayerMatchRating(models.Model):
+    """Outfield (non-defender) match rating. One row per player per team sheet."""
+
+    team_stats=models.ForeignKey(TeamMatchStats,on_delete=models.CASCADE,related_name="player_ratings")
+    player=models.ForeignKey("players.Player",on_delete=models.CASCADE,related_name="match_ratings")
+    rating=models.DecimalField(max_digits=3,decimal_places=1,validators=[MinValueValidator(Decimal("1.0")),MaxValueValidator(Decimal("10.0"))])
+    class Meta:
+        constraints=[models.UniqueConstraint(fields=["team_stats","player"],name="unique_player_match_rating")]
 
 class PressConference(models.Model):
     MATCH = "MATCH"
@@ -113,6 +125,7 @@ class PressConference(models.Model):
     status=models.CharField(max_length=20,choices=ApprovalStatus.choices,default=ApprovalStatus.PENDING)
     reward=models.DecimalField(max_digits=6,decimal_places=2,default=Decimal("0.20"))
     matchweek=models.PositiveIntegerField(null=True,blank=True)
+    season_number=models.PositiveIntegerField(default=1,db_index=True)
     available_at=models.DateTimeField(null=True,blank=True,db_index=True)
     created_at=models.DateTimeField(auto_now_add=True)
     approved_at=models.DateTimeField(null=True,blank=True)
@@ -149,13 +162,75 @@ class RewardTransaction(models.Model):
         ]
 
 class WeeklyAwardBatch(models.Model):
+    EMPTY = "EMPTY"
+    PENDING_REVIEW = "PENDING_REVIEW"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+    STATUS_CHOICES = [
+        (EMPTY, "No activity"),
+        (PENDING_REVIEW, "Awaiting admin review"),
+        (APPROVED, "Approved"),
+        (REJECTED, "Rejected"),
+    ]
+
     week_start = models.DateField(unique=True)
     notes = models.TextField(blank=True)
     completed = models.BooleanField(default=False)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, blank=True, default="")
+    has_ties = models.BooleanField(default=False)
+    payload = models.JSONField(default=dict, blank=True)
+    reviewed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="weekly_award_reviews",
+    )
+    reviewed_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Weekly awards {self.week_start}"
+
+    @property
+    def needs_review(self):
+        return self.status == self.PENDING_REVIEW and not self.completed
+
+
+class MonthlyAwardBatch(models.Model):
+    EMPTY = "EMPTY"
+    PENDING_REVIEW = "PENDING_REVIEW"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+    STATUS_CHOICES = [
+        (EMPTY, "No activity"),
+        (PENDING_REVIEW, "Awaiting admin review"),
+        (APPROVED, "Approved"),
+        (REJECTED, "Rejected"),
+    ]
+
+    month_start = models.DateField(unique=True)
+    notes = models.TextField(blank=True)
+    completed = models.BooleanField(default=False)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, blank=True, default="")
+    has_ties = models.BooleanField(default=False)
+    payload = models.JSONField(default=dict, blank=True)
+    reviewed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="monthly_award_reviews",
+    )
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Monthly awards {self.month_start}"
+
+    @property
+    def needs_review(self):
+        return self.status == self.PENDING_REVIEW and not self.completed
 
 
 class TeamOfTheWeek(models.Model):

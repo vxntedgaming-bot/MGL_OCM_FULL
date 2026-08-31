@@ -54,7 +54,7 @@
                 This match has already been submitted.
             {% endif %}
         {% else %}
-            Enter the full match statistics for both teams. Player ratings must be between 0 and 10. Goalkeeper saves must be between 0 and 20. Home and away possession must add up to 100%.
+            Enter the full match statistics for both teams. Player ratings must be between 1.0 and 10.0. Goalkeeper saves must be between 0 and 20. Home and away possession must add up to 100%.
         {% endif %}
     </div>
 
@@ -82,15 +82,21 @@
                     {% endfor %}
                     <h3>YELLOW / RED CARDS</h3>
                     <p class="mgl-ms-event">{% if side.stats %}{{ side.stats.yellow_cards }} yellow · {{ side.stats.red_cards }} red{% else %}—{% endif %}</p>
-                    <h3>DEFENDER RATINGS (0–10)</h3>
+                    <h3>DEFENDER RATINGS (1.0–10.0) / TACKLES</h3>
                     {% for row in side.ratings %}
-                        <p class="mgl-ms-event">{{ row.player.name }} · {{ row.rating }}</p>
+                        <p class="mgl-ms-event">{{ row.player.name }} · {{ row.rating }}{% if row.tackles %} · {{ row.tackles }} tackles{% endif %}</p>
                     {% empty %}
                         <p class="mgl-ms-muted">No defender ratings recorded.</p>
                     {% endfor %}
+                    <h3>PLAYER RATINGS (1.0–10.0)</h3>
+                    {% for row in side.outfield_ratings %}
+                        <p class="mgl-ms-event">{{ row.player.name }} · {{ row.rating }}</p>
+                    {% empty %}
+                        <p class="mgl-ms-muted">No outfield ratings recorded.</p>
+                    {% endfor %}
                     <h3>GOALKEEPER SAVES (0–20)</h3>
                     {% for row in side.saves %}
-                        <p class="mgl-ms-event">{{ row.player.name }} · {{ row.saves }}</p>
+                        <p class="mgl-ms-event">{{ row.player.name }} · {{ row.saves }}{% if row.rating %} · {{ row.rating }}{% endif %}</p>
                     {% empty %}
                         <p class="mgl-ms-muted">No saves recorded.</p>
                     {% endfor %}
@@ -134,24 +140,38 @@
                         </div>
 
                         {% if side.defenders %}
-                            <h3>DEFENDER RATINGS (0.0–10.0)</h3>
+                            <h3>DEFENDER RATINGS (1.0–10.0) AND TACKLES</h3>
                             <div class="mgl-ms-players">
                                 {% for player in side.defenders %}
                                     <label>
                                         <span>{{ player.position }} · {{ player.name }}</span>
-                                        <input type="number" step="0.1" min="0" max="10" name="{{ side.prefix }}_def_{{ player.id }}" placeholder="e.g. 7.4">
+                                        <input type="number" step="0.1" min="1" max="10" name="{{ side.prefix }}_def_{{ player.id }}" placeholder="Rating">
+                                        <input type="number" min="0" max="50" name="{{ side.prefix }}_tack_{{ player.id }}" placeholder="Tackles">
+                                    </label>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        {% if side.outfield %}
+                            <h3>PLAYER RATINGS (1.0–10.0)</h3>
+                            <div class="mgl-ms-players">
+                                {% for player in side.outfield %}
+                                    <label>
+                                        <span>{{ player.position }} · {{ player.name }}</span>
+                                        <input type="number" step="0.1" min="1" max="10" name="{{ side.prefix }}_rate_{{ player.id }}" placeholder="e.g. 7.4">
                                     </label>
                                 {% endfor %}
                             </div>
                         {% endif %}
 
                         {% if side.keepers %}
-                            <h3>GOALKEEPER SAVES (0–20)</h3>
+                            <h3>GOALKEEPER SAVES (0–20) AND RATING</h3>
                             <div class="mgl-ms-players">
                                 {% for player in side.keepers %}
                                     <label>
                                         <span>GK · {{ player.name }}</span>
-                                        <input type="number" min="0" max="20" name="{{ side.prefix }}_save_{{ player.id }}">
+                                        <input type="number" min="0" max="20" name="{{ side.prefix }}_save_{{ player.id }}" placeholder="Saves">
+                                        <input type="number" step="0.1" min="1" max="10" name="{{ side.prefix }}_gk_rate_{{ player.id }}" placeholder="Rating">
                                     </label>
                                 {% endfor %}
                             </div>

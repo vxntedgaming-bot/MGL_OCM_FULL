@@ -40,7 +40,6 @@ def manager_for_user(user):
 
 
 @transaction.atomic
-@transaction.atomic
 def credit_manager(manager, amount, reason, category="OTHER", fixture=None, reference=""):
     """
     Add tokens to a manager and permanently record the reward.
@@ -79,18 +78,29 @@ def credit_manager(manager, amount, reason, category="OTHER", fixture=None, refe
 
 
 @transaction.atomic
-def debit_manager(manager, amount, reason, category="OTHER", fixture=None):
+def debit_manager(manager, amount, reason, category="OTHER", fixture=None, reference=""):
     """
     Remove tokens safely and permanently record the transaction.
+    If reference is set, the same manager/category/reference debits only once.
     """
 
     amount = Decimal(str(amount))
+    reference = (reference or "").strip()
 
     manager = (
         ManagerApplication.objects
         .select_for_update()
         .get(pk=manager.pk)
     )
+
+    if reference:
+        existing = RewardTransaction.objects.filter(
+            manager=manager,
+            category=category,
+            reference=reference,
+        ).first()
+        if existing:
+            return existing
 
     if manager.tokens < amount:
         raise ValueError("Manager does not have enough tokens.")
@@ -104,6 +114,7 @@ def debit_manager(manager, amount, reason, category="OTHER", fixture=None):
         reason=reason,
         category=category,
         fixture=fixture,
+        reference=reference,
     )
 
 

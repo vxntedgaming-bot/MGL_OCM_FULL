@@ -27,323 +27,12 @@ from .models import (
     WeeklyAwardBatch,
 )
 
+from mgl.match_official import (
+    approve_match_submission,
+    reject_match_submission,
+    unapprove_match_submission,
+)
 from .services import create_news, credit_manager
-
-
-@transaction.atomic
-def approve_match_submission(sub, reviewer):
-    """
-    Approve one match exactly once.
-
-    All official match updates and token rewards happen inside
-    one database transaction.
-    """
-
-    sub = (
-        MatchSubmission.objects
-        .select_for_update()
-        .select_related(
-            "fixture",
-            "fixture__home_team",
-            "fixture__away_team",
-        )
-        .get(pk=sub.pk)
-    )
-
-    if sub.status != ApprovalStatus.PENDING:
-        return False, "Match is no longer pending."
-    if sub.opponent_response != ApprovalStatus.APPROVED:
-        return False, "The opposing manager must approve this result first."
-
-    fixture = sub.fixture
-
-    stats = list(
-        sub.team_stats
-        .select_related("team")
-        .prefetch_related(
-            "goal_events__player",
-            "assist_events__player",
-            "defender_ratings__player",
-            "gk_saves__player",
-        )
-    )
-
-    home_stats = next(
-        (x for x in stats if x.team_id == fixture.home_team_id),
-        None,
-    )
-
-    away_stats = next(
-        (x for x in stats if x.team_id == fixture.away_team_id),
-        None,
-    )
-
-    if not home_stats or not away_stats:
-        raise ValueError(
-            "Both teams must have match statistics before approval."
-        )
-
-    if home_stats.goals == away_stats.goals:
-        result = "DRAW"
-    elif home_stats.goals > away_stats.goals:
-        result = "HOME_WIN"
-    else:
-        result = "AWAY_WIN"
-
-    # ---------------------------------------------------------
-    # PLAYER STATISTICS
-    # ---------------------------------------------------------
-
-    touched_players = set()
-
-    for team_stats in stats:
-
-        for event in team_stats.goal_events.all():
-            player = event.player
-            player.goals = (player.goals or 0) + 1
-            player.save(update_fields=["goals"])
-            touched_players.add(player.pk)
-
-        for event in team_stats.assist_events.all():
-            player = event.player
-            player.assists = (player.assists or 0) + 1
-            player.save(update_fields=["assists"])
-            touched_players.add(player.pk)
-
-        for rating in team_stats.defender_ratings.all():
-            touched_players.add(rating.player_id)
-
-        for save in team_stats.gk_saves.all():
-            touched_players.add(save.player_id)
-
-    # A player who participated in the match gets one appearance.
-    for player_id in touched_players:
-        from players.models import Player
-
-        player = Player.objects.get(pk=player_id)
-        player.appearances = (player.appearances or 0) + 1
-        player.save(update_fields=["appearances"])
-
-    # ---------------------------------------------------------
-    # MANAGER CAREER RECORDS
-    # ---------------------------------------------------------
-
-    from managers.models import ManagerApplication
-
-    managers = []
-
-    if fixture.home_team.manager_id:
-        try:
-            managers.append(
-                ManagerApplication.objects.get(
-                    user_id=fixture.home_team.manager_id
-                )
-            )
-        except ManagerApplication.DoesNotExist:
-            pass
-
-    if (
-        fixture.away_team.manager_id
-        and fixture.away_team.manager_id != fixture.home_team.manager_id
-    ):
-        try:
-            managers.append(
-                ManagerApplication.objects.get(
-                    user_id=fixture.away_team.manager_id
-                )
-            )
-        except ManagerApplication.DoesNotExist:
-            pass
-
-    home_manager = None
-    away_manager = None
-
-    if fixture.home_team.manager_id:
-        home_manager = next(
-            (
-                m for m in managers
-                if m.user_id == fixture.home_team.manager_id
-            ),
-            None,
-        )
-
-    if fixture.away_team.manager_id:
-        away_manager = next(
-            (
-                m for m in managers
-                if m.user_id == fixture.away_team.manager_id
-            ),
-            None,
-        )
-
-    if home_manager:
-        career, _ = ManagerCareerStat.objects.get_or_create(
-            manager=home_manager
-        )
-
-        if result == "HOME_WIN":
-            career.wins += 1
-        elif result == "DRAW":
-            career.draws += 1
-        else:
-            career.losses += 1
-
-        career.save()
-
-    if away_manager:
-        career, _ = ManagerCareerStat.objects.get_or_create(
-            manager=away_manager
-        )
-
-        if result == "AWAY_WIN":
-            career.wins += 1
-        elif result == "DRAW":
-            career.draws += 1
-        else:
-            career.losses += 1
-
-        career.save()
-
-    # ---------------------------------------------------------
-    # MATCH REWARD
-    # ---------------------------------------------------------
-
-    if home_manager:
-        credit_manager(
-            home_manager,
-            Decimal("1.00"),
-            "Approved league match",
-            "MATCH",
-            fixture,
-            reference=f"match:{fixture.id}:home",
-        )
-
-    if away_manager:
-        credit_manager(
-            away_manager,
-            Decimal("1.00"),
-            "Approved league match",
-            "MATCH",
-            fixture,
-            reference=f"match:{fixture.id}:away",
-        )
-
-    # ---------------------------------------------------------
-    # MARK MATCH OFFICIAL
-    # ---------------------------------------------------------
-
-    sub.status = ApprovalStatus.APPROVED
-    sub.reviewed_by = reviewer
-    sub.reviewed_at = timezone.now()
-    sub.save(
-        update_fields=[
-            "status",
-            "reviewed_by",
-            "reviewed_at",
-        ]
-    )
-
-    fixture.status = "COMPLETED"
-    fixture.save(update_fields=["status"])
-
-    # ---------------------------------------------------------
-    # NEWS
-    # ---------------------------------------------------------
-
-    create_news(
-        NewsPost.RESULTS,
-        (
-            f"{fixture.home_team.name} "
-            f"{home_stats.goals}–{away_stats.goals} "
-            f"{fixture.away_team.name}"
-        ),
-        (
-            f"Result approved by Admin.\n"
-            f"Gameweek {fixture.matchweek}.\n\n"
-            f"{fixture.home_team.name} {home_stats.goals}–{away_stats.goals} "
-            f"{fixture.away_team.name}\n\n"
-            f"Shots: {home_stats.shots} - {away_stats.shots}\n"
-            f"Possession: {home_stats.possession}% - "
-            f"{away_stats.possession}%"
-        ),
-        team=fixture.home_team,
-        secondary_team=fixture.away_team,
-    )
-
-    from mgl.press import create_match_press_questions, maybe_create_odd_matchday_interview
-
-    create_match_press_questions(fixture, home_stats, away_stats)
-    maybe_create_odd_matchday_interview(fixture)
-
-    from mgl.notifications import close_admin_result_notices, notify_user
-    from django.urls import reverse
-    from mgl.models import ManagerNotification
-
-    close_admin_result_notices(sub, ManagerNotification.ACCEPTED)
-
-    scoreline = (
-        f"{fixture.home_team.name} {home_stats.goals}–{away_stats.goals} "
-        f"{fixture.away_team.name}"
-    )
-    for manager_user, club in (
-        (fixture.home_team.manager, fixture.home_team),
-        (fixture.away_team.manager, fixture.away_team),
-    ):
-        notify_user(
-            manager_user,
-            source_key=f"score-approved-{sub.pk}",
-            notification_type="SCORE",
-            title="RESULT APPROVED",
-            message=f"{scoreline} has been approved and is now official. +1.00 TOKEN awarded.",
-            actor="MGL Admin",
-            action_url=reverse("fixture_list"),
-            action_label="VIEW FIXTURES",
-            team=club,
-        )
-
-    return True, "Match approved successfully."
-
-
-@transaction.atomic
-def reject_match_submission(sub, reviewer):
-    sub = (
-        MatchSubmission.objects.select_for_update()
-        .select_related("fixture__home_team", "fixture__away_team", "submitted_by")
-        .get(pk=sub.pk)
-    )
-    if sub.status != ApprovalStatus.PENDING:
-        return False, "Match is no longer pending."
-    if sub.opponent_response != ApprovalStatus.APPROVED:
-        return False, "The opposing manager must approve this result before the league office can reject it."
-
-    sub.status = ApprovalStatus.REJECTED
-    sub.reviewed_by = reviewer
-    sub.reviewed_at = timezone.now()
-    sub.save(update_fields=["status", "reviewed_by", "reviewed_at"])
-
-    from django.urls import reverse
-    from mgl.models import ManagerNotification
-    from mgl.notifications import close_admin_result_notices, notify_user
-
-    close_admin_result_notices(sub, ManagerNotification.REJECTED)
-    fixture = sub.fixture
-    message = (
-        f"{fixture.home_team.name} vs {fixture.away_team.name} "
-        "was rejected by the league office. Submit a corrected result."
-    )
-    notify_user(
-        sub.submitted_by,
-        source_key=f"score-rejected-{sub.pk}",
-        notification_type="SCORE",
-        title="RESULT REJECTED",
-        message=message,
-        actor="MGL Admin",
-        action_url=reverse("submit_match", args=[fixture.pk]),
-        action_label="RESUBMIT",
-        team=fixture.home_team if sub.submitted_by_id == fixture.home_team.manager_id else fixture.away_team,
-        fixture=fixture,
-    )
-    return True, "Match rejected. The submitting manager can resubmit."
 
 
 @admin.action(description="Approve selected match submissions")
@@ -402,6 +91,23 @@ def reject_matches(modeladmin, request, queryset):
         messages.warning(request, f"{skipped} match submission(s) were skipped or failed.")
 
 
+@admin.action(description="Roll back official match submissions")
+def rollback_matches(modeladmin, request, queryset):
+    rolled = 0
+    skipped = 0
+    for submission in queryset:
+        success, message = unapprove_match_submission(submission, request.user)
+        if success:
+            rolled += 1
+        else:
+            skipped += 1
+            messages.error(request, f"{submission}: {message}")
+    if rolled:
+        messages.success(request, f"{rolled} official result(s) rolled back.")
+    if skipped:
+        messages.warning(request, f"{skipped} match submission(s) were skipped or failed.")
+
+
 @admin.register(MatchSubmission)
 class MatchSubmissionAdmin(admin.ModelAdmin):
 
@@ -426,6 +132,7 @@ class MatchSubmissionAdmin(admin.ModelAdmin):
     actions = (
         approve_matches,
         reject_matches,
+        rollback_matches,
     )
 
     readonly_fields = (
@@ -890,7 +597,7 @@ class SiteContentAdmin(admin.ModelAdmin):
     readonly_fields = ("updated_at",)
 
 
-from .models import ManagerNotification, RewardTransaction, WeeklyAwardBatch
+from .models import ManagerNotification, MonthlyAwardBatch, RewardTransaction, WeeklyAwardBatch
 
 
 @admin.register(RewardTransaction)
@@ -923,10 +630,38 @@ class RewardTransactionAdmin(admin.ModelAdmin):
 
 @admin.register(WeeklyAwardBatch)
 class WeeklyAwardBatchAdmin(admin.ModelAdmin):
-    list_display = ("week_start", "completed", "created_at", "notes")
-    list_filter = ("completed",)
+    list_display = ("week_start", "status", "completed", "has_ties", "created_at", "notes")
+    list_filter = ("status", "completed", "has_ties")
     search_fields = ("notes",)
-    readonly_fields = ("week_start", "notes", "completed", "created_at")
+    readonly_fields = (
+        "week_start",
+        "notes",
+        "completed",
+        "status",
+        "has_ties",
+        "payload",
+        "reviewed_by",
+        "reviewed_at",
+        "created_at",
+    )
+
+
+@admin.register(MonthlyAwardBatch)
+class MonthlyAwardBatchAdmin(admin.ModelAdmin):
+    list_display = ("month_start", "status", "completed", "has_ties", "created_at", "notes")
+    list_filter = ("status", "completed", "has_ties")
+    search_fields = ("notes",)
+    readonly_fields = (
+        "month_start",
+        "notes",
+        "completed",
+        "status",
+        "has_ties",
+        "payload",
+        "reviewed_by",
+        "reviewed_at",
+        "created_at",
+    )
 
 
 @admin.register(ManagerNotification)

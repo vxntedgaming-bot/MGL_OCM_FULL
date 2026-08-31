@@ -299,6 +299,31 @@ urlpatterns = [
         name="control_reject_result",
     ),
     path(
+        "control/results/<int:submission_id>/rollback/",
+        views_market.control_rollback_result,
+        name="control_rollback_result",
+    ),
+    path(
+        "control/awards/weekly/<int:batch_id>/approve/",
+        views_market.control_approve_weekly_awards,
+        name="control_approve_weekly_awards",
+    ),
+    path(
+        "control/awards/weekly/<int:batch_id>/reject/",
+        views_market.control_reject_weekly_awards,
+        name="control_reject_weekly_awards",
+    ),
+    path(
+        "control/awards/weekly/<int:batch_id>/recalculate/",
+        views_market.control_recalculate_weekly_awards,
+        name="control_recalculate_weekly_awards",
+    ),
+    path(
+        "control/awards/monthly/<int:batch_id>/approve/",
+        views_market.control_approve_monthly_awards,
+        name="control_approve_monthly_awards",
+    ),
+    path(
         "control/auctions/<int:auction_id>/close/",
         views_market.control_close_auction,
         name="control_close_auction",
