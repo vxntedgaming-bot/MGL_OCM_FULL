@@ -92,6 +92,14 @@ class Command(BaseCommand):
             ),
         )
         parser.add_argument(
+            "--identity-only",
+            action="store_true",
+            help=(
+                "Fill empty DOB, age, preferred foot, weak foot, skill moves, "
+                "and playstyles only. Never overwrites a value that is already set."
+            ),
+        )
+        parser.add_argument(
             "--dry-run",
             action="store_true",
             help="Count matches without writing to the database.",
@@ -103,11 +111,67 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        if options["faces_only"] and options["attributes_only"]:
-            raise CommandError("Use either --faces-only or --attributes-only, not both.")
+        exclusive = [options["faces_only"], options["attributes_only"], options["identity_only"]]
+        if sum(bool(flag) for flag in exclusive) > 1:
+            raise CommandError("Use only one of --faces-only, --attributes-only, or --identity-only.")
+        if options["identity_only"]:
+            return self.handle_identity(options)
         if options["attributes_only"]:
             return self.handle_attributes(options)
         return self.handle_details(options)
+
+    def handle_identity(self, options):
+        from players.display import apply_fc26_identity
+
+        csv_file = options["csv_file"]
+        dry_run = options["dry_run"]
+        rows = self.read_csv(
+            csv_file,
+            required={"player_id", "dob", "age", "preferred_foot", "weak_foot", "skill_moves"},
+        )
+        players_by_id, _missing = self.index_players()
+        csv_by_id, skipped = self.index_csv_rows(rows)
+        updated = 0
+        unchanged = 0
+        not_found = 0
+        changed_players = []
+        changed_fields = set()
+        for fc_id, row in csv_by_id.items():
+            player = players_by_id.get(fc_id)
+            if player is None:
+                not_found += 1
+                continue
+            fields = apply_fc26_identity(player, row)
+            if fields:
+                changed_players.append(player)
+                changed_fields.update(fields)
+                updated += 1
+            else:
+                unchanged += 1
+        if dry_run:
+            self.stdout.write(self.style.WARNING("Dry run — no rows written."))
+        else:
+            self.bulk_save(
+                changed_players,
+                sorted(changed_fields)
+                or [
+                    "date_of_birth",
+                    "age",
+                    "preferred_foot",
+                    "weak_foot",
+                    "skill_moves",
+                    "fc_playstyles",
+                    "fc_playstyle_plus",
+                ],
+            )
+        self.stdout.write("")
+        self.stdout.write(self.style.SUCCESS("FC26 identity fill complete."))
+        self.stdout.write(f"Updated:   {updated}")
+        self.stdout.write(f"Unchanged: {unchanged}")
+        self.stdout.write(f"Not found: {not_found}")
+        self.stdout.write(f"Skipped:   {skipped}")
+        if changed_fields:
+            self.stdout.write(f"Fields:    {', '.join(sorted(changed_fields))}")
 
     def handle_attributes(self, options):
         csv_file = options["csv_file"]

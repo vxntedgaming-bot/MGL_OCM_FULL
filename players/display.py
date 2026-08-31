@@ -101,8 +101,18 @@ def playstyles_for_player(player):
     return styles, plus
 
 
+def _int_or_none(value):
+    if value in (None, ""):
+        return None
+    try:
+        parsed = int(float(value))
+    except (TypeError, ValueError):
+        return None
+    return parsed
+
+
 def apply_fc26_identity(player, row) -> list[str]:
-    """Fill DOB, age (if empty), and playstyles from an FC26 CSV row."""
+    """Fill empty identity fields from an FC26 CSV row. Never overwrites set values."""
     changed = []
     dob = parse_date(row.get("dob"))
     if dob and getattr(player, "date_of_birth", None) != dob:
@@ -110,18 +120,24 @@ def apply_fc26_identity(player, row) -> list[str]:
             player.date_of_birth = dob
             changed.append("date_of_birth")
     if getattr(player, "age", None) in (None, ""):
-        csv_age = row.get("age")
-        parsed_age = None
-        if csv_age not in (None, ""):
-            try:
-                parsed_age = int(float(csv_age))
-            except (TypeError, ValueError):
-                parsed_age = None
+        parsed_age = _int_or_none(row.get("age"))
         if parsed_age is None and dob:
             parsed_age = player_age(type("P", (), {"date_of_birth": dob, "age": None})())
         if parsed_age is not None:
             player.age = parsed_age
             changed.append("age")
+    foot = (row.get("preferred_foot") or "").strip()
+    if foot and not (getattr(player, "preferred_foot", "") or "").strip():
+        player.preferred_foot = foot
+        changed.append("preferred_foot")
+    for field in ("weak_foot", "skill_moves"):
+        current = getattr(player, field, None)
+        if current not in (None, "", 0):
+            continue
+        parsed = _int_or_none(row.get(field))
+        if parsed is not None:
+            setattr(player, field, parsed)
+            changed.append(field)
     raw_traits = (row.get("player_traits") or "").strip()
     styles, plus = parse_playstyles(raw_traits)
     styles_text = ", ".join(styles)

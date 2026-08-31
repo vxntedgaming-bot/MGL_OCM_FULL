@@ -2,7 +2,7 @@ from datetime import date
 
 from django.test import SimpleTestCase, TestCase
 
-from players.display import parse_playstyles, player_age, star_rating
+from players.display import apply_fc26_identity, parse_playstyles, player_age, star_rating
 from players.models import Player
 
 
@@ -45,3 +45,37 @@ class PlayerDisplayModelTests(TestCase):
             date_of_birth=date(1998, 6, 1),
         )
         self.assertEqual(player_age(born, today=date(2026, 8, 31)), 28)
+
+    def test_identity_fills_empty_skills_only(self):
+        player = Player.objects.create(name="Empty Skills", position="ST", overall=80)
+        row = {
+            "dob": "1998-06-01",
+            "age": "26",
+            "preferred_foot": "Right",
+            "weak_foot": "4",
+            "skill_moves": "5",
+            "player_traits": "Technical, Finesse Shot+",
+        }
+        changed = apply_fc26_identity(player, row)
+        self.assertIn("skill_moves", changed)
+        self.assertEqual(player.skill_moves, 5)
+        self.assertEqual(player.weak_foot, 4)
+        self.assertEqual(player.preferred_foot, "Right")
+        self.assertEqual(player.fc_playstyles, "Technical")
+        self.assertEqual(player.fc_playstyle_plus, "Finesse Shot+")
+        player.skill_moves = 3
+        player.weak_foot = 2
+        player.preferred_foot = "Left"
+        apply_fc26_identity(
+            player,
+            {
+                "preferred_foot": "Right",
+                "weak_foot": "5",
+                "skill_moves": "5",
+                "player_traits": "Rapid, Power Shot+",
+            },
+        )
+        self.assertEqual(player.skill_moves, 3)
+        self.assertEqual(player.weak_foot, 2)
+        self.assertEqual(player.preferred_foot, "Left")
+        self.assertEqual(player.fc_playstyles, "Technical")
