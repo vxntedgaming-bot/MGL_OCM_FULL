@@ -7,7 +7,7 @@ from datetime import date
 from django.utils import timezone
 
 from mgl.models import ApprovalStatus, FixtureReleaseBatch, MatchSubmission
-from mgl.standings import build_league_table
+from mgl.standings import build_live_league_table
 
 
 STATUS_UPCOMING = "upcoming"
@@ -24,7 +24,7 @@ STATUS_COMPLETED = "completed"
 def club_standings(league, team):
     if not league or not team:
         return None, 0
-    table = build_league_table(league)
+    table = build_live_league_table(league)
     row = next((item for item in table if item["team"].id == team.id), None)
     return row, len(table)
 

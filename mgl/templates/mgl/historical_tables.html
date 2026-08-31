@@ -1,42 +1,176 @@
 {% extends "core/base.html" %}
-{% load mgl_ui %}
+{% load static mgl_ui %}
 
 {% block title %}History — MGL{% endblock %}
+{% block body_class %}mgl-hist-page{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/mgl-history.css' %}?v=hist-1">
+{% endblock %}
 
 {% block content %}
-<section class="mgl-section">
-    <div class="section-heading">
+<section class="mgl-section mgl-hist">
+    <nav class="mgl-hist-crumbs" aria-label="History location">
+        <span>COMMUNITY</span>
+        <span aria-hidden="true">›</span>
+        <span class="mgl-hist-crumb-current">HISTORY</span>
+    </nav>
+
+    <header class="mgl-hist-hero">
+        <img src="{% static 'core/img/mgl-logo.png' %}" alt="" class="mgl-hist-watermark">
         <div>
             <div class="eyebrow">COMMUNITY</div>
             <h1>HISTORY</h1>
+            <p>A record of every season in Meta Gaming League.</p>
         </div>
-        <a href="{% url 'leagues_page' %}" class="view-all">CURRENT TABLE →</a>
-    </div>
+        <a href="{% url 'leagues_page' %}" class="secondary-button mgl-hist-cta">CURRENT TABLE →</a>
+    </header>
 
-    <div class="mgl-history-seasons">
-        {% for season in history_seasons %}
-            <article class="dashboard-panel mgl-history-season">
-                <div class="panel-heading"><span>SEASON {{ season.number }}</span></div>
-                {% for record in season.records %}
-                    <div class="table-row mgl-history-row">
-                        <strong>{{ record.label }}</strong>
-                        <span>{{ record.value }}</span>
-                    </div>
+    {% if seasons %}
+        <div class="mgl-hist-selector-wrap">
+            <div class="eyebrow">SEASON SELECTOR</div>
+            <div class="mgl-hist-selector" role="list">
+                {% for item in seasons %}
+                    <a
+                        role="listitem"
+                        href="?season={{ item.number }}"
+                        class="mgl-hist-chip{% if selected and item.number == selected.number %} is-active{% endif %}"
+                    >
+                        <strong>SEASON {{ item.number }}</strong>
+                        {% if item.year_label %}<span>{{ item.year_label }}</span>{% endif %}
+                        {% if item.is_active %}<em>ACTIVE</em>{% endif %}
+                    </a>
                 {% endfor %}
-            </article>
-        {% endfor %}
-    </div>
-</section>
-
-<section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">CURRENT SEASON</div>
-            <h2>LIVE TABLE</h2>
+            </div>
         </div>
-    </div>
-    <div class="dashboard-panel">
-        {% include "mgl/includes/league_table.html" with table=table league=active_league %}
-    </div>
+    {% endif %}
+
+    {% if selected %}
+        <section class="mgl-hist-overview">
+            <div class="mgl-hist-overview-title">
+                <h2>SEASON {{ selected.number }}</h2>
+                {% if selected.year_label %}<span class="mgl-hist-year">{{ selected.year_label }}</span>{% endif %}
+                {% if selected.is_active %}<span class="mgl-hist-badge">ACTIVE SEASON</span>{% endif %}
+                {% if selected.is_finalized %}<span class="mgl-hist-badge">COMPLETED</span>{% endif %}
+            </div>
+            <div class="mgl-hist-meta">
+                <div>
+                    <span>START DATE</span>
+                    <strong>{% if selected.start_date %}{{ selected.start_date|date:"d M Y"|upper }}{% else %}NOT YET RECORDED{% endif %}</strong>
+                </div>
+                <div>
+                    <span>END DATE</span>
+                    <strong>{% if selected.end_date %}{{ selected.end_date|date:"d M Y"|upper }}{% else %}NOT YET RECORDED{% endif %}</strong>
+                </div>
+                <div>
+                    <span>CLUBS</span>
+                    <strong>{{ selected.clubs_count }}</strong>
+                </div>
+                <div>
+                    <span>GAMES PLAYED</span>
+                    <strong>{{ selected.games_played }}</strong>
+                </div>
+            </div>
+        </section>
+
+        <div class="mgl-hist-awards">
+            {% for award in awards %}
+                <article class="mgl-hist-award">
+                    <div class="eyebrow">{{ award.label|upper }}</div>
+                    {% if award.kicker %}<p class="mgl-hist-kicker">{{ award.kicker }}</p>{% endif %}
+                    {% if award.empty %}
+                        <p class="mgl-hist-empty">{{ award.value }}</p>
+                    {% elif award.kind == "tots" %}
+                        <div class="mgl-tots-pitch" aria-label="{{ award.formation }}">
+                            {% for dot in award.dots %}
+                                <span class="mgl-tots-dot{% if dot.player_name %} is-filled{% endif %}" style="left:{{ dot.x }}%;top:{{ dot.y }}%" title="{{ dot.player_name|default:dot.slot }}"></span>
+                            {% endfor %}
+                        </div>
+                        <strong>{{ award.formation }}</strong>
+                    {% elif award.kind == "match" %}
+                        <div class="mgl-hist-score">
+                            {% team_logo award.home "sm" %}
+                            <b>{{ award.home_goals }} - {{ award.away_goals }}</b>
+                            {% team_logo award.away "sm" %}
+                        </div>
+                        <span>{{ award.home_name }} v {{ award.away_name }}</span>
+                    {% elif award.kind == "player" or award.kind == "manager" %}
+                        {% if award.player %}
+                            {% player_face_url award.player "small" as face %}
+                            {% if face %}<img src="{{ face }}" alt="" class="mgl-hist-face">{% endif %}
+                            <a href="{% url 'player_profile' award.player.id %}">{{ award.name }}</a>
+                        {% else %}
+                            <strong>{{ award.name }}</strong>
+                        {% endif %}
+                        {% if award.detail %}<span>{{ award.detail }}</span>{% endif %}
+                    {% else %}
+                        {% if award.team %}
+                            {% team_logo award.team "md" %}
+                            <a href="{% club_url award.team %}">{{ award.name }}</a>
+                        {% else %}
+                            <strong>{{ award.name }}</strong>
+                        {% endif %}
+                        {% if award.detail %}<span>{{ award.detail }}</span>{% endif %}
+                    {% endif %}
+                </article>
+            {% endfor %}
+        </div>
+
+        <section class="mgl-hist-table-wrap">
+            <h2>LEAGUE TABLE</h2>
+            {% with rows=show_full_table|yesno:"table,table_preview" %}
+            {% endwith %}
+            {% if show_full_table %}
+                {% include "mgl/includes/history_table.html" with table=table %}
+            {% else %}
+                {% include "mgl/includes/history_table.html" with table=table_preview %}
+            {% endif %}
+            {% if selected.is_active %}
+                <a href="{% url 'leagues_page' %}" class="secondary-button">VIEW FULL TABLE →</a>
+            {% elif show_full_table %}
+                <a href="?season={{ selected.number }}" class="secondary-button">SHOW SNAPSHOT →</a>
+            {% else %}
+                <a href="?season={{ selected.number }}&table=full" class="secondary-button">VIEW FULL TABLE →</a>
+            {% endif %}
+        </section>
+    {% else %}
+        {% include "mgl/includes/empty_state.html" with title="NO SEASON HISTORY YET" body="Owner/Admin can finalise a season from Site Management when it is complete." %}
+    {% endif %}
+
+    <section class="mgl-hist-past">
+        <h2>PAST SEASONS</h2>
+        {% if past_seasons %}
+            <div class="mgl-hist-past-row">
+                {% for item in past_seasons %}
+                    <article class="mgl-hist-past-card">
+                        <strong>SEASON {{ item.number }}</strong>
+                        <span>
+                            {% if item.start_date %}{{ item.start_date|date:"Y" }}{% endif %}
+                            {% if item.end_date %} / {{ item.end_date|date:"Y" }}{% endif %}
+                            {% if item.year_label %} · {{ item.year_label }}{% endif %}
+                        </span>
+                        {% if item.league_winner or item.league_winner_name %}
+                            <div class="mgl-hist-winner">
+                                {% team_logo item.league_winner "sm" %}
+                                {% if item.league_winner %}
+                                    <a href="{% club_url item.league_winner %}">{{ item.league_winner_name|default:item.league_winner.name }}</a>
+                                {% else %}
+                                    <span>{{ item.league_winner_name }}</span>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <p class="mgl-hist-empty">To be recorded</p>
+                        {% endif %}
+                        <a href="?season={{ item.number }}">VIEW SEASON →</a>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            {% include "mgl/includes/empty_state.html" with title="NO COMPLETED SEASONS YET" body="The active season appears here after Owner/Admin finalises it." %}
+        {% endif %}
+    </section>
+
+    {% if can_manage_seasons %}
+        <p class="mgl-hist-manage"><a href="{% url 'season_management' %}" class="secondary-button">MANAGE SEASONS →</a></p>
+    {% endif %}
 </section>
 {% endblock %}

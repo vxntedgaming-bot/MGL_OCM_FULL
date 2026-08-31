@@ -14,7 +14,7 @@ from accounts.models import User
 from leagues.models import League
 from leagues.services import active_league, ensure_premier_league
 from managers.models import ManagerApplication
-from mgl.standings import build_league_table
+from mgl.standings import build_live_league_table
 from players.models import Player
 from players.search import apply_player_search
 from players.fc26_attributes import attribute_groups_for_player
@@ -177,7 +177,7 @@ def home(request):
         .select_related("mgl_team")
         .order_by("-goals", "name")[:5]
     )
-    table = build_league_table(league)
+    table = build_live_league_table(league)
     club_qs = Team.objects.all()
     if league:
         club_qs = Team.objects.filter(league=league)
@@ -624,7 +624,7 @@ def manager_hub(request):
         top_assists = [p for p in squad if (p.assists or 0) > 0]
         top_assists.sort(key=lambda p: (-p.assists, p.name))
         top_assists = top_assists[:5]
-        table = build_league_table(team.league)
+        table = build_live_league_table(team.league)
         league_size = len(table)
         standings_row = next(
             (row for row in table if row["team"].id == team.id),
@@ -1726,7 +1726,7 @@ def competition_page(request, slug):
             short_name__iexact=short, is_active=True
         ).prefetch_related("teams__manager").first()
         if league:
-            table = build_league_table(league)
+            table = build_live_league_table(league)
             name = league.public_name or name
     return render(
         request,
@@ -1744,37 +1744,15 @@ def competition_page(request, slug):
     )
 
 
-HISTORY_RECORD_LABELS = (
-    "League Winner",
-    "Cup Winner",
-    "Manager of the Season",
-    "Team of the Season",
-    "Golden Boot",
-    "Top Assists",
-)
-
-
 def historical_tables(request):
-    league = active_league()
-    history_seasons = [
-        {
-            "number": number,
-            "records": [
-                {"label": label, "value": "To be recorded"}
-                for label in HISTORY_RECORD_LABELS
-            ],
-        }
-        for number in (1, 2)
-    ]
-    return render(
-        request,
-        "mgl/historical_tables.html",
-        {
-            "active_league": league,
-            "table": build_league_table(league),
-            "history_seasons": history_seasons,
-        },
-    )
+    from mgl.permissions import is_owner_or_admin
+    from mgl.season_history import page_context
+
+    selected = request.GET.get("season")
+    show_full = request.GET.get("table") == "full"
+    context = page_context(selected, show_full_table=show_full)
+    context["can_manage_seasons"] = is_owner_or_admin(request.user)
+    return render(request, "mgl/historical_tables.html", context)
 
 
 def head_to_head(request):

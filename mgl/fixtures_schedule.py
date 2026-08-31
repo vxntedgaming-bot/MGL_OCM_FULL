@@ -5,6 +5,7 @@ lineup_deadline stays empty so a deadline can be added later.
 """
 
 from mgl.models import Fixture
+from mgl.season_history import current_season_number
 from teams.models import Team
 
 
@@ -79,6 +80,7 @@ def ensure_round_robin_fixtures(league, *, release=True):
             matchweek=matchweek,
             is_released=release,
             status="SCHEDULED",
+            season_number=current_season_number(),
         )
         existing.add(key)
         created += 1

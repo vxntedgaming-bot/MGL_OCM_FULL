@@ -11,7 +11,7 @@ from mgl.activity import activity_payloads, published_football_activity
 from mgl.club_urls import resolve_club
 from mgl.models import ApprovalStatus, Fixture, MatchSubmission, PressConference
 from mgl.press import publish_press_answer, published_press
-from mgl.standings import build_league_table
+from mgl.standings import build_live_league_table
 from mgl.services import manager_for_user
 from teams.models import Team
 
@@ -74,7 +74,7 @@ def club_page(request, slug):
     fixtures = _annotate_fixture_scores(fixtures)
     upcoming = [row for row in fixtures if row.status == "SCHEDULED"]
     results = [row for row in fixtures if row.status == "COMPLETED"]
-    table = build_league_table(team.league) if team.league_id else []
+    table = build_live_league_table(team.league) if team.league_id else []
     position = next(
         (row["position"] for row in table if row["team"].id == team.id),
         None,

@@ -29,20 +29,21 @@ def league_for_stats_slug(slug):
     return league, name, slug
 
 
-def _event_filter(league, prefix):
-    return Q(
-        **{
-            f"{prefix}__team_stats__submission__status": ApprovalStatus.APPROVED,
-            f"{prefix}__team_stats__submission__fixture__league": league,
-        }
-    )
+def _event_filter(league, prefix, season_number=None):
+    lookup = {
+        f"{prefix}__team_stats__submission__status": ApprovalStatus.APPROVED,
+        f"{prefix}__team_stats__submission__fixture__league": league,
+    }
+    if season_number is not None:
+        lookup[f"{prefix}__team_stats__submission__fixture__season_number"] = season_number
+    return Q(**lookup)
 
 
-def build_league_stats(league):
-    goal_filter = _event_filter(league, "goal_events")
-    assist_filter = _event_filter(league, "assist_events")
-    def_filter = _event_filter(league, "defender_ratings")
-    gk_filter = _event_filter(league, "gk_saves")
+def build_league_stats(league, season_number=None):
+    goal_filter = _event_filter(league, "goal_events", season_number)
+    assist_filter = _event_filter(league, "assist_events", season_number)
+    def_filter = _event_filter(league, "defender_ratings", season_number)
+    gk_filter = _event_filter(league, "gk_saves", season_number)
     top_scorers = (
         Player.objects.filter(goal_filter)
         .select_related("mgl_team")
@@ -89,8 +90,10 @@ def build_league_stats(league):
 
 
 def render_league_stats(request, slug="premier-league"):
+    from mgl.season_history import current_season_number
+
     league, name, slug = league_for_stats_slug(slug)
-    context = build_league_stats(league)
+    context = build_league_stats(league, season_number=current_season_number())
     context.update(
         {
             "competition_name": name,

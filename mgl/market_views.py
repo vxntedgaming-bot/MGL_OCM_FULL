@@ -50,7 +50,7 @@ from .job_applications import (
 from .nav import live_competition_choices
 from .permissions import approved_manager, owner_admin_required
 from .services import create_news, manager_for_user
-from .standings import build_league_table
+from .standings import build_live_league_table
 from .player_state import club_players, free_agents as free_agent_qs, market_counts, unassigned_players
 from .tenure import open_club_spell
 
@@ -324,7 +324,7 @@ def leagues_page(request):
             "leagues": divisions,
             "active_league": premier or active_league(),
             "tables": [
-                {"league": league, "table": build_league_table(league)}
+                {"league": league, "table": build_live_league_table(league)}
                 for league in divisions
             ],
             "competition_choices": live_competition_choices(),

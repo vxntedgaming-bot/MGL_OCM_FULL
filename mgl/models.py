@@ -18,6 +18,7 @@ class Fixture(models.Model):
     release_batch = models.PositiveSmallIntegerField(default=1)
     is_released = models.BooleanField(default=False)
     status = models.CharField(max_length=20, default="SCHEDULED", choices=[("SCHEDULED","Scheduled"),("LIVE","Live"),("COMPLETED","Completed"),("CANCELLED","Cancelled")])
+    season_number = models.PositiveIntegerField(default=1, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     class Meta:
         ordering=["matchweek","scheduled_at","id"]
@@ -651,3 +652,210 @@ class ManagerNotification(models.Model):
     @property
     def is_actioned(self):
         return self.response_status in {self.ACCEPTED, self.REJECTED}
+
+
+class HistoricalSeason(models.Model):
+    """One MGL season. Finalised rows are frozen snapshots and must not follow live data."""
+
+    ACTIVE = "ACTIVE"
+    FINALIZED = "FINALIZED"
+    STATUS_CHOICES = [
+        (ACTIVE, "Active"),
+        (FINALIZED, "Finalized"),
+    ]
+
+    number = models.PositiveIntegerField(unique=True)
+    year_label = models.CharField(max_length=32, blank=True)
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+    clubs_count = models.PositiveIntegerField(default=0)
+    games_played = models.PositiveIntegerField(default=0)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=ACTIVE)
+    is_locked = models.BooleanField(default=False)
+    league = models.ForeignKey(
+        "leagues.League",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="historical_seasons",
+    )
+    league_winner = models.ForeignKey(
+        "teams.Team",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="season_league_titles",
+    )
+    league_winner_name = models.CharField(max_length=120, blank=True)
+    cup_winner = models.ForeignKey(
+        "teams.Team",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="season_cup_titles",
+    )
+    cup_winner_name = models.CharField(max_length=120, blank=True)
+    manager_of_season = models.ForeignKey(
+        "managers.ManagerApplication",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="season_manager_awards",
+    )
+    manager_of_season_name = models.CharField(max_length=120, blank=True)
+    manager_of_season_club = models.CharField(max_length=120, blank=True)
+    ballon_dor = models.ForeignKey(
+        "players.Player",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="season_ballon_dor",
+    )
+    ballon_dor_name = models.CharField(max_length=120, blank=True)
+    top_scorer = models.ForeignKey(
+        "players.Player",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="season_golden_boots",
+    )
+    top_scorer_name = models.CharField(max_length=120, blank=True)
+    top_scorer_goals = models.PositiveIntegerField(null=True, blank=True)
+    top_assists_player = models.ForeignKey(
+        "players.Player",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="season_assist_awards",
+    )
+    top_assists_name = models.CharField(max_length=120, blank=True)
+    top_assists_count = models.PositiveIntegerField(null=True, blank=True)
+    young_player = models.ForeignKey(
+        "players.Player",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="season_young_player_awards",
+    )
+    young_player_name = models.CharField(max_length=120, blank=True)
+    top_goalkeeper = models.ForeignKey(
+        "players.Player",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="season_gk_awards",
+    )
+    top_goalkeeper_name = models.CharField(max_length=120, blank=True)
+    fair_play_team = models.ForeignKey(
+        "teams.Team",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="season_fair_play_awards",
+    )
+    fair_play_name = models.CharField(max_length=120, blank=True)
+    biggest_win_home = models.ForeignKey(
+        "teams.Team",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="season_biggest_win_home",
+    )
+    biggest_win_away = models.ForeignKey(
+        "teams.Team",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="season_biggest_win_away",
+    )
+    biggest_win_home_name = models.CharField(max_length=120, blank=True)
+    biggest_win_away_name = models.CharField(max_length=120, blank=True)
+    biggest_win_home_goals = models.PositiveSmallIntegerField(null=True, blank=True)
+    biggest_win_away_goals = models.PositiveSmallIntegerField(null=True, blank=True)
+    unbeaten_team = models.ForeignKey(
+        "teams.Team",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="season_unbeaten_runs",
+    )
+    unbeaten_team_name = models.CharField(max_length=120, blank=True)
+    unbeaten_games = models.PositiveIntegerField(null=True, blank=True)
+    tots_formation = models.CharField(max_length=20, default="4-2-3-1")
+    finalized_at = models.DateTimeField(null=True, blank=True)
+    finalized_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="finalized_seasons",
+    )
+
+    class Meta:
+        ordering = ["number"]
+
+    def __str__(self):
+        return f"Season {self.number}"
+
+    @property
+    def is_active(self):
+        return self.status == self.ACTIVE
+
+    @property
+    def is_finalized(self):
+        return self.status == self.FINALIZED
+
+
+class SeasonTableRow(models.Model):
+    season = models.ForeignKey(
+        HistoricalSeason,
+        on_delete=models.CASCADE,
+        related_name="table_rows",
+    )
+    position = models.PositiveSmallIntegerField()
+    team = models.ForeignKey(
+        "teams.Team",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="historical_table_rows",
+    )
+    team_name = models.CharField(max_length=120)
+    played = models.PositiveSmallIntegerField(default=0)
+    wins = models.PositiveSmallIntegerField(default=0)
+    draws = models.PositiveSmallIntegerField(default=0)
+    losses = models.PositiveSmallIntegerField(default=0)
+    gf = models.PositiveSmallIntegerField(default=0)
+    ga = models.PositiveSmallIntegerField(default=0)
+    gd = models.SmallIntegerField(default=0)
+    points = models.SmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ["position", "id"]
+        constraints = [
+            models.UniqueConstraint(fields=["season", "position"], name="unique_season_table_position"),
+        ]
+
+
+class SeasonTotsPick(models.Model):
+    season = models.ForeignKey(
+        HistoricalSeason,
+        on_delete=models.CASCADE,
+        related_name="tots_picks",
+    )
+    slot = models.CharField(max_length=12)
+    sort_order = models.PositiveSmallIntegerField(default=0)
+    player = models.ForeignKey(
+        "players.Player",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="season_tots_picks",
+    )
+    player_name = models.CharField(max_length=120, blank=True)
+
+    class Meta:
+        ordering = ["sort_order", "id"]
+        constraints = [
+            models.UniqueConstraint(fields=["season", "slot"], name="unique_season_tots_slot"),
+        ]

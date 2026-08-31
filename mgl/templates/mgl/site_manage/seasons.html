@@ -1,0 +1,197 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Season Management — MGL Control{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/mgl-history.css' %}?v=hist-1">
+{% endblock %}
+
+{% block content %}
+<section class="mgl-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">SITE MANAGEMENT</div>
+            <h1>SEASON HISTORY</h1>
+            <p>Finalise a completed season to freeze its table, statistics and awards. The next season cannot overwrite a locked snapshot.</p>
+        </div>
+        <a href="{% url 'historical_tables' %}" class="view-all">VIEW HISTORY →</a>
+    </div>
+
+    {% if seasons %}
+        <div class="mgl-hist-selector" style="margin-bottom:20px">
+            {% for item in seasons %}
+                <a href="?season={{ item.number }}" class="mgl-hist-chip{% if season and item.number == season.number %} is-active{% endif %}">
+                    <strong>SEASON {{ item.number }}</strong>
+                    <span>{{ item.get_status_display }}</span>
+                </a>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if season %}
+        {% if overview %}
+            <div class="dashboard-panel" style="margin-bottom:20px;padding:16px">
+                <div class="panel-heading"><span>LIVE APPROVED SNAPSHOT PREVIEW</span></div>
+                <p>Clubs {{ overview.clubs_count }} · Games played {{ overview.games_played }}</p>
+                <p>League leader: {% if overview.league_winner %}{{ overview.league_winner.name }}{% else %}To be recorded{% endif %}</p>
+                <p>Top scorer: {% if overview.top_scorer %}{{ overview.top_scorer.name }} ({{ overview.top_scorer_goals }}){% else %}To be recorded{% endif %}</p>
+                <p>Top assists: {% if overview.top_assists %}{{ overview.top_assists.name }} ({{ overview.top_assists_count }}){% else %}To be recorded{% endif %}</p>
+            </div>
+        {% endif %}
+
+        <form method="post" class="sm-form">
+            {% csrf_token %}
+            <input type="hidden" name="season_id" value="{{ season.number }}">
+            <div class="dashboard-panel" style="padding:16px;display:grid;gap:14px">
+                <label>YEAR LABEL <input type="text" name="year_label" value="{{ season.year_label }}" {% if not can_edit %}disabled{% endif %}></label>
+                <label>START DATE <input type="date" name="start_date" value="{{ season.start_date|date:'Y-m-d' }}" {% if not can_edit %}disabled{% endif %}></label>
+                <label>END DATE <input type="date" name="end_date" value="{{ season.end_date|date:'Y-m-d' }}" {% if not can_edit %}disabled{% endif %}></label>
+
+                <label>LEAGUE WINNER
+                    <select name="league_winner" {% if not can_edit %}disabled{% endif %}>
+                        <option value="">To be recorded</option>
+                        {% for club in clubs %}
+                            <option value="{{ club.id }}" {% if season.league_winner_id == club.id %}selected{% endif %}>{{ club.name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>CUP WINNER
+                    <select name="cup_winner" {% if not can_edit %}disabled{% endif %}>
+                        <option value="">To be recorded</option>
+                        {% for club in clubs %}
+                            <option value="{{ club.id }}" {% if season.cup_winner_id == club.id %}selected{% endif %}>{{ club.name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>MANAGER OF THE SEASON
+                    <select name="manager_of_season" {% if not can_edit %}disabled{% endif %}>
+                        <option value="">To be recorded</option>
+                        {% for manager in managers %}
+                            <option value="{{ manager.id }}" {% if season.manager_of_season_id == manager.id %}selected{% endif %}>{{ manager.display_name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>BALLON D'OR
+                    <select name="ballon_dor" {% if not can_edit %}disabled{% endif %}>
+                        <option value="">To be recorded</option>
+                        {% for player in players %}
+                            <option value="{{ player.id }}" {% if season.ballon_dor_id == player.id %}selected{% endif %}>{{ player.name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>YOUNG PLAYER OF THE SEASON
+                    <select name="young_player" {% if not can_edit %}disabled{% endif %}>
+                        <option value="">To be recorded</option>
+                        {% for player in players %}
+                            <option value="{{ player.id }}" {% if season.young_player_id == player.id %}selected{% endif %}>{{ player.name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>TOP SCORER / GOLDEN BOOT
+                    <select name="top_scorer" {% if not can_edit %}disabled{% endif %}>
+                        <option value="">To be recorded</option>
+                        {% for player in players %}
+                            <option value="{{ player.id }}" {% if season.top_scorer_id == player.id %}selected{% endif %}>{{ player.name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>TOP SCORER GOALS <input type="number" name="top_scorer_goals" min="0" value="{{ season.top_scorer_goals|default_if_none:'' }}" {% if not can_edit %}disabled{% endif %}></label>
+                <label>TOP ASSISTS
+                    <select name="top_assists_player" {% if not can_edit %}disabled{% endif %}>
+                        <option value="">To be recorded</option>
+                        {% for player in players %}
+                            <option value="{{ player.id }}" {% if season.top_assists_player_id == player.id %}selected{% endif %}>{{ player.name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>ASSIST COUNT <input type="number" name="top_assists_count" min="0" value="{{ season.top_assists_count|default_if_none:'' }}" {% if not can_edit %}disabled{% endif %}></label>
+                <label>TOP GOALKEEPER
+                    <select name="top_goalkeeper" {% if not can_edit %}disabled{% endif %}>
+                        <option value="">To be recorded</option>
+                        {% for player in players %}
+                            <option value="{{ player.id }}" {% if season.top_goalkeeper_id == player.id %}selected{% endif %}>{{ player.name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>FAIR PLAY AWARD
+                    <select name="fair_play_team" {% if not can_edit %}disabled{% endif %}>
+                        <option value="">To be recorded</option>
+                        {% for club in clubs %}
+                            <option value="{{ club.id }}" {% if season.fair_play_team_id == club.id %}selected{% endif %}>{{ club.name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>UNBEATEN TEAM
+                    <select name="unbeaten_team" {% if not can_edit %}disabled{% endif %}>
+                        <option value="">To be recorded</option>
+                        {% for club in clubs %}
+                            <option value="{{ club.id }}" {% if season.unbeaten_team_id == club.id %}selected{% endif %}>{{ club.name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>UNBEATEN GAMES <input type="number" name="unbeaten_games" min="0" value="{{ season.unbeaten_games|default_if_none:'' }}" {% if not can_edit %}disabled{% endif %}></label>
+                <label>BIGGEST WIN HOME
+                    <select name="biggest_win_home" {% if not can_edit %}disabled{% endif %}>
+                        <option value="">To be recorded</option>
+                        {% for club in clubs %}
+                            <option value="{{ club.id }}" {% if season.biggest_win_home_id == club.id %}selected{% endif %}>{{ club.name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>BIGGEST WIN AWAY
+                    <select name="biggest_win_away" {% if not can_edit %}disabled{% endif %}>
+                        <option value="">To be recorded</option>
+                        {% for club in clubs %}
+                            <option value="{{ club.id }}" {% if season.biggest_win_away_id == club.id %}selected{% endif %}>{{ club.name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>HOME GOALS <input type="number" name="biggest_win_home_goals" min="0" value="{{ season.biggest_win_home_goals|default_if_none:'' }}" {% if not can_edit %}disabled{% endif %}></label>
+                <label>AWAY GOALS <input type="number" name="biggest_win_away_goals" min="0" value="{{ season.biggest_win_away_goals|default_if_none:'' }}" {% if not can_edit %}disabled{% endif %}></label>
+
+                <label>TEAM OF THE SEASON FORMATION
+                    <select name="tots_formation" {% if not can_edit %}disabled{% endif %}>
+                        {% for formation in formations %}
+                            <option value="{{ formation }}" {% if season.tots_formation == formation %}selected{% endif %}>{{ formation }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                {% for dot in tots.dots %}
+                    <label>{{ dot.slot }}
+                        <select name="tots_{{ dot.slot }}" {% if not can_edit %}disabled{% endif %}>
+                            <option value="">To be recorded</option>
+                            {% for player in players %}
+                                <option value="{{ player.id }}" {% if dot.player and dot.player.id == player.id %}selected{% endif %}>{{ player.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                {% endfor %}
+
+                {% if can_edit %}
+                    <div class="mgl-pdb-actions" style="display:flex;gap:10px;flex-wrap:wrap">
+                        <button type="submit" name="action" value="save" class="secondary-button">SAVE DETAILS</button>
+                        {% if season.is_active %}
+                            <button type="submit" name="action" value="finalise" class="primary-button">FINALISE SEASON</button>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </form>
+
+        <form method="post" style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+            {% csrf_token %}
+            <input type="hidden" name="season_id" value="{{ season.number }}">
+            {% if is_owner and season.is_locked %}
+                <button type="submit" name="action" value="unlock" class="secondary-button">UNLOCK SEASON</button>
+            {% elif season.is_finalized and can_edit %}
+                <button type="submit" name="action" value="lock" class="secondary-button">LOCK SEASON</button>
+            {% endif %}
+            {% if can_start_next %}
+                <button type="submit" name="action" value="start_next" class="primary-button">CREATE NEXT SEASON</button>
+            {% endif %}
+        </form>
+    {% else %}
+        {% include "mgl/includes/empty_state.html" with title="NO SEASONS YET" %}
+    {% endif %}
+</section>
+{% endblock %}

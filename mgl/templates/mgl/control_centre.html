@@ -57,6 +57,10 @@
                 Jobs Centre
                 {% if pending_counts.jobs %}<span class="mgl-cp-badge">{{ pending_counts.jobs }}</span>{% endif %}
             </a>
+            <a href="{% url 'season_management' %}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 11h16"/></svg>
+                Season History
+            </a>
             <a href="{% url 'site_management' %}">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 8h16v11H4z"/><path d="M8 8V5h8v3"/></svg>
                 Site Management

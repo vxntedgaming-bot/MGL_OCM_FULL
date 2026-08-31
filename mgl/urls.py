@@ -4,6 +4,7 @@ from players.fc26_faces import player_face_image
 from . import views
 from . import market_views as views_market
 from . import site_manage as views_site
+from . import season_views as views_season
 
 
 urlpatterns = [
@@ -236,6 +237,11 @@ urlpatterns = [
         "control/site/settings/",
         views_site.site_management_settings,
         name="site_management_settings",
+    ),
+    path(
+        "control/site/seasons/",
+        views_season.season_management,
+        name="season_management",
     ),
     path(
         "control/site/leagues/",

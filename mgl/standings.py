@@ -1,7 +1,7 @@
 from mgl.models import ApprovalStatus, Fixture
 
 
-def build_league_table(league):
+def build_league_table(league, season_number=None):
     """
     Super League / Premier League standings from approved, completed fixtures.
     Every club in the league is included even if it has not played.
@@ -24,16 +24,15 @@ def build_league_table(league):
             "points": 0,
         }
 
-    fixtures = (
-        Fixture.objects.filter(
-            league=league,
-            status="COMPLETED",
-            is_released=True,
-            submission__status=ApprovalStatus.APPROVED,
-        )
-        .select_related("submission")
-        .prefetch_related("submission__team_stats")
+    fixtures = Fixture.objects.filter(
+        league=league,
+        status="COMPLETED",
+        is_released=True,
+        submission__status=ApprovalStatus.APPROVED,
     )
+    if season_number is not None:
+        fixtures = fixtures.filter(season_number=season_number)
+    fixtures = fixtures.select_related("submission").prefetch_related("submission__team_stats")
 
     for fixture in fixtures:
         if fixture.home_team_id == fixture.away_team_id:
@@ -89,3 +88,9 @@ def build_league_table(league):
     for index, row in enumerate(table, start=1):
         row["position"] = index
     return table
+
+
+def build_live_league_table(league):
+    from mgl.season_history import current_season_number
+
+    return build_league_table(league, season_number=current_season_number())
