@@ -648,6 +648,11 @@ def control_adjust_tokens(request):
     if amount == 0:
         messages.error(request, "Token adjustments must be a non-zero amount.")
         return control_centre_redirect(request, default="control_tokens")
+    direction = (request.POST.get("direction") or "").strip().lower()
+    if direction in {"remove", "debit"}:
+        amount = -abs(amount)
+    elif direction in {"add", "award", "credit"}:
+        amount = abs(amount)
     if not reason:
         messages.error(request, "Record a reason for every token adjustment.")
         return control_centre_redirect(request, default="control_tokens")

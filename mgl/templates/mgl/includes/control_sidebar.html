@@ -80,6 +80,10 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"/></svg>
             Season History
         </a>
+        <a href="{% url 'season_management' %}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 8v8M8 12h8"/><circle cx="12" cy="12" r="8.2"/></svg>
+            Season Controls
+        </a>
 
         <p class="mgl-cp-nav-group">SYSTEM</p>
         <a href="{% url 'control_notifications' %}" class="{% if control_section == 'notifications' %}is-active{% endif %}">

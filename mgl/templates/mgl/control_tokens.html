@@ -34,9 +34,11 @@
                 <option value="{{ manager.id }}" {% if selected_manager and selected_manager.id == manager.id %}selected{% endif %}>{{ manager.display_name }} · {{ manager.tokens }}</option>
             {% endfor %}
         </select>
-        <input type="number" name="amount" step="0.01" required placeholder="Amount (+/−)">
+        <input type="number" name="amount" step="0.01" required placeholder="Amount">
         <input type="text" name="reason" maxlength="255" required placeholder="Reason">
-        <button class="header-button mgl-cp-approve" type="submit">APPLY</button>
+        <button class="header-button mgl-cp-approve" type="submit" name="direction" value="add">ADD TOKENS</button>
+        <button class="header-button mgl-cp-reject" type="submit" name="direction" value="remove">REMOVE TOKENS</button>
+        <button class="header-button mgl-cp-approve" type="submit" name="direction" value="award">AWARD REWARD</button>
     </form>
 </section>
 

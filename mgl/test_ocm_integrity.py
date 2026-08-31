@@ -250,7 +250,9 @@ class OcmIntegrityTests(TestCase):
         self.assertEqual(debit.balance_after, before + Decimal("1.50"))
         tokens = self.client.get(reverse("control_tokens"))
         self.assertContains(tokens, "Owner correction")
-        self.assertContains(tokens, "APPLY")
+        self.assertContains(tokens, "ADD TOKENS")
+        self.assertContains(tokens, "REMOVE TOKENS")
+        self.assertContains(tokens, "AWARD REWARD")
         scouting = self.client.get(reverse("control_scouting"))
         self.assertContains(scouting, "SCOUTING ACTIVITY")
 

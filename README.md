@@ -88,8 +88,8 @@ python manage.py close_expired_auctions
 - Django admin: http://127.0.0.1:8000/admin/
 - Manager register / login: `/register/`, `/login/`
 - Manager tools: `/mgl/hub/`
-- Owner / admin control: `/mgl/control/`
-- Site Management (owner/admin only): `/mgl/control/site/` — clubs, leagues, website copy, Discord and site settings. Managers receive HTTP 403. Display edits do not change Team/League IDs, squads, fixtures, tokens or player states. The legacy `/mgl/admin/clubs/<id>/edit/` URL redirects to the Site Management team editor. Official crests are pinned to `Team.badge_code` so a short-name change cannot show another club's badge.
+- Owner / admin control: `/mgl/control/` is the command dashboard (what needs attention). Dedicated pages: `/mgl/control/pending/`, `/mgl/control/scores/`, `/mgl/control/transfers/`, `/mgl/control/press/`, `/mgl/control/awards/weekly/`, `/mgl/control/awards/monthly/`, `/mgl/control/managers/`, `/mgl/control/tokens/`, `/mgl/control/scouting/`, `/mgl/control/auctions/`, `/mgl/control/clubs/`, `/mgl/control/notifications/`, `/mgl/control/logs/`. Approve/reject still use the existing POST actions and token ledger.
+- Site Management (owner/admin only): `/mgl/control/site/` — clubs, leagues, website copy, Discord and site settings. Season history and season controls stay at `/mgl/control/site/seasons/`. Managers receive HTTP 403. Display edits do not change Team/League IDs, squads, fixtures, tokens or player states. The legacy `/mgl/admin/clubs/<id>/edit/` URL redirects to the Site Management team editor. Official crests are pinned to `Team.badge_code` so a short-name change cannot show another club's badge.
 - Public pages: `/leagues/`, `/market/`, `/stats/premier-league/`, `/jobs/`
 - Jobs (`/jobs/`): each vacant club shows its application form on the card. After a successful apply, the existing ClubApplication is saved and the MGL Discord invite opens (`https://discord.gg/Jmf29wBafP`). Occupied clubs stay off the vacancy list. Owner/Admin still appoint from Control Centre.
 
