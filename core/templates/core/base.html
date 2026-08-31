@@ -43,7 +43,6 @@
                 {% for menu in mgl_nav_dropdowns %}{% if menu.id == "stats" %}{% include "core/includes/nav_dropdown.html" %}{% endif %}{% endfor %}
                 {% for menu in mgl_nav_dropdowns %}{% if menu.id == "news" %}{% include "core/includes/nav_dropdown.html" %}{% endif %}{% endfor %}
                 <a href="{% url 'job_centre' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'job_centre' %}is-active{% endif %}">JOBS</a>
-                {% for menu in mgl_nav_dropdowns %}{% if menu.id == "about" %}{% include "core/includes/nav_dropdown.html" %}{% endif %}{% endfor %}
             {% endif %}
             {% if mgl_is_control %}
                 <a href="{% url 'control_centre' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'control_centre' or 'site_management' in request.resolver_match.url_name %}is-active{% endif %}">CONTROL</a>
@@ -134,9 +133,6 @@
         </div>
         <div class="mgl-footer-col">
             <h3>COMMUNITY</h3>
-            <a href="{% url 'home' %}#mgl-about">About</a>
-            <a href="{% url 'home' %}#mgl-how">Rules</a>
-            <a href="{% url 'home' %}#mgl-how">How It Works</a>
             {% if user.is_authenticated %}
                 <a href="{% url 'job_centre' %}">Apply for a Club</a>
             {% else %}
