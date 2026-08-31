@@ -41,7 +41,7 @@ def approve_manager_application(application, reviewer):
         notification_type="ADMIN",
         title="MANAGER APPROVED",
         message="Your manager application was approved. You can now apply for a club.",
-        actor="MGL Admin",
+        actor="UFL Admin",
         action_url=reverse("job_centre"),
         action_label="JOB CENTRE",
     )
@@ -66,6 +66,6 @@ def reject_manager_application(application, reviewer):
         notification_type="ADMIN",
         title="MANAGER APPLICATION REJECTED",
         message="Your manager application was rejected.",
-        actor="MGL Admin",
+        actor="UFL Admin",
     )
     return application

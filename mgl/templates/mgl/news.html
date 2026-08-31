@@ -1,7 +1,7 @@
 {% extends "core/base.html" %}
 {% load static mgl_ui %}
 
-{% block title %}News — MGL{% endblock %}
+{% block title %}News — UFL{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'core/css/mgl-press-story.css' %}">
 <link rel="stylesheet" href="{% static 'core/css/mgl-activity-feed.css' %}">
@@ -10,7 +10,7 @@
 {% block content %}
 <section class="mgl-section">
     {% if discord_invite_url %}
-        {% include "core/includes/mgl_page_header.html" with header_section="NEWS" header_title="NEWS" header_description="Pressroom interviews and official league activity. Nothing is published until Admin approves it." header_action_url=discord_invite_url header_action_label="JOIN THE MGL COMMUNITY" header_action_newtab="1" %}
+        {% include "core/includes/mgl_page_header.html" with header_section="NEWS" header_title="NEWS" header_description="Pressroom interviews and official league activity. Nothing is published until Admin approves it." header_action_url=discord_invite_url header_action_label="JOIN THE UFL COMMUNITY" header_action_newtab="1" %}
     {% else %}
         {% include "core/includes/mgl_page_header.html" with header_section="NEWS" header_title="NEWS" header_description="Pressroom interviews and official league activity. Nothing is published until Admin approves it." %}
     {% endif %}

@@ -79,7 +79,7 @@
             {% if next_fixture %}
                 <div class="mgl-home-fixture">
                     <p class="mgl-home-fixture-comp">
-                        {% if next_fixture.league %}{{ next_fixture.league|league_label|upper }}{% else %}MGL{% endif %}
+                        {% if next_fixture.league %}{{ next_fixture.league|league_label|upper }}{% else %}UFL{% endif %}
                         {% if next_fixture.matchweek %} · GAMEWEEK {{ next_fixture.matchweek }}{% endif %}
                     </p>
                     <div class="mgl-home-fixture-clubs">
@@ -121,7 +121,7 @@
 
 <section class="mgl-home-feature mgl-home-cup">
     <div class="mgl-home-feature-media">
-        <img src="{% static 'core/img/mgl-cup-trophy.png' %}" alt="The MGL Cup trophy">
+        <img src="{% static 'core/img/mgl-cup-trophy.png' %}" alt="The UFL Cup trophy">
     </div>
     <div class="mgl-home-feature-copy">
         <p class="mgl-home-kicker">THE UFL CUP</p>

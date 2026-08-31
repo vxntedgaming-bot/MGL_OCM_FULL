@@ -204,7 +204,7 @@ else:
 
 DEFAULT_FROM_EMAIL = env_str(
     "DEFAULT_FROM_EMAIL",
-    "webmaster@localhost" if DEBUG else "MGL <noreply@localhost>",
+    "webmaster@localhost" if DEBUG else "UFL <noreply@localhost>",
 )
 SERVER_EMAIL = env_str("SERVER_EMAIL", DEFAULT_FROM_EMAIL)
 

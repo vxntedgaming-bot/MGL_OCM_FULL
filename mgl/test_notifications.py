@@ -453,7 +453,7 @@ class NotificationAndPressroomTests(TestCase):
             notification_type="ADMIN",
             title="CHELSEA ONLY",
             message="This belongs to the Chelsea manager.",
-            actor="MGL Admin",
+            actor="UFL Admin",
         )
         self.client.login(username="kai", password="test-pass-123")
         hub = self.client.get(reverse("manager_hub"))
@@ -498,7 +498,7 @@ class NotificationAndPressroomTests(TestCase):
             notification_type="ADMIN",
             title="OWNER DECISION",
             message="Your listing needs a review.",
-            actor="MGL Admin",
+            actor="UFL Admin",
         )
         self.client.login(username="kai", password="test-pass-123")
         inbox = self.client.get(reverse("manager_notifications"))
@@ -535,7 +535,7 @@ class NotificationAndPressroomTests(TestCase):
             notification_type="ADMIN",
             title="ARSENAL ONLY",
             message="This belongs to the Arsenal manager.",
-            actor="MGL Admin",
+            actor="UFL Admin",
         )
         notify_user(
             self.user_b,
@@ -543,7 +543,7 @@ class NotificationAndPressroomTests(TestCase):
             notification_type="ADMIN",
             title="CHELSEA ONLY",
             message="This belongs to the Chelsea manager.",
-            actor="MGL Admin",
+            actor="UFL Admin",
         )
         self.client.login(username="rival", password="test-pass-123")
         page = self.client.get(reverse("manager_notifications"))
@@ -571,7 +571,7 @@ class NotificationAndPressroomTests(TestCase):
                 notification_type="ADMIN",
                 title=f"UPDATE {index}",
                 message="Owner decision for your club.",
-                actor="MGL Owner",
+                actor="UFL Owner",
                 team=self.team_a,
             )
         self.assertEqual(unread_count_for_user(self.user_a), 5)

@@ -1,7 +1,7 @@
 {% extends "core/base.html" %}
 {% load mgl_ui %}
 
-{% block title %}Answer Press Conference — MGL{% endblock %}
+{% block title %}Answer Press Conference — UFL{% endblock %}
 
 {% block content %}
 <section class="mgl-section">
@@ -14,11 +14,11 @@
         <a href="{% url 'pressroom' %}" class="view-all">PRESSROOM →</a>
     </div>
     <article class="mgl-press-article">
-        <div class="mgl-press-brand">MGL PRESS CONFERENCE</div>
+        <div class="mgl-press-brand">UFL PRESS CONFERENCE</div>
         <div class="mgl-press-club">
             {% team_logo press.team "md" %}
             <div>
-                <strong>{% if press.team %}{{ press.team.name|upper }}{% else %}MGL{% endif %}</strong>
+                <strong>{% if press.team %}{{ press.team.name|upper }}{% else %}UFL{% endif %}</strong>
                 <p>Manager: {{ press.manager_name|default:user.username }}</p>
             </div>
         </div>

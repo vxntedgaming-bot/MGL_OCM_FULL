@@ -1,13 +1,13 @@
 {% extends "core/base.html" %}
 {% load mgl_ui %}
 
-{% block title %}Transactions — MGL{% endblock %}
+{% block title %}Transactions — UFL{% endblock %}
 
 {% block content %}
 <section class="mgl-section">
     <div class="section-heading">
         <div>
-            <div class="eyebrow">MGL ECONOMY</div>
+            <div class="eyebrow">UFL ECONOMY</div>
             <h1>TOKEN LEDGER</h1>
         </div>
         <span class="section-line"></span>
@@ -16,7 +16,7 @@
     <div class="overview-stat" style="max-width:320px;margin-bottom:24px">
         <span>{% if team %}{{ team.name }} TREASURY{% else %}AVAILABLE TOKENS{% endif %}</span>
         <strong>{{ token_balance }}</strong>
-        <small>MGL TOKENS</small>
+        <small>UFL TOKENS</small>
     </div>
 
     <h2>TRANSFERS AND AUCTIONS</h2>

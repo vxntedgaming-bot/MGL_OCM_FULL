@@ -312,7 +312,7 @@ def approve_match_submission(sub, reviewer, override=False):
             notification_type="SCORE",
             title="RESULT APPROVED",
             message=f"{scoreline} has been approved and is now official. +1.00 TOKEN awarded.",
-            actor="MGL Admin",
+            actor="UFL Admin",
             action_url=reverse("fixture_list"),
             action_label="VIEW FIXTURES",
             team=club,
@@ -370,7 +370,7 @@ def reject_match_submission(sub, reviewer):
         notification_type="SCORE",
         title="RESULT REJECTED",
         message=message,
-        actor="MGL Admin",
+        actor="UFL Admin",
         action_url=reverse("submit_match", args=[fixture.pk]),
         action_label="RESUBMIT",
         team=(
@@ -426,7 +426,7 @@ def unapprove_match_submission(sub, reviewer):
             f"{fixture.home_team.name} vs {fixture.away_team.name} "
             "was removed from the official record. Submit a corrected result."
         ),
-        actor="MGL Admin",
+        actor="UFL Admin",
         action_url=reverse("submit_match", args=[fixture.pk]),
         action_label="RESUBMIT",
         team=fixture.home_team,

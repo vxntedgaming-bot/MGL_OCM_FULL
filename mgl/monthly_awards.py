@@ -199,7 +199,7 @@ def run_monthly_awards(month=None, now=None):
                 f"Awards for {month.strftime('%B %Y')} are calculated and waiting "
                 "for Owner/Admin approval before tokens are released."
             ),
-            actor="MGL Awards",
+            actor="UFL Awards",
             action_url=reverse("control_monthly_awards"),
             action_label="REVIEW",
         )
@@ -231,7 +231,7 @@ def approve_monthly_awards(batch, reviewer):
             _notify_reward(
                 manager.user,
                 f"motm-{month.isoformat()}",
-                "MGL MANAGER OF THE MONTH",
+                "UFL MANAGER OF THE MONTH",
                 f"Congratulations {manager.display_name}. Reward: 6.00 TOKENS.",
             )
     potm = payload.get("potm") or {}
@@ -253,7 +253,7 @@ def approve_monthly_awards(batch, reviewer):
             _notify_reward(
                 manager.user,
                 f"potm-{month.isoformat()}",
-                "MGL PLAYER OF THE MONTH",
+                "UFL PLAYER OF THE MONTH",
                 (
                     f"Your player {winner['player_name']} is Player of the Month. "
                     "Reward: 3.00 TOKENS."

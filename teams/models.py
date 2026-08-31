@@ -42,7 +42,7 @@ class Team(models.Model):
 
     budget = models.DecimalField(
         max_digits=12, decimal_places=2, default=0,
-        help_text="Legacy field. MGL economy uses manager tokens.",
+        help_text="Legacy field. UFL economy uses manager tokens.",
     )
 
     roster_limit = models.PositiveSmallIntegerField(default=30)
@@ -51,7 +51,7 @@ class Team(models.Model):
         max_digits=8,
         decimal_places=2,
         default=50,
-        help_text="Club transfer budget in MGL tokens. Remains with the club if the manager leaves.",
+        help_text="Club transfer budget in UFL tokens. Remains with the club if the manager leaves.",
     )
 
     created_at = models.DateTimeField(auto_now_add=True)

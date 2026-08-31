@@ -1737,7 +1737,7 @@ def club_squad_admin(request, team_id):
 
 def competition_page(request, slug):
     if slug in {"mls", "waiting-room"}:
-        raise Http404("This competition is not an active MGL division.")
+        raise Http404("This competition is not an active UFL division.")
     name = COMPETITIONS.get(slug)
     if not name:
         raise Http404("Unknown competition")

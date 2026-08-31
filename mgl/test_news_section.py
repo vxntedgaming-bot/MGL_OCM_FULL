@@ -134,7 +134,7 @@ class NewsSectionTests(TestCase):
         self.assertContains(room, "Managers front up to the media.")
         self.assertContains(room, "NO PRESSROOM STORIES YET")
         self.assertContains(room, "NO PRESS CONFERENCES YET")
-        self.assertContains(room, "THE MGL WORLD IS WATCHING")
+        self.assertContains(room, "THE UFL WORLD IS WATCHING")
         self.assertNotContains(room, "Latest News")
 
     def test_pending_and_rejected_results_stay_off_live_activity(self):

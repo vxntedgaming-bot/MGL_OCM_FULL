@@ -240,7 +240,7 @@ class TransferRequestsPageTests(TestCase):
         for url_name in ("transfer_history", "public_transfers"):
             page = self.client.get(reverse(url_name))
             self.assertEqual(page.status_code, 200)
-            self.assertContains(page, "MGL TRANSFERS")
+            self.assertContains(page, "UFL TRANSFERS")
             self.assertContains(page, "Completed Striker")
             self.assertContains(page, "VIEW")
             self.assertNotContains(page, "Blue Midfielder")
@@ -271,7 +271,7 @@ class TransferRequestsPageTests(TestCase):
         )
         self.client.login(username="seller", password="test-pass-123")
         page = self.client.get(reverse("transfer_requests"))
-        self.assertContains(page, "MGL | TRANSFERS")
+        self.assertContains(page, "UFL | TRANSFERS")
         self.assertContains(page, "COMPLETED TRANSFERS")
         self.assertContains(page, "Completed Striker")
         self.assertContains(page, "9 TOKENS")

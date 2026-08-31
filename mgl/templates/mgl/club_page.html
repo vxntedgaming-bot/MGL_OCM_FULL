@@ -1,14 +1,14 @@
 {% extends "core/base.html" %}
 {% load static mgl_ui %}
 
-{% block title %}{{ team.name }} — MGL{% endblock %}
+{% block title %}{{ team.name }} — UFL{% endblock %}
 
 {% block content %}
 <section class="mgl-section">
     <div class="mgl-club-hero">
         {% team_logo team "lg" %}
         <div>
-            <div class="eyebrow">{% if team.league %}{{ team.league|league_label|upper }}{% else %}MGL CLUB{% endif %}</div>
+            <div class="eyebrow">{% if team.league %}{{ team.league|league_label|upper }}{% else %}UFL CLUB{% endif %}</div>
             <h1>{{ team.name|upper }}</h1>
             <p>
                 {{ team.short_name }}

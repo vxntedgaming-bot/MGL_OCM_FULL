@@ -1,7 +1,7 @@
 {% extends "core/base.html" %}
 {% load static mgl_ui %}
 
-{% block title %}Notifications — MGL{% endblock %}
+{% block title %}Notifications — UFL{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'core/css/mgl-press-brief.css' %}">
 <link rel="stylesheet" href="{% static 'core/css/mgl-notify-cards.css' %}">
@@ -28,7 +28,7 @@
                         {% team_logo item.press.team "lg" %}
                         <div>
                             <p class="mgl-press-brief-manager">{{ item.press_manager_name|default:user.username|upper }}</p>
-                            <p class="mgl-press-brief-club">{% if item.press.team %}{{ item.press.team.name|upper }}{% else %}MGL{% endif %}</p>
+                            <p class="mgl-press-brief-club">{% if item.press.team %}{{ item.press.team.name|upper }}{% else %}UFL{% endif %}</p>
                         </div>
                     </header>
                     <p class="mgl-press-brief-kicker">PRESS CONFERENCE</p>

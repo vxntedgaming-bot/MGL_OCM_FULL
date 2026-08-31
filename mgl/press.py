@@ -352,7 +352,7 @@ def submit_press_answer(press, answer):
             notification_type="REWARD",
             title="PRESS CONFERENCE ANSWERED",
             message="+0.50 TOKENS have been added to your balance.",
-            actor="MGL Press Room",
+            actor="UFL Press Room",
             team=press.team,
         )
     return press
@@ -368,7 +368,7 @@ def _press_news_copy(press):
     application = manager_for_user(press.manager)
     if application:
         manager_name = application.display_name
-    club = press.team.name if press.team_id else "MGL"
+    club = press.team.name if press.team_id else "UFL"
     return (
         f"{manager_name} | {club} press conference",
         f"Q: {press.question}\n\nA: {press.answer}",

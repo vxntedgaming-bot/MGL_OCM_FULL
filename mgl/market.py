@@ -820,7 +820,7 @@ def settle_auction(auction, reviewer=None):
         notification_type="TRANSFER",
         title="AUCTION WON",
         message=f"{player.name} has joined {club.name} after your winning bid of {highest.amount} TKN.",
-        actor="MGL Auctions",
+        actor="UFL Auctions",
         team=club,
         player=player,
     )
@@ -831,7 +831,7 @@ def settle_auction(auction, reviewer=None):
             notification_type="TRANSFER",
             title="PLAYER SOLD AT AUCTION",
             message=f"{player.name} was sold to {club.name} for {highest.amount} TKN.",
-            actor="MGL Auctions",
+            actor="UFL Auctions",
             team=origin,
             player=player,
         )
@@ -1015,7 +1015,7 @@ def _notify_listing_outcome(listing, *, buyer=None, rejected=False):
             f"{listing.player.name} is now live on the transfer market "
             f"for {listing.asking_price} TKN."
         ),
-        actor="MGL Admin",
+        actor="UFL Admin",
         action_url=reverse("transfer_market"),
         action_label="VIEW MARKET",
         team=listing.team,

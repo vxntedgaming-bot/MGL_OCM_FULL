@@ -598,7 +598,7 @@ class ManagerHubExperienceTests(TestCase):
         self.assertContains(home, reverse("job_centre"))
         self.assertNotContains(home, "LEAGUE LIVE UPDATES")
         self.assertNotContains(home, "mgl-activity-feed--home")
-        self.assertNotContains(home, "MGL CLUBS")
+        self.assertNotContains(home, "UFL CLUBS")
 
 
 class NewsAndTablePublicTests(TestCase):

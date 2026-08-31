@@ -12,7 +12,7 @@
         <div class="mgl-cp-review-grid">
             <div>
                 <p>Manager: {{ press.manager.username }}</p>
-                <p>Club: {% if press.team %}{{ press.team.name }}{% else %}MGL{% endif %}</p>
+                <p>Club: {% if press.team %}{{ press.team.name }}{% else %}UFL{% endif %}</p>
                 {% if press.team %}{% team_logo press.team "sm" %}{% endif %}
                 <div class="mgl-cp-qa">
                     <p class="mgl-cp-kicker">QUESTION</p>

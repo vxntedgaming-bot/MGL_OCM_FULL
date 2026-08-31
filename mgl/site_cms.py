@@ -61,14 +61,14 @@ CONTENT_FIELDS = (
         "leagues",
         "Leagues Page Introduction",
         "long",
-        "Official MGL standings. Click a club to open its squad and club page.",
+        "Official UFL standings. Click a club to open its squad and club page.",
     ),
     ContentField(
         "leagues.premier_description",
         "leagues",
         "Premier League Description",
         "long",
-        "The top active MGL competition.",
+        "The top active UFL competition.",
     ),
     ContentField(
         "leagues.championship_description",
@@ -90,7 +90,7 @@ CONTENT_FIELDS = (
         "jobs",
         "Jobs Page Introduction",
         "long",
-        "Take over an official MGL club. Inspect the squad first. Owner or admin approval is required before you are appointed.",
+        "Take over an official UFL club. Inspect the squad first. Owner or admin approval is required before you are appointed.",
     ),
     ContentField(
         "jobs.application_instructions",
@@ -105,7 +105,7 @@ CONTENT_FIELDS = (
         "market",
         "Transfer Market Introduction",
         "long",
-        "Auctions, listed club players and Free Agents. Unassigned FC26 players are a separate admin-only pool. All deals use MGL tokens.",
+        "Auctions, listed club players and Free Agents. Unassigned FC26 players are a separate admin-only pool. All deals use UFL tokens.",
     ),
     ContentField(
         "market.free_agents_intro",
@@ -144,7 +144,7 @@ CONTENT_FIELDS = (
         "community",
         "History Introduction",
         "long",
-        "Saved MGL seasons and cup history will be recorded here. Live league tables are not rewritten as past winners.",
+        "Saved UFL seasons and cup history will be recorded here. Live league tables are not rewritten as past winners.",
     ),
     # NEWS
     ContentField(

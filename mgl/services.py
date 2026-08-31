@@ -431,7 +431,7 @@ def assign_player(player, team, source="ADMIN", reference=""):
 
     if player.mgl_team_id and player.mgl_team_id != team.id:
         raise ValueError(
-            f"{player.name} already belongs to another MGL club."
+            f"{player.name} already belongs to another UFL club."
         )
 
     player.mgl_team = team

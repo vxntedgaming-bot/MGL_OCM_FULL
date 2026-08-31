@@ -178,7 +178,7 @@ class ManagerHubDashboardTests(TestCase):
         self.client.login(username="dashmgr", password="test-pass-123")
         page = self.client.get(reverse("manager_hub") + "?resign=1")
         self.assertContains(page, "RESIGN FROM CLUB?")
-        self.assertContains(page, "Are you sure you want to leave your current MGL club?")
+        self.assertContains(page, "Are you sure you want to leave your current UFL club?")
         self.assertContains(page, "does not delete your account")
         self.assertContains(page, ">STAY<")
         self.assertContains(page, reverse("manager_hub"))

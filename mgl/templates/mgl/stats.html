@@ -1,18 +1,18 @@
 {% extends "core/base.html" %}
 {% load mgl_ui %}
 
-{% block title %}{{ competition_name }} Stats — MGL{% endblock %}
+{% block title %}{{ competition_name }} Stats — UFL{% endblock %}
 
 {% block content %}
 <section class="mgl-section">
     {% if competition_slug == "premier-league" %}
-        {% include "core/includes/mgl_page_header.html" with header_section="STATISTICS" header_title="PREMIER LEAGUE STATS" header_description="Premier League player and manager statistics from approved MGL matches." %}
+        {% include "core/includes/mgl_page_header.html" with header_section="STATISTICS" header_title="PREMIER LEAGUE STATS" header_description="Premier League player and manager statistics from approved UFL matches." %}
     {% elif competition_slug == "championship" %}
-        {% include "core/includes/mgl_page_header.html" with header_section="STATISTICS" header_title="CHAMPIONSHIP STATS" header_description="Championship player and manager statistics from approved MGL matches." %}
+        {% include "core/includes/mgl_page_header.html" with header_section="STATISTICS" header_title="CHAMPIONSHIP STATS" header_description="Championship player and manager statistics from approved UFL matches." %}
     {% elif competition_slug == "league-one" %}
-        {% include "core/includes/mgl_page_header.html" with header_section="STATISTICS" header_title="LEAGUE ONE STATS" header_description="League One player and manager statistics from approved MGL matches." %}
+        {% include "core/includes/mgl_page_header.html" with header_section="STATISTICS" header_title="LEAGUE ONE STATS" header_description="League One player and manager statistics from approved UFL matches." %}
     {% else %}
-        {% include "core/includes/mgl_page_header.html" with header_section="STATISTICS" header_title=competition_name header_description="Player and manager statistics from approved MGL matches." %}
+        {% include "core/includes/mgl_page_header.html" with header_section="STATISTICS" header_title=competition_name header_description="Player and manager statistics from approved UFL matches." %}
     {% endif %}
     {% include "mgl/includes/competition_selector.html" %}
 </section>

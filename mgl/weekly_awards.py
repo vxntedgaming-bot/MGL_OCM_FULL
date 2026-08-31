@@ -68,7 +68,7 @@ def _notify_reward(user, source_key, title, message, team=None):
         notification_type="REWARD",
         title=title,
         message=message,
-        actor="MGL Awards",
+        actor="UFL Awards",
         team=team,
         action_label="",
         action_url="",
@@ -89,7 +89,7 @@ def _notify_admins_review(batch):
                 f"Week of {batch.week_start.isoformat()} is calculated and waiting "
                 "for Owner/Admin approval before tokens are released."
             ),
-            actor="MGL Awards",
+            actor="UFL Awards",
             action_url=reverse("control_weekly_awards"),
             action_label="REVIEW",
         )
@@ -374,7 +374,7 @@ def approve_weekly_awards(batch, reviewer):
             _notify_reward(
                 manager.user,
                 f"totw-{week_start.isoformat()}-{manager.id}",
-                "MGL WEEKLY AWARDS",
+                "UFL WEEKLY AWARDS",
                 f"Team of the Week: {names} — +{amount} TOKENS.",
                 team=team,
             )
@@ -416,7 +416,7 @@ def approve_weekly_awards(batch, reviewer):
             _notify_reward(
                 row.manager.user,
                 f"motw-{week_start.isoformat()}",
-                "MGL MANAGER OF THE WEEK",
+                "UFL MANAGER OF THE WEEK",
                 f"Congratulations {row.manager.display_name}. Reward: 1.00 TOKEN.",
             )
 

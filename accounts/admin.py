@@ -8,7 +8,7 @@ class MGLUserAdmin(UserAdmin):
 
     fieldsets = UserAdmin.fieldsets + (
         (
-            "MGL Information",
+            "UFL Information",
             {
                 "fields": (
                     "role",
@@ -20,7 +20,7 @@ class MGLUserAdmin(UserAdmin):
 
     add_fieldsets = UserAdmin.add_fieldsets + (
         (
-            "MGL Information",
+            "UFL Information",
             {
                 "fields": (
                     "role",

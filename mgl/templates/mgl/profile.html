@@ -1,7 +1,7 @@
 {% extends "core/base.html" %}
 {% load mgl_ui %}
 
-{% block title %}Manager Profile — MGL{% endblock %}
+{% block title %}Manager Profile — UFL{% endblock %}
 
 {% block content %}
 <section class="mgl-section">
@@ -18,7 +18,7 @@
         <div class="mgl-profile-identity">
             <div class="mgl-profile-avatar" aria-hidden="true">{{ manager.display_name|slice:":1"|upper }}</div>
             <div>
-                <div class="eyebrow">MGL MANAGER</div>
+                <div class="eyebrow">UFL MANAGER</div>
                 <h2>{{ manager.display_name }}</h2>
                 <p>{{ manager.status }} · {{ manager.user.username }}</p>
                 <p class="mgl-help">Gamertag {{ manager.gamertag }}{% if manager.preferred_team %} · Preferred club {{ manager.preferred_team }}{% endif %}</p>
@@ -43,7 +43,7 @@
             <div class="overview-stat">
                 <span>HOLIDAY STATUS</span>
                 <strong>No data yet</strong>
-                <small>NOT RECORDED IN MGL</small>
+                <small>NOT RECORDED IN UFL</small>
             </div>
         </div>
         <div class="mgl-profile-actions">
@@ -57,7 +57,7 @@
 <section class="mgl-section">
     <div class="section-heading">
         <div>
-            <div class="eyebrow">MGL CAREER</div>
+            <div class="eyebrow">UFL CAREER</div>
             <h2>RECORD</h2>
         </div>
     </div>

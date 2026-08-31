@@ -320,9 +320,9 @@ def approve_selected_totw(modeladmin, request, queryset):
 
             NewsPost.objects.create(
                 category=NewsPost.REWARD,
-                title="MGL TEAM OF THE WEEK",
+                title="UFL TEAM OF THE WEEK",
                 body=(
-                    f"Official MGL Team of the Week "
+                    f"Official UFL Team of the Week "
                     f"for week beginning {totw.week_start}.\n\n"
                     f"Formation: 4-2-3-1\n\n"
                     + "\n".join(lines)
@@ -402,10 +402,10 @@ def approve_selected_motw(modeladmin, request, queryset):
 
             create_news(
                 NewsPost.REWARD,
-                "MGL MANAGER OF THE WEEK",
+                "UFL MANAGER OF THE WEEK",
                 (
                     f"{manager_name} has been named "
-                    f"MGL Manager of the Week.\n\n"
+                    f"UFL Manager of the Week.\n\n"
                     f"Wins this week: "
                     f"{manager_week.wins}\n\n"
                     f"Reward: 0.50 tokens."

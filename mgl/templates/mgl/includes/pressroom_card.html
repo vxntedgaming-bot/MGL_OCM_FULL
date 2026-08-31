@@ -4,7 +4,7 @@
         {% team_logo press.team "lg" %}
         <div class="mgl-press-card-identity">
             <p class="mgl-press-story-manager">{{ press.manager_name|default:press.manager.username|upper }}</p>
-            <p class="mgl-press-story-club">{% if press.team %}{{ press.team.name|upper }}{% else %}MGL{% endif %}</p>
+            <p class="mgl-press-story-club">{% if press.team %}{{ press.team.name|upper }}{% else %}UFL{% endif %}</p>
         </div>
         <time class="mgl-press-story-date" datetime="{{ press.approved_at|default:press.created_at|date:'c' }}">
             {{ press.approved_at|default:press.created_at|timesince }} ago

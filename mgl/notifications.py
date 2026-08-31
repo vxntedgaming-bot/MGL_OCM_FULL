@@ -86,7 +86,7 @@ def _press_copy(press):
     if press.trigger == PressConference.RELEASE:
         return "Sky Sports have a question for you after a player release."
     if press.trigger == PressConference.DAILY:
-        return "MGL Sports has a question for you."
+        return "UFL Sports has a question for you."
     if press.trigger == PressConference.ODD_MATCHDAY:
         return "Sky Sports have a question for you."
     return "You have a press conference question waiting."
@@ -161,7 +161,7 @@ class ResultSubmissionSource(NotificationSource):
                 ),
                 url=reverse("submit_match", args=[fixture.pk]),
                 cta="SUBMIT RESULT",
-                actor="MGL Fixtures",
+                actor="UFL Fixtures",
                 created_at=fixture.created_at,
                 team_id=club.id,
             )
