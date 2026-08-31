@@ -297,10 +297,12 @@ REGION_MENU = (
             ("balkans", "Balkans"),
         ),
     ),
-    ("South America", (("south-america", "South America"),)),
     (
-        "North & Central America",
-        (("north-central-america", "North & Central America"),),
+        "Americas",
+        (
+            ("south-america", "South America"),
+            ("north-central-america", "North & Central America"),
+        ),
     ),
     (
         "Africa",

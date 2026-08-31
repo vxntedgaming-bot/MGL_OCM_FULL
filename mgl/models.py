@@ -411,13 +411,16 @@ class ScoutAssignment(models.Model):
     BRONZE = "BRONZE"
     SILVER = "SILVER"
     GOLD = "GOLD"
+    ELITE = "ELITE"
     TIER_CHOICES = [
         (BRONZE, "Bronze"),
         (SILVER, "Silver"),
         (GOLD, "Gold"),
+        (ELITE, "Elite"),
     ]
     PENDING = "PENDING"
     READY = "READY"
+    OPENED = "OPENED"
     COMPLETE = "COMPLETE"
 
     manager = models.ForeignKey(
@@ -436,6 +439,13 @@ class ScoutAssignment(models.Model):
         blank=True,
         related_name="scout_assignments",
     )
+    club = models.ForeignKey(
+        "teams.Team",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="scout_assignments",
+    )
     started_at = models.DateTimeField(auto_now_add=True)
     ready_at = models.DateTimeField()
     completed_at = models.DateTimeField(null=True, blank=True)
@@ -443,6 +453,19 @@ class ScoutAssignment(models.Model):
 
     class Meta:
         ordering = ["-started_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["player"],
+                condition=models.Q(status__in=["PENDING", "READY", "OPENED"])
+                & models.Q(player__isnull=False),
+                name="unique_active_scout_player",
+            ),
+            models.UniqueConstraint(
+                fields=["manager", "tier"],
+                condition=models.Q(status__in=["PENDING", "READY", "OPENED"]),
+                name="unique_active_scout_tier_per_manager",
+            ),
+        ]
 
 
 class ScoutReport(models.Model):

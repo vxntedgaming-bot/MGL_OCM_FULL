@@ -1,159 +1,262 @@
 {% extends "core/base.html" %}
-{% load mgl_ui %}
+{% load static mgl_ui %}
 
 {% block title %}Scouting — MGL{% endblock %}
+{% block body_class %}mgl-scout-page{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/mgl-scouting.css' %}?v=sc-2">
+{% endblock %}
 
 {% block content %}
-<section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">MARKET</div>
-            <h1>SCOUT HEADQUARTERS</h1>
-        </div>
-        <span class="section-line"></span>
-    </div>
+<section class="mgl-section mgl-scout-page">
+    <nav class="mgl-sc-crumbs" aria-label="Scouting location">
+        <svg class="mgl-sc-crumb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10.5V20h11V10.5"/></svg>
+        <a href="{% url 'manager_hub' %}">MY CLUB</a>
+        <span aria-hidden="true">›</span>
+        <span class="mgl-sc-crumb-current">SCOUTING</span>
+    </nav>
 
-    <div class="mgl-scout-hq">
-        <div class="mgl-scout-hq-copy">
-            <div class="eyebrow">SCOUTING LEVEL</div>
-            <h2>LEVEL {{ scout_level }} / {{ max_level }}</h2>
-            <ul class="mgl-scout-times">
-                {% for row in current_times %}
-                    <li>
-                        <span>{{ row.medal }} {{ row.name }}</span>
-                        <strong>{{ row.label }}</strong>
-                    </li>
-                {% endfor %}
-            </ul>
-            <p class="mgl-scout-tokens">Personal tokens: <strong>{{ token_balance }} TKN</strong></p>
-            {% if club %}
-                <p class="mgl-help">Squad {{ roster_count }} / 30 · {{ club.name }}</p>
-            {% else %}
-                <p class="mgl-help">Take a club job before dispatching a scout. Recruits join your current roster.</p>
-            {% endif %}
+    <header class="mgl-sc-head">
+        <div class="mgl-sc-hero">
+            <div class="mgl-sc-hero-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/><circle cx="11" cy="11" r="2.4"/></svg>
+            </div>
+            <div>
+                <h1>SCOUTING</h1>
+                <p>Find and scout the best talent around the world.</p>
+            </div>
         </div>
-        <div class="mgl-scout-upgrade-panel">
-            <div class="eyebrow">UPGRADE YOUR SCOUTING NETWORK</div>
-            {% if upgrade %}
-                <h3>UPGRADE TO LEVEL {{ upgrade.level }}</h3>
-                <p class="mgl-scout-upgrade-cost">{{ upgrade.cost_label }} TOKENS</p>
-                <ul class="mgl-scout-times mgl-scout-times--next">
-                    {% for row in upgrade.times %}
-                        <li>
-                            <span>{{ row.medal }} {{ row.name }}</span>
-                            <strong>{{ row.label }}</strong>
-                        </li>
-                    {% endfor %}
-                </ul>
-                <form method="post" class="mgl-scout-upgrade">
+    </header>
+
+    {% if pack %}
+        <section class="mgl-sc-pack" id="scout-pack">
+            <p class="mgl-sc-kicker">MGL SCOUTING PACK</p>
+            <h2>{{ pack.get_tier_display|upper }} SCOUT</h2>
+            <p class="mgl-sc-pack-meta">
+                <span>REGION {{ pack.region_display|default:"Anywhere" }}</span>
+                <span>POSITION {{ pack.position|default:"Any Position" }}</span>
+            </p>
+            {% if pack.status == "READY" %}
+                <div class="mgl-sc-pack-sealed" aria-hidden="true">
+                    <strong>MGL</strong>
+                    <span>SCOUTING PACK</span>
+                </div>
+                <form method="post">
                     {% csrf_token %}
-                    <input type="hidden" name="action" value="upgrade">
-                    <button type="submit" class="primary-button">UPGRADE TO LEVEL {{ upgrade.level }}</button>
+                    <input type="hidden" name="action" value="open_pack">
+                    <input type="hidden" name="assignment" value="{{ pack.id }}">
+                    <button type="submit" class="primary-button">OPEN PACK</button>
                 </form>
             {% else %}
-                <h3>MAX LEVEL</h3>
-                <p>LEVEL {{ scout_level }} / {{ max_level }}</p>
-            {% endif %}
-        </div>
-    </div>
-</section>
-
-<section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">DISPATCH</div>
-            <h2>SEND YOUR SCOUT</h2>
-        </div>
-    </div>
-    {% if roster_full %}
-        <p class="mgl-flash-error">Your squad is full — maximum 30 players.</p>
-    {% endif %}
-    <div class="mgl-scout-grid">
-        {% for panel in panels %}
-            <article class="mgl-scout-card mgl-scout-card--{{ panel.tier|lower }}">
-                <span class="mgl-scout-badge">{{ panel.label|upper }}</span>
-                <h3>{{ panel.label|upper }} SCOUT</h3>
-                <p class="mgl-scout-meta">
-                    <span>{{ panel.range.0 }}–{{ panel.range.1 }} OVR</span>
-                    <span>{{ panel.hours_label }}</span>
-                </p>
-                <div class="mgl-scout-level">
-                    {% if panel.ready %}
-                        <small>READY TO COMPLETE</small>
-                    {% elif panel.current %}
-                        <small>ON ASSIGNMENT · {{ panel.remaining|wait_left }}</small>
-                    {% else %}
-                        <small>AVAILABLE</small>
+                <div class="mgl-sc-reveal">
+                    {% player_face_url pack.player "small" as pack_face %}
+                    {% if pack_face %}
+                        <img src="{{ pack_face }}" alt="" class="mgl-sc-reveal-face" loading="lazy" onerror="this.style.display='none'">
                     {% endif %}
+                    <h3>{{ pack.player|card_name }}</h3>
+                    <p>
+                        {{ pack.player.position }} · OVR {{ pack.player.overall }}
+                        {% if pack.player.age %} · AGE {{ pack.player.age }}{% endif %}
+                        {% if pack.player.nationality %} · {{ pack.player.nationality }}{% endif %}
+                        {% if pack.player.preferred_foot %} · {{ pack.player.preferred_foot }}{% endif %}
+                    </p>
+                    <a href="{% url 'player_profile' pack.player.id %}" class="secondary-button">VIEW PLAYER</a>
                 </div>
-                <form method="post" class="mgl-scout-form">
-                    {% csrf_token %}
-                    <input type="hidden" name="action" value="dispatch">
-                    <input type="hidden" name="tier" value="{{ panel.tier }}">
-                    <label>
-                        REGION
-                        <select name="region" class="mgl-region-select">
-                            {% for group, items in region_menu %}
-                                {% if group %}
-                                    <optgroup label="{{ group }}">
+                <div class="mgl-sc-pack-actions">
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="send_to_team">
+                        <input type="hidden" name="assignment" value="{{ pack.id }}">
+                        <button type="submit" class="primary-button">SEND TO TEAM MANAGEMENT</button>
+                    </form>
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="release_player">
+                        <input type="hidden" name="assignment" value="{{ pack.id }}">
+                        <button type="submit" class="secondary-button">RELEASE PLAYER</button>
+                    </form>
+                </div>
+            {% endif %}
+        </section>
+    {% endif %}
+
+    <section class="mgl-sc-block">
+        <div class="mgl-sc-block-head">
+            <h2>SEND YOUR SCOUT</h2>
+            <span class="mgl-sc-free">Free</span>
+        </div>
+        {% if roster_full %}
+            <p class="mgl-flash-error">Your squad is full — maximum 30 players.</p>
+        {% endif %}
+        <div class="mgl-sc-grid">
+            {% for panel in panels %}
+                <article class="mgl-sc-card mgl-sc-card--{{ panel.tier|lower }}">
+                    <span class="mgl-sc-badge">{{ panel.label|upper }}</span>
+                    <h3>{{ panel.label|upper }} SCOUT</h3>
+                    <p class="mgl-sc-meta">
+                        <span>{{ panel.range.0 }}–{{ panel.range.1 }} OVR</span>
+                        <span>{{ panel.hours_label }}</span>
+                    </p>
+                    {% if panel.current and panel.current.status == "PENDING" %}
+                        <p class="mgl-sc-status">IN PROGRESS · <span data-scout-end="{{ panel.current.ready_at|date:'c' }}">{{ panel.remaining|wait_left }}</span></p>
+                    {% elif panel.ready %}
+                        <p class="mgl-sc-status is-ready">SCOUT REPORT READY</p>
+                    {% endif %}
+                    <form method="post" class="mgl-scout-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="dispatch">
+                        <input type="hidden" name="tier" value="{{ panel.tier }}">
+                        <label>
+                            REGION
+                            <select name="region" class="mgl-region-select">
+                                {% for group, items in region_menu %}
+                                    {% if group %}
+                                        <optgroup label="{{ group }}">
+                                            {% for key, label in items %}
+                                                <option value="{{ key }}">{{ label }}</option>
+                                            {% endfor %}
+                                        </optgroup>
+                                    {% else %}
                                         {% for key, label in items %}
                                             <option value="{{ key }}">{{ label }}</option>
                                         {% endfor %}
-                                    </optgroup>
-                                {% else %}
-                                    {% for key, label in items %}
-                                        <option value="{{ key }}">{{ label }}</option>
-                                    {% endfor %}
-                                {% endif %}
-                            {% endfor %}
-                        </select>
-                    </label>
-                    <label>
-                        POSITION
-                        <select name="position">
-                            <option value="">Any Position</option>
-                            {% for pos in positions %}
-                                <option value="{{ pos }}">{{ pos }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                    <button type="submit" class="primary-button" {% if not panel.available %}disabled{% endif %}>DISPATCH SCOUT</button>
-                </form>
-            </article>
-        {% endfor %}
-    </div>
-</section>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </label>
+                        <label>
+                            POSITION
+                            <select name="position">
+                                <option value="">Any Position</option>
+                                {% for pos in positions %}
+                                    <option value="{{ pos }}">{{ pos }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                        {% if panel.ready %}
+                            <a href="?pack={{ panel.current.id }}" class="secondary-button">OPEN PACK</a>
+                        {% else %}
+                            <button type="submit" class="secondary-button mgl-sc-dispatch" {% if not panel.available %}disabled{% endif %}>DISPATCH SCOUT</button>
+                        {% endif %}
+                    </form>
+                </article>
+            {% endfor %}
+        </div>
+        <details class="mgl-sc-guide">
+            <summary>WHICH COUNTRIES ARE IN EACH REGION?</summary>
+            <div class="mgl-sc-guide-body">
+                {% for group, rows in region_guide %}
+                    <h3>{{ group }}</h3>
+                    {% for key, label, nations in rows %}
+                        <p><strong>{{ label }}</strong> — {{ nations|join:", " }}</p>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        </details>
+    </section>
 
-<section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">REPORTS</div>
+    <section class="mgl-sc-hq">
+        <div class="mgl-sc-block-head">
+            <h2>SCOUT HEADQUARTERS</h2>
+        </div>
+        <div class="mgl-sc-hq-body">
+            <div class="mgl-sc-hq-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="3.2"/><path d="M5 19a7 7 0 0 1 14 0"/></svg>
+            </div>
+            <div class="mgl-sc-hq-copy">
+                <p class="mgl-sc-kicker">YOUR SCOUT LEVEL</p>
+                <h3>LEVEL {{ scout_level }} / {{ max_level }}</h3>
+                <div class="mgl-sc-pips" aria-hidden="true">
+                    {% for n in "12345" %}
+                        <i class="{% if forloop.counter <= scout_level %}is-on{% endif %}"></i>
+                    {% endfor %}
+                </div>
+                {% if hours_saved_label %}
+                    <p>Scout missions are {{ hours_saved_label }} faster.</p>
+                {% else %}
+                    <p>Default scouting speed. Next upgrade unlocks 1.5 hours faster scouts.</p>
+                {% endif %}
+                <p class="mgl-sc-muted">You keep your scout level even if you leave a club.</p>
+                {% if club %}
+                    <p class="mgl-sc-muted">Squad {{ roster_count }} / 30 · {{ club.name }}</p>
+                {% else %}
+                    <p class="mgl-sc-muted">Take a club job before dispatching a scout.</p>
+                {% endif %}
+            </div>
+            <div class="mgl-scout-upgrade-panel">
+                {% if upgrade %}
+                    <form method="post" class="mgl-scout-upgrade">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="upgrade">
+                        <button type="submit" class="secondary-button">UPGRADE ({{ upgrade.cost_label }} TOKENS)</button>
+                    </form>
+                    <p class="mgl-sc-tokens">You have <strong>{{ token_balance }}</strong> tokens available.</p>
+                {% else %}
+                    <p>LEVEL {{ scout_level }} / {{ max_level }}</p>
+                    <p class="mgl-sc-tokens">You have <strong>{{ token_balance }}</strong> tokens available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <section class="mgl-sc-block">
+        <div class="mgl-sc-block-head">
+            <h2>ACTIVE SCOUTS</h2>
+        </div>
+        {% if active_scouts %}
+            <div class="mgl-sc-active">
+                {% for item in active_scouts %}
+                    <article class="mgl-sc-active-row" {% if item.status == "PENDING" %}data-scout-end="{{ item.ready_at|date:'c' }}"{% endif %}>
+                        <div>
+                            <h3>{{ item.get_tier_display|upper }} SCOUT</h3>
+                            <p>{{ item.region_display|default:"Anywhere" }} · {{ item.position|default:"Any Position" }}</p>
+                        </div>
+                        {% if item.status == "PENDING" %}
+                            <strong class="mgl-auction-countdown" data-scout-end="{{ item.ready_at|date:'c' }}">{{ item.remaining|wait_left }} REMAINING</strong>
+                            <span>IN PROGRESS</span>
+                        {% else %}
+                            <a href="?pack={{ item.id }}" class="secondary-button">OPEN PACK</a>
+                            <span>SCOUT REPORT READY</span>
+                        {% endif %}
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            {% include "mgl/includes/empty_state.html" with title="NO ACTIVE SCOUTS" %}
+        {% endif %}
+    </section>
+
+    <section class="mgl-sc-block" id="reports">
+        <div class="mgl-sc-block-head">
             <h2>RECENT SCOUT REPORTS</h2>
         </div>
-    </div>
-    <div class="mgl-report-list">
-        {% for report in reports %}
-            <article class="mgl-report-row">
-                {% player_card report.player "small" %}
-                <div class="mgl-report-meta">
-                    <p class="mgl-report-tier">{{ report.tier }} SCOUT</p>
-                    <h3><a href="{% url 'player_profile' report.player.id %}">{{ report.player.name }}</a></h3>
-                    <p>OVR {{ report.player.overall }} · {{ report.player.position }} · {{ report.player.nationality|default:"Unknown nation" }}</p>
-                    <p>
-                        {% if report.region_display %}{{ report.region_display }}{% else %}Anywhere{% endif %}
-                        · {{ report.discovered_at|date:"d M Y H:i" }}
-                    </p>
-                    {% if report.recruited %}
-                        <p class="mgl-report-status">STATUS: ✓ RECRUITED</p>
-                        <p>CLUB: {{ report.club.name|default:report.player.mgl_team.name }}</p>
-                    {% else %}
-                        <p class="mgl-report-status">STATUS: REPORT ONLY</p>
-                    {% endif %}
-                </div>
-            </article>
-        {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO REPORTS YET" %}
-        {% endfor %}
-    </div>
+        <div class="mgl-report-list">
+            {% for report in reports %}
+                <article class="mgl-sc-report">
+                    <span class="mgl-sc-ovr">{{ report.player.overall }}</span>
+                    <div>
+                        <h3><a href="{% url 'player_profile' report.player.id %}">{{ report.player.name }}</a></h3>
+                        <p>
+                            Scouted {{ report.discovered_at|date:"d M Y" }}
+                            · {{ report.tier }}
+                            · {{ report.position|default:"Any Position" }}
+                            · {{ report.region_display|default:"Anywhere" }}
+                            · {% if report.recruited %}RECRUITED{% else %}RELEASED{% endif %}
+                        </p>
+                    </div>
+                    <time datetime="{{ report.discovered_at|date:'c' }}">{{ report.discovered_at|date:"d M Y" }}</time>
+                </article>
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with title="NO REPORTS YET" %}
+            {% endfor %}
+        </div>
+        {% if reports %}
+            <a href="#reports" class="primary-button mgl-sc-all">VIEW ALL REPORTS</a>
+        {% endif %}
+    </section>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'core/js/mgl-scouting.js' %}"></script>
 {% endblock %}

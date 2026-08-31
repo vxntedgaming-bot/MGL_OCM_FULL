@@ -6,6 +6,7 @@ from django.db import transaction
 from django.db.models import Q
 from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
@@ -1834,6 +1835,7 @@ def transfer_history(request):
 def scouting(request):
     from mgl.scouting import (
         BRONZE,
+        ELITE,
         GOLD,
         MAX_LEVEL,
         SILVER,
@@ -1843,28 +1845,41 @@ def scouting(request):
         cooldown_hours,
         dispatch_scout,
         format_hours,
+        hours_saved,
+        hours_saved_label,
         manager_scout_level,
         next_upgrade,
+        open_scout_pack,
+        release_scout_player,
         remaining_wait,
         scout_positions,
         scout_region_menu,
         scout_times,
+        send_scout_to_team,
         upgrade_scout,
     )
     from mgl.market import club_for_user
-    from mgl.regions import region_label
+    from mgl.regions import REGION_NATIONS, region_label
+    from mgl.player_state import roster_occupancy
 
     manager = manager_for_user(request.user)
     if not manager:
         return redirect("manager_login")
     if request.method == "POST":
         action = request.POST.get("action")
+        assignment_id = request.POST.get("assignment")
+        assignment = None
+        if assignment_id and str(assignment_id).isdigit():
+            assignment = ScoutAssignment.objects.filter(
+                pk=int(assignment_id),
+                manager=manager,
+            ).first()
         try:
             if action == "upgrade":
                 profile, level, cost = upgrade_scout(manager)
                 messages.success(
                     request,
-                    f"Scouting network upgraded to Level {level} for {cost} tokens. Bronze, Silver and Gold scouts all use the new times.",
+                    f"Scouting network upgraded to Level {level} for {cost} tokens.",
                 )
             elif action == "dispatch":
                 assignment = dispatch_scout(
@@ -1877,13 +1892,27 @@ def scouting(request):
                     request,
                     f"{assignment.get_tier_display()} scout dispatched. Report ready at {assignment.ready_at}.",
                 )
+            elif action == "open_pack":
+                opened = open_scout_pack(manager, assignment)
+                return redirect(f"{reverse('scouting')}?pack={opened.id}")
+            elif action == "send_to_team":
+                report = send_scout_to_team(manager, assignment)
+                messages.success(
+                    request,
+                    f"{report.player.name} joined {report.club.name}.",
+                )
+            elif action == "release_player":
+                release_scout_player(manager, assignment)
+                messages.success(request, "Player released back to the unreleased pool.")
             else:
                 messages.error(request, "Unknown scouting action.")
         except ValueError as exc:
             messages.error(request, str(exc))
+            if assignment_id:
+                return redirect(f"{reverse('scouting')}?pack={assignment_id}")
         return redirect("scouting")
 
-    _created, notices = complete_ready_assignments(manager)
+    _ready, notices = complete_ready_assignments(manager)
     for notice in notices:
         if notice == SQUAD_FULL_MESSAGE or "enough tokens" in notice.lower():
             messages.error(request, notice)
@@ -1895,21 +1924,28 @@ def scouting(request):
     scout_level = manager_scout_level(manager)
     now = timezone.now()
     team = club_for_user(request.user)
-    from mgl.player_state import roster_occupancy
-
     roster_count = roster_occupancy(team) if team else 0
     roster_full = bool(team) and roster_count >= 30
     panels = []
-    for tier, label in ((BRONZE, "Bronze"), (SILVER, "Silver"), (GOLD, "Gold")):
+    for tier, label in ((BRONZE, "Bronze"), (SILVER, "Silver"), (GOLD, "Gold"), (ELITE, "Elite")):
         current = (
             ScoutAssignment.objects.filter(
-                manager=manager, tier=tier, status=ScoutAssignment.PENDING
+                manager=manager,
+                tier=tier,
+                status__in=[
+                    ScoutAssignment.PENDING,
+                    ScoutAssignment.READY,
+                    ScoutAssignment.OPENED,
+                ],
             )
             .order_by("-started_at")
             .first()
         )
         wait = remaining_wait(current, now=now) if current else None
-        ready = bool(current) and wait is not None and wait.total_seconds() <= 0
+        ready = bool(current) and current.status in {
+            ScoutAssignment.READY,
+            ScoutAssignment.OPENED,
+        }
         hours = cooldown_hours(tier, scout_level)
         panels.append(
             {
@@ -1918,15 +1954,49 @@ def scouting(request):
                 "range": TIER_RANGES[tier],
                 "hours": hours,
                 "hours_label": format_hours(hours),
+                "hours_short": f"{hours}h",
                 "current": current,
                 "remaining": wait,
                 "ready": ready,
                 "available": current is None and not roster_full,
             }
         )
+    active = (
+        ScoutAssignment.objects.filter(
+            manager=manager,
+            status__in=[
+                ScoutAssignment.PENDING,
+                ScoutAssignment.READY,
+                ScoutAssignment.OPENED,
+            ],
+        )
+        .select_related("player")
+        .order_by("ready_at")
+    )
+    for item in active:
+        item.region_display = region_label(item.region)
+        item.remaining = remaining_wait(item, now=now)
     reports = manager.scout_reports.select_related("player", "player__mgl_team", "club")[:20]
     for report in reports:
         report.region_display = region_label(report.region)
+
+    pack = None
+    pack_raw = request.GET.get("pack", "").strip()
+    if pack_raw.isdigit():
+        pack = ScoutAssignment.objects.filter(
+            pk=int(pack_raw),
+            manager=manager,
+            status__in=[ScoutAssignment.READY, ScoutAssignment.OPENED],
+        ).select_related("player").first()
+        if pack:
+            pack.region_display = region_label(pack.region)
+
+    region_guide = [
+        (group, [(key, label, sorted(REGION_NATIONS.get(key, ()))) for key, label in items])
+        for group, items in scout_region_menu()
+        if group
+    ]
+
     return render(
         request,
         "mgl/scouting.html",
@@ -1935,12 +2005,17 @@ def scouting(request):
             "token_balance": token_balance_for_user(request.user),
             "scout_level": scout_level,
             "max_level": MAX_LEVEL,
+            "hours_saved": hours_saved(scout_level),
+            "hours_saved_label": hours_saved_label(scout_level),
             "current_times": scout_times(scout_level),
             "upgrade": next_upgrade(scout_level),
             "panels": panels,
             "region_menu": scout_region_menu(),
+            "region_guide": region_guide,
             "positions": scout_positions(),
             "reports": reports,
+            "active_scouts": active,
+            "pack": pack,
             "club": team,
             "roster_count": roster_count,
             "roster_full": roster_full,
