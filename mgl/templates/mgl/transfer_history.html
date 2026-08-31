@@ -76,7 +76,11 @@
                         {% endif %}
                     </p>
                     <div class="mgl-tr-clubs">
-                        <span class="mgl-tr-club">{% team_logo row.from_team "xs" %} {{ row.from_team.short_name|default:"FA" }}</span>
+                        {% if row.from_is_free_agent %}
+                            <span class="mgl-tr-club">{% include "mgl/includes/free_agent_mark.html" with size="xs" %} FREE AGENT</span>
+                        {% else %}
+                            <span class="mgl-tr-club">{% team_logo row.from_team "xs" %} {{ row.from_team.short_name|default:"—" }}</span>
+                        {% endif %}
                         <span class="mgl-tr-arrow" aria-hidden="true">→</span>
                         <span class="mgl-tr-club">{% team_logo row.to_team "xs" %} {{ row.to_team.short_name|default:"—" }}</span>
                     </div>

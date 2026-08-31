@@ -252,7 +252,8 @@ def assign_player(player, team, source="ADMIN", reference=""):
 @transaction.atomic
 def sign_free_agent(player, manager):
     """Sign a Free Agent for 0 TKN onto the manager's club."""
-    from mgl.market import assert_roster_space, club_for_user
+    from mgl.market import assert_roster_space, club_for_user, record_market_transaction
+    from mgl.models import MarketTransaction
     from mgl.player_state import player_is_in_live_auction
 
     if manager is None or getattr(manager, "status", None) != ManagerApplication.APPROVED:
@@ -274,6 +275,24 @@ def sign_free_agent(player, manager):
         source="FREE_AGENT",
         reference=f"fa-sign:{manager.id}",
     )
+    if not MarketTransaction.objects.filter(
+        player=signed,
+        buyer=manager,
+        to_team=team,
+        transaction_type=MarketTransaction.SALE,
+        notes="Free agent signing",
+    ).exists():
+        record_market_transaction(
+            player=signed,
+            seller=None,
+            buyer=manager,
+            from_team=None,
+            to_team=team,
+            amount=Decimal("0.00"),
+            transaction_type=MarketTransaction.SALE,
+            status=MarketTransaction.COMPLETED,
+            notes="Free agent signing",
+        )
     create_news(
         NewsPost.SIGNING,
         f"{signed.name} signed",

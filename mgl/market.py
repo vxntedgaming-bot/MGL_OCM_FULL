@@ -110,6 +110,51 @@ def record_market_transaction(**kwargs):
     return MarketTransaction.objects.create(**kwargs)
 
 
+def completed_auction_transfer(auction):
+    if auction is None:
+        return None
+    return (
+        MarketTransaction.objects.filter(
+            auction=auction,
+            transaction_type=MarketTransaction.AUCTION,
+            status=MarketTransaction.COMPLETED,
+        )
+        .order_by("id")
+        .first()
+    )
+
+
+def record_completed_auction_transfer(
+    *,
+    auction,
+    player,
+    seller,
+    buyer,
+    from_team,
+    to_team,
+    amount,
+    approved_by=None,
+):
+    """Create one AUCTION history row per auction. Safe to call again."""
+    existing = completed_auction_transfer(auction)
+    if existing:
+        return existing
+    if to_team is None or player is None:
+        return None
+    return record_market_transaction(
+        player=player,
+        seller=seller,
+        buyer=buyer,
+        from_team=from_team,
+        to_team=to_team,
+        amount=amount,
+        transaction_type=MarketTransaction.AUCTION,
+        status=MarketTransaction.COMPLETED,
+        approved_by=approved_by,
+        auction=auction,
+    )
+
+
 def record_token_transaction(manager, amount, transaction_type, description, auction=None):
     if not manager:
         return None
@@ -618,11 +663,40 @@ def place_auction_bid(auction, manager, amount):
     return auction
 
 
+def _backfill_ended_auction_transfer(auction, reviewer=None):
+    """If an ended auction has a winner but no history row, write that row once."""
+    if auction.status != PlayerAuction.ENDED:
+        return None
+    if not auction.winning_manager_id or not auction.winning_bid:
+        return None
+    winner = auction.winning_manager
+    club = club_for_user(winner.user) if winner else None
+    if club is None:
+        highest = (
+            auction.bids.select_related("team")
+            .order_by("-amount", "-created_at")
+            .first()
+        )
+        club = highest.team if highest else None
+    return record_completed_auction_transfer(
+        auction=auction,
+        player=auction.player,
+        seller=auction.listed_by_manager,
+        buyer=winner,
+        from_team=auction.origin_team,
+        to_team=club,
+        amount=auction.winning_bid,
+        approved_by=reviewer,
+    )
+
+
 @transaction.atomic
 def settle_auction(auction, reviewer=None):
     auction = PlayerAuction.objects.select_for_update().get(pk=auction.pk)
 
     if auction.status != PlayerAuction.LIVE:
+        if auction.status == PlayerAuction.ENDED:
+            _backfill_ended_auction_transfer(auction, reviewer=reviewer)
         return auction, "Auction is no longer live."
 
     highest = (
@@ -696,17 +770,15 @@ def settle_auction(auction, reviewer=None):
     auction.winning_bid = highest.amount
     auction.save(update_fields=["status", "winning_manager", "winning_bid"])
 
-    record_market_transaction(
+    record_completed_auction_transfer(
+        auction=auction,
         player=player,
         seller=auction.listed_by_manager,
         buyer=winner,
         from_team=origin,
         to_team=club,
         amount=highest.amount,
-        transaction_type=MarketTransaction.AUCTION,
-        status=MarketTransaction.COMPLETED,
         approved_by=reviewer,
-        auction=auction,
     )
     create_news(
         NewsPost.AUCTION,

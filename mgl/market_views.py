@@ -124,13 +124,7 @@ def transfer_market(request):
         (listing.asking_price for listing in listing_list),
         Decimal("0"),
     )
-    latest_transfers = [
-        row
-        for row in completed_transfers_for(None, all_clubs=True, limit=24)
-        if row.player_id
-        and row.transaction_type
-        in {MarketTransaction.SALE, MarketTransaction.AUCTION}
-    ][:8]
+    latest_transfers = completed_transfers_for(None, all_clubs=True, limit=8)
     return render(
         request,
         "mgl/transfer_market.html",

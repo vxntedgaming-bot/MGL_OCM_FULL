@@ -120,17 +120,57 @@ def format_tokens(amount):
     return f"{value:.2f}"
 
 
-def completed_transfers_for(club, *, all_clubs=False, limit=None):
-    rows = (
-        MarketTransaction.objects.filter(status=MarketTransaction.COMPLETED)
-        .select_related("player", "from_team", "to_team", "seller", "buyer")
+PLAYER_MOVEMENT_TYPES = (
+    MarketTransaction.SALE,
+    MarketTransaction.AUCTION,
+    MarketTransaction.ADMIN_ASSIGN,
+)
+
+
+def completed_transfer_queryset():
+    """Completed player movements only — never bid reserves, refunds, or live auctions."""
+    from auctions.models import PlayerAuction
+
+    return (
+        MarketTransaction.objects.filter(
+            status=MarketTransaction.COMPLETED,
+            transaction_type__in=PLAYER_MOVEMENT_TYPES,
+            player__isnull=False,
+            to_team__isnull=False,
+        )
+        .exclude(
+            auction__isnull=False,
+            auction__status__in=[PlayerAuction.LIVE, PlayerAuction.PENDING],
+        )
+        .select_related(
+            "player",
+            "from_team",
+            "to_team",
+            "seller",
+            "buyer",
+            "auction",
+        )
         .order_by("-completed_at", "-created_at", "-id")
     )
+
+
+def decorate_completed_transfer(row):
+    row.fee_label = format_tokens(row.amount)
+    row.from_is_free_agent = (
+        row.from_team_id is None
+        and row.to_team_id is not None
+        and row.transaction_type in PLAYER_MOVEMENT_TYPES
+    )
+    return row
+
+
+def completed_transfers_for(club, *, all_clubs=False, limit=None):
+    rows = completed_transfer_queryset()
     if club is not None and not all_clubs:
         rows = rows.filter(Q(from_team=club) | Q(to_team=club))
     if limit:
         rows = rows[:limit]
-    return list(rows)
+    return [decorate_completed_transfer(row) for row in rows]
 
 
 def richest_assigned_managers(limit=8):

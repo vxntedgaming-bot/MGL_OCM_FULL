@@ -730,6 +730,29 @@ video {
     box-shadow: 0 0 10px rgba(197, 157, 95, 0.35);
 }
 
+.mgl-fa-mark {
+    display: inline-grid;
+    place-items: center;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: rgba(197, 157, 95, 0.12);
+    border: 1px solid rgba(197, 157, 95, 0.5);
+}
+
+.mgl-fa-mark-xs {
+    width: 20px;
+    height: 20px;
+}
+
+.mgl-fa-mark-badge {
+    color: #c59d5f;
+    font-family: var(--font-display, "Barlow Condensed", sans-serif);
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    line-height: 1;
+}
+
 .mgl-status-badge--auction {
     color: var(--status-auction);
 }
