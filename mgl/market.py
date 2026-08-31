@@ -25,10 +25,11 @@ AUCTION_DURATION_CHOICES = (
 )
 AUCTION_DURATIONS_MINUTES = tuple(minutes for minutes, _label in AUCTION_DURATION_CHOICES)
 MAX_AUCTION_MINUTES = 720
-MAX_ACTIVE_CLUB_LISTINGS = 6
+MAX_ACTIVE_CLUB_LISTINGS = 5
 MIN_AUCTION_STARTING_BID = 0
 MAX_AUCTION_STARTING_BID = 10
-MARKET_SLOT_MESSAGE = "Your club already has 6 active market listings."
+MARKET_SLOT_MESSAGE = "Your club already has 5 active market listings."
+LISTING_FREQUENCY_MESSAGE = "You can list at most 3 players every 24 hours."
 
 
 def club_for_user(user):
@@ -238,8 +239,9 @@ def assert_roster_space(team, extra=1):
     if team is None:
         raise ValueError("You must manage a club.")
     from mgl.player_state import roster_occupancy
+    from mgl.ufl_settings import effective_roster_limit
 
-    roster_limit = getattr(team, "roster_limit", 30) or 30
+    roster_limit = effective_roster_limit(team)
     current_size = roster_occupancy(team)
     if current_size + extra > roster_limit:
         raise ValueError(
@@ -248,8 +250,23 @@ def assert_roster_space(team, extra=1):
 
 
 def assert_club_listing_capacity(team):
-    if active_market_listing_count(team) >= MAX_ACTIVE_CLUB_LISTINGS:
-        raise ValueError(MARKET_SLOT_MESSAGE)
+    from mgl.ufl_settings import max_active_listings
+
+    limit = max_active_listings()
+    if active_market_listing_count(team) >= limit:
+        raise ValueError(f"Your club already has {limit} active market listings.")
+
+
+def assert_listing_frequency(manager):
+    from mgl.ufl_settings import listings_per_24h
+
+    limit = listings_per_24h()
+    if not manager or limit <= 0:
+        return
+    since = timezone.now() - timedelta(hours=24)
+    created = PlayerListing.objects.filter(seller=manager, created_at__gte=since).count()
+    if created >= limit:
+        raise ValueError(f"You can list at most {limit} players every 24 hours.")
 
 
 def transfer_window_is_open():
@@ -887,6 +904,7 @@ def list_player_for_sale(player, manager, asking_price):
     price = parse_asking_price(asking_price)
     assert_transfer_window()
     _assert_no_live_auction(player)
+    assert_listing_frequency(manager)
     assert_club_listing_capacity(team)
 
     listing = PlayerListing.objects.create(
@@ -964,7 +982,7 @@ def _notify_listing_outcome(listing, *, buyer=None, rejected=False):
             notification_type="TRANSFER",
             title="LISTING REJECTED",
             message=f"Your listing for {listing.player.name} was rejected.",
-            actor="MGL Admin",
+            actor="UFL Admin",
             action_url=reverse("team_management"),
             action_label="VIEW SQUAD",
             team=listing.team,
@@ -980,7 +998,7 @@ def _notify_listing_outcome(listing, *, buyer=None, rejected=False):
                     f"Your transfer request for {listing.player.name} "
                     "was rejected by the league office."
                 ),
-                actor="MGL Admin",
+                actor="UFL Admin",
                 action_url=reverse("transfer_market"),
                 action_label="VIEW MARKET",
                 team=listing.team,

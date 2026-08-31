@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}MGL – MetaGamingLeague{% endblock %}</title>
+    <title>{% block title %}UFL – Ultimate Fantasy League{% endblock %}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -18,9 +18,9 @@
 <header class="mgl-header">
     <div class="mgl-header-inner">
         <a href="{% url 'home' %}" class="mgl-logo">
-            <img src="{% static 'core/img/mgl-logo.png' %}" alt="MetaGamingLeague" class="mgl-logo-img">
+            <img src="{% static 'core/img/mgl-logo.png' %}" alt="Ultimate Fantasy League" class="mgl-logo-img">
             <span class="mgl-logo-text">
-                {{ site_name|default:"Meta Gaming League"|upper }}
+                {{ site_name|default:"Ultimate Fantasy League"|upper }}
                 <span>{{ site_tagline|default:"Online Career Mode"|upper }}</span>
             </span>
         </a>
@@ -102,7 +102,7 @@
 <footer class="mgl-footer">
     <div class="mgl-footer-inner">
         <div class="mgl-footer-brand">
-            <img src="{% static 'core/img/mgl-logo.png' %}" alt="MGL" class="mgl-logo-img">
+            <img src="{% static 'core/img/mgl-logo.png' %}" alt="UFL" class="mgl-logo-img">
             <strong>{{ site_name|default:"Meta Gaming League"|upper }}</strong>
             <p>{{ site_tagline|default:"Online Career Mode"|upper }}</p>
             <p>{{ footer_description|default:"Build your club. Manage your squad. Compete against other managers in Meta Gaming League Online Career Mode." }}</p>
@@ -156,8 +156,8 @@
         </div>
     </div>
     <div class="mgl-footer-copy">
-        <span>© MetaGamingLeague. All rights reserved.</span>
-        <span>EA FC 26 | MGL</span>
+        <span>© Ultimate Fantasy League. All rights reserved.</span>
+        <span>EA FC 26 | UFL</span>
     </div>
 </footer>
 <script src="{% static 'core/js/mgl-nav.js' %}?v=nb-2"></script>

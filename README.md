@@ -1,8 +1,8 @@
-# MGL Online Career Mode
+# Ultimate Fantasy League (UFL)
 
-Django site and Discord outbox bot for MetaGamingLeague Online Career Mode: managers, clubs, FC26 player pool, fixtures, match approval, auctions, tokens, and rewards.
+Django site and Discord outbox bot for Ultimate Fantasy League, an EA FC 26 Online Career Mode: managers, clubs, FC26 player pool, fixtures, match approval, auctions, tokens, and rewards.
 
-This tree is the existing MGL project (not a rewrite).
+This tree is the existing production Career Mode application. Internal `/mgl/` URLs stay so Railway, Discord links, and tests keep working. See `UFL_AUDIT.md` for the domain map.
 
 Presentation lives in `core/templates/core/base.html`, `core/static/core/css/mgl.css`, and the overlay design system `core/static/core/css/mgl-theme.css`. Inner pages inherit header, footer, cards, badges, tables, and mobile navigation from that base. Player market states stay visually distinct: **UNASSIGNED**, **AUCTION**, and **FREE AGENT**.
 

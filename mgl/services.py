@@ -205,7 +205,7 @@ def create_news(category, title, body, publish=True, team=None, secondary_team=N
     so later squad moves do not rewrite history.
     """
 
-    return NewsPost.objects.create(
+    post = NewsPost.objects.create(
         category=category,
         title=title,
         body=body,
@@ -215,12 +215,144 @@ def create_news(category, title, body, publish=True, team=None, secondary_team=N
         secondary_team=secondary_team,
         details=details or {},
     )
+    try:
+        from mgl.discord_queue import queue_from_news
+
+        queue_from_news(post)
+    except Exception:
+        pass
+    return post
 
 
 @transaction.atomic
-def release_player(player, team, source="MANAGER_RELEASE"):
+def request_player_release(player, team, manager, reason=""):
+    """Manager asks to release a player. Ownership does not change until approved."""
+    from mgl.models import ApprovalRequest, ApprovalStatus, PlayerReleaseRequest
+
+    player = Player.objects.select_for_update().get(pk=player.pk)
+    if player.mgl_team_id != team.id:
+        raise ValueError("This player does not belong to this team.")
+    if PlayerListing.objects.filter(
+        player=player,
+        status__in=[PlayerListing.PENDING, PlayerListing.LIVE, PlayerListing.OFFER],
+    ).exists():
+        raise ValueError("This player cannot be released while listed for transfer.")
+    if PlayerAuction.objects.filter(
+        player=player,
+        status__in=[PlayerAuction.PENDING, PlayerAuction.LIVE],
+    ).exists():
+        raise ValueError("This player cannot be released while in an auction.")
+    if PlayerReleaseRequest.objects.filter(
+        player=player, status=ApprovalStatus.PENDING
+    ).exists():
+        raise ValueError("A release request for this player is already pending.")
+
+    request_row = PlayerReleaseRequest.objects.create(
+        player=player,
+        team=team,
+        manager=manager,
+        reason=reason or "",
+        status=ApprovalStatus.PENDING,
+    )
+    ApprovalRequest.objects.create(
+        kind="PLAYER_RELEASE",
+        object_id=request_row.pk,
+        submitted_by=getattr(manager, "user", None),
+        status=ApprovalStatus.PENDING,
+        payload={"player_id": player.pk, "team_id": team.pk},
+    )
+    from django.urls import reverse
+
+    from accounts.models import User
+    from mgl.notifications import notify_user
+
+    for user in User.objects.filter(role__in=[User.OWNER, User.ADMIN], is_active=True):
+        notify_user(
+            user,
+            source_key=f"admin-release-{request_row.pk}",
+            notification_type="RELEASE",
+            title="PLAYER RELEASE REQUEST",
+            message=(
+                f"{team.name} requested to release {player.name}. "
+                "The player stays in the squad until you approve."
+            ),
+            actor=manager.display_name,
+            action_url=reverse("control_pending"),
+            action_label="REVIEW",
+            team=team,
+            player=player,
+            is_action=True,
+        )
+    return request_row
+
+
+@transaction.atomic
+def approve_player_release(release_request, reviewer):
+    from mgl.models import ApprovalStatus, PlayerReleaseRequest
+
+    release_request = PlayerReleaseRequest.objects.select_for_update().get(
+        pk=release_request.pk
+    )
+    if release_request.status != ApprovalStatus.PENDING:
+        raise ValueError("That release request is no longer pending.")
+    player = release_player(
+        release_request.player,
+        release_request.team,
+        source="MANAGER_RELEASE",
+        reviewer=reviewer,
+    )
+    release_request.status = ApprovalStatus.APPROVED
+    release_request.reviewed_at = timezone.now()
+    release_request.reviewed_by = reviewer
+    release_request.save(update_fields=["status", "reviewed_at", "reviewed_by"])
+    from mgl.audit import log_ocm_action
+
+    log_ocm_action(
+        reviewer,
+        action="player.release.approve",
+        object_type="PlayerReleaseRequest",
+        object_id=release_request.pk,
+        object_label=player.name,
+        new_value="FREE_AGENT",
+        summary=f"{player.name} release approved.",
+    )
+    return player
+
+
+@transaction.atomic
+def reject_player_release(release_request, reviewer, reason=""):
+    from mgl.models import ApprovalStatus, PlayerReleaseRequest
+
+    release_request = PlayerReleaseRequest.objects.select_for_update().get(
+        pk=release_request.pk
+    )
+    if release_request.status != ApprovalStatus.PENDING:
+        raise ValueError("That release request is no longer pending.")
+    release_request.status = ApprovalStatus.REJECTED
+    release_request.reviewed_at = timezone.now()
+    release_request.reviewed_by = reviewer
+    if reason:
+        release_request.reason = reason
+    release_request.save(update_fields=["status", "reviewed_at", "reviewed_by", "reason"])
+    from mgl.audit import log_ocm_action
+
+    log_ocm_action(
+        reviewer,
+        action="player.release.reject",
+        object_type="PlayerReleaseRequest",
+        object_id=release_request.pk,
+        object_label=release_request.player.name,
+        new_value="REJECTED",
+        summary=f"{release_request.player.name} release rejected.",
+    )
+    return release_request
+
+
+@transaction.atomic
+def release_player(player, team, source="MANAGER_RELEASE", reviewer=None):
     """
-    Manager releases are immediate and do not require admin approval.
+    Official release. Managers must go through request_player_release.
+    Admin/Owner and the approval engine call this after review.
     """
 
     player = Player.objects.select_for_update().get(pk=player.pk)
@@ -280,16 +412,16 @@ def assign_player(player, team, source="ADMIN", reference=""):
     """
     Central player assignment function.
 
-    Enforces the MGL 30-player roster limit and prevents duplicate
-    ownership.
+    Enforces the UFL squad limit and prevents duplicate ownership.
     """
 
     player = Player.objects.select_for_update().get(pk=player.pk)
     team = Team.objects.select_for_update().get(pk=team.pk)
 
     from mgl.player_state import roster_occupancy
+    from mgl.ufl_settings import effective_roster_limit
 
-    roster_limit = getattr(team, "roster_limit", 30) or 30
+    roster_limit = effective_roster_limit(team)
     current_size = roster_occupancy(team)
 
     if current_size >= roster_limit:

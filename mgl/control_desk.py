@@ -18,6 +18,7 @@ from mgl.models import (
     MatchSubmission,
     MonthlyAwardBatch,
     PlayerListing,
+    PlayerReleaseRequest,
     RewardTransaction,
     ScoutAssignment,
     SiteChangeLog,
@@ -147,6 +148,7 @@ def pending_counts_from(queues):
         "monthly": queues["pending_monthly"],
         "disputed": len(queues["disputed_results"]),
         "scouts": queues["active_scouts"],
+        "releases": len(queues.get("pending_releases") or []),
     }
     counts["approvals"] = (
         counts["managers"]
@@ -155,6 +157,7 @@ def pending_counts_from(queues):
         + counts["jobs"]
         + counts["press"]
         + counts["awards"]
+        + counts["releases"]
     )
     return counts
 
@@ -182,6 +185,11 @@ def load_queues():
             ScoutAssignment.OPENED,
         ]
     ).count()
+    pending_releases = list(
+        PlayerReleaseRequest.objects.filter(status=ApprovalStatus.PENDING)
+        .select_related("player", "team", "manager")
+        .order_by("-created_at")
+    )
     queues = {
         "pending_managers": pending_managers,
         "pending_listings": pending_listings(),
@@ -189,6 +197,7 @@ def load_queues():
         "disputed_results": disputed_results(),
         "pending_jobs": pending_jobs,
         "pending_press": pending_press_reviews(),
+        "pending_releases": pending_releases,
         "live_auctions": live_auctions,
         "pending_weekly": weekly_pending,
         "pending_monthly": monthly_pending,
@@ -234,7 +243,7 @@ def attention_items(queues, limit=8):
         items.append(
             {
                 "kind": "PRESS CONFERENCE",
-                "title": press.team.name if press.team_id else "MGL",
+                "title": press.team.name if press.team_id else "UFL",
                 "detail": "Pending Approval",
                 "meta": press.question,
                 "when": press.created_at,
@@ -261,6 +270,17 @@ def attention_items(queues, limit=8):
                 "meta": job.team.name,
                 "when": job.created_at,
                 "url": reverse("control_managers"),
+            }
+        )
+    for release in queues.get("pending_releases") or []:
+        items.append(
+            {
+                "kind": "PLAYER RELEASE",
+                "title": release.player.name,
+                "detail": "Pending Approval",
+                "meta": f"{release.team.name} · {release.manager.display_name}",
+                "when": release.created_at,
+                "url": reverse("control_pending"),
             }
         )
     for batch in WeeklyAwardBatch.objects.filter(

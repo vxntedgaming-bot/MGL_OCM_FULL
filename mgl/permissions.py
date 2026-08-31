@@ -18,7 +18,7 @@ def is_owner_or_admin(user):
 
 
 def owner_admin_required(view_func):
-    """Only MGL OWNER or ADMIN users can access control pages."""
+    """Only UFL OWNER or ADMIN users can access control pages."""
 
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
@@ -27,7 +27,7 @@ def owner_admin_required(view_func):
         if request.user.role not in [User.OWNER, User.ADMIN]:
             messages.error(
                 request,
-                "You do not have permission to access MGL Control.",
+                "You do not have permission to access UFL Control.",
             )
             return redirect("manager_hub")
         return view_func(request, *args, **kwargs)

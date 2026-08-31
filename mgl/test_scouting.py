@@ -423,8 +423,8 @@ class ScoutRosterLimitTests(TestCase):
                 mgl_team=self.club,
             )
 
-    def test_29_players_allows_recruitment_to_30(self):
-        self._fill(29)
+    def test_27_players_allows_recruitment_to_28(self):
+        self._fill(27)
         assignment = dispatch_scout(self.manager, "BRONZE", "europe", "ST")
         ready, _notices = _finish(assignment)
         self.assertEqual(len(ready), 1)
@@ -432,22 +432,22 @@ class ScoutRosterLimitTests(TestCase):
         send_scout_to_team(self.manager, assignment)
         self.target.refresh_from_db()
         self.assertEqual(self.target.mgl_team_id, self.club.id)
-        self.assertEqual(Player.objects.filter(mgl_team=self.club).count(), 30)
+        self.assertEqual(Player.objects.filter(mgl_team=self.club).count(), 28)
         self.assertFalse(self.target.is_free_agent)
 
-    def test_30_players_rejects_recruitment_and_keeps_player_free(self):
-        self._fill(30)
+    def test_28_players_rejects_recruitment_and_keeps_player_free(self):
+        self._fill(28)
         with self.assertRaisesMessage(ValueError, SQUAD_FULL_MESSAGE):
             dispatch_scout(self.manager, "BRONZE", "europe", "ST")
         self.target.refresh_from_db()
         self.assertFalse(self.target.is_free_agent)
         self.assertIsNone(self.target.mgl_team_id)
-        self.assertEqual(Player.objects.filter(mgl_team=self.club).count(), 30)
+        self.assertEqual(Player.objects.filter(mgl_team=self.club).count(), 28)
         self.assertEqual(Player.objects.filter(name="Last Recruit").count(), 1)
 
-    def test_pending_scout_cannot_push_squad_to_31(self):
+    def test_pending_scout_cannot_push_squad_past_28(self):
         assignment = dispatch_scout(self.manager, "BRONZE", "europe", "ST")
-        self._fill(30)
+        self._fill(28)
         assignment.ready_at = timezone.now() - timedelta(seconds=5)
         assignment.save(update_fields=["ready_at"])
         ready, notices = complete_ready_assignments(self.manager)
@@ -461,7 +461,7 @@ class ScoutRosterLimitTests(TestCase):
             send_scout_to_team(self.manager, assignment)
         self.target.refresh_from_db()
         self.assertFalse(self.target.is_free_agent)
-        self.assertEqual(Player.objects.filter(mgl_team=self.club).count(), 30)
+        self.assertEqual(Player.objects.filter(mgl_team=self.club).count(), 28)
 
 
 class ScoutPageTests(TestCase):
@@ -513,7 +513,7 @@ class ScoutPageTests(TestCase):
         self.assertContains(page, "SCOUT REPORT READY")
         self.assertContains(page, "OPEN PACK")
         sealed = self.client.get(reverse("scouting") + f"?pack={assignment.id}")
-        self.assertContains(sealed, "MGL SCOUTING PACK")
+        self.assertContains(sealed, "UFL SCOUT REPORT")
         self.assertContains(sealed, "OPEN PACK")
         self.assertNotContains(sealed, "Silver Scout Target")
         self.assertNotContains(sealed, "SILVER SCOUT TARGET")

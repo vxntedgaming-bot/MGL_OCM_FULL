@@ -90,7 +90,7 @@ class OcmEndToEndTests(TestCase):
         self.assertTrue(self.client.login(username="alice", password="Ocm-pass-12345"))
         public_home = self.client.get("/")
         self.assertEqual(public_home.status_code, 200)
-        self.assertContains(public_home, "META GAMING LEAGUE")
+        self.assertContains(public_home, "YOUR CLUB.")
         self.assertContains(public_home, "ACCOUNT")
         self.client.logout()
 

@@ -25,11 +25,14 @@ def manager_register(request):
             user.is_active = True
             user.save()
 
+            from mgl.ufl_settings import starting_tokens
+
             ManagerApplication.objects.create(
                 user=user,
                 display_name=form.cleaned_data["display_name"],
                 gamertag=form.cleaned_data["gamertag"],
                 preferred_team=form.cleaned_data["preferred_team"],
+                tokens=starting_tokens(),
             )
 
             return render(

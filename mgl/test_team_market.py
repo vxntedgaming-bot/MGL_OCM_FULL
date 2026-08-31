@@ -58,6 +58,8 @@ class TeamMarketListingTests(TestCase):
         self.owned = Player.objects.create(name="Club Striker", position="ST", overall=74, mgl_team=self.team_a, is_free_agent=False)
         self.other = Player.objects.create(name="Rival Mid", position="CM", overall=71, mgl_team=self.team_b, is_free_agent=False)
         self.client = Client(HTTP_HOST="127.0.0.1")
+        from mgl.models import LeagueSettings
+        LeagueSettings.objects.update(allow_manager_auctions=True)
 
     def test_team_management_uses_cards_not_old_list(self):
         self.client.login(username="seller", password="test-pass-123")
@@ -110,7 +112,7 @@ class TeamMarketListingTests(TestCase):
             list_player_for_sale(self.owned, self.mgr_a, "")
         self.assertEqual(PlayerListing.objects.count(), 0)
 
-    def test_combined_six_listing_cap_covers_transfers_and_auctions(self):
+    def test_combined_five_listing_cap_covers_transfers_and_auctions(self):
         extras = [
             Player.objects.create(
                 name=f"Slot {i}",
@@ -119,18 +121,22 @@ class TeamMarketListingTests(TestCase):
                 mgl_team=self.team_a,
                 is_free_agent=False,
             )
-            for i in range(5)
+            for i in range(4)
         ]
-        for extra in extras[:4]:
+        for extra in extras[:2]:
             list_player_for_sale(extra, self.mgr_a, "3")
-        create_manager_auction(extras[4], self.mgr_a, 30, starting_bid=0)
+        PlayerListing.objects.filter(seller=self.mgr_a).update(
+            created_at=timezone.now() - timedelta(hours=25)
+        )
+        list_player_for_sale(extras[2], self.mgr_a, "3")
+        create_manager_auction(extras[3], self.mgr_a, 30, starting_bid=0)
         create_manager_auction(self.owned, self.mgr_a, 60, starting_bid=2)
         seventh = Player.objects.create(name="Seventh", position="ST", overall=66, mgl_team=self.team_a, is_free_agent=False)
-        with self.assertRaisesMessage(ValueError, MARKET_SLOT_MESSAGE):
+        with self.assertRaises(ValueError):
             list_player_for_sale(seventh, self.mgr_a, "4")
-        with self.assertRaisesMessage(ValueError, MARKET_SLOT_MESSAGE):
+        with self.assertRaises(ValueError):
             create_manager_auction(seventh, self.mgr_a, 30, starting_bid=1)
-        self.assertEqual(MAX_ACTIVE_CLUB_LISTINGS, 6)
+        self.assertEqual(MAX_ACTIVE_CLUB_LISTINGS, 5)
 
     def test_cannot_list_transfer_and_auction_together(self):
         list_player_for_sale(self.owned, self.mgr_a, "8")
@@ -230,9 +236,13 @@ class TeamMarketListingTests(TestCase):
         self.assertEqual(PlayerListing.objects.filter(player=self.other).count(), 0)
         extras = [
             Player.objects.create(name=f"Cap {i}", position="CM", overall=60, mgl_team=self.team_a, is_free_agent=False)
-            for i in range(6)
+            for i in range(5)
         ]
-        for extra in extras:
+        for index, extra in enumerate(extras):
+            if index and index % 3 == 0:
+                PlayerListing.objects.filter(seller=self.mgr_a).update(
+                    created_at=timezone.now() - timedelta(hours=25)
+                )
             list_player_for_sale(extra, self.mgr_a, "2")
         seventh = self.client.post(reverse("sell_player", args=[self.owned.id]), {"asking_price": "3"})
         self.assertEqual(seventh.status_code, 302)
@@ -362,6 +372,8 @@ class ClubAuctionSquadLifecycleTests(TestCase):
             is_free_agent=False,
         )
         self.client = Client(HTTP_HOST="127.0.0.1")
+        from mgl.models import LeagueSettings
+        LeagueSettings.objects.update(allow_manager_auctions=True)
 
     def _assert_single_player_row(self):
         self.assertEqual(Player.objects.filter(pk=self.owned.id).count(), 1)

@@ -2,8 +2,8 @@
 <button type="button" class="mgl-cp-menu" id="cp-menu" aria-controls="cp-sidebar" aria-expanded="false">CONTROL MENU</button>
 <aside class="mgl-cp-sidebar" id="cp-sidebar">
     <div class="mgl-cp-brand">
-        <img src="{% static 'core/img/mgl-logo.png' %}" alt="MGL">
-        <p class="mgl-cp-sidebar-title">MGL<small>CONTROL SYSTEM</small></p>
+        <img src="{% static 'core/img/mgl-logo.png' %}" alt="UFL">
+        <p class="mgl-cp-sidebar-title">UFL<small>CONTROL SYSTEM</small></p>
     </div>
     <nav aria-label="Control panel">
         <details class="mgl-cp-nav-group {% if control_section == 'dashboard' or control_section == 'pending' or control_section == 'scores' or control_section == 'transfers' or control_section == 'press' or control_section == 'managers' %}is-current{% endif %}" {% if control_section == 'dashboard' or control_section == 'pending' or control_section == 'scores' or control_section == 'transfers' or control_section == 'press' or control_section == 'managers' %}open{% endif %}>
@@ -60,5 +60,5 @@
         <p>TRANSFER WINDOW <strong>{% if window_open %}OPEN{% else %}CLOSED{% endif %}</strong></p>
     </div>
     <a href="{% url 'home' %}" class="mgl-cp-view-site">VIEW SITE</a>
-    <a href="{% url 'home' %}" class="mgl-cp-sidebar-logo"><img src="{% static 'core/img/mgl-logo.png' %}" alt="MGL"></a>
+    <a href="{% url 'home' %}" class="mgl-cp-sidebar-logo"><img src="{% static 'core/img/mgl-logo.png' %}" alt="UFL"></a>
 </aside>

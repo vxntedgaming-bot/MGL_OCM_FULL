@@ -385,4 +385,14 @@ urlpatterns = [
         views_market.control_reject_press,
         name="control_reject_press",
     ),
+    path(
+        "control/releases/<int:release_id>/approve/",
+        views_market.control_approve_release,
+        name="control_approve_release",
+    ),
+    path(
+        "control/releases/<int:release_id>/reject/",
+        views_market.control_reject_release,
+        name="control_reject_release",
+    ),
 ]

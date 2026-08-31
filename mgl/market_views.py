@@ -885,3 +885,33 @@ def control_reject_press(request, press_id):
     except ValueError as exc:
         messages.error(request, str(exc))
     return control_centre_redirect(request, default="control_press")
+
+
+@owner_admin_required
+@require_POST
+def control_approve_release(request, release_id):
+    from mgl.models import PlayerReleaseRequest
+    from mgl.services import approve_player_release
+
+    release = get_object_or_404(PlayerReleaseRequest, pk=release_id)
+    try:
+        player = approve_player_release(release, request.user)
+        messages.success(request, f"{player.name} is now a Free Agent.")
+    except ValueError as exc:
+        messages.error(request, str(exc))
+    return control_centre_redirect(request, default="control_pending")
+
+
+@owner_admin_required
+@require_POST
+def control_reject_release(request, release_id):
+    from mgl.models import PlayerReleaseRequest
+    from mgl.services import reject_player_release
+
+    release = get_object_or_404(PlayerReleaseRequest, pk=release_id)
+    try:
+        reject_player_release(release, request.user, request.POST.get("reason") or "")
+        messages.success(request, "Release request rejected. The player stays at the club.")
+    except ValueError as exc:
+        messages.error(request, str(exc))
+    return control_centre_redirect(request, default="control_pending")

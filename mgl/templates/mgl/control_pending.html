@@ -1,6 +1,6 @@
 {% extends "mgl/includes/control_page.html" %}
 
-{% block control_title %}Pending Approvals — MGL Control{% endblock %}
+{% block control_title %}Pending Approvals — UFL Control{% endblock %}
 {% block control_crumb %}CONTROL / APPROVALS / PENDING{% endblock %}
 {% block control_kicker %}APPROVALS{% endblock %}
 {% block control_heading %}PENDING APPROVALS{% endblock %}
@@ -41,7 +41,20 @@
                     <td>{{ row.submitted_by }}</td>
                     <td>{{ row.when|timesince }} ago</td>
                     <td><span class="mgl-cp-status is-warn">{{ row.status }}</span></td>
-                    <td><a href="{{ row.url }}" class="header-button mgl-cp-review-btn">Review</a></td>
+                    <td>
+                        {% if row.approve_url %}
+                            <form method="post" action="{{ row.approve_url }}" class="mgl-inline-form">
+                                {% csrf_token %}
+                                <button class="header-button" type="submit">Approve</button>
+                            </form>
+                            <form method="post" action="{{ row.reject_url }}" class="mgl-inline-form">
+                                {% csrf_token %}
+                                <button class="header-button" type="submit">Reject</button>
+                            </form>
+                        {% else %}
+                            <a href="{{ row.url }}" class="header-button mgl-cp-review-btn">Review</a>
+                        {% endif %}
+                    </td>
                 </tr>
             {% empty %}
                 <tr><td colspan="6">{% include "mgl/includes/empty_state.html" with title="NOTHING WAITING" %}</td></tr>

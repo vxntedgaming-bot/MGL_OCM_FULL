@@ -1,7 +1,7 @@
 {% extends "core/base.html" %}
 {% load static mgl_ui %}
 
-{% block title %}Scouting — MGL{% endblock %}
+{% block title %}Scouting Centre — UFL{% endblock %}
 {% block body_class %}mgl-scout-page{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'core/css/mgl-scouting.css' %}?v=sc-2">
@@ -9,11 +9,11 @@
 
 {% block content %}
 <section class="mgl-section mgl-scout-page">
-    {% include "core/includes/mgl_page_header.html" with header_section="MARKET" header_title="SCOUTING" header_description="Find and scout the best talent around the world." %}
+    {% include "core/includes/mgl_page_header.html" with header_section="CAREER MODE" header_title="SCOUTING CENTRE" header_description="Send scouts on missions. Discover FC26 players. Watchlist prospects. Scouting never transfers ownership." %}
 
     {% if pack %}
         <section class="mgl-sc-pack" id="scout-pack">
-            <p class="mgl-sc-kicker">MGL SCOUTING PACK</p>
+            <p class="mgl-sc-kicker">UFL SCOUT REPORT</p>
             <h2>{{ pack.get_tier_display|upper }} SCOUT</h2>
             <p class="mgl-sc-pack-meta">
                 <span>REGION {{ pack.region_display|default:"Anywhere" }}</span>
@@ -21,8 +21,8 @@
             </p>
             {% if pack.status == "READY" %}
                 <div class="mgl-sc-pack-sealed" aria-hidden="true">
-                    <strong>MGL</strong>
-                    <span>SCOUTING PACK</span>
+                    <strong>UFL</strong>
+                    <span>SCOUT REPORT</span>
                 </div>
                 <form method="post">
                     {% csrf_token %}
@@ -44,6 +44,13 @@
                         {% if pack.player.preferred_foot %} · {{ pack.player.preferred_foot }}{% endif %}
                     </p>
                     <a href="{% url 'player_profile' pack.player.id %}" class="secondary-button">VIEW PLAYER</a>
+                    {% if pack.confidence %}<p>Scout confidence {{ pack.confidence }}%</p>{% endif %}
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="watchlist">
+                        <input type="hidden" name="assignment" value="{{ pack.id }}">
+                        <button type="submit" class="secondary-button">ADD TO WATCHLIST</button>
+                    </form>
                 </div>
                 <div class="mgl-sc-pack-actions">
                     <form method="post">
@@ -69,7 +76,7 @@
             <span class="mgl-sc-free">Free</span>
         </div>
         {% if roster_full %}
-            <p class="mgl-flash-error">Your squad is full — maximum 30 players.</p>
+            <p class="mgl-flash-error">Your squad is full — maximum 28 players.</p>
         {% endif %}
         {% if scout_busy %}
             <p class="mgl-flash-error">A scout is already on assignment. Finish that report before sending another.</p>
@@ -210,6 +217,41 @@
         {% else %}
             {% include "mgl/includes/empty_state.html" with title="NO ACTIVE SCOUTS" %}
         {% endif %}
+    </section>
+
+    {% if scout_profile %}
+    <section class="mgl-sc-block">
+        <div class="mgl-sc-block-head">
+            <h2>MY SCOUT</h2>
+            <span>LEVEL {{ scout_profile.scout_level }}</span>
+        </div>
+        <p>Ability {{ scout_profile.judging_ability }}/5 · Potential {{ scout_profile.judging_potential }}/5 · Accuracy {{ scout_profile.report_accuracy }}/5 · Speed {{ scout_profile.scouting_speed }}/5</p>
+    </section>
+    {% endif %}
+
+    <section class="mgl-sc-block" id="watchlist">
+        <div class="mgl-sc-block-head">
+            <h2>SCOUTING WATCHLIST</h2>
+        </div>
+        <div class="mgl-report-list">
+            {% for row in watchlist %}
+                <article class="mgl-sc-report">
+                    <span class="mgl-sc-ovr">{{ row.player.overall }}</span>
+                    <div>
+                        <h3><a href="{% url 'player_profile' row.player.id %}">{{ row.player.name }}</a></h3>
+                        <p>
+                            {{ row.player.position }}
+                            · {{ row.player.overall }} OVR
+                            · {{ row.player.fc27_club|default:"FC26 club unknown" }}
+                            · Added {{ row.created_at|date:"d M Y" }}
+                        </p>
+                    </div>
+                    <a href="{% url 'player_profile' row.player.id %}" class="secondary-button">VIEW PLAYER</a>
+                </article>
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with title="NO WATCHLIST PLAYERS" %}
+            {% endfor %}
+        </div>
     </section>
 
     <section class="mgl-sc-block" id="reports">

@@ -76,7 +76,7 @@ def control_pending(request):
                 "kind": "PRESS",
                 "title": press.question,
                 "submitted_by": press.manager.username if press.manager_id else "—",
-                "club": press.team.name if press.team_id else "MGL",
+                "club": press.team.name if press.team_id else "UFL",
                 "when": press.created_at,
                 "status": "PENDING",
                 "url": reverse("control_press"),
@@ -104,6 +104,20 @@ def control_pending(request):
                 "when": job.created_at,
                 "status": "PENDING",
                 "url": reverse("control_managers"),
+            }
+        )
+    for release in queues.get("pending_releases") or []:
+        inbox.append(
+            {
+                "kind": "RELEASE",
+                "title": release.player.name,
+                "submitted_by": release.manager.display_name,
+                "club": release.team.name,
+                "when": release.created_at,
+                "status": "PENDING",
+                "url": reverse("control_pending"),
+                "approve_url": reverse("control_approve_release", args=[release.pk]),
+                "reject_url": reverse("control_reject_release", args=[release.pk]),
             }
         )
     if inbox_type == "scores":

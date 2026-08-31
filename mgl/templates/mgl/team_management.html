@@ -167,7 +167,9 @@
                                     {% else %}
                                         <a href="{% url 'team_management' %}?list=transfer&amp;player={{ player.id }}" class="mgl-squad-action">TRANSFER</a>
                                         <a href="{% url 'team_management' %}?list=release&amp;player={{ player.id }}" class="mgl-squad-action">RELEASE</a>
+                                        {% if allow_manager_auctions %}
                                         <a href="{% url 'team_management' %}?list=auction&amp;player={{ player.id }}" class="mgl-squad-action">AUCTION</a>
+                                        {% endif %}
                                     {% endif %}
                                 </td>
                             </tr>
@@ -278,7 +280,7 @@
         {% else %}
             <div class="eyebrow">SQUAD</div>
             <h2>RELEASE PLAYER</h2>
-            <p>Release {{ listing_player.name }} to Free Agents? This cannot be undone from Team Management.</p>
+            <p>Releasing this player will remove them from your official squad and make them a Free Agent after approval.</p>
             {% player_card listing_player "small" %}
             <form method="post" action="{% url 'release_my_player' listing_player.id %}" class="mgl-modal-form">
                 {% csrf_token %}

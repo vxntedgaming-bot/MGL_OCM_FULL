@@ -30,7 +30,7 @@ CONTENT_FIELDS = (
         "home",
         "Hero Subtitle",
         "long",
-        "Build your club. Manage your squad. Compete against real managers in Meta Gaming League Online Career Mode.",
+        "Build your squad. Negotiate transfers. Compete against real managers. Build your career.",
     ),
     ContentField(
         "home.about_us",
@@ -44,7 +44,7 @@ CONTENT_FIELDS = (
         "home",
         "League Introduction",
         "long",
-        "The website mirrors the manager's official MGL squad. Build it here, then take it into EA FC.",
+        "The website mirrors the manager's official UFL squad. Build it here, then take it into EA FC.",
     ),
     ContentField(
         "home.news_intro",
@@ -54,7 +54,7 @@ CONTENT_FIELDS = (
         "Official confirmed events only. Pending submissions stay off this feed.",
     ),
     ContentField("home.join_title", "home", "Join Title", "short", "READY TO BUILD YOUR LEGACY?"),
-    ContentField("home.join_text", "home", "Join Text", "long", "Join MGL and take control of your club."),
+    ContentField("home.join_text", "home", "Join Text", "long", "Join UFL and take control of your club."),
     # LEAGUES
     ContentField(
         "leagues.page_intro",
@@ -202,8 +202,8 @@ CONTENT_FIELDS = (
     ContentField("footer.contact_text", "footer", "Contact Text", "long", ""),
     ContentField("footer.discord_text", "footer", "Discord Text", "short", "JOIN OUR DISCORD"),
     # SETTINGS — stored in the same table, edited on Site Settings
-    ContentField("settings.site_name", "settings", "Website Name", "short", "Meta Gaming League"),
-    ContentField("settings.site_tagline", "settings", "Website Tagline", "short", "Online Career Mode"),
+    ContentField("settings.site_name", "settings", "Website Name", "short", "Ultimate Fantasy League"),
+    ContentField("settings.site_tagline", "settings", "Website Tagline", "short", "Your Club. Your Decisions. Your Legacy."),
     ContentField("settings.contact_email", "settings", "Contact Email", "email", ""),
     ContentField("settings.discord_invite_url", "settings", "Discord Invite URL", "url", ""),
     ContentField("settings.discord_display_text", "settings", "Discord Display Text", "short", "DISCORD"),

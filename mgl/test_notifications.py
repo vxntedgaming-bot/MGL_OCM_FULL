@@ -312,7 +312,7 @@ class NotificationAndPressroomTests(TestCase):
         self.assertEqual(page.status_code, 200)
         self.assertContains(page, "SEASON 1")
         self.assertContains(page, "HISTORY")
-        self.assertContains(page, "A record of every season in Meta Gaming League.")
+        self.assertContains(page, "A record of every season in Ultimate Fantasy League.")
         self.assertContains(page, "LEAGUE WINNER")
         self.assertContains(page, "CUP WINNER")
         self.assertContains(page, "MANAGER OF THE SEASON")

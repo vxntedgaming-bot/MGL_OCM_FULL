@@ -1,7 +1,7 @@
 {% extends "core/base.html" %}
 {% load static mgl_ui %}
 
-{% block title %}MGL – MetaGamingLeague{% endblock %}
+{% block title %}UFL – Ultimate Fantasy League{% endblock %}
 {% block body_class %}mgl-home-body{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'core/css/mgl-home.css' %}">
@@ -13,9 +13,9 @@
         <img src="{% static 'core/img/mgl-home-hero.jpg' %}" alt="">
     </div>
     <div class="mgl-home-hero-copy">
-        <p class="mgl-home-kicker">WELCOME TO</p>
-        <h1>META GAMING LEAGUE</h1>
-        <p class="mgl-home-hero-mode">ONLINE CAREER MODE</p>
+        <p class="mgl-home-kicker">ULTIMATE FANTASY LEAGUE</p>
+        <h1>YOUR CLUB.<br>YOUR DECISIONS.<br>YOUR LEGACY.</h1>
+        <p class="mgl-home-hero-mode">EA FC 26 CAREER MODE</p>
         {% site_text "home.hero_title" as hero_title %}
         {% if hero_title %}
             <p class="mgl-home-hero-cms">{{ hero_title }}</p>
@@ -24,8 +24,8 @@
             {% site_text "home.hero_subtitle" %}
         </p>
         <div class="hero-actions">
-            <a href="{{ apply_club_url }}" class="primary-button">APPLY FOR A CLUB</a>
-            <a href="{% url 'leagues_page' %}" class="secondary-button">VIEW LEAGUES</a>
+            <a href="{{ apply_club_url }}" class="primary-button">ENTER THE LEAGUE</a>
+            <a href="{% url 'leagues_page' %}" class="secondary-button">VIEW LEAGUE</a>
             {% if discord_invite_url %}
                 <a href="{{ discord_invite_url }}" class="secondary-button" target="_blank" rel="noopener">JOIN DISCORD</a>
             {% endif %}
@@ -33,7 +33,7 @@
     </div>
 </section>
 
-<section class="mgl-home-stats" aria-label="Live MGL summary">
+<section class="mgl-home-stats" aria-label="Live UFL summary">
     <div class="mgl-home-stats-inner">
         <div>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 20V8l8-4 8 4v12"/><path d="M9 20v-6h6v6"/></svg>
@@ -124,11 +124,11 @@
         <img src="{% static 'core/img/mgl-cup-trophy.png' %}" alt="The MGL Cup trophy">
     </div>
     <div class="mgl-home-feature-copy">
-        <p class="mgl-home-kicker">THE MGL CUP</p>
+        <p class="mgl-home-kicker">THE UFL CUP</p>
         <h2>ONE CUP. ONE CHANCE. ONE CHAMPION.</h2>
-        <p>The MGL Cup is the knockout competition every manager wants on the cabinet. One run. No second lives. Lift the trophy that belongs to this league alone.</p>
+        <p>The UFL Cup is the knockout competition every manager wants on the cabinet. One run. No second lives. Lift the trophy that belongs to this league alone.</p>
         <div class="hero-actions">
-            <a href="{% url 'competition_page' slug='cups' %}" class="primary-button">VIEW MGL CUP</a>
+            <a href="{% url 'competition_page' slug='cups' %}" class="primary-button">VIEW UFL CUP</a>
         </div>
     </div>
 </section>
@@ -153,14 +153,14 @@
 
 <section class="mgl-home-experience">
     <div class="mgl-home-experience-head">
-        <p class="mgl-home-kicker">THE MGL EXPERIENCE</p>
-        <h2>MORE THAN JUST A GAME</h2>
+        <p class="mgl-home-kicker">THE UFL EXPERIENCE</p>
+        <h2>BUILD YOUR CAREER</h2>
     </div>
     <div class="mgl-home-experience-grid">
         <article>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 9h8M8 13h5"/><circle cx="16.5" cy="16.5" r="1.5"/></svg>
             <h3>MANAGE YOUR CLUB</h3>
-            <p>Build and manage your squad. Tactics stay yours. The official roster lives on MGL.</p>
+            <p>Build your squad. Negotiate transfers. Compete against real managers. Build your career.</p>
         </article>
         <article>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M8 14a3.2 3.2 0 1 0-3.2-3.2A3.2 3.2 0 0 0 8 14Z"/><path d="M2.8 20a5.4 5.4 0 0 1 10.4 0"/><path d="M16 14a3.2 3.2 0 1 0-1.2-6.2"/><path d="M14.4 20a5.4 5.4 0 0 1 6.8-4.2"/></svg>
@@ -170,12 +170,12 @@
         <article>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M8 18V8l4-3 4 3v10"/><path d="M8 12h8"/></svg>
             <h3>LIVE MARKET</h3>
-            <p>Buy, sell, loan and manage players through the existing MGL transfer and auction systems.</p>
+            <p>Buy, sell, swap and release players with Tokens. Loans are not part of UFL.</p>
         </article>
         <article>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 19V9h4v10H4Zm6 0V5h4v14h-4Zm6 0v-7h4v7h-4Z"/></svg>
             <h3>REAL STATS</h3>
-            <p>Matches, results and statistics are recorded through MGL. Pending results stay off the public site.</p>
+            <p>Matches, results and statistics are recorded through UFL. Pending results stay off the public site.</p>
         </article>
     </div>
 </section>
@@ -190,21 +190,21 @@
     </article>
     <article id="mgl-contact">
         <h2>CONTACT</h2>
-        <p>{% if footer_contact_text %}{{ footer_contact_text }}{% else %}Reach the league office through the MGL Discord or the contact address below.{% endif %}</p>
+        <p>{% if footer_contact_text %}{{ footer_contact_text }}{% else %}Reach the league office through the UFL Discord or the contact address below.{% endif %}</p>
         {% if site_contact_email %}
             <p><a href="mailto:{{ site_contact_email }}">{{ site_contact_email }}</a></p>
         {% endif %}
         {% if discord_invite_url %}
-            <p><a href="{{ discord_invite_url }}" target="_blank" rel="noopener">Join the MGL Discord</a></p>
+            <p><a href="{{ discord_invite_url }}" target="_blank" rel="noopener">Join the UFL Discord</a></p>
         {% endif %}
     </article>
     <article id="mgl-privacy">
         <h2>PRIVACY</h2>
-        <p>MGL stores the account, club and match records needed to run Online Career Mode. Public pages only show approved results, news and appointments. We do not sell member data.</p>
+        <p>UFL stores the account, club and match records needed to run Online Career Mode. Public pages only show approved results, news and appointments. We do not sell member data.</p>
     </article>
     <article id="mgl-terms">
         <h2>TERMS</h2>
-        <p>By creating an account you agree to play by the published MGL rules, keep job applications honest, and accept that Owner/Admin decisions on appointments, results and market actions are final for the competition.</p>
+        <p>By creating an account you agree to play by the published UFL rules, keep job applications honest, and accept that Owner/Admin decisions on appointments, results and market actions are final for the competition.</p>
     </article>
 </section>
 
@@ -216,7 +216,7 @@
         <p class="mgl-home-kicker">YOUR CAREER STARTS HERE</p>
         <h2>{% site_text "home.join_title" %}</h2>
         <p>{% site_text "home.join_text" %}</p>
-        <a href="{{ join_mgl_url }}" class="primary-button">JOIN MGL TODAY</a>
+        <a href="{{ join_mgl_url }}" class="primary-button">JOIN UFL TODAY</a>
     </div>
 </section>
 {% endblock %}

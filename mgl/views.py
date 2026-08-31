@@ -56,6 +56,7 @@ from .player_state import (
     unassigned_players,
 )
 from .services import manager_for_user
+from .ufl_settings import allow_manager_auctions
 from .tenure import close_club_spell_for_user, open_club_spell, resign_manager_from_club
 from .activity import record_manager_departure
 
@@ -982,9 +983,10 @@ def press_conference(request, fixture_id):
 @login_required
 @require_POST
 def release_my_player(request, player_id):
-    from .services import release_player
+    from .services import request_player_release
 
-    if approved_manager(request.user) is None:
+    manager = approved_manager(request.user)
+    if manager is None:
         messages.error(request, "You do not have an approved manager profile.")
         return redirect("manager_hub")
 
@@ -1001,18 +1003,14 @@ def release_my_player(request, player_id):
     )
 
     try:
-        release_player(
-            player,
-            team,
-            source="MANAGER_RELEASE",
-        )
+        request_player_release(player, team, manager)
     except ValueError as exc:
         messages.error(request, str(exc))
         return redirect("team_management")
 
     messages.success(
         request,
-        f"{player.name} released to Free Agents.",
+        f"Release requested for {player.name}. They stay in your squad until Admin approval.",
     )
     return redirect("team_management")
 
@@ -1573,6 +1571,7 @@ def team_management(request):
             "auction_durations": AUCTION_DURATION_CHOICES,
             "market_listing_count": active_market_listing_count(team),
             "market_listing_limit": MAX_ACTIVE_CLUB_LISTINGS,
+            "allow_manager_auctions": allow_manager_auctions(),
             "listing_action": listing_action if listing_player else "",
             "listing_player": listing_player,
         },
@@ -1860,10 +1859,12 @@ def scouting(request):
         SILVER,
         SQUAD_FULL_MESSAGE,
         TIER_RANGES,
+        add_to_watchlist,
         complete_ready_assignments,
         cooldown_hours,
         dispatch_scout,
         format_hours,
+        get_or_create_scout_profile,
         hours_saved,
         hours_saved_label,
         manager_scout_level,
@@ -1876,6 +1877,7 @@ def scouting(request):
         scout_times,
         send_scout_to_team,
         upgrade_scout,
+        watchlist_for,
     )
     from mgl.market import club_for_user
     from mgl.regions import REGION_NATIONS, region_label
@@ -1923,6 +1925,13 @@ def scouting(request):
             elif action == "release_player":
                 release_scout_player(manager, assignment)
                 messages.success(request, "Player released back to the unreleased pool.")
+            elif action == "watchlist":
+                if assignment and assignment.player_id:
+                    add_to_watchlist(manager, assignment.player)
+                    messages.success(
+                        request,
+                        f"{assignment.player.name} added to your private scouting watchlist. Scouting does not transfer ownership.",
+                    )
             else:
                 messages.error(request, "Unknown scouting action.")
         except ValueError as exc:
@@ -1943,8 +1952,10 @@ def scouting(request):
     scout_level = manager_scout_level(manager)
     now = timezone.now()
     team = club_for_user(request.user)
+    from mgl.ufl_settings import effective_roster_limit
+
     roster_count = roster_occupancy(team) if team else 0
-    roster_full = bool(team) and roster_count >= 30
+    roster_full = bool(team) and roster_count >= effective_roster_limit(team)
     scout_busy = ScoutAssignment.objects.filter(
         manager=manager,
         status__in=[
@@ -2047,6 +2058,8 @@ def scouting(request):
             "club": team,
             "roster_count": roster_count,
             "roster_full": roster_full,
+            "watchlist": watchlist_for(manager),
+            "scout_profile": get_or_create_scout_profile(manager),
         },
     )
 
@@ -2054,9 +2067,17 @@ def scouting(request):
 @login_required
 @require_POST
 def list_player_for_auction(request, player_id):
+    from mgl.ufl_settings import allow_manager_auctions
+
     manager = approved_manager(request.user)
     if not manager:
         messages.error(request, "You must be an approved manager to auction a player.")
+        return redirect("team_management")
+    if not allow_manager_auctions():
+        messages.error(
+            request,
+            "Only the league office can create auctions. List the player on the Transfer Market instead.",
+        )
         return redirect("team_management")
     player = get_object_or_404(Player, pk=player_id)
     try:

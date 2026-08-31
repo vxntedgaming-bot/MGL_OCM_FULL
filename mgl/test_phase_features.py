@@ -265,7 +265,7 @@ class AuctionWorkflowTests(TestCase):
     def test_manager_auction_limit_is_server_side(self):
         extras = [
             Player.objects.create(name=f"Extra {i}", position="ST", overall=64, mgl_team=self.team_a, is_free_agent=False)
-            for i in range(6)
+            for i in range(5)
         ]
         for extra in extras:
             create_manager_auction(extra, self.mgr_a, 30)
@@ -359,9 +359,17 @@ class AuctionWorkflowTests(TestCase):
         )
 
     def test_manager_can_release_own_player_to_free_agents(self):
+        from mgl.models import PlayerReleaseRequest
+        from mgl.services import approve_player_release
+
         self.client.login(username="seller", password="test-pass-123")
         response = self.client.post(reverse("release_my_player", args=[self.owned.id]))
         self.assertEqual(response.status_code, 302)
+        self.owned.refresh_from_db()
+        self.assertFalse(self.owned.is_free_agent)
+        self.assertEqual(self.owned.mgl_team_id, self.team_a.id)
+        request_row = PlayerReleaseRequest.objects.get(player=self.owned)
+        approve_player_release(request_row, self.owner)
         self.owned.refresh_from_db()
         self.assertTrue(self.owned.is_free_agent)
         self.assertIsNone(self.owned.mgl_team_id)

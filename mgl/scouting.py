@@ -12,8 +12,15 @@ from players.models import Player
 from auctions.models import PlayerAuction
 
 from .market import club_for_user, debit_manager_tokens
-from .models import NewsPost, PlayerListing, ScoutAssignment, ScoutProfile, ScoutReport
-from .player_state import unassigned_players
+from .models import (
+    NewsPost,
+    PlayerListing,
+    ScoutAssignment,
+    ScoutProfile,
+    ScoutReport,
+    ScoutWatchlist,
+)
+from .player_state import market_status, unassigned_players
 from .regions import (
     REGION_MENU,
     SCOUT_POSITIONS,
@@ -51,8 +58,33 @@ UPGRADE_COSTS = {
 }
 STARTING_LEVEL = 1
 MAX_LEVEL = 5
-SQUAD_LIMIT = 30
-SQUAD_FULL_MESSAGE = "Your squad is full — maximum 30 players."
+SQUAD_LIMIT = 28
+SQUAD_FULL_MESSAGE = "Your squad is full — maximum 28 players."
+
+
+def _squad_limit():
+    from mgl.ufl_settings import max_squad_size
+
+    return max_squad_size()
+
+
+def scout_attributes_for_level(level):
+    level = max(STARTING_LEVEL, min(MAX_LEVEL, int(level or STARTING_LEVEL)))
+    return {
+        "judging_ability": min(5, 1 + level),
+        "judging_potential": min(5, level),
+        "position_knowledge": min(5, 2 + (level // 2)),
+        "discovery_rate": min(5, level),
+        "report_accuracy": min(5, 1 + level),
+        "scouting_speed": min(5, level),
+    }
+
+
+def apply_scout_attributes(profile):
+    values = scout_attributes_for_level(profile.scout_level)
+    for key, value in values.items():
+        setattr(profile, key, value)
+    return values
 TIER_LABELS = {
     BRONZE: ("Bronze", "🥉"),
     SILVER: ("Silver", "🥈"),
@@ -82,11 +114,26 @@ def scout_region_menu():
 def get_or_create_scout_profile(manager):
     profile, created = ScoutProfile.objects.get_or_create(
         manager=manager,
-        defaults={"scout_level": STARTING_LEVEL},
+        defaults={"scout_level": STARTING_LEVEL, **scout_attributes_for_level(STARTING_LEVEL)},
     )
     if not created and not profile.scout_level:
         profile.scout_level = STARTING_LEVEL
-        profile.save(update_fields=["scout_level"])
+    if not created and not profile.judging_ability:
+        apply_scout_attributes(profile)
+        profile.save(
+            update_fields=[
+                "scout_level",
+                "judging_ability",
+                "judging_potential",
+                "position_knowledge",
+                "discovery_rate",
+                "report_accuracy",
+                "scouting_speed",
+            ]
+        )
+    elif created:
+        apply_scout_attributes(profile)
+        profile.save()
     return profile
 
 
@@ -256,10 +303,12 @@ def _assert_roster_space(team):
         raise ValueError("You must manage a club before sending a scout.")
     from mgl.player_state import roster_occupancy
 
-    roster_limit = getattr(team, "roster_limit", None) or SQUAD_LIMIT
+    from mgl.ufl_settings import effective_roster_limit
+
+    roster_limit = effective_roster_limit(team)
     current = roster_occupancy(team)
-    if current >= min(roster_limit, SQUAD_LIMIT):
-        raise SquadFullError(SQUAD_FULL_MESSAGE)
+    if current >= roster_limit:
+        raise SquadFullError(f"Your squad is full — maximum {roster_limit} players.")
 
 
 def _owned_assignment(manager, assignment):
@@ -288,7 +337,18 @@ def upgrade_scout(manager):
             ) from exc
         raise
     profile.scout_level = nxt
-    profile.save(update_fields=["scout_level"])
+    apply_scout_attributes(profile)
+    profile.save(
+        update_fields=[
+            "scout_level",
+            "judging_ability",
+            "judging_potential",
+            "position_knowledge",
+            "discovery_rate",
+            "report_accuracy",
+            "scouting_speed",
+        ]
+    )
     return profile, nxt, cost
 
 
@@ -342,7 +402,20 @@ def complete_ready_assignments(manager, now=None):
                 notices.append(str(exc))
                 continue
         assignment.status = ScoutAssignment.READY
-        assignment.save(update_fields=["player", "status"])
+        assignment.reveal_stage = "PARTIAL"
+        _apply_progress_estimates(assignment, stage="PARTIAL")
+        assignment.save(
+            update_fields=[
+                "player",
+                "status",
+                "reveal_stage",
+                "estimated_ovr_low",
+                "estimated_ovr_high",
+                "estimated_potential_low",
+                "estimated_potential_high",
+                "confidence",
+            ]
+        )
         _notify_pack_ready(assignment)
         ready.append(assignment)
         notices.append(
@@ -351,8 +424,72 @@ def complete_ready_assignments(manager, now=None):
     return ready, notices
 
 
+def _apply_progress_estimates(assignment, stage="HIDDEN"):
+    player = assignment.player
+    level = int(assignment.level or STARTING_LEVEL)
+    spread = max(1, 6 - level)
+    actual = int(getattr(player, "overall", 0) or 0) if player else 66
+    potential = min(99, actual + max(1, 4 - (level // 2)))
+    if stage == "HIDDEN":
+        assignment.estimated_ovr_low = max(45, actual - spread)
+        assignment.estimated_ovr_high = min(99, actual + spread)
+        assignment.estimated_potential_low = None
+        assignment.estimated_potential_high = None
+        assignment.confidence = max(20, 40 + level * 6)
+    elif stage == "PARTIAL":
+        assignment.estimated_ovr_low = actual
+        assignment.estimated_ovr_high = actual
+        assignment.estimated_potential_low = max(actual, potential - 2)
+        assignment.estimated_potential_high = potential + 1
+        assignment.confidence = max(40, 55 + level * 7)
+    else:
+        assignment.estimated_ovr_low = actual
+        assignment.estimated_ovr_high = actual
+        assignment.estimated_potential_low = potential
+        assignment.estimated_potential_high = potential
+        assignment.confidence = min(99, 70 + level * 6)
+
+
+def scout_availability_label(player):
+    status = market_status(player)
+    if status == "UNASSIGNED":
+        return "Player unavailable for direct purchase. Watch for Auction."
+    if status in {"FREE AGENT", "FREE_AGENT"}:
+        return "Player available for a future Admin auction."
+    if status == "TRANSFER LISTED":
+        return "Make Offer"
+    if status == "AUCTION":
+        return "View Auction"
+    if status in {"ASSIGNED", "CLUB PLAYER", "IN NEGOTIATION"}:
+        return "Contact Club / Make Transfer Offer"
+    return status
+
+
 @transaction.atomic
-def dispatch_scout(manager, tier, region="", position=""):
+def add_to_watchlist(manager, player, report=None, notes=""):
+    row, _created = ScoutWatchlist.objects.get_or_create(
+        manager=manager,
+        player=player,
+        defaults={"report": report, "notes": notes},
+    )
+    if report and row.report_id != getattr(report, "pk", None):
+        row.report = report
+        row.save(update_fields=["report"])
+    return row
+
+
+def watchlist_for(manager):
+    return (
+        ScoutWatchlist.objects.filter(manager=manager)
+        .select_related("player", "player__mgl_team", "report")
+        .order_by("-created_at")
+    )
+
+
+@transaction.atomic
+def dispatch_scout(manager, tier, region="", position="", duration_hours=None):
+    from mgl.ufl_settings import scout_mission_cost, scout_requires_tokens
+
     if tier not in TIER_RANGES:
         raise ValueError("Unknown scout tier.")
     region = validate_region(region)
@@ -379,6 +516,21 @@ def dispatch_scout(manager, tier, region="", position=""):
     _assert_roster_space(_club_for_manager(manager))
     level = profile.scout_level or STARTING_LEVEL
     wait = cooldown_hours(tier, level)
+    if duration_hours:
+        try:
+            wait = Decimal(str(duration_hours))
+        except Exception:
+            wait = cooldown_hours(tier, level)
+    cost = scout_mission_cost(int(wait)) if scout_requires_tokens() else Decimal("0")
+    if cost and scout_requires_tokens():
+        try:
+            debit_manager_tokens(manager, cost, f"Scouting mission {tier} {int(wait)}h")
+        except ValueError as exc:
+            if "enough tokens" in str(exc).lower():
+                raise ValueError(
+                    f"You do not have enough tokens. This mission costs {cost} tokens."
+                ) from exc
+            raise
     try:
         with transaction.atomic():
             assignment = ScoutAssignment.objects.create(
@@ -391,6 +543,20 @@ def dispatch_scout(manager, tier, region="", position=""):
                 player=player,
                 ready_at=now + timedelta(hours=float(wait)),
                 status=ScoutAssignment.PENDING,
+                duration_hours=wait,
+                token_cost=cost,
+                reveal_stage="HIDDEN",
+            )
+            _apply_progress_estimates(assignment, stage="HIDDEN")
+            assignment.save(
+                update_fields=[
+                    "estimated_ovr_low",
+                    "estimated_ovr_high",
+                    "estimated_potential_low",
+                    "estimated_potential_high",
+                    "confidence",
+                    "reveal_stage",
+                ]
             )
     except IntegrityError as exc:
         if ScoutAssignment.objects.filter(
@@ -413,7 +579,19 @@ def open_scout_pack(manager, assignment):
     if assignment.player_id is None:
         raise ValueError("That scouting pack has no player to reveal.")
     assignment.status = ScoutAssignment.OPENED
-    assignment.save(update_fields=["status"])
+    assignment.reveal_stage = "COMPLETE"
+    _apply_progress_estimates(assignment, stage="COMPLETE")
+    assignment.save(
+        update_fields=[
+            "status",
+            "reveal_stage",
+            "estimated_ovr_low",
+            "estimated_ovr_high",
+            "estimated_potential_low",
+            "estimated_potential_high",
+            "confidence",
+        ]
+    )
     return assignment
 
 
@@ -446,11 +624,15 @@ def send_scout_to_team(manager, assignment):
         position=assignment.position,
         recruited=True,
         club=team,
+        confidence=assignment.confidence,
+        recommendation="Strong prospect" if (assignment.confidence or 0) >= 80 else "Worth following",
+        estimated_potential_low=assignment.estimated_potential_low,
+        estimated_potential_high=assignment.estimated_potential_high,
     )
     create_news(
         NewsPost.SCOUTING,
         f"{player.name} recruited",
-        f"{team.name} recruited {player.name} through the MGL scouting network.",
+        f"{team.name} recruited {player.name} through the UFL scouting network.",
         team=team,
     )
     from mgl.audit import log_ocm_action

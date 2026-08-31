@@ -1,9 +1,11 @@
-"""MGL player market states.
+"""UFL player market states.
 
-UNASSIGNED  — unused FC26 pool; never released to auction; no club.
-AUCTION     — live or pending auction.
-FREE AGENT  — no-bid auction (or a club release); available for FA signing.
-CLUB PLAYER — belongs to an MGL club.
+UNASSIGNED       — unused FC26 pool; never released to auction; no club.
+AUCTION          — live or pending auction.
+FREE_AGENT       — no-bid auction (or an approved club release).
+ASSIGNED         — belongs to a UFL club.
+TRANSFER_LISTED  — owned and listed on the transfer market.
+IN_NEGOTIATION   — owned and a live offer is being negotiated.
 
 Do not treat the unused FC26 pool as Free Agents.
 """
@@ -19,9 +21,13 @@ UNASSIGNED = "UNASSIGNED"
 FREE_AGENT = "FREE AGENT"
 AUCTION = "AUCTION"
 CLUB_PLAYER = "CLUB PLAYER"
+ASSIGNED = "ASSIGNED"
+TRANSFER_LISTED = "TRANSFER LISTED"
+IN_NEGOTIATION = "IN NEGOTIATION"
 
 LIVE_AUCTION_STATUSES = (PlayerAuction.PENDING, PlayerAuction.LIVE)
 LIVE_LISTING_STATUSES = (PlayerListing.PENDING, PlayerListing.LIVE)
+NEGOTIATION_STATUSES = (PlayerListing.OFFER, PlayerListing.PENDING)
 
 
 def live_auction_player_ids():
@@ -103,10 +109,19 @@ def player_is_in_live_auction(player):
 
 
 def market_status(player):
-    if getattr(player, "mgl_team_id", None):
-        return CLUB_PLAYER
+    pk = getattr(player, "pk", None)
     if player_is_in_live_auction(player):
         return AUCTION
+    if pk and PlayerListing.objects.filter(
+        player_id=pk, status__in=NEGOTIATION_STATUSES
+    ).exists():
+        return IN_NEGOTIATION
+    if pk and PlayerListing.objects.filter(
+        player_id=pk, status__in=LIVE_LISTING_STATUSES
+    ).exists():
+        return TRANSFER_LISTED
+    if getattr(player, "mgl_team_id", None):
+        return ASSIGNED
     if getattr(player, "is_free_agent", False):
         return FREE_AGENT
     return UNASSIGNED
@@ -115,7 +130,7 @@ def market_status(player):
 def market_status_label(player):
     status = market_status(player)
     team = getattr(player, "mgl_team", None)
-    if status == CLUB_PLAYER and team is not None:
+    if status in {CLUB_PLAYER, ASSIGNED} and team is not None:
         return team.short_name
     return status
 

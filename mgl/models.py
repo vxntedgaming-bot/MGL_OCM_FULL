@@ -523,6 +523,12 @@ class ScoutProfile(models.Model):
         related_name="scout_profile",
     )
     scout_level = models.PositiveSmallIntegerField(default=1)
+    judging_ability = models.PositiveSmallIntegerField(default=2)
+    judging_potential = models.PositiveSmallIntegerField(default=2)
+    position_knowledge = models.PositiveSmallIntegerField(default=3)
+    discovery_rate = models.PositiveSmallIntegerField(default=2)
+    report_accuracy = models.PositiveSmallIntegerField(default=2)
+    scouting_speed = models.PositiveSmallIntegerField(default=2)
 
 
 class ScoutAssignment(models.Model):
@@ -568,6 +574,14 @@ class ScoutAssignment(models.Model):
     ready_at = models.DateTimeField()
     completed_at = models.DateTimeField(null=True, blank=True)
     status = models.CharField(max_length=12, default=PENDING)
+    duration_hours = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
+    token_cost = models.DecimalField(max_digits=8, decimal_places=2, default=0)
+    reveal_stage = models.CharField(max_length=12, default="HIDDEN")
+    estimated_ovr_low = models.PositiveSmallIntegerField(null=True, blank=True)
+    estimated_ovr_high = models.PositiveSmallIntegerField(null=True, blank=True)
+    estimated_potential_low = models.PositiveSmallIntegerField(null=True, blank=True)
+    estimated_potential_high = models.PositiveSmallIntegerField(null=True, blank=True)
+    confidence = models.PositiveSmallIntegerField(null=True, blank=True)
 
     class Meta:
         ordering = ["-started_at"]
@@ -617,6 +631,10 @@ class ScoutReport(models.Model):
         related_name="scout_recruits",
     )
     discovered_at = models.DateTimeField(auto_now_add=True)
+    confidence = models.PositiveSmallIntegerField(null=True, blank=True)
+    recommendation = models.CharField(max_length=40, blank=True)
+    estimated_potential_low = models.PositiveSmallIntegerField(null=True, blank=True)
+    estimated_potential_high = models.PositiveSmallIntegerField(null=True, blank=True)
 
     class Meta:
         ordering = ["-discovered_at"]
@@ -975,4 +993,151 @@ class SeasonTotsPick(models.Model):
         ordering = ["sort_order", "id"]
         constraints = [
             models.UniqueConstraint(fields=["season", "slot"], name="unique_season_tots_slot"),
+        ]
+
+
+class LeagueSettings(models.Model):
+    """Singleton Owner/Admin UFL rules. Never hard-code these in frontend JS."""
+
+    starting_tokens = models.DecimalField(max_digits=8, decimal_places=2, default=20)
+    max_squad_size = models.PositiveSmallIntegerField(default=28)
+    starting_squad_size = models.PositiveSmallIntegerField(default=25)
+    max_active_listings = models.PositiveSmallIntegerField(default=5)
+    listings_per_24h = models.PositiveSmallIntegerField(default=3)
+    allow_manager_auctions = models.BooleanField(default=False)
+    scout_can_recruit = models.BooleanField(
+        default=True,
+        help_text="Legacy scout-to-squad claim. UFL Career Mode should turn this off.",
+    )
+    scout_requires_tokens = models.BooleanField(default=False)
+    max_scouts_per_club = models.PositiveSmallIntegerField(default=1)
+    auction_durations = models.CharField(
+        max_length=80,
+        default="30,60,90,120",
+    )
+    scout_durations = models.CharField(
+        max_length=80,
+        default="1,3,6,12,24,48,72",
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="league_settings_edits",
+    )
+
+    class Meta:
+        verbose_name = "League settings"
+
+    def __str__(self):
+        return "UFL league settings"
+
+
+class DiscordEvent(models.Model):
+    PENDING = "PENDING"
+    SENT = "SENT"
+    FAILED = "FAILED"
+    STATUS_CHOICES = [
+        (PENDING, "Pending"),
+        (SENT, "Sent"),
+        (FAILED, "Failed"),
+    ]
+
+    event_type = models.CharField(max_length=40, db_index=True)
+    channel_key = models.CharField(max_length=40, default="NEWS")
+    payload = models.JSONField(default=dict, blank=True)
+    status = models.CharField(max_length=12, choices=STATUS_CHOICES, default=PENDING, db_index=True)
+    attempt_count = models.PositiveSmallIntegerField(default=0)
+    last_attempt_at = models.DateTimeField(null=True, blank=True)
+    error = models.TextField(blank=True)
+    sent_at = models.DateTimeField(null=True, blank=True)
+    news_post = models.ForeignKey(
+        NewsPost,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="discord_events",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at", "id"]
+        indexes = [
+            models.Index(fields=["status", "created_at"], name="mgl_disco_status_created_idx"),
+        ]
+
+    def __str__(self):
+        return f"{self.event_type} {self.status}"
+
+
+class PlayerReleaseRequest(models.Model):
+    player = models.ForeignKey(
+        "players.Player",
+        on_delete=models.CASCADE,
+        related_name="release_requests",
+    )
+    team = models.ForeignKey("teams.Team", on_delete=models.CASCADE, related_name="release_requests")
+    manager = models.ForeignKey(
+        "managers.ManagerApplication",
+        on_delete=models.CASCADE,
+        related_name="release_requests",
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=ApprovalStatus.choices,
+        default=ApprovalStatus.PENDING,
+        db_index=True,
+    )
+    reason = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    reviewed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="player_releases_reviewed",
+    )
+
+    class Meta:
+        ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["player"],
+                condition=models.Q(status="PENDING"),
+                name="unique_pending_player_release",
+            ),
+        ]
+
+
+class ScoutWatchlist(models.Model):
+    manager = models.ForeignKey(
+        "managers.ManagerApplication",
+        on_delete=models.CASCADE,
+        related_name="scout_watchlist",
+    )
+    player = models.ForeignKey(
+        "players.Player",
+        on_delete=models.CASCADE,
+        related_name="watchlisted_by",
+    )
+    report = models.ForeignKey(
+        ScoutReport,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="watchlist_rows",
+    )
+    notes = models.CharField(max_length=240, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["manager", "player"],
+                name="unique_scout_watchlist_player",
+            )
         ]
