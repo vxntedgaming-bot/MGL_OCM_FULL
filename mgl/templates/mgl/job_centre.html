@@ -42,10 +42,9 @@
     </div>
 
     <div class="mgl-jobs-shell">
-        <header class="mgl-jobs-hero">
+        {% include "core/includes/mgl_page_header.html" with header_section="JOBS" header_title="JOB CENTRE" header_description="Looking for your next challenge? Browse available MGL clubs and apply for a managerial position." %}
+        <div class="mgl-jobs-hero">
             <div class="mgl-jobs-hero-copy">
-                <h1><span>JOB</span> <em>CENTRE</em></h1>
-                <p>Looking for your next challenge? Browse available MGL clubs and apply for a managerial position.</p>
                 <div class="mgl-jobs-openings">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                         <circle cx="12" cy="12" r="8.2"/>
@@ -61,7 +60,7 @@
                 <span class="mgl-jobs-info-icon" aria-hidden="true">i</span>
                 <p>All managerial applications are subject to Owner/Admin approval. You will be contacted through Discord once your application has been reviewed. Submitting this form does not make you the manager.</p>
             </aside>
-        </header>
+        </div>
 
         {% if join_discord and jobs_discord_invite %}
             <p class="mgl-job-pending">Application saved. <a href="{{ jobs_discord_invite }}" target="_blank" rel="noopener">Join the MGL Discord</a>.</p>

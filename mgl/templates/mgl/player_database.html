@@ -9,27 +9,7 @@
 
 {% block content %}
 <section class="mgl-section mgl-pdb-page">
-    <nav class="mgl-pdb-crumbs" aria-label="Player database location">
-        <svg class="mgl-pdb-crumb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10.5V20h11V10.5"/></svg>
-        <a href="{% url 'manager_hub' %}">MY CLUB</a>
-        <span aria-hidden="true">›</span>
-        <span class="mgl-pdb-crumb-current">PLAYER DATABASE</span>
-    </nav>
-
-    <header class="mgl-pdb-head">
-        <div class="mgl-pdb-hero-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3"/><path d="M4 19a5 5 0 0 1 10 0"/><circle cx="17" cy="10" r="2.2"/><path d="M16 16.2h5"/></svg>
-        </div>
-        <div>
-            <h1>PLAYER DATABASE</h1>
-            <p class="mgl-filter-meta">
-                {{ total_player_count }} PLAYERS
-                {% if page_obj %}
-                    · PLAYER {{ page_obj.start_index }} OF {{ result_count }}
-                {% endif %}
-            </p>
-        </div>
-    </header>
+    {% include "core/includes/mgl_page_header.html" with header_section="MY CLUB" header_title="PLAYER DATABASE" %}
 
     <form method="get" class="mgl-pdb-layout" role="search">
         <div class="mgl-pdb-main">

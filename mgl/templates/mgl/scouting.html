@@ -9,24 +9,7 @@
 
 {% block content %}
 <section class="mgl-section mgl-scout-page">
-    <nav class="mgl-sc-crumbs" aria-label="Scouting location">
-        <svg class="mgl-sc-crumb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10.5V20h11V10.5"/></svg>
-        <a href="{% url 'manager_hub' %}">MY CLUB</a>
-        <span aria-hidden="true">›</span>
-        <span class="mgl-sc-crumb-current">SCOUTING</span>
-    </nav>
-
-    <header class="mgl-sc-head">
-        <div class="mgl-sc-hero">
-            <div class="mgl-sc-hero-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/><circle cx="11" cy="11" r="2.4"/></svg>
-            </div>
-            <div>
-                <h1>SCOUTING</h1>
-                <p>Find and scout the best talent around the world.</p>
-            </div>
-        </div>
-    </header>
+    {% include "core/includes/mgl_page_header.html" with header_section="MARKET" header_title="SCOUTING" header_description="Find and scout the best talent around the world." %}
 
     {% if pack %}
         <section class="mgl-sc-pack" id="scout-pack">

@@ -5,13 +5,18 @@
 
 {% block content %}
 <section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">COMPETITION</div>
-            <h1>{{ competition_name|upper }}</h1>
-        </div>
-        <a href="{% url 'leagues_page' %}" class="view-all">ALL LEAGUES →</a>
-    </div>
+    {% url 'leagues_page' as leagues_index %}
+    {% if competition_slug == "premier-league" %}
+        {% include "core/includes/mgl_page_header.html" with header_section="TABLES" header_title="PREMIER LEAGUE" header_description="The top active MGL competition." header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
+    {% elif competition_slug == "championship" %}
+        {% include "core/includes/mgl_page_header.html" with header_section="TABLES" header_title="CHAMPIONSHIP" header_description="Active division." header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
+    {% elif competition_slug == "league-one" %}
+        {% include "core/includes/mgl_page_header.html" with header_section="TABLES" header_title="LEAGUE ONE" header_description="Active division." header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
+    {% elif competition_slug == "cups" %}
+        {% include "core/includes/mgl_page_header.html" with header_section="TABLES" header_title="CUPS" header_description="Official MGL cup competitions." header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
+    {% else %}
+        {% include "core/includes/mgl_page_header.html" with header_section="TABLES" header_title=competition_name header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
+    {% endif %}
     {% include "mgl/includes/competition_selector.html" %}
     {% if is_live %}
         <div class="dashboard-panel">

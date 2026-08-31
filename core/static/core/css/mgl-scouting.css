@@ -67,15 +67,6 @@ body.mgl-scout-page {
     height: 26px;
 }
 
-.mgl-scout-page h1 {
-    margin: 0;
-    color: #fff;
-    font-size: clamp(36px, 6vw, 64px);
-    font-weight: 800;
-    letter-spacing: 0.04em;
-    line-height: 0.95;
-}
-
 .mgl-sc-hero p {
     margin: 12px 0 0;
     color: rgba(255, 255, 255, 0.62);

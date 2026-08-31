@@ -5,13 +5,7 @@
 
 {% block content %}
 <section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">COMPETITION</div>
-            <h2>LEAGUE TABLES</h2>
-        </div>
-        <span class="section-line"></span>
-    </div>
+    {% include "core/includes/mgl_page_header.html" with header_section="TABLES" header_title="ALL LEAGUE" header_description="Official MGL standings. Click a club to open its squad and club page." %}
     {% include "mgl/includes/competition_selector.html" %}
 </section>
 

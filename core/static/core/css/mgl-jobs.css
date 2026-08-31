@@ -125,12 +125,16 @@ body.mgl-jobs-body .mgl-main {
     margin: 0 auto;
 }
 
+.mgl-jobs-shell .mgl-page-header-crumbs {
+    padding-top: 28px;
+}
+
 .mgl-jobs-hero {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(260px, 340px);
     gap: 28px 40px;
     align-items: end;
-    padding: 36px 0 8px;
+    padding: 0 0 8px;
 }
 
 .mgl-jobs-hero h1 {

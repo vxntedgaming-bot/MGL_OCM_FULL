@@ -600,7 +600,7 @@ class NewsAndTablePublicTests(TestCase):
     def test_league_table_club_is_clickable_and_clubs_grid_removed(self):
         tables = self.client.get(reverse("leagues_page"))
         self.assertEqual(tables.status_code, 200)
-        self.assertContains(tables, "LEAGUE TABLES")
+        self.assertContains(tables, "ALL LEAGUE")
         arsenal = Team.objects.get(short_name="ARS")
         self.assertContains(tables, club_page_url(arsenal))
         self.assertContains(tables, "/clubs/arsenal/")

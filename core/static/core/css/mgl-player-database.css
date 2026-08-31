@@ -65,14 +65,6 @@ body.mgl-pdb-page {
     height: 26px;
 }
 
-.mgl-pdb-page h1 {
-    margin: 0;
-    color: #fff;
-    font-size: clamp(32px, 5vw, 56px);
-    letter-spacing: 0.04em;
-    line-height: 0.95;
-}
-
 .mgl-pdb-layout {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);

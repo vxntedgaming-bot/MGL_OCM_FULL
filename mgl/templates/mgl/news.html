@@ -9,15 +9,11 @@
 
 {% block content %}
 <section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">NEWS</div>
-            <h2>MGL NEWSROOM</h2>
-        </div>
-        {% if discord_invite_url %}
-            <a href="{{ discord_invite_url }}" class="primary-button" target="_blank" rel="noopener">JOIN THE MGL COMMUNITY</a>
-        {% endif %}
-    </div>
+    {% if discord_invite_url %}
+        {% include "core/includes/mgl_page_header.html" with header_section="NEWS" header_title="NEWS" header_description="Pressroom interviews and official league activity. Nothing is published until Admin approves it." header_action_url=discord_invite_url header_action_label="JOIN THE MGL COMMUNITY" header_action_newtab="1" %}
+    {% else %}
+        {% include "core/includes/mgl_page_header.html" with header_section="NEWS" header_title="NEWS" header_description="Pressroom interviews and official league activity. Nothing is published until Admin approves it." %}
+    {% endif %}
     <nav class="mgl-league-tabs" aria-label="News">
         <a href="{% url 'news_centre' %}?tab=latest" class="mgl-league-tab {% if tab == 'latest' %}is-active{% endif %}">Latest News</a>
         <a href="{% url 'live_activity' %}" class="mgl-league-tab {% if tab == 'activity' %}is-active{% endif %}">Live Activity</a>

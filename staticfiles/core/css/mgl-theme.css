@@ -2045,5 +2045,179 @@ svg.mgl-icon,
     }
 }
 
+/* Shared page header — matches History / Hub gold */
+.mgl-page-header-crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 18px;
+    color: rgba(255, 255, 255, 0.55);
+    font-family: var(--font-display, "Barlow Condensed", sans-serif);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.mgl-page-header-crumb-current {
+    color: var(--mgl-gold, #c59d5f);
+}
+
+.mgl-page-header {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 18px;
+    align-items: flex-end;
+    margin: 0 0 28px;
+    min-height: 140px;
+}
+
+.mgl-page-header-mark {
+    position: absolute;
+    right: 8%;
+    top: -20px;
+    width: 220px;
+    opacity: 0.08;
+    pointer-events: none;
+}
+
+.mgl-page-header .eyebrow {
+    color: var(--mgl-gold, #c59d5f);
+}
+
+.mgl-page-header h1 {
+    margin: 0;
+    color: #fff;
+    font-size: clamp(40px, 7vw, 72px);
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    line-height: 0.95;
+    text-transform: uppercase;
+}
+
+.mgl-page-header p {
+    margin: 8px 0 0;
+    max-width: 46rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+    line-height: 1.5;
+}
+
+.mgl-page-header-cta {
+    position: relative;
+    z-index: 1;
+    flex: 0 0 auto;
+}
+
+@media (max-width: 720px) {
+    .mgl-page-header {
+        min-height: 0;
+        align-items: flex-start;
+    }
+
+    .mgl-page-header-mark {
+        width: 140px;
+        right: 0;
+        top: -8px;
+    }
+
+    .mgl-page-header-cta {
+        width: 100%;
+    }
+}
+
+/* Shared page header — matches History / Hub gold */
+.mgl-page-header-crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 18px;
+    color: rgba(255, 255, 255, 0.55);
+    font-family: var(--font-display, "Barlow Condensed", sans-serif);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.mgl-page-header-crumb-current {
+    color: var(--mgl-gold, #c59d5f);
+}
+
+.mgl-page-header {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 18px;
+    align-items: flex-end;
+    margin: 0 0 28px;
+    min-height: 140px;
+}
+
+.mgl-page-header-mark {
+    position: absolute;
+    right: 8%;
+    top: -20px;
+    width: 220px;
+    opacity: 0.08;
+    pointer-events: none;
+}
+
+.mgl-page-header .eyebrow {
+    color: var(--mgl-gold, #c59d5f);
+}
+
+.mgl-page-header h1 {
+    margin: 0;
+    color: #fff;
+    font-size: clamp(40px, 7vw, 72px);
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    line-height: 0.95;
+    text-transform: uppercase;
+}
+
+.mgl-page-header p {
+    margin: 8px 0 0;
+    max-width: 46rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+    line-height: 1.5;
+}
+
+.mgl-page-header-cta {
+    position: relative;
+    z-index: 1;
+    flex: 0 0 auto;
+}
+
+@media (max-width: 720px) {
+    .mgl-page-header {
+        min-height: 0;
+        align-items: flex-start;
+    }
+
+    .mgl-page-header-mark {
+        width: 140px;
+        right: 0;
+        top: -8px;
+    }
+
+    .mgl-page-header-cta {
+        width: 100%;
+    }
+}
+
 
 

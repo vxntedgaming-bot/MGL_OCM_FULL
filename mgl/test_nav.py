@@ -318,7 +318,7 @@ class NavigationDropdownTests(TestCase):
             self.assertIn('data-nav-dropdown="stats"', nav)
             tables_page = self.client.get(tables)
             self.assertEqual(tables_page.status_code, 200, username)
-            self.assertContains(tables_page, "LEAGUE TABLES")
+            self.assertContains(tables_page, "ALL LEAGUE")
             stats_page = self.client.get(stats)
             self.assertEqual(stats_page.status_code, 200, username)
             self.assertContains(stats_page, "PREMIER LEAGUE STATS")

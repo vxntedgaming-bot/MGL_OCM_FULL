@@ -1,0 +1,34 @@
+{% load static %}
+<nav class="mgl-page-header-crumbs" aria-label="{{ header_title }} location">
+    {% if header_section %}
+        <span>{{ header_section }}</span>
+        <span aria-hidden="true">›</span>
+    {% endif %}
+    <span class="mgl-page-header-crumb-current">{{ header_title }}</span>
+</nav>
+<header class="mgl-page-header">
+    <img src="{% static 'core/img/mgl-logo.png' %}" alt="" class="mgl-page-header-mark">
+    <div>
+        {% if header_section %}
+            <div class="eyebrow">{{ header_section }}</div>
+        {% endif %}
+        <h1>{{ header_title }}</h1>
+        {% if header_description %}
+            <p>{{ header_description }}</p>
+        {% elif header_title == "PLAYER DATABASE" %}
+            <p>
+                {{ total_player_count }} PLAYERS
+                {% if page_obj %}
+                    · PLAYER {{ page_obj.start_index }} OF {{ result_count }}
+                {% endif %}
+            </p>
+        {% endif %}
+    </div>
+    {% if header_action_url and header_action_label %}
+        <a
+            href="{{ header_action_url }}"
+            class="secondary-button mgl-page-header-cta"
+            {% if header_action_newtab %}target="_blank" rel="noopener"{% endif %}
+        >{{ header_action_label }}</a>
+    {% endif %}
+</header>
