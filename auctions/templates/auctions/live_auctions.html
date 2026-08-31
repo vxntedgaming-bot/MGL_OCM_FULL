@@ -2,80 +2,271 @@
 {% load static mgl_ui %}
 
 {% block title %}Live Auctions — MGL{% endblock %}
+{% block body_class %}mgl-auc-page{% endblock %}
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'core/css/mgl-auctions.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/mgl-auctions.css' %}?v=auc-1">
 {% endblock %}
 
 {% block content %}
-<section class="mgl-section mgl-auction-page">
-    <div class="section-heading mgl-auction-head">
-        <div>
-            <div class="eyebrow">MGL MARKET</div>
-            <h1>LIVE AUCTIONS</h1>
-            <p class="mgl-auction-copy">Bid with tokens. Highest bidder wins when the timer ends.</p>
+<section class="mgl-section mgl-auc-page">
+    <nav class="mgl-auc-crumbs" aria-label="Auctions location">
+        <svg class="mgl-auc-crumb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 3 20 7v6c0 5-3.5 7.5-8 8-4.5-.5-8-3-8-8V7l8-4z"/></svg>
+        <a href="{% url 'transfer_market' %}">MARKET</a>
+        <span aria-hidden="true">›</span>
+        <span class="mgl-auc-crumb-current">AUCTIONS</span>
+    </nav>
+
+    <header class="mgl-auc-head">
+        <div class="mgl-auc-hero">
+            <div class="mgl-auc-hero-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14.5 3.5 8 10l3.5 3.5 6.5-6.5-3.5-3.5z"/><path d="M8 10 4 14"/><path d="M13.5 15.5 19 21"/><path d="M3 19h8"/></svg>
+            </div>
+            <div>
+                <h1>LIVE AUCTIONS</h1>
+                <p>Bid with tokens. Highest bidder wins when the timer ends.</p>
+            </div>
         </div>
-        <a href="{% url 'transfer_market' %}" class="view-all">FULL MARKET →</a>
-    </div>
-
-    <div>
-        <h2>LIVE NOW</h2>
-        {% if auctions %}
-            <div class="mgl-auction-grid">
-                {% for auction in auctions %}
-                    <article class="mgl-auction-card" data-auction-card data-auction-id="{{ auction.id }}">
-                        {% player_card auction.player "small" %}
-                        <h3 class="mgl-auction-card-name">
-                            <a href="{% url 'player_profile' auction.player.id %}">{{ auction.player.name }}</a>
-                        </h3>
-                        <div class="mgl-auction-card-meta">
-                            <div class="mgl-auction-bidline">
-                                <span>CURRENT BID</span>
-                                <strong>{{ auction.winning_bid|default:auction.starting_bid }}</strong>
-                            </div>
-                            <p class="mgl-auction-countdown" data-auction-end="{{ auction.ends_at|date:'c' }}">{{ auction.ends_at|time_left }}</p>
-                        </div>
-                        <div class="mgl-auction-actions">
-                            <a href="{% url 'player_profile' auction.player.id %}" class="secondary-button">VIEW PLAYER</a>
-                            <form method="post" action="{% url 'place_bid' auction.id %}" class="mgl-auction-bid-form" data-auction-bid-form>
-                                {% csrf_token %}
-                                <input type="hidden" name="next" value="{{ request.path }}">
-                                <input type="number" name="amount" min="1" step="1" placeholder="Bid tokens" required>
-                                <button type="submit" class="primary-button">PLACE A BID</button>
-                            </form>
-                        </div>
-                    </article>
-                {% endfor %}
+        <div class="mgl-auc-head-side">
+            <div class="mgl-auc-stats">
+                <div>
+                    <span>LIVE AUCTIONS</span>
+                    <strong>{{ live_count }}</strong>
+                </div>
+                <div>
+                    <span>BIDS PLACED</span>
+                    <strong>{{ live_bid_count }}</strong>
+                </div>
+                <div>
+                    <span>MY WON</span>
+                    <strong>{{ my_won }}</strong>
+                </div>
             </div>
-        {% else %}
-            {% include "mgl/includes/empty_state.html" with kicker="AUCTIONS" title="NO LIVE AUCTIONS" %}
-        {% endif %}
-    </div>
+            <a href="{% url 'transfer_market' %}" class="mgl-auc-market-link">VIEW FULL MARKET →</a>
+        </div>
+    </header>
 
-    <div>
-        <h2>RECENTLY ENDED</h2>
-        {% if ended_auctions %}
-            <div class="mgl-auction-ended">
-                {% for auction in ended_auctions %}
-                    <article class="mgl-auction-ended-row">
-                        <div>
-                            <strong><a href="{% url 'player_profile' auction.player.id %}">{{ auction.player.name }}</a> ({{ auction.player.overall }})</strong>
-                            <small>
-                                {% if auction.winning_manager %}
-                                    Won by {{ auction.winning_manager.display_name }} for {{ auction.winning_bid }} tokens
-                                {% else %}
-                                    No bids placed.
+    <div class="mgl-auc-layout">
+        <div class="mgl-auc-primary">
+            <div class="mgl-auc-toolbar">
+                <h2>LIVE AUCTIONS</h2>
+                <form method="get" class="mgl-auc-tools" role="search">
+                    {% if per_page %}<input type="hidden" name="per_page" value="{{ per_page }}">{% endif %}
+                    <div class="mgl-auc-search">
+                        <input type="search" name="search" value="{{ search }}" placeholder="Search player..." autocomplete="off">
+                        <button type="submit" class="mgl-auc-search-btn" aria-label="Search">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+                        </button>
+                    </div>
+                    <details class="mgl-auc-more">
+                        <summary>FILTERS</summary>
+                        <div class="mgl-auc-filter-panel">
+                            <label for="mgl-auc-pos">POSITION</label>
+                            <select id="mgl-auc-pos" name="position" onchange="this.form.submit()">
+                                <option value="">All positions</option>
+                                <option value="ATT" {% if selected_position == "ATT" %}selected{% endif %}>Attackers</option>
+                                <option value="MID" {% if selected_position == "MID" %}selected{% endif %}>Midfielders</option>
+                                <option value="DEF" {% if selected_position == "DEF" %}selected{% endif %}>Defenders</option>
+                                <option value="GK" {% if selected_position == "GK" %}selected{% endif %}>Goalkeepers</option>
+                            </select>
+                        </div>
+                    </details>
+                </form>
+            </div>
+
+            {% if auctions %}
+                <div class="mgl-auc-board">
+                    <div class="mgl-auc-cols" aria-hidden="true">
+                        <span>PLAYER</span>
+                        <span>POS</span>
+                        <span>AGE</span>
+                        <span>OVR</span>
+                        <span>TIME LEFT</span>
+                        <span>START BID</span>
+                        <span>CURRENT BID</span>
+                        <span>BIDS</span>
+                        <span>ACTIONS</span>
+                    </div>
+                    {% for auction in auctions %}
+                        <article class="mgl-auc-row" data-auction-card data-auction-id="{{ auction.id }}" id="auction-{{ auction.id }}">
+                            <div class="mgl-auc-name-cell">
+                                <span class="mgl-auc-mobile-label">PLAYER</span>
+                                {% player_face_url auction.player "small" as face %}
+                                {% if face %}
+                                    <img src="{{ face }}" alt="" class="mgl-auc-face" loading="lazy" onerror="this.style.display='none'">
                                 {% endif %}
-                            </small>
-                        </div>
-                        {% if auction.ends_at %}
-                            <time datetime="{{ auction.ends_at|date:'c' }}">{{ auction.ends_at|date:"d M H:i" }}</time>
+                                <a class="mgl-auc-name" href="{% url 'player_profile' auction.player.id %}">{{ auction.player|card_name }}</a>
+                            </div>
+                            <div>
+                                <span class="mgl-auc-mobile-label">POS</span>
+                                {% if auction.player.position %}
+                                    <span class="mgl-auc-pos" data-pos="{{ auction.player.position }}">{{ auction.player.position }}</span>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <span class="mgl-auc-mobile-label">AGE</span>
+                                {% if auction.player.age %}{{ auction.player.age }}{% endif %}
+                            </div>
+                            <div>
+                                <span class="mgl-auc-mobile-label">OVR</span>
+                                <span class="mgl-auc-ovr">{{ auction.player.overall }}</span>
+                            </div>
+                            <div class="mgl-auc-time">
+                                <span class="mgl-auc-mobile-label">TIME LEFT</span>
+                                <span class="mgl-auction-countdown" data-auction-end="{{ auction.ends_at|date:'c' }}">{{ auction.ends_at|time_left }}</span>
+                                <small>({{ auction.bid_total }} BID{{ auction.bid_total|pluralize }})</small>
+                            </div>
+                            <div class="mgl-auc-tokens">
+                                <span class="mgl-auc-mobile-label">START BID</span>
+                                <span>{{ auction.starting_bid }}</span>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><ellipse cx="12" cy="7" rx="7" ry="3"/><path d="M5 7v4c0 1.7 3.1 3 7 3s7-1.3 7-3V7"/><path d="M5 11v4c0 1.7 3.1 3 7 3s7-1.3 7-3v-4"/></svg>
+                            </div>
+                            <div class="mgl-auc-tokens">
+                                <span class="mgl-auc-mobile-label">CURRENT BID</span>
+                                <span>{{ auction.current_bid }}</span>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><ellipse cx="12" cy="7" rx="7" ry="3"/><path d="M5 7v4c0 1.7 3.1 3 7 3s7-1.3 7-3V7"/><path d="M5 11v4c0 1.7 3.1 3 7 3s7-1.3 7-3v-4"/></svg>
+                            </div>
+                            <div>
+                                <span class="mgl-auc-mobile-label">BIDS</span>
+                                {{ auction.bid_total }}
+                            </div>
+                            <div class="mgl-auc-action">
+                                <a href="?auction={{ auction.id }}{% if querystring %}&{{ querystring }}{% endif %}" class="secondary-button" data-auction-open="{{ auction.id }}">BID</a>
+                                <dialog class="mgl-auc-dialog" id="auction-bid-{{ auction.id }}" {% if open_auction and open_auction.id == auction.id %}open{% endif %}>
+                                    <div class="mgl-auc-dialog-inner">
+                                        <div class="mgl-auc-dialog-head">
+                                            <h3>{{ auction.player|card_name }}</h3>
+                                            <button type="button" class="mgl-auc-dialog-close" data-auction-close aria-label="Close">×</button>
+                                        </div>
+                                        <dl class="mgl-auc-dialog-meta">
+                                            <div><dt>POSITION</dt><dd>{% if auction.player.position %}{{ auction.player.position }}{% else %}—{% endif %}</dd></div>
+                                            <div><dt>OVR</dt><dd>{{ auction.player.overall }}</dd></div>
+                                            <div><dt>START BID</dt><dd>{{ auction.starting_bid }}</dd></div>
+                                            <div><dt>CURRENT BID</dt><dd>{{ auction.current_bid }}</dd></div>
+                                            <div><dt>BIDS</dt><dd>{{ auction.bid_total }}</dd></div>
+                                            <div><dt>TIME LEFT</dt><dd class="mgl-auction-countdown" data-auction-end="{{ auction.ends_at|date:'c' }}">{{ auction.ends_at|time_left }}</dd></div>
+                                            <div><dt>YOUR TOKENS</dt><dd>{{ token_balance }}</dd></div>
+                                            <div><dt>MINIMUM BID</dt><dd>{{ auction.input_min }}</dd></div>
+                                        </dl>
+                                        <form method="post" action="{% url 'place_bid' auction.id %}" class="mgl-auction-bid-form" data-auction-bid-form>
+                                            {% csrf_token %}
+                                            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                            <label>
+                                                YOUR BID
+                                                <input type="number" name="amount" min="{{ auction.input_min }}" step="1" value="{{ auction.input_min }}" required>
+                                            </label>
+                                            <div class="mgl-auc-dialog-actions">
+                                                <a href="{% url 'player_profile' auction.player.id %}" class="secondary-button">VIEW PLAYER</a>
+                                                <button type="submit" class="primary-button">PLACE BID</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </dialog>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                {% include "mgl/includes/empty_state.html" with kicker="AUCTIONS" title="NO LIVE AUCTIONS" %}
+            {% endif %}
+
+            {% if page_obj %}
+                <div class="mgl-auc-pager">
+                    <p class="mgl-auc-count">
+                        {% if page_obj.start_index %}
+                            Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ result_count }} auction{{ result_count|pluralize }}
+                        {% else %}
+                            Showing 0 auctions
                         {% endif %}
-                    </article>
-                {% endfor %}
-            </div>
-        {% else %}
-            {% include "mgl/includes/empty_state.html" with title="NO ENDED AUCTIONS" %}
-        {% endif %}
+                    </p>
+                    {% if page_obj.has_other_pages %}
+                        {% if page_obj.has_previous %}
+                            <a href="?page={{ page_obj.previous_page_number }}&{{ querystring }}">‹</a>
+                        {% endif %}
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if num == page_obj.number %}
+                                <span class="is-active">{{ num }}</span>
+                            {% elif num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %}
+                                <a href="?page={{ num }}&{{ querystring }}">{{ num }}</a>
+                            {% endif %}
+                        {% endfor %}
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}&{{ querystring }}">›</a>
+                        {% endif %}
+                    {% endif %}
+                    <form method="get" class="mgl-auc-page-size">
+                        {% if search %}<input type="hidden" name="search" value="{{ search }}">{% endif %}
+                        {% if selected_position %}<input type="hidden" name="position" value="{{ selected_position }}">{% endif %}
+                        <label>
+                            <select name="per_page" onchange="this.form.submit()" aria-label="Auctions per page">
+                                <option value="10" {% if per_page == 10 %}selected{% endif %}>10 per page</option>
+                                <option value="20" {% if per_page == 20 %}selected{% endif %}>20 per page</option>
+                                <option value="40" {% if per_page == 40 %}selected{% endif %}>40 per page</option>
+                            </select>
+                        </label>
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+
+        <aside class="mgl-auc-side">
+            <section class="mgl-auc-card">
+                <h2>HOW AUCTIONS WORK</h2>
+                <ol class="mgl-auc-steps">
+                    <li>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M14.5 3.5 8 10l3.5 3.5 6.5-6.5-3.5-3.5z"/><path d="M8 10 4 14"/><path d="M3 19h8"/></svg>
+                        <span>Browse live auctions and place your bid.</span>
+                    </li>
+                    <li>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>
+                        <span>Highest bid wins when the timer ends.</span>
+                    </li>
+                    <li>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><ellipse cx="12" cy="7" rx="7" ry="3"/><path d="M5 7v4c0 1.7 3.1 3 7 3s7-1.3 7-3V7"/><path d="M5 11v4c0 1.7 3.1 3 7 3s7-1.3 7-3v-4"/></svg>
+                        <span>Winning tokens are deducted automatically.</span>
+                    </li>
+                    <li>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M8 5h8l1 4H7l1-4z"/><path d="M7 9v11h10V9"/><path d="M12 9v11"/></svg>
+                        <span>Player will be added to your club.</span>
+                    </li>
+                </ol>
+            </section>
+
+            <section class="mgl-auc-card">
+                <div class="mgl-auc-card-head">
+                    <h2>RECENTLY ENDED</h2>
+                </div>
+                {% if ended_auctions %}
+                    <div class="mgl-auc-ended">
+                        {% for auction in ended_auctions %}
+                            <article class="mgl-auc-ended-row">
+                                {% player_face_url auction.player "small" as ended_face %}
+                                {% if ended_face %}
+                                    <img src="{{ ended_face }}" alt="" class="mgl-auc-face" loading="lazy" onerror="this.style.display='none'">
+                                {% endif %}
+                                <div>
+                                    <a href="{% url 'player_profile' auction.player.id %}">{{ auction.player|card_name }}</a>
+                                    <span>({{ auction.player.overall }})</span>
+                                    {% if auction.ends_at %}
+                                        <small>Finished {{ auction.ends_at|timesince }} ago</small>
+                                    {% endif %}
+                                </div>
+                                <strong>
+                                    {% if auction.winning_manager %}
+                                        Sold for {{ auction.winning_bid }}
+                                    {% else %}
+                                        No bids
+                                    {% endif %}
+                                </strong>
+                            </article>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {% include "mgl/includes/empty_state.html" with title="NO ENDED AUCTIONS" %}
+                {% endif %}
+            </section>
+
+            <a href="{% url 'team_management' %}" class="primary-button mgl-auc-mine">MY AUCTIONS</a>
+        </aside>
     </div>
 </section>
 {% endblock %}

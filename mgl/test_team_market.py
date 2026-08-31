@@ -288,7 +288,7 @@ class TeamMarketListingTests(TestCase):
         self.assertNotContains(pending, "Bid Target")
         self.assertNotContains(pending, "LOOSE AGENT")
         auctions_page = self.client.get(reverse("live_auctions"))
-        self.assertContains(auctions_page, "Bid Target")
+        self.assertContains(auctions_page, "BID TARGET")
         fa_page = self.client.get(reverse("free_agents"))
         self.assertContains(fa_page, "LOOSE AGENT")
 
@@ -300,7 +300,7 @@ class TeamMarketListingTests(TestCase):
         self.assertNotContains(live, "Bid Target")
         self.assertNotContains(live, "LOOSE AGENT")
         self.assertEqual(PlayerAuction.objects.get(pk=auction.pk).status, PlayerAuction.LIVE)
-        self.assertContains(self.client.get(reverse("live_auctions")), "Bid Target")
+        self.assertContains(self.client.get(reverse("live_auctions")), "BID TARGET")
         self.assertContains(self.client.get(reverse("free_agents")), "LOOSE AGENT")
 
         self.client.logout()
@@ -325,7 +325,7 @@ class TeamMarketListingTests(TestCase):
         self.assertNotContains(gone, reverse("purchase_listing", args=[listing.id]))
         self.assertNotContains(gone, "Bid Target")
         self.assertNotContains(gone, "LOOSE AGENT")
-        self.assertContains(self.client.get(reverse("live_auctions")), "Bid Target")
+        self.assertContains(self.client.get(reverse("live_auctions")), "BID TARGET")
         self.assertContains(self.client.get(reverse("free_agents")), "LOOSE AGENT")
 
 
@@ -398,7 +398,7 @@ class ClubAuctionSquadLifecycleTests(TestCase):
         self.assertIsNone(self.owned.mgl_team_id)
 
         auctions = self.client.get(reverse("live_auctions"))
-        self.assertContains(auctions, "Club Striker")
+        self.assertContains(auctions, "CLUB STRIKER")
         fa_page = self.client.get(reverse("free_agents"))
         self.assertNotContains(fa_page, "Club Striker")
         self.assertNotContains(fa_page, "CLUB STRIKER")
@@ -463,7 +463,7 @@ class ClubAuctionSquadLifecycleTests(TestCase):
         self.assertContains(page, ">AUCTION<")
         auctions = self.client.get(reverse("live_auctions"))
         self.assertContains(auctions, "RECENTLY ENDED")
-        self.assertContains(auctions, "Club Striker")
+        self.assertContains(auctions, "CLUB STRIKER")
         self.assertNotContains(auctions, f'action="{reverse("place_bid", args=[auction.id])}"')
 
     def test_owner_cancel_returns_player_and_refunds_bid(self):

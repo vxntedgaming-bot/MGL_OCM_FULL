@@ -16,7 +16,7 @@
             hours = hours % 24;
             return pad(days) + "d " + pad(hours) + "h " + pad(minutes) + "m";
         }
-        return pad(hours) + "h " + pad(minutes) + "m " + pad(seconds) + "s";
+        return pad(hours) + ":" + pad(minutes) + ":" + pad(seconds);
     }
 
     function closeCard(card) {
@@ -33,6 +33,10 @@
         if (button) {
             button.textContent = "ENDED";
         }
+        card.querySelectorAll("[data-auction-open]").forEach(function (node) {
+            node.setAttribute("aria-disabled", "true");
+            node.classList.add("is-disabled");
+        });
     }
 
     function tick() {
@@ -51,6 +55,50 @@
                 closeCard(node.closest("[data-auction-card]"));
             }
         });
+    }
+
+    function openDialog(id) {
+        var dialog = document.getElementById("auction-bid-" + id);
+        if (!dialog) {
+            return false;
+        }
+        if (typeof dialog.showModal === "function") {
+            if (!dialog.open) {
+                dialog.showModal();
+            }
+        } else {
+            dialog.setAttribute("open", "");
+        }
+        return true;
+    }
+
+    document.querySelectorAll("[data-auction-open]").forEach(function (trigger) {
+        trigger.addEventListener("click", function (event) {
+            var id = trigger.getAttribute("data-auction-open");
+            if (!id) {
+                return;
+            }
+            if (openDialog(id)) {
+                event.preventDefault();
+            }
+        });
+    });
+
+    document.querySelectorAll("[data-auction-close]").forEach(function (trigger) {
+        trigger.addEventListener("click", function () {
+            var dialog = trigger.closest("dialog");
+            if (dialog && typeof dialog.close === "function") {
+                dialog.close();
+            } else if (dialog) {
+                dialog.removeAttribute("open");
+            }
+        });
+    });
+
+    var params = new URLSearchParams(window.location.search);
+    var openId = params.get("auction");
+    if (openId) {
+        openDialog(openId);
     }
 
     tick();

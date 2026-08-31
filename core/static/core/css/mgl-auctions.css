@@ -1,150 +1,697 @@
-.mgl-auction-page {
-    display: grid;
-    gap: 28px;
+/* Live Auctions page only. Loaded on /auctions/. Does not restyle other pages. */
+
+body.mgl-auc-page {
+    overflow-x: hidden;
+    background:
+        radial-gradient(ellipse at 50% 0%, rgba(197, 157, 95, 0.08), transparent 42%),
+        #050505;
 }
 
-.mgl-auction-head h1,
-.mgl-auction-head h2 {
-    margin: 6px 0 0;
-}
-
-.mgl-auction-copy {
-    margin: 8px 0 0;
-    color: var(--muted);
-}
-
-.mgl-auction-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 18px;
-}
-
-.mgl-auction-card {
-    display: grid;
-    gap: 12px;
-    padding: 16px;
-    background: var(--mgl-card);
-    border: 1px solid var(--mgl-line);
-    min-width: 0;
-}
-
-.mgl-auction-card .mgl-player-card-link,
-.mgl-auction-card .mgl-player-card {
-    max-width: 180px;
+.mgl-auc-page .mgl-section {
+    max-width: 1240px;
     margin: 0 auto;
 }
 
-.mgl-auction-card-name {
-    margin: 0;
-    text-align: center;
-    font-size: 18px;
+.mgl-auc-crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 22px;
+    color: rgba(255, 255, 255, 0.55);
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
 }
 
-.mgl-auction-card-name a {
-    color: inherit;
+.mgl-auc-crumb-icon {
+    width: 16px;
+    height: 16px;
+    color: #c59d5f;
+}
+
+.mgl-auc-crumbs a {
+    color: rgba(255, 255, 255, 0.62);
     text-decoration: none;
 }
 
-.mgl-auction-card-name a:hover {
-    color: var(--mgl-orange);
+.mgl-auc-crumb-current {
+    color: #c59d5f;
 }
 
-.mgl-auction-card-meta {
+.mgl-auc-head {
     display: grid;
-    gap: 8px;
+    grid-template-columns: minmax(0, 1.2fr) minmax(260px, 1fr);
+    gap: 18px;
+    align-items: center;
+    margin: 0 0 22px;
 }
 
-.mgl-auction-bidline {
+.mgl-auc-hero {
     display: flex;
-    justify-content: space-between;
-    align-items: baseline;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.mgl-auc-hero-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: 1px solid rgba(197, 157, 95, 0.4);
+    background: rgba(197, 157, 95, 0.1);
+    color: #c59d5f;
+    flex-shrink: 0;
+}
+
+.mgl-auc-hero-icon svg {
+    width: 26px;
+    height: 26px;
+}
+
+.mgl-auc-page .mgl-auc-head h1 {
+    margin: 0;
+    color: #fff;
+    font-size: clamp(36px, 6vw, 64px);
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    line-height: 0.95;
+}
+
+.mgl-auc-page .mgl-auc-head p {
+    max-width: 68ch;
+    margin: 12px 0 0;
+    color: rgba(255, 255, 255, 0.62);
+    font-size: 15px;
+    line-height: 1.55;
+}
+
+.mgl-auc-head-side {
+    display: grid;
+    gap: 10px;
+    justify-items: end;
+}
+
+.mgl-auc-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+}
+
+.mgl-auc-stats div {
+    padding: 12px 10px;
+    border: 1px solid rgba(197, 157, 95, 0.32);
+    border-radius: 10px;
+    background: #0d1118;
+    text-align: center;
+}
+
+.mgl-auc-stats span {
+    display: block;
+    color: rgba(255, 255, 255, 0.5);
+    font-family: var(--font-display);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+}
+
+.mgl-auc-stats strong {
+    display: block;
+    margin-top: 6px;
+    color: #c59d5f;
+    font-family: var(--font-display);
+    font-size: 22px;
+    line-height: 1;
+}
+
+.mgl-auc-market-link {
+    color: #c59d5f;
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-decoration: none;
+}
+
+.mgl-auc-market-link:hover {
+    color: #fff;
+}
+
+.mgl-auc-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 280px;
+    gap: 16px;
+    align-items: start;
+}
+
+.mgl-auc-primary {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
     gap: 12px;
 }
 
-.mgl-auction-bidline span {
-    color: var(--muted);
-    font-size: 11px;
-    letter-spacing: 0.08em;
+.mgl-auc-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
 }
 
-.mgl-auction-bidline strong {
-    color: var(--mgl-orange);
-    font-size: 28px;
-    font-family: var(--font-display);
-}
-
-.mgl-auction-countdown {
+.mgl-auc-toolbar h2 {
     margin: 0;
-    text-align: center;
+    color: #c59d5f;
     font-family: var(--font-display);
-    font-size: clamp(20px, 4vw, 28px);
+    font-size: 16px;
+    letter-spacing: 0.12em;
+}
+
+.mgl-auc-tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.mgl-auc-search {
+    display: flex;
+    align-items: stretch;
+    min-width: min(260px, 100%);
+    min-height: 40px;
+    overflow: hidden;
+    border: 1px solid rgba(197, 157, 95, 0.4);
+    border-radius: 8px;
+    background: #080b10;
+}
+
+.mgl-auc-search input[type="search"] {
+    flex: 1;
+    min-width: 0;
+    padding: 0 14px;
+    border: 0;
+    background: transparent;
+    color: #fff;
+    font-size: 14px;
+}
+
+.mgl-auc-search-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    flex-shrink: 0;
+    border: 0;
+    background: #c59d5f;
+    color: #111;
+    cursor: pointer;
+}
+
+.mgl-auc-search-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+.mgl-auc-more {
+    position: relative;
+}
+
+.mgl-auc-more summary {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 14px;
+    border-radius: 8px;
+    background: #c59d5f;
+    color: #111;
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 800;
     letter-spacing: 0.08em;
-    color: var(--mgl-orange);
+    cursor: pointer;
+    list-style: none;
 }
 
-.mgl-auction-card.is-ended .mgl-auction-countdown {
-    color: #8e97a4;
+.mgl-auc-more summary::-webkit-details-marker {
+    display: none;
 }
 
-.mgl-auction-actions {
+.mgl-auc-filter-panel {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 6px);
+    z-index: 4;
+    min-width: 220px;
+    padding: 10px;
+    border: 1px solid rgba(197, 157, 95, 0.35);
+    border-radius: 8px;
+    background: #0d1118;
+}
+
+.mgl-auc-filter-panel label,
+.mgl-auc-dialog-inner label,
+.mgl-auc-card h2,
+.mgl-auc-card-head h2 {
+    color: #c59d5f;
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+}
+
+.mgl-auc-filter-panel select,
+.mgl-auc-page-size select,
+.mgl-auc-dialog-inner input {
+    width: 100%;
+    min-height: 40px;
+    padding: 0 12px;
+    border: 1px solid rgba(197, 157, 95, 0.35);
+    border-radius: 8px;
+    background: #080b10;
+    color: #fff;
+}
+
+.mgl-auc-board {
+    padding: 8px 18px 10px;
+    background: #0d1118;
+    border: 1px solid rgba(197, 157, 95, 0.28);
+    border-radius: 16px;
+    overflow-x: auto;
+}
+
+.mgl-auc-cols,
+.mgl-auc-row {
+    display: grid;
+    grid-template-columns: minmax(140px, 1.4fr) 58px 44px 52px 88px 78px 90px 48px minmax(92px, 0.8fr);
+    gap: 10px 12px;
+    align-items: center;
+}
+
+.mgl-auc-cols {
+    padding: 14px 8px 12px;
+    color: rgba(255, 255, 255, 0.42);
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+}
+
+.mgl-auc-row {
+    padding: 14px 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.mgl-auc-row:hover {
+    background: rgba(197, 157, 95, 0.04);
+}
+
+.mgl-auc-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.mgl-auc-face {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid rgba(197, 157, 95, 0.28);
+    flex-shrink: 0;
+}
+
+.mgl-auc-name {
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.mgl-auc-name:hover {
+    color: #c59d5f;
+}
+
+.mgl-auc-pos {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 46px;
+    height: 26px;
+    padding: 0 8px;
+    border-radius: 6px;
+    color: #fff;
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 800;
+    background: #3a3f4a;
+}
+
+.mgl-auc-pos[data-pos="GK"] { background: #8a6a12; }
+.mgl-auc-pos[data-pos="CB"],
+.mgl-auc-pos[data-pos="LB"],
+.mgl-auc-pos[data-pos="RB"],
+.mgl-auc-pos[data-pos="LWB"],
+.mgl-auc-pos[data-pos="RWB"] { background: #1f4d7a; }
+.mgl-auc-pos[data-pos="CDM"],
+.mgl-auc-pos[data-pos="CM"],
+.mgl-auc-pos[data-pos="CAM"],
+.mgl-auc-pos[data-pos="LM"],
+.mgl-auc-pos[data-pos="RM"] { background: #2d6a3a; }
+.mgl-auc-pos[data-pos="LW"],
+.mgl-auc-pos[data-pos="RW"],
+.mgl-auc-pos[data-pos="CF"],
+.mgl-auc-pos[data-pos="ST"] { background: #9a2d1f; }
+
+.mgl-auc-ovr {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid rgba(197, 157, 95, 0.7);
+    color: #fff;
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.mgl-auc-time .mgl-auction-countdown {
+    display: block;
+    margin: 0;
+    color: #c59d5f;
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+}
+
+.mgl-auc-time small {
+    color: rgba(255, 255, 255, 0.42);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+}
+
+.mgl-auc-tokens {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #fff;
+    font-weight: 700;
+}
+
+.mgl-auc-tokens svg {
+    width: 16px;
+    height: 16px;
+    color: #c59d5f;
+}
+
+.mgl-auc-action {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.mgl-auc-action .secondary-button {
+    min-width: 88px;
+    white-space: nowrap;
+}
+
+.mgl-auc-action .secondary-button.is-disabled {
+    opacity: 0.45;
+    pointer-events: none;
+}
+
+.mgl-auc-mobile-label {
+    display: none;
+}
+
+.mgl-auc-side {
+    display: grid;
+    gap: 14px;
+}
+
+.mgl-auc-card {
+    padding: 16px;
+    background: #0d1118;
+    border: 1px solid rgba(197, 157, 95, 0.28);
+    border-radius: 14px;
+}
+
+.mgl-auc-card h2,
+.mgl-auc-card-head h2 {
+    margin: 0 0 12px;
+    font-size: 14px;
+}
+
+.mgl-auc-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.mgl-auc-steps {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 12px;
+}
+
+.mgl-auc-steps li {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.mgl-auc-steps svg {
+    width: 18px;
+    height: 18px;
+    color: #c59d5f;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.mgl-auc-ended {
     display: grid;
     gap: 10px;
 }
 
-.mgl-auction-bid-form {
+.mgl-auc-ended-row {
     display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 8px;
+    grid-template-columns: auto 1fr auto;
+    gap: 10px;
+    align-items: center;
 }
 
-.mgl-auction-bid-form input {
-    min-width: 0;
-    width: 100%;
+.mgl-auc-ended-row a {
+    color: #fff;
+    font-weight: 700;
+    text-decoration: none;
 }
 
-.mgl-auction-bid-form .primary-button {
+.mgl-auc-ended-row span,
+.mgl-auc-ended-row small {
+    display: block;
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 12px;
+}
+
+.mgl-auc-ended-row strong {
+    color: #c59d5f;
+    font-size: 13px;
     white-space: nowrap;
 }
 
-.mgl-auction-ended {
-    display: grid;
-    gap: 0;
-    background: var(--mgl-card);
-    border: 1px solid var(--mgl-line);
+.mgl-auc-mine {
+    width: 100%;
 }
 
-.mgl-auction-ended-row {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 12px;
+.mgl-auc-count {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 13px;
+    margin: 0 auto 0 0;
+}
+
+.mgl-auc-pager {
+    display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    padding: 14px 16px;
-    border-top: 1px solid var(--mgl-line);
+    gap: 8px 10px;
 }
 
-.mgl-auction-ended-row:first-child {
-    border-top: 0;
+.mgl-auc-pager a,
+.mgl-auc-pager span.is-active {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    min-height: 32px;
+    padding: 0 10px;
+    border: 1px solid rgba(197, 157, 95, 0.35);
+    border-radius: 6px;
+    color: #fff;
+    text-decoration: none;
 }
 
-.mgl-auction-ended-row strong {
-    display: block;
+.mgl-auc-pager span.is-active {
+    background: #c59d5f;
+    color: #111;
+    border-color: #c59d5f;
 }
 
-.mgl-auction-ended-row small,
-.mgl-auction-ended-row time {
-    color: var(--muted);
+.mgl-auc-page-size {
+    margin-left: auto;
 }
 
-@media (max-width: 720px) {
-    .mgl-auction-grid {
+.mgl-auc-dialog {
+    width: min(520px, calc(100% - 32px));
+    padding: 0;
+    border: 1px solid rgba(197, 157, 95, 0.4);
+    border-radius: 16px;
+    background: #0d1118;
+    color: #fff;
+}
+
+.mgl-auc-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.72);
+}
+
+.mgl-auc-dialog-inner {
+    padding: 20px;
+}
+
+.mgl-auc-dialog-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.mgl-auc-dialog-head h3 {
+    margin: 0;
+    font-size: 22px;
+    letter-spacing: 0.04em;
+}
+
+.mgl-auc-dialog-close {
+    width: 36px;
+    height: 36px;
+    border: 1px solid rgba(197, 157, 95, 0.35);
+    border-radius: 8px;
+    background: transparent;
+    color: #c59d5f;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+.mgl-auc-dialog-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 14px;
+    margin: 0 0 16px;
+}
+
+.mgl-auc-dialog-meta dt {
+    color: rgba(255, 255, 255, 0.45);
+    font-family: var(--font-display);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+}
+
+.mgl-auc-dialog-meta dd {
+    margin: 4px 0 0;
+    color: #fff;
+    font-weight: 700;
+}
+
+.mgl-auc-dialog-inner label {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.mgl-auc-dialog-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.mgl-auction-bid-form {
+    margin: 0;
+}
+
+@media (max-width: 1100px) {
+    .mgl-auc-head,
+    .mgl-auc-layout,
+    .mgl-auc-stats {
         grid-template-columns: 1fr;
     }
 
-    .mgl-auction-bid-form {
+    .mgl-auc-head-side {
+        justify-items: stretch;
+    }
+}
+
+@media (max-width: 860px) {
+    .mgl-auc-cols {
+        display: none;
+    }
+
+    .mgl-auc-row {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px 16px;
+        padding: 18px 4px;
+    }
+
+    .mgl-auc-name-cell,
+    .mgl-auc-action {
+        grid-column: 1 / -1;
+    }
+
+    .mgl-auc-action {
+        justify-content: flex-start;
+    }
+
+    .mgl-auc-mobile-label {
+        display: block;
+        margin-bottom: 6px;
+        color: rgba(255, 255, 255, 0.4);
+        font-family: var(--font-display);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+    }
+
+    .mgl-auc-filter-panel {
+        position: static;
+        min-width: 0;
+        margin-top: 8px;
+    }
+}
+
+@media (max-width: 640px) {
+    .mgl-auc-row {
         grid-template-columns: 1fr;
     }
 
-    .mgl-auction-ended-row {
+    .mgl-auc-search,
+    .mgl-auc-tools,
+    .mgl-auc-more,
+    .mgl-auc-more summary {
+        width: 100%;
+    }
+
+    .mgl-auc-dialog-meta {
         grid-template-columns: 1fr;
     }
 }

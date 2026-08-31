@@ -149,7 +149,9 @@ class AuctionCountdownTests(TestCase):
         self.assertContains(page, "LIVE AUCTIONS")
         self.assertContains(page, "data-auction-end")
         self.assertContains(page, "mgl-auction-countdown.js")
-        self.assertContains(page, "PLACE A BID")
+        self.assertContains(page, ">BID</a>")
+        self.assertContains(page, "PLACE BID")
+        self.assertNotContains(page, "VIEW AUCTION")
         self.assertContains(page, "RECENTLY ENDED")
         self.assertContains(page, reverse("player_profile", args=[self.player.id]))
         self.assertContains(page, str(auction.id))
@@ -169,7 +171,7 @@ class AuctionCountdownTests(TestCase):
         self.assertEqual(auction.bids.count(), 0)
         self.assertEqual(self.player.mgl_team_id, self.team_a.id)
         page = self.client.get(reverse("live_auctions"))
-        self.assertContains(page, "Auction Subject")
+        self.assertContains(page, "AUCTION SUBJECT")
         self.assertNotContains(page, f'action="{reverse("place_bid", args=[auction.id])}"')
 
 
