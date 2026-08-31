@@ -335,7 +335,7 @@ def validate_allocation(squads, include_free_agents=False, max_avg_diff=DEFAULT_
     club_count = len(squads)
     required = PLAYERS_PER_CLUB * club_count
 
-    size_ok = all(len(squad.players) == PLAYERS_PER_CLUB for squad in squads) and len(selected) == required
+    size_ok = bool(squads) and all(len(squad.players) == PLAYERS_PER_CLUB for squad in squads) and len(selected) == required
     checks.append(_check("squad_size", "Every club has 25 players", size_ok, f"{len(selected)} selected / {required} required"))
     if not size_ok:
         problems.append("One or more clubs do not have exactly 25 players.")
@@ -484,10 +484,10 @@ def squads_from_payload(payload):
     return squads
 
 
-def create_proposal(user, seed=None, include_free_agents=False, max_avg_diff=DEFAULT_MAX_AVG_DIFF):
+def create_proposal(user, seed=None, include_free_agents=False, max_avg_diff=DEFAULT_MAX_AVG_DIFF, clubs=None):
     from mgl.models import StartingSquadProposal
 
-    result = generate_allocation(seed=seed, include_free_agents=include_free_agents)
+    result = generate_allocation(seed=seed, include_free_agents=include_free_agents, clubs=clubs)
     squads = result["clubs"]
     validation = validate_allocation(squads, include_free_agents=include_free_agents, max_avg_diff=max_avg_diff)
     averages = [squad.average_ovr for squad in squads if squad.players]
