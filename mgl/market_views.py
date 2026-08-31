@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
@@ -111,6 +113,24 @@ def transfer_market(request):
     free_agents = free_agent_qs().order_by("-overall", "name")[:12]
     manager = manager_for_user(request.user)
     team = club_for_user(request.user)
+    from mgl.transfer_requests import completed_transfers_for
+
+    listing_list = list(listings)
+    listed_clubs = sorted(
+        {listing.team for listing in listing_list if listing.team_id},
+        key=lambda club: club.name,
+    )
+    listed_tokens = sum(
+        (listing.asking_price for listing in listing_list),
+        Decimal("0"),
+    )
+    latest_transfers = [
+        row
+        for row in completed_transfers_for(None, all_clubs=True, limit=24)
+        if row.player_id
+        and row.transaction_type
+        in {MarketTransaction.SALE, MarketTransaction.AUCTION}
+    ][:8]
     return render(
         request,
         "mgl/transfer_market.html",
@@ -124,6 +144,10 @@ def transfer_market(request):
             "manager": manager,
             "team": team,
             "token_balance": token_balance_for_user(request.user),
+            "window_open": transfer_window_is_open(),
+            "listed_clubs": listed_clubs,
+            "listed_tokens": listed_tokens,
+            "latest_transfers": latest_transfers,
         },
     )
 
