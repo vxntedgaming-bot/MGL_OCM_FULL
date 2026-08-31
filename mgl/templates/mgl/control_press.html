@@ -1,0 +1,33 @@
+{% extends "mgl/includes/control_page.html" %}
+
+{% block control_title %}Press Conferences — MGL Control{% endblock %}
+{% block control_kicker %}APPROVALS{% endblock %}
+{% block control_heading %}PRESS CONFERENCES{% endblock %}
+{% block control_intro %}Approved answers appear in the existing Press Room. Rejected answers stay unpublished.{% endblock %}
+
+{% block control_body %}
+{% for press in pending_press %}
+    <article class="mgl-cp-review">
+        <p class="mgl-cp-kicker">PRESS CONFERENCE ANSWERS</p>
+        <h2>{% if press.team %}{{ press.team.name }}{% else %}MGL{% endif %}</h2>
+        <p>{{ press.manager.username }}</p>
+        <p><strong>Question</strong> {{ press.question }}</p>
+        <p><strong>Answer</strong> {{ press.answer|default:"—" }}</p>
+        <small>{{ press.created_at|date:"d M Y H:i" }} · {{ press.status }}</small>
+        <div class="mgl-cp-actions">
+            <form method="post" action="{% url 'control_approve_press' press.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="next_page" value="control_press">
+                <button class="header-button mgl-cp-approve" type="submit">APPROVE</button>
+            </form>
+            <form method="post" action="{% url 'control_reject_press' press.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="next_page" value="control_press">
+                <button class="header-button mgl-cp-reject" type="submit">REJECT</button>
+            </form>
+        </div>
+    </article>
+{% empty %}
+    {% include "mgl/includes/empty_state.html" with title="NO ANSWERS WAITING" %}
+{% endfor %}
+{% endblock %}

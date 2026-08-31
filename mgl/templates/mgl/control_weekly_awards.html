@@ -1,0 +1,71 @@
+{% extends "mgl/includes/control_page.html" %}
+
+{% block control_title %}Weekly Awards — MGL Control{% endblock %}
+{% block control_kicker %}APPROVALS{% endblock %}
+{% block control_heading %}WEEKLY AWARDS{% endblock %}
+{% block control_intro %}Sunday–Sunday week. Tokens pay only after Owner/Admin approval.{% endblock %}
+
+{% block control_body %}
+{% for batch in weekly_award_batches %}
+    <article class="mgl-cp-review">
+        <h2>Week of {{ batch.week_start|date:"d M Y" }}</h2>
+        <p>{% if batch.status %}{{ batch.get_status_display }}{% elif batch.completed %}COMPLETED{% else %}IN PROGRESS{% endif %}{% if batch.has_ties %} · TIE — do not auto-pay{% endif %}</p>
+        <small>{{ batch.notes|default:"No notes" }}</small>
+        {% if batch.payload.totw %}
+            <p class="mgl-cp-kicker">TEAM OF THE WEEK</p>
+            {% for row in batch.payload.totw %}
+                <p>{{ row.slot }} · {{ row.player_name }}</p>
+            {% endfor %}
+        {% endif %}
+        {% if batch.payload.goals %}
+            <p class="mgl-cp-kicker">MOST GOALS OF THE WEEK</p>
+            {% for row in batch.payload.goals.candidates %}
+                <p>{{ row.player_name }} · {{ row.total }} goals{% if batch.payload.goals.tied %} · TIE{% endif %}</p>
+            {% endfor %}
+        {% endif %}
+        {% if batch.payload.assists %}
+            <p class="mgl-cp-kicker">MOST ASSISTS OF THE WEEK</p>
+            {% for row in batch.payload.assists.candidates %}
+                <p>{{ row.player_name }} · {{ row.total }} assists{% if batch.payload.assists.tied %} · TIE{% endif %}</p>
+            {% endfor %}
+        {% endif %}
+        {% if batch.payload.motw %}
+            <p class="mgl-cp-kicker">MANAGER OF THE WEEK</p>
+            <p>{{ batch.payload.motw.manager_name }} · {{ batch.payload.motw.played }} games · {{ batch.payload.motw.wins }} wins{% if batch.payload.motw.tied %} · TIE{% endif %}</p>
+        {% endif %}
+        {% if batch.payouts %}
+            <p class="mgl-cp-kicker">TOKEN REWARDS</p>
+            {% for row in batch.payouts %}
+                <p>
+                    {{ row.name }} · TOTW {{ row.totw_count }} × 0.20 = {{ row.totw }}
+                    {% if row.goals %} · Top Goals +{{ row.goals }}{% endif %}
+                    {% if row.assists %} · Top Assists +{{ row.assists }}{% endif %}
+                    {% if row.motw %} · Manager of Week +{{ row.motw }}{% endif %}
+                    · Total {{ row.total }} TOKENS
+                </p>
+            {% endfor %}
+        {% endif %}
+        {% if batch.status == "PENDING_REVIEW" %}
+            <div class="mgl-cp-actions">
+                <form method="post" action="{% url 'control_approve_weekly_awards' batch.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="next_page" value="control_weekly_awards">
+                    <button class="header-button mgl-cp-approve" type="submit">APPROVE WEEKLY AWARDS</button>
+                </form>
+                <form method="post" action="{% url 'control_reject_weekly_awards' batch.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="next_page" value="control_weekly_awards">
+                    <button class="header-button mgl-cp-reject" type="submit">REJECT</button>
+                </form>
+                <form method="post" action="{% url 'control_recalculate_weekly_awards' batch.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="next_page" value="control_weekly_awards">
+                    <button class="header-button" type="submit">RECALCULATE</button>
+                </form>
+            </div>
+        {% endif %}
+    </article>
+{% empty %}
+    {% include "mgl/includes/empty_state.html" with title="NO WEEKLY AWARDS YET" %}
+{% endfor %}
+{% endblock %}

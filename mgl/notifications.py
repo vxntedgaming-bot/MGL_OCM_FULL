@@ -213,7 +213,7 @@ class ControlQueueSource(NotificationSource):
                     f"{listing.reserved_buyer.display_name} wants {listing.player.name} "
                     f"from {listing.team.name}."
                 ),
-                url=reverse("control_centre"),
+                url=reverse("control_transfers"),
                 cta="REVIEW",
                 actor=listing.team.name,
                 created_at=listing.created_at,
@@ -238,7 +238,7 @@ class ControlQueueSource(NotificationSource):
                     f"{fixture.home_team.name} vs {fixture.away_team.name} "
                     "needs Owner/Admin approval."
                 ),
-                url=reverse("control_centre"),
+                url=reverse("control_scores"),
                 cta="REVIEW",
                 actor=submission.submitted_by.username if submission.submitted_by_id else "Manager",
                 created_at=submission.submitted_at,
@@ -257,7 +257,7 @@ class ControlQueueSource(NotificationSource):
                     f"{application.manager.display_name} applied for "
                     f"{application.team.name}."
                 ),
-                url=reverse("control_centre"),
+                url=reverse("control_managers"),
                 cta="REVIEW",
                 actor=application.manager.display_name,
                 created_at=application.created_at,
@@ -274,7 +274,7 @@ class ControlQueueSource(NotificationSource):
                     f"{application.display_name} is waiting for "
                     "manager approval."
                 ),
-                url=reverse("control_centre"),
+                url=reverse("control_managers"),
                 cta="REVIEW",
                 actor=application.display_name,
             )
@@ -693,7 +693,7 @@ def notify_admins_of_confirmed_result(submission):
                     "and needs Owner/Admin approval."
                 ),
                 actor=details.get("submitted_by") or "Manager",
-                action_url=reverse("control_centre"),
+                action_url=reverse("control_scores"),
                 action_label="REVIEW",
                 team=fixture.home_team,
                 fixture=fixture,

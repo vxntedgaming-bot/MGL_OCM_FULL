@@ -3,6 +3,7 @@ from django.views.generic import RedirectView
 from players.fc26_faces import player_face_image
 from . import views
 from . import market_views as views_market
+from . import control_views as views_control
 from . import site_manage as views_site
 from . import season_views as views_season
 
@@ -222,7 +223,20 @@ urlpatterns = [
     ),
     path("team/sell/<int:player_id>/", views_market.sell_player, name="sell_player"),
     path("jobs/<int:team_id>/apply/", views_market.apply_for_club, name="apply_for_club"),
-    path("control/", views_market.control_centre, name="control_centre"),
+    path("control/", views_control.control_centre, name="control_centre"),
+    path("control/pending/", views_control.control_pending, name="control_pending"),
+    path("control/scores/", views_control.control_scores, name="control_scores"),
+    path("control/transfers/", views_control.control_transfers, name="control_transfers"),
+    path("control/press/", views_control.control_press, name="control_press"),
+    path("control/awards/weekly/", views_control.control_weekly_awards, name="control_weekly_awards"),
+    path("control/awards/monthly/", views_control.control_monthly_awards, name="control_monthly_awards"),
+    path("control/managers/", views_control.control_managers, name="control_managers"),
+    path("control/tokens/", views_control.control_tokens, name="control_tokens"),
+    path("control/scouting/", views_control.control_scouting, name="control_scouting"),
+    path("control/auctions/", views_control.control_auctions, name="control_auctions"),
+    path("control/clubs/", views_control.control_clubs, name="control_clubs"),
+    path("control/notifications/", views_control.control_notifications, name="control_notifications"),
+    path("control/logs/", views_control.control_logs, name="control_logs"),
     path(
         "control/site/",
         views_site.site_management,

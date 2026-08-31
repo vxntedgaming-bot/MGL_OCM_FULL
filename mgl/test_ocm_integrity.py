@@ -248,10 +248,11 @@ class OcmIntegrityTests(TestCase):
         ).get()
         self.assertEqual(debit.balance_before, before + Decimal("2.50"))
         self.assertEqual(debit.balance_after, before + Decimal("1.50"))
-        control = self.client.get(reverse("control_centre"))
-        self.assertContains(control, "SCOUTING ACTIVITY")
-        self.assertContains(control, "Owner correction")
-        self.assertContains(control, "APPLY")
+        tokens = self.client.get(reverse("control_tokens"))
+        self.assertContains(tokens, "Owner correction")
+        self.assertContains(tokens, "APPLY")
+        scouting = self.client.get(reverse("control_scouting"))
+        self.assertContains(scouting, "SCOUTING ACTIVITY")
 
     def test_weekly_awards_wait_for_admin_then_pay_once(self):
         second = Fixture.objects.create(

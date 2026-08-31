@@ -1,0 +1,35 @@
+{% extends "mgl/includes/control_page.html" %}
+
+{% block control_title %}Transfers Approval — MGL Control{% endblock %}
+{% block control_kicker %}APPROVALS{% endblock %}
+{% block control_heading %}TRANSFERS APPROVAL{% endblock %}
+{% block control_intro %}Approval updates the existing player, squad and token records once.{% endblock %}
+
+{% block control_body %}
+{% for listing in pending_listings %}
+    <article class="mgl-cp-review">
+        <h2>{{ listing.deal.player|default:listing.player.name }}</h2>
+        <p>{{ listing.deal.current_club|default:listing.team.name }}</p>
+        <p>↓</p>
+        <p>{{ listing.deal.requesting_club|default:listing.reserved_buyer.display_name }}</p>
+        <p>Amount: {{ listing.deal.amount|default:listing.asking_price }} TKN</p>
+        <p>SELLER RECEIVES {{ listing.deal.seller_receives|default:listing.asking_price }}</p>
+        <p>BUYER RECEIVES {{ listing.deal.buyer_receives|default:listing.player.name }}</p>
+        {% if listing.deal.buyer_manager %}<p>BUYER {{ listing.deal.buyer_manager }}</p>{% endif %}
+        <div class="mgl-cp-actions">
+            <form method="post" action="{% url 'control_approve_listing' listing.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="next_page" value="control_transfers">
+                <button class="header-button mgl-cp-approve" type="submit">APPROVE TRANSFER</button>
+            </form>
+            <form method="post" action="{% url 'control_reject_listing' listing.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="next_page" value="control_transfers">
+                <button class="header-button mgl-cp-reject" type="submit">REJECT TRANSFER</button>
+            </form>
+        </div>
+    </article>
+{% empty %}
+    {% include "mgl/includes/empty_state.html" with title="NO TRANSFER REQUESTS" %}
+{% endfor %}
+{% endblock %}

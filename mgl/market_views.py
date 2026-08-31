@@ -94,14 +94,37 @@ def apply_free_agent_ovr_filter(queryset, ovr_filter):
     return queryset
 
 
-def control_centre_redirect(request):
-    ovr = parse_free_agent_ovr_filter(
-        request.POST.get("ovr") or request.GET.get("ovr")
-    )
-    url = reverse("control_centre")
-    if ovr:
-        url = f"{url}?ovr={ovr}"
-    return redirect(url)
+CONTROL_PAGES = {
+    "control_centre",
+    "control_pending",
+    "control_scores",
+    "control_transfers",
+    "control_press",
+    "control_weekly_awards",
+    "control_monthly_awards",
+    "control_managers",
+    "control_tokens",
+    "control_scouting",
+    "control_auctions",
+    "control_clubs",
+    "control_notifications",
+    "control_logs",
+}
+
+
+def control_centre_redirect(request, default="control_centre"):
+    page = (request.POST.get("next_page") or request.GET.get("next_page") or default).strip()
+    if page not in CONTROL_PAGES:
+        page = default
+    if page == "control_auctions":
+        ovr = parse_free_agent_ovr_filter(
+            request.POST.get("ovr") or request.GET.get("ovr")
+        )
+        url = reverse(page)
+        if ovr:
+            url = f"{url}?ovr={ovr}"
+        return redirect(url)
+    return redirect(page)
 
 
 def transfer_market(request):
@@ -474,7 +497,7 @@ def control_approve_manager(request, application_id):
         )
     except ValueError as exc:
         messages.error(request, str(exc))
-    return control_centre_redirect(request)
+    return control_centre_redirect(request, default="control_managers")
 
 
 @owner_admin_required
@@ -486,147 +509,7 @@ def control_reject_manager(request, application_id):
         messages.success(request, f"{application.display_name} was rejected.")
     except ValueError as exc:
         messages.error(request, str(exc))
-    return control_centre_redirect(request)
-
-
-@owner_admin_required
-def control_centre(request):
-    detach_live_club_auction_players()
-    pending_managers = ManagerApplication.objects.filter(
-        status=ManagerApplication.PENDING
-    ).select_related("user")
-    pending_listings = list(
-        PlayerListing.objects.filter(
-            status=PlayerListing.PENDING,
-            reserved_buyer__isnull=False,
-        ).select_related(
-            "player",
-            "team",
-            "seller",
-            "reserved_buyer",
-            "reserved_buyer__user",
-            "offered_player",
-        ).prefetch_related("offered_players")
-    )
-    for listing in pending_listings:
-        listing.deal = transfer_offer_details(listing)
-    pending_results = list(
-        MatchSubmission.objects.filter(
-            status=ApprovalStatus.PENDING,
-            opponent_response=ApprovalStatus.APPROVED,
-        )
-        .select_related(
-            "fixture__home_team",
-            "fixture__away_team",
-            "submitted_by",
-        )
-        .prefetch_related("team_stats")
-        .order_by("-submitted_at")
-    )
-    disputed_results = list(
-        MatchSubmission.objects.filter(status=ApprovalStatus.PENDING)
-        .exclude(opponent_response=ApprovalStatus.APPROVED)
-        .select_related(
-            "fixture__home_team",
-            "fixture__away_team",
-            "submitted_by",
-        )
-        .prefetch_related("team_stats")
-        .order_by("-submitted_at")
-    )
-    for submission in pending_results + disputed_results:
-        rows = {row.team_id: row for row in submission.team_stats.all()}
-        fixture = submission.fixture
-        home = rows.get(fixture.home_team_id)
-        away = rows.get(fixture.away_team_id)
-        submission.home_goals = getattr(home, "goals", 0)
-        submission.away_goals = getattr(away, "goals", 0)
-        submission.scoreline = (
-            f"{fixture.home_team.name} {submission.home_goals}-"
-            f"{submission.away_goals} {fixture.away_team.name}"
-        )
-    pending_jobs = ClubApplication.objects.filter(
-        status=ApprovalStatus.PENDING
-    ).select_related("manager", "team")
-    live_auctions = PlayerAuction.objects.filter(status=PlayerAuction.LIVE).select_related("player")
-    from mgl.press import pending_press_reviews
-
-    pending_press = pending_press_reviews()
-    recent_activity = MarketTransaction.objects.select_related(
-        "player", "seller", "buyer", "from_team", "to_team", "approved_by"
-    ).order_by("-created_at")[:20]
-    pending_counts = {
-        "managers": pending_managers.count(),
-        "listings": len(pending_listings),
-        "results": len(pending_results),
-        "jobs": pending_jobs.count(),
-        "press": pending_press.count(),
-        "auctions": live_auctions.count(),
-        "awards": WeeklyAwardBatch.objects.filter(
-            status=WeeklyAwardBatch.PENDING_REVIEW, completed=False
-        ).count()
-        + MonthlyAwardBatch.objects.filter(
-            status=MonthlyAwardBatch.PENDING_REVIEW, completed=False
-        ).count(),
-        "disputed": len(disputed_results),
-    }
-    pending_counts["approvals"] = (
-        pending_counts["managers"]
-        + pending_counts["listings"]
-        + pending_counts["results"]
-        + pending_counts["jobs"]
-        + pending_counts["press"]
-        + pending_counts["awards"]
-    )
-    ovr_filter = parse_free_agent_ovr_filter(request.GET.get("ovr"))
-    unassigned_pool = unassigned_players()
-    filtered_unassigned = apply_free_agent_ovr_filter(unassigned_pool, ovr_filter)
-    free_agent_match_count = filtered_unassigned.count()
-    free_agents = filtered_unassigned.order_by("-overall", "name")[:CONTROL_FREE_AGENT_LIMIT]
-    counts = market_counts()
-    return render(
-        request,
-        "mgl/control_centre.html",
-        {
-            "pending_managers": pending_managers,
-            "pending_listings": pending_listings,
-            "pending_results": pending_results,
-            "disputed_results": disputed_results,
-            "pending_jobs": pending_jobs,
-            "pending_press": pending_press,
-            "pending_counts": pending_counts,
-            "live_auctions": live_auctions,
-            "recent_activity": recent_activity,
-            "teams": Team.objects.select_related("manager", "league").order_by("name"),
-            "transactions": MarketTransaction.objects.select_related(
-                "player", "seller", "buyer", "from_team", "to_team"
-            )[:30],
-            "free_agents": free_agents,
-            "free_agent_ovr_filter": ovr_filter,
-            "free_agent_ovr_filters": FREE_AGENT_OVR_FILTERS,
-            "free_agent_match_count": free_agent_match_count,
-            "free_agent_total_count": unassigned_pool.count(),
-            "market_counts": counts,
-            "control_next": f"{reverse('control_centre')}?ovr={ovr_filter}",
-            "auction_durations": AUCTION_DURATION_CHOICES,
-            "recent_rewards": RewardTransaction.objects.select_related(
-                "manager", "manager__user", "fixture", "created_by"
-            ).order_by("-created_at")[:40],
-            "weekly_award_batches": WeeklyAwardBatch.objects.order_by("-week_start")[:12],
-            "monthly_award_batches": MonthlyAwardBatch.objects.order_by("-month_start")[:12],
-            "ocm_audit_log": SiteChangeLog.objects.select_related("user").order_by("-created_at")[:25],
-            "is_owner": request.user.role == request.user.OWNER,
-            "recent_notifications": ManagerNotification.objects.select_related(
-                "recipient", "team", "player"
-            ).order_by("-created_at")[:40],
-            "recent_scouts": ScoutAssignment.objects.select_related(
-                "manager", "manager__user", "player", "club"
-            ).prefetch_related("reports").order_by("-started_at")[:25],
-            "token_managers": ManagerApplication.objects.select_related("user").order_by(
-                "display_name"
-            ),
-        },
-    )
+    return control_centre_redirect(request, default="control_managers")
 
 
 @owner_admin_required
@@ -647,7 +530,7 @@ def control_approve_listing(request, listing_id):
             )
     except ValueError as exc:
         messages.error(request, str(exc))
-    return control_centre_redirect(request)
+    return control_centre_redirect(request, default="control_transfers")
 
 
 @owner_admin_required
@@ -665,7 +548,7 @@ def control_approve_result(request, submission_id):
         messages.success(request, message)
     else:
         messages.error(request, message)
-    return control_centre_redirect(request)
+    return control_centre_redirect(request, default="control_scores")
 
 
 @owner_admin_required
@@ -674,12 +557,16 @@ def control_reject_result(request, submission_id):
     from mgl.admin import reject_match_submission
 
     submission = get_object_or_404(MatchSubmission, pk=submission_id)
+    reason = (request.POST.get("reason") or "").strip()
+    if reason:
+        submission.admin_notes = reason
+        submission.save(update_fields=["admin_notes"])
     ok, message = reject_match_submission(submission, request.user)
     if ok:
         messages.success(request, message)
     else:
         messages.error(request, message)
-    return control_centre_redirect(request)
+    return control_centre_redirect(request, default="control_scores")
 
 
 @owner_admin_required
@@ -693,7 +580,7 @@ def control_rollback_result(request, submission_id):
         messages.success(request, message)
     else:
         messages.error(request, message)
-    return control_centre_redirect(request)
+    return control_centre_redirect(request, default="control_scores")
 
 
 @owner_admin_required
@@ -707,7 +594,7 @@ def control_approve_weekly_awards(request, batch_id):
         messages.success(request, "Weekly awards approved. Token rewards released once.")
     except ValueError as exc:
         messages.error(request, str(exc))
-    return control_centre_redirect(request)
+    return control_centre_redirect(request, default="control_weekly_awards")
 
 
 @owner_admin_required
@@ -718,7 +605,7 @@ def control_reject_weekly_awards(request, batch_id):
     batch = get_object_or_404(WeeklyAwardBatch, pk=batch_id)
     reject_weekly_awards(batch, request.user)
     messages.success(request, "Weekly awards rejected. Tokens were not released.")
-    return control_centre_redirect(request)
+    return control_centre_redirect(request, default="control_weekly_awards")
 
 
 @owner_admin_required
@@ -732,7 +619,7 @@ def control_recalculate_weekly_awards(request, batch_id):
         messages.success(request, "Weekly awards recalculated. Review the new draft.")
     except ValueError as exc:
         messages.error(request, str(exc))
-    return control_centre_redirect(request)
+    return control_centre_redirect(request, default="control_weekly_awards")
 
 
 @owner_admin_required
@@ -743,7 +630,7 @@ def control_approve_monthly_awards(request, batch_id):
     batch = get_object_or_404(MonthlyAwardBatch, pk=batch_id)
     approve_monthly_awards(batch, request.user)
     messages.success(request, "Monthly awards approved. Token rewards released once.")
-    return control_centre_redirect(request)
+    return control_centre_redirect(request, default="control_monthly_awards")
 
 
 @owner_admin_required
@@ -757,13 +644,13 @@ def control_adjust_tokens(request):
         amount = Decimal(str(request.POST.get("amount") or "0"))
     except (InvalidOperation, TypeError, ValueError):
         messages.error(request, "Enter a valid token amount.")
-        return control_centre_redirect(request)
+        return control_centre_redirect(request, default="control_tokens")
     if amount == 0:
         messages.error(request, "Token adjustments must be a non-zero amount.")
-        return control_centre_redirect(request)
+        return control_centre_redirect(request, default="control_tokens")
     if not reason:
         messages.error(request, "Record a reason for every token adjustment.")
-        return control_centre_redirect(request)
+        return control_centre_redirect(request, default="control_tokens")
     manager = get_object_or_404(ManagerApplication, pk=request.POST.get("manager_id"))
     reference = f"admin:{request.user.id}:{uuid.uuid4().hex[:12]}"
     before = Decimal(manager.tokens)
@@ -801,7 +688,7 @@ def control_adjust_tokens(request):
         request,
         f"{manager.display_name}: {before} → {manager.tokens} tokens.",
     )
-    return control_centre_redirect(request)
+    return control_centre_redirect(request, default="control_tokens")
 
 
 @owner_admin_required
@@ -813,7 +700,7 @@ def control_reject_listing(request, listing_id):
         messages.success(request, "Listing rejected.")
     except ValueError as exc:
         messages.error(request, str(exc))
-    return control_centre_redirect(request)
+    return control_centre_redirect(request, default="control_transfers")
 
 
 @owner_admin_required
@@ -822,7 +709,7 @@ def control_close_auction(request, auction_id):
     auction = get_object_or_404(PlayerAuction, pk=auction_id)
     _, message = settle_auction(auction, reviewer=request.user)
     messages.success(request, message)
-    return control_centre_redirect(request)
+    return control_centre_redirect(request, default="control_auctions")
 
 
 @owner_admin_required
@@ -834,7 +721,7 @@ def control_cancel_auction(request, auction_id):
         messages.success(request, message)
     except ValueError as exc:
         messages.error(request, str(exc))
-    return control_centre_redirect(request)
+    return control_centre_redirect(request, default="control_auctions")
 
 
 @owner_admin_required
@@ -850,7 +737,7 @@ def control_approve_job(request, application_id):
     team = application.team
     if team.manager_id:
         messages.error(request, f"{team.name} already has a manager.")
-        return control_centre_redirect(request)
+        return control_centre_redirect(request, default="control_managers")
     new_manager = application.manager.user
     if application.manager.status == ManagerApplication.PENDING:
         try:
@@ -859,7 +746,7 @@ def control_approve_job(request, application_id):
             pass
     if club_for_user(new_manager):
         messages.error(request, "That manager already has a club.")
-        return control_centre_redirect(request)
+        return control_centre_redirect(request, default="control_managers")
     team.manager = new_manager
     team.save(update_fields=["manager"])
     open_club_spell(application.manager, team)
@@ -905,7 +792,7 @@ def control_approve_job(request, application_id):
         request,
         f"{new_manager.username} is now manager of {team.name}. Token balance stays with the manager.",
     )
-    return control_centre_redirect(request)
+    return control_centre_redirect(request, default="control_managers")
 
 
 @owner_admin_required
@@ -940,7 +827,7 @@ def control_reject_job(request, application_id):
         request,
         f"{application.manager.display_name}'s application for {application.team.name} was rejected.",
     )
-    return control_centre_redirect(request)
+    return control_centre_redirect(request, default="control_managers")
 
 
 @owner_admin_required
@@ -966,7 +853,7 @@ def control_approve_press(request, press_id):
         messages.success(request, "Press conference published to the Pressroom.")
     except ValueError as exc:
         messages.error(request, str(exc))
-    return control_centre_redirect(request)
+    return control_centre_redirect(request, default="control_press")
 
 
 @owner_admin_required
@@ -992,4 +879,4 @@ def control_reject_press(request, press_id):
         messages.success(request, "Press conference rejected.")
     except ValueError as exc:
         messages.error(request, str(exc))
-    return control_centre_redirect(request)
+    return control_centre_redirect(request, default="control_press")

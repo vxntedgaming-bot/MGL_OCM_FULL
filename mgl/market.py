@@ -928,7 +928,7 @@ def _notify_control_of_sale_listing(listing):
                 f"{listing.player.name} at {listing.asking_price} TKN."
             ),
             actor=listing.seller.display_name,
-            action_url=reverse("control_centre"),
+            action_url=reverse("control_transfers"),
             action_label="REVIEW",
             team=listing.team,
             player=listing.player,

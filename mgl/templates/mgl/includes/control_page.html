@@ -1,0 +1,28 @@
+{% extends "core/base.html" %}
+{% load static mgl_ui %}
+
+{% block title %}{% block control_title %}MGL Control{% endblock %}{% endblock %}
+{% block body_class %}mgl-control-body{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/mgl-control.css' %}?v=cp-2">
+{% endblock %}
+
+{% block content %}
+<div class="mgl-cp-page">
+    {% include "mgl/includes/control_sidebar.html" %}
+    <div class="mgl-cp-main">
+        <header class="mgl-cp-hero">
+            <div>
+                <p class="eyebrow">{% block control_kicker %}CONTROL CENTRE{% endblock %}</p>
+                <h1>{% block control_heading %}CONTROL{% endblock %}</h1>
+                <p class="mgl-cp-welcome">{% block control_intro %}{% endblock %}</p>
+            </div>
+        </header>
+        {% block control_body %}{% endblock %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'core/js/mgl-control.js' %}?v=cp-2"></script>
+{% endblock %}

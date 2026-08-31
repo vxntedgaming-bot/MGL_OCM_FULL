@@ -90,7 +90,7 @@ def _notify_admins_review(batch):
                 "for Owner/Admin approval before tokens are released."
             ),
             actor="MGL Awards",
-            action_url=reverse("control_centre") + "#awards",
+            action_url=reverse("control_weekly_awards"),
             action_label="REVIEW",
         )
 

@@ -4,102 +4,18 @@
 {% block title %}MGL Control — Owner / Admin{% endblock %}
 {% block body_class %}mgl-control-body{% endblock %}
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'core/css/mgl-control.css' %}?v=cp-1">
+<link rel="stylesheet" href="{% static 'core/css/mgl-control.css' %}?v=cp-2">
 {% endblock %}
 
 {% block content %}
 <div class="mgl-cp-page">
-    <button type="button" class="mgl-cp-menu" id="cp-menu" aria-controls="cp-sidebar" aria-expanded="false">CONTROL MENU</button>
-
-    <aside class="mgl-cp-sidebar" id="cp-sidebar">
-        <p class="mgl-cp-sidebar-title">CONTROL PANEL</p>
-        <nav aria-label="Control panel">
-            <a href="#dashboard" class="is-active">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.2"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.2"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.2"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.2"/></svg>
-                Dashboard
-            </a>
-            <a href="#approvals">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><path d="M12 8v4.4l2.6 1.6"/></svg>
-                Pending Approvals
-                {% if pending_counts.approvals %}<span class="mgl-cp-badge">{{ pending_counts.approvals }}</span>{% endif %}
-            </a>
-            <a href="#scores">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4v16M4 12h16"/><path d="M6.2 6.8c2.2 1.6 3.6 4 3.6 5.2s-1.4 3.6-3.6 5.2M17.8 6.8c-2.2 1.6-3.6 4-3.6 5.2s1.4 3.6 3.6 5.2"/></svg>
-                Scores Approval
-                {% if pending_counts.results %}<span class="mgl-cp-badge">{{ pending_counts.results }}</span>{% endif %}
-            </a>
-            <a href="#transfers">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 8h13l-3-3"/><path d="M20 16H7l3 3"/></svg>
-                Transfers Approval
-                {% if pending_counts.listings %}<span class="mgl-cp-badge">{{ pending_counts.listings }}</span>{% endif %}
-            </a>
-            <a href="#press">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 14a4 4 0 0 0 4-4V6a4 4 0 1 0-8 0v4a4 4 0 0 0 4 4Z"/><path d="M6 11a6 6 0 0 0 12 0"/><path d="M12 17v3"/></svg>
-                Press Conferences
-                {% if pending_counts.press %}<span class="mgl-cp-badge">{{ pending_counts.press }}</span>{% endif %}
-            </a>
-            <a href="#awards">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M8 4h8v4a4 4 0 0 1-8 0V4Z"/><path d="M8 6H5.5A2.5 2.5 0 0 0 8 8.5"/><path d="M16 6h2.5A2.5 2.5 0 0 1 16 8.5"/><path d="M12 12v8"/><path d="M8 20h8"/></svg>
-                Weekly Awards
-                {% if pending_counts.awards %}<span class="mgl-cp-badge">{{ pending_counts.awards }}</span>{% endif %}
-            </a>
-            <a href="#rewards">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="7"/><path d="M12 8v8M9 11h6"/></svg>
-                Token Rewards
-            </a>
-            <a href="#scouting">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="11" cy="11" r="6.2"/><path d="m16 16 4 4"/></svg>
-                Scouting
-            </a>
-            <a href="#notify-log">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M6 9a6 6 0 0 1 12 0c0 7 2 8 2 8H4s2-1 2-8"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>
-                Notification History
-            </a>
-            <a href="#managers">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="9" cy="8" r="2.4"/><circle cx="15.5" cy="8.8" r="2"/><path d="M4.8 17.2a4.3 4.3 0 0 1 8.4 0"/><path d="M13.4 16.6a3.6 3.6 0 0 1 5.8 2"/></svg>
-                Manager Applications
-                {% if pending_counts.managers %}<span class="mgl-cp-badge">{{ pending_counts.managers }}</span>{% endif %}
-            </a>
-            <a href="{% url 'player_database' %}">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><ellipse cx="12" cy="6.5" rx="7" ry="2.5"/><path d="M5 6.5v11c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-11"/><path d="M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/></svg>
-                Player Database
-            </a>
-            <a href="{% url 'live_auctions' %}">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m7 14 8.5-8.5a2 2 0 0 1 2.8 2.8L10 16.6"/><path d="M6 18h6"/><path d="m14 7 3 3"/></svg>
-                Auctions
-                {% if pending_counts.auctions %}<span class="mgl-cp-badge">{{ pending_counts.auctions }}</span>{% endif %}
-            </a>
-            <a href="{% url 'job_centre' %}">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3.5" y="7" width="17" height="12" rx="2"/><path d="M8 7V5.6A2.6 2.6 0 0 1 10.6 3h2.8A2.6 2.6 0 0 1 16 5.6V7"/></svg>
-                Jobs Centre
-                {% if pending_counts.jobs %}<span class="mgl-cp-badge">{{ pending_counts.jobs }}</span>{% endif %}
-            </a>
-            <a href="{% url 'season_management' %}">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 11h16"/></svg>
-                Season History
-            </a>
-            <a href="{% url 'site_management' %}">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 8h16v11H4z"/><path d="M8 8V5h8v3"/></svg>
-                Site Management
-            </a>
-            <a href="{% url 'live_activity' %}">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 13h4l2-6 4 10 2-4h4"/></svg>
-                Activity Log
-            </a>
-            <a href="{% url 'site_management_settings' %}">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 4.5v2M12 17.5v2M4.5 12h2M17.5 12h2M6.4 6.4l1.4 1.4M16.2 16.2l1.4 1.4M17.6 6.4l-1.4 1.4M7.8 16.2 6.4 17.6"/></svg>
-                Settings
-            </a>
-        </nav>
-        <a href="{% url 'home' %}" class="mgl-cp-view-site">VIEW SITE</a>
-    </aside>
-
+    {% include "mgl/includes/control_sidebar.html" %}
     <div class="mgl-cp-main">
         <header class="mgl-cp-hero" id="dashboard">
             <div>
                 <p class="eyebrow">LEAGUE OFFICE</p>
                 <h1>OWNER / ADMIN CONTROL</h1>
-                <p class="mgl-cp-welcome">WELCOME BACK, <em>{{ user.role }}</em></p>
+                <p class="mgl-cp-welcome">WHAT NEEDS MY ATTENTION?</p>
                 <p>
                     Signed in as
                     <span class="mgl-role-badge mgl-role-badge--{{ user.role|lower }}">{{ user.role }}</span>
@@ -116,387 +32,104 @@
             </a>
         </section>
 
-        <section class="mgl-cp-stats" id="approvals" aria-label="Pending counts">
-            <article class="mgl-cp-stat">
-                <span class="mgl-cp-stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8.2"/><path d="M12 8v4.4l2.6 1.6"/></svg></span>
-                <p>PENDING APPROVALS</p>
+        <section class="mgl-cp-stats" aria-label="Pending counts">
+            <a class="mgl-cp-stat {% if pending_counts.approvals %}is-hot{% endif %}" href="{% url 'control_pending' %}">
+                <p>PENDING ACTIONS</p>
                 <strong>{{ pending_counts.approvals }}</strong>
                 <span>Needs your attention</span>
-            </article>
-            <article class="mgl-cp-stat">
-                <span class="mgl-cp-stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8"/><path d="M12 4v16M4 12h16"/></svg></span>
-                <p>PENDING SCORES</p>
+                <em>VIEW →</em>
+            </a>
+            <a class="mgl-cp-stat {% if pending_counts.results %}is-hot{% endif %}" href="{% url 'control_scores' %}">
+                <p>MATCH RESULTS</p>
                 <strong>{{ pending_counts.results }}</strong>
                 <span>Awaiting approval</span>
-            </article>
-            <article class="mgl-cp-stat">
-                <span class="mgl-cp-stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 8h13l-3-3"/><path d="M20 16H7l3 3"/></svg></span>
-                <p>PENDING TRANSFERS</p>
+                <em>VIEW →</em>
+            </a>
+            <a class="mgl-cp-stat {% if pending_counts.listings %}is-hot{% endif %}" href="{% url 'control_transfers' %}">
+                <p>TRANSFER REQUESTS</p>
                 <strong>{{ pending_counts.listings }}</strong>
                 <span>Awaiting approval</span>
-            </article>
-            <article class="mgl-cp-stat">
-                <span class="mgl-cp-stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="2.4"/><path d="M4.8 17.2a4.3 4.3 0 0 1 8.4 0"/></svg></span>
+                <em>VIEW →</em>
+            </a>
+            <a class="mgl-cp-stat {% if pending_counts.press %}is-hot{% endif %}" href="{% url 'control_press' %}">
+                <p>PRESS CONFERENCE ANSWERS</p>
+                <strong>{{ pending_counts.press }}</strong>
+                <span>Pending press conferences</span>
+                <em>VIEW →</em>
+            </a>
+            <a class="mgl-cp-stat {% if pending_counts.awards %}is-hot{% endif %}" href="{% url 'control_weekly_awards' %}">
+                <p>AWARDS</p>
+                <strong>{{ pending_counts.awards }}</strong>
+                <span>Weekly / monthly review</span>
+                <em>VIEW →</em>
+            </a>
+            <a class="mgl-cp-stat {% if pending_counts.auctions %}is-hot{% endif %}" href="{% url 'control_auctions' %}">
+                <p>AUCTIONS</p>
+                <strong>{{ pending_counts.auctions }}</strong>
+                <span>Live auctions</span>
+                <em>VIEW →</em>
+            </a>
+            <a class="mgl-cp-stat {% if pending_counts.managers %}is-hot{% endif %}" href="{% url 'control_managers' %}">
                 <p>MANAGER APPLICATIONS</p>
                 <strong>{{ pending_counts.managers }}</strong>
                 <span>New applications</span>
+                <em>VIEW →</em>
+            </a>
+            <a class="mgl-cp-stat {% if pending_counts.scouts %}is-hot{% endif %}" href="{% url 'control_scouting' %}">
+                <p>SCOUTING</p>
+                <strong>{{ pending_counts.scouts }}</strong>
+                <span>Active assignments</span>
+                <em>VIEW →</em>
+            </a>
+        </section>
+
+        <section class="dashboard-panel mgl-cp-panel" id="approvals">
+            <div class="panel-heading"><span>NEEDS YOUR ATTENTION</span></div>
+            <p class="mgl-cp-kicker">LATEST PENDING ACTIONS</p>
+            {% for item in attention_items %}
+                <article class="mgl-cp-attention">
+                    <p class="mgl-cp-kicker">{{ item.kind }}</p>
+                    <strong>{{ item.title }}</strong>
+                    <span>{{ item.detail }}</span>
+                    <small>{{ item.meta }}</small>
+                    <a href="{{ item.url }}" class="header-button mgl-cp-approve">REVIEW →</a>
+                </article>
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with title="NOTHING WAITING" %}
+            {% endfor %}
+            <a href="{% url 'control_pending' %}" class="view-all">VIEW ALL PENDING →</a>
+        </section>
+
+        <section class="mgl-cp-census">
+            <article>
+                <p>CLUBS</p>
+                <strong>{{ club_count }}</strong>
+            </article>
+            <article>
+                <p>MANAGERS</p>
+                <strong>{{ manager_count }}</strong>
+            </article>
+            <article>
+                <p>ASSIGNED PLAYERS</p>
+                <strong>{{ player_count }}</strong>
             </article>
         </section>
 
-        <section class="mgl-cp-grid">
-            <div class="dashboard-panel mgl-cp-panel" id="scores">
-                <div class="panel-heading"><span>MATCH RESULTS</span><em>{{ pending_counts.results }}</em></div>
-                <p class="mgl-cp-kicker">PENDING SCORES</p>
-                {% for submission in pending_results %}
-                    <div class="table-row mgl-cp-row">
-                        <div class="mgl-cp-score">
-                            {% team_logo submission.fixture.home_team "xs" %}
-                            <strong>{{ submission.fixture.home_team.name }} vs {{ submission.fixture.away_team.name }}</strong>
-                            {% team_logo submission.fixture.away_team "xs" %}
-                        </div>
-                        <span>{{ submission.scoreline }} · Opponent approved · {{ submission.submitted_by.username }}</span>
-                        <small>{{ submission.submitted_at|date:"d M Y H:i" }}</small>
-                        <div class="mgl-cp-actions">
-                            <form method="post" action="{% url 'control_approve_result' submission.id %}">{% csrf_token %}<button class="header-button mgl-cp-approve" type="submit">APPROVE</button></form>
-                            <form method="post" action="{% url 'control_reject_result' submission.id %}">{% csrf_token %}<button class="header-button mgl-cp-reject" type="submit">REJECT</button></form>
-                        </div>
-                    </div>
-                {% empty %}
-                    {% include "mgl/includes/empty_state.html" with title="NO CONFIRMED RESULTS" %}
-                {% endfor %}
-                {% if disputed_results %}
-                    <p class="mgl-cp-kicker">AWAITING OPPONENT / DISPUTED</p>
-                    {% for submission in disputed_results %}
-                        <div class="table-row mgl-cp-row">
-                            <strong>{{ submission.fixture.home_team.name }} vs {{ submission.fixture.away_team.name }}</strong>
-                            <span>{{ submission.scoreline }} · {{ submission.opponent_response|default:"AWAITING OPPONENT" }}</span>
-                            {% if is_owner %}
-                                <div class="mgl-cp-actions">
-                                    <form method="post" action="{% url 'control_approve_result' submission.id %}">{% csrf_token %}<input type="hidden" name="override" value="1"><button class="header-button mgl-cp-approve" type="submit">OWNER OVERRIDE</button></form>
-                                </div>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            </div>
-
-            <div class="dashboard-panel mgl-cp-panel" id="transfers">
-                <div class="panel-heading"><span>TRANSFER REQUESTS</span><em>{{ pending_counts.listings }}</em></div>
-                <p class="mgl-cp-kicker">PENDING TRANSFERS</p>
-                {% for listing in pending_listings %}
-                    <div class="table-row mgl-cp-row">
-                        <strong>{{ listing.deal.player|default:listing.player.name }}</strong>
-                        <span>
-                            {{ listing.deal.current_club|default:listing.team.name }}
-                            →
-                            {{ listing.deal.requesting_club|default:listing.reserved_buyer.display_name }}
-                            · {{ listing.deal.amount|default:listing.asking_price }} TKN
-                            · SELLER RECEIVES {{ listing.deal.seller_receives|default:listing.asking_price }}
-                            · BUYER RECEIVES {{ listing.deal.buyer_receives|default:listing.player.name }}
-                            {% if listing.deal.buyer_manager %}
-                                · BUYER {{ listing.deal.buyer_manager }}
-                            {% endif %}
-                        </span>
-                        <div class="mgl-cp-actions">
-                            <form method="post" action="{% url 'control_approve_listing' listing.id %}">{% csrf_token %}<button class="header-button mgl-cp-approve" type="submit">APPROVE</button></form>
-                            <form method="post" action="{% url 'control_reject_listing' listing.id %}">{% csrf_token %}<button class="header-button mgl-cp-reject" type="submit">REJECT</button></form>
-                        </div>
-                    </div>
-                {% empty %}
-                    {% include "mgl/includes/empty_state.html" with title="NO TRANSFER REQUESTS" %}
-                {% endfor %}
-            </div>
-
-            <div class="dashboard-panel mgl-cp-panel" id="press">
-                <div class="panel-heading"><span>PRESS CONFERENCE ANSWERS</span><em>{{ pending_counts.press }}</em></div>
-                <p class="mgl-cp-kicker">PRESS CONFERENCES</p>
-                {% for press in pending_press %}
-                    <div class="table-row mgl-cp-row">
-                        <strong>{% if press.team %}{{ press.team.name }}{% else %}MGL{% endif %}</strong>
-                        <span>{{ press.manager.username }}</span>
-                        <small>{{ press.question|truncatechars:80 }}</small>
-                        <div class="mgl-cp-actions">
-                            <form method="post" action="{% url 'control_approve_press' press.id %}">{% csrf_token %}<button class="header-button mgl-cp-approve" type="submit">APPROVE</button></form>
-                            <form method="post" action="{% url 'control_reject_press' press.id %}">{% csrf_token %}<button class="header-button mgl-cp-reject" type="submit">REJECT</button></form>
-                        </div>
-                    </div>
-                {% empty %}
-                    {% include "mgl/includes/empty_state.html" with title="NO ANSWERS WAITING" %}
-                {% endfor %}
-            </div>
-
-            <div class="dashboard-panel mgl-cp-panel" id="jobs">
-                <div class="panel-heading"><span>JOB CENTRE APPLICATIONS</span><em>{{ pending_counts.jobs }}</em></div>
-                {% for app in pending_jobs %}
-                    <div class="table-row mgl-cp-row">
-                        <strong>{{ app.manager.display_name }}</strong>
-                        <span>{{ app.team.name }}</span>
-                        <div class="mgl-cp-actions">
-                            <form method="post" action="{% url 'control_approve_job' app.id %}">{% csrf_token %}<button class="header-button mgl-cp-approve" type="submit">APPOINT</button></form>
-                            <form method="post" action="{% url 'control_reject_job' app.id %}">{% csrf_token %}<button class="header-button mgl-cp-reject" type="submit">REJECT</button></form>
-                        </div>
-                    </div>
-                {% empty %}
-                    {% include "mgl/includes/empty_state.html" with title="NO CLUB APPLICATIONS" %}
-                {% endfor %}
-            </div>
-        </section>
-
-        <section class="mgl-cp-grid mgl-cp-grid-2">
-            <div class="dashboard-panel mgl-cp-panel" id="managers">
-                <div class="panel-heading"><span>PENDING MANAGER APPLICATIONS</span><em>{{ pending_counts.managers }}</em></div>
-                {% for app in pending_managers %}
-                    <div class="table-row mgl-cp-row">
-                        <strong>{{ app.display_name }}</strong>
-                        <span>{{ app.gamertag }}</span>
-                        <small>{{ app.preferred_team }}</small>
-                        <div class="mgl-cp-actions">
-                            <form method="post" action="{% url 'control_approve_manager' app.id %}">{% csrf_token %}<button class="header-button mgl-cp-approve" type="submit">APPROVE</button></form>
-                            <form method="post" action="{% url 'control_reject_manager' app.id %}">{% csrf_token %}<button class="header-button mgl-cp-reject" type="submit">REJECT</button></form>
-                        </div>
-                    </div>
-                {% empty %}
-                    {% include "mgl/includes/empty_state.html" with title="NO PENDING APPLICATIONS" %}
-                {% endfor %}
-            </div>
-
-            <div class="dashboard-panel mgl-cp-panel" id="auctions">
-                <div class="panel-heading"><span>LIVE AUCTIONS</span><em>{{ pending_counts.auctions }}</em></div>
-                {% for auction in live_auctions %}
-                    <div class="table-row mgl-cp-row">
-                        <strong>{{ auction.player.name }}</strong>
-                        <span>{{ auction.winning_bid }} TKN</span>
-                        <div class="mgl-cp-actions">
-                            <form method="post" action="{% url 'control_close_auction' auction.id %}">{% csrf_token %}<button class="header-button mgl-cp-approve" type="submit">CLOSE</button></form>
-                            <form method="post" action="{% url 'control_cancel_auction' auction.id %}">{% csrf_token %}<button class="header-button mgl-cp-reject" type="submit">CANCEL</button></form>
-                        </div>
-                    </div>
-                {% empty %}
-                    {% include "mgl/includes/empty_state.html" with title="NO LIVE AUCTIONS" %}
-                {% endfor %}
-            </div>
-        </section>
-
-        <section class="mgl-cp-grid" id="awards">
-            <div class="dashboard-panel mgl-cp-panel">
-                <div class="panel-heading"><span>WEEKLY AWARDS</span></div>
-                <p class="mgl-cp-kicker">SUNDAY–SUNDAY BATCHES</p>
-                {% for batch in weekly_award_batches %}
-                    <div class="table-row mgl-cp-row">
-                        <strong>Week of {{ batch.week_start|date:"d M Y" }}</strong>
-                        <span>{% if batch.status %}{{ batch.get_status_display }}{% elif batch.completed %}COMPLETED{% else %}IN PROGRESS{% endif %}{% if batch.has_ties %} · TIE{% endif %}</span>
-                        <small>{{ batch.notes|default:"No notes" }}</small>
-                        {% if batch.status == "PENDING_REVIEW" %}
-                            <div class="mgl-cp-actions">
-                                <form method="post" action="{% url 'control_approve_weekly_awards' batch.id %}">{% csrf_token %}<button class="header-button mgl-cp-approve" type="submit">APPROVE REWARDS</button></form>
-                                <form method="post" action="{% url 'control_reject_weekly_awards' batch.id %}">{% csrf_token %}<button class="header-button mgl-cp-reject" type="submit">REJECT</button></form>
-                                <form method="post" action="{% url 'control_recalculate_weekly_awards' batch.id %}">{% csrf_token %}<button class="header-button" type="submit">RECALCULATE</button></form>
-                            </div>
-                        {% endif %}
-                    </div>
-                {% empty %}
-                    {% include "mgl/includes/empty_state.html" with title="NO WEEKLY AWARDS YET" %}
-                {% endfor %}
-            </div>
-
-            <div class="dashboard-panel mgl-cp-panel">
-                <div class="panel-heading"><span>MONTHLY AWARDS</span></div>
-                <p class="mgl-cp-kicker">MANAGER OF THE MONTH +6 · PLAYER OF THE MONTH +3</p>
-                {% for batch in monthly_award_batches %}
-                    <div class="table-row mgl-cp-row">
-                        <strong>{{ batch.month_start|date:"F Y" }}</strong>
-                        <span>{% if batch.status %}{{ batch.status }}{% elif batch.completed %}COMPLETED{% else %}IN PROGRESS{% endif %}{% if batch.has_ties %} · TIE{% endif %}</span>
-                        <small>{{ batch.notes|default:"No notes" }}</small>
-                        {% if batch.status == "PENDING_REVIEW" %}
-                            <div class="mgl-cp-actions">
-                                <form method="post" action="{% url 'control_approve_monthly_awards' batch.id %}">{% csrf_token %}<button class="header-button mgl-cp-approve" type="submit">APPROVE REWARDS</button></form>
-                            </div>
-                        {% endif %}
-                    </div>
-                {% empty %}
-                    {% include "mgl/includes/empty_state.html" with title="NO MONTHLY AWARDS YET" %}
-                {% endfor %}
-            </div>
-
-            <div class="dashboard-panel mgl-cp-panel" id="rewards">
-                <div class="panel-heading"><span>TOKEN REWARDS</span></div>
-                <p class="mgl-cp-kicker">OWNER / ADMIN ADJUSTMENT</p>
-                <form method="post" action="{% url 'control_adjust_tokens' %}" class="mgl-inline-form">
-                    {% csrf_token %}
-                    <select name="manager_id" required>
-                        <option value="">Manager</option>
-                        {% for manager in token_managers %}
-                            <option value="{{ manager.id }}">{{ manager.display_name }} · {{ manager.tokens }}</option>
-                        {% endfor %}
-                    </select>
-                    <input type="number" name="amount" step="0.01" required placeholder="Amount (+/−)">
-                    <input type="text" name="reason" maxlength="255" required placeholder="Reason">
-                    <button class="header-button mgl-cp-approve" type="submit">APPLY</button>
-                </form>
-                <p class="mgl-cp-kicker">RECENT TRANSACTIONS</p>
-                {% for row in recent_rewards %}
-                    <div class="table-row mgl-cp-row">
-                        <strong>{{ row.manager.display_name }}</strong>
-                        <span>{{ row.amount }} · {{ row.category }} · {{ row.reason }}</span>
-                        <small>
-                            {{ row.balance_before|default:"—" }} → {{ row.balance_after|default:"—" }}
-                            {% if row.created_by %} · {{ row.created_by.username }}{% endif %}
-                            {% if row.reversed_at %} · REVERSED{% endif %}
-                            · {{ row.reference|default:"—" }}
-                            · {{ row.created_at|date:"d M Y H:i" }}
-                        </small>
-                    </div>
-                {% empty %}
-                    {% include "mgl/includes/empty_state.html" with title="NO REWARD TRANSACTIONS" %}
-                {% endfor %}
-            </div>
-
-            <div class="dashboard-panel mgl-cp-panel" id="scouting">
-                <div class="panel-heading"><span>SCOUTING ACTIVITY</span></div>
-                <p class="mgl-cp-kicker">MANAGER · TIER · REGION · POSITION · STATUS</p>
-                {% for row in recent_scouts %}
-                    <div class="table-row mgl-cp-row">
-                        <strong>{{ row.manager.display_name }}</strong>
-                        <span>
-                            {{ row.get_tier_display }}
-                            · {{ row.region|default:"Anywhere" }}
-                            · {{ row.position|default:"Any" }}
-                            · {{ row.status }}
-                        </span>
-                        <small>
-                            {% if row.player %}{{ row.player.name }}{% else %}Awaiting reveal{% endif %}
-                            {% with report=row.reports.all|first %}
-                                {% if report %}
-                                    · {% if report.recruited %}ACCEPTED{% else %}RELEASED{% endif %}
-                                {% endif %}
-                            {% endwith %}
-                            · {{ row.started_at|date:"d M Y H:i" }}
-                        </small>
-                    </div>
-                {% empty %}
-                    {% include "mgl/includes/empty_state.html" with title="NO SCOUTING ACTIVITY" %}
-                {% endfor %}
-            </div>
-
-            <div class="dashboard-panel mgl-cp-panel" id="notify-log">
-                <div class="panel-heading"><span>NOTIFICATION HISTORY</span></div>
-                <p class="mgl-cp-kicker">LATEST MANAGER NOTICES</p>
-                {% for row in recent_notifications %}
-                    <div class="table-row mgl-cp-row">
-                        <strong>{{ row.recipient.username }}</strong>
-                        <span>{{ row.notification_type }} · {{ row.title }}</span>
-                        <small>{{ row.source_key }} · {{ row.created_at|date:"d M Y H:i" }}</small>
-                    </div>
-                {% empty %}
-                    {% include "mgl/includes/empty_state.html" with title="NO NOTIFICATIONS" %}
-                {% endfor %}
-            </div>
-
-            <div class="dashboard-panel mgl-cp-panel" id="audit-log">
-                <div class="panel-heading"><span>OWNER / ADMIN AUDIT</span></div>
-                <p class="mgl-cp-kicker">APPROVALS, OVERRIDES, ROLLBACKS, AWARDS</p>
-                {% for row in ocm_audit_log %}
-                    <div class="table-row mgl-cp-row">
-                        <strong>{{ row.user.username|default:"System" }}</strong>
-                        <span>{{ row.action }} · {{ row.summary }}</span>
-                        <small>{{ row.object_type }} {{ row.object_label }} · {{ row.created_at|date:"d M Y H:i" }}</small>
-                    </div>
-                {% empty %}
-                    {% include "mgl/includes/empty_state.html" with title="NO AUDIT ENTRIES" %}
-                {% endfor %}
-            </div>
-        </section>
-
-        <section class="mgl-section mgl-cp-auction" id="release">
-            <div class="section-heading">
-                <div>
-                    <div class="eyebrow">AUCTIONS</div>
-                    <h2>RELEASE AN UNASSIGNED PLAYER</h2>
-                    <p>Maximum length 12 hours. Starting bid 0–10 TKN.</p>
-                </div>
-            </div>
-            <form method="get" class="mgl-filter-bar mgl-filter-bar--auction-ovr" role="search">
-                <label class="mgl-filter-check" for="ovr">OVR RANGE</label>
-                <select id="ovr" name="ovr" onchange="this.form.submit()">
-                    {% for key, label in free_agent_ovr_filters %}
-                        <option value="{{ key }}" {% if free_agent_ovr_filter == key %}selected{% endif %}>{{ label }}</option>
-                    {% endfor %}
-                </select>
-                <label class="mgl-cp-search-wrap">
-                    <span class="visually-hidden">Search player</span>
-                    <input type="search" id="cp-player-search" placeholder="Search player..." autocomplete="off">
-                </label>
-                <button type="submit" class="header-button">FILTER</button>
-            </form>
-            <p class="mgl-filter-meta">
-                Showing {{ free_agents|length }} of {{ free_agent_match_count }} matching unassigned players
-                ({{ free_agent_total_count }} unassigned in the pool).
-            </p>
-            <div class="dashboard-panel mgl-cp-table-wrap">
-                {% for player in free_agents %}
-                    <div class="table-row mgl-cp-player-row" data-player-name="{{ player.name }}">
-                        <strong>{{ player.name }}</strong>
-                        <span>{{ player.position }} · {{ player.overall }} OVR</span>
-                        <form method="post" action="{% url 'auction_free_agent' player.id %}" class="mgl-inline-form">
-                            {% csrf_token %}
-                            <input type="hidden" name="next" value="{{ control_next }}">
-                            <input type="hidden" name="ovr" value="{{ free_agent_ovr_filter }}">
-                            <select name="duration" required>
-                                {% for minutes, label in auction_durations %}
-                                    <option value="{{ minutes }}">{{ label }}</option>
-                                {% endfor %}
-                            </select>
-                            <input type="number" name="starting_bid" min="0" max="10" value="1" required>
-                            <button type="submit" class="header-button mgl-cp-approve">AUCTION</button>
-                        </form>
-                    </div>
-                {% empty %}
-                    {% include "mgl/includes/empty_state.html" with title="NO UNASSIGNED PLAYERS IN THIS RANGE" %}
-                {% endfor %}
-            </div>
-        </section>
-
         <section class="mgl-cp-grid mgl-cp-grid-2">
             <div class="dashboard-panel mgl-cp-panel">
-                <div class="panel-heading"><span>QUICK ACTIONS</span></div>
-                <div class="mgl-cp-quick">
-                    <a href="{% url 'unassigned_players' %}">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m7 14 8.5-8.5a2 2 0 0 1 2.8 2.8L10 16.6"/><path d="M6 18h6"/></svg>
-                        Release Players
-                    </a>
-                    <a href="{% url 'live_auctions' %}">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/></svg>
-                        Live Auctions
-                    </a>
-                    <a href="{% url 'site_management_content' %}">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M5 6h14M5 12h14M5 18h9"/></svg>
-                        Add News Post
-                    </a>
-                    <a href="{% url 'job_centre' %}">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3.5" y="7" width="17" height="12" rx="2"/></svg>
-                        Jobs Centre
-                    </a>
-                    <a href="{% url 'live_activity' %}">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 13h4l2-6 4 10 2-4h4"/></svg>
-                        View Activity Log
-                    </a>
-                    <a href="{% url 'site_management' %}">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 8h16v11H4z"/></svg>
-                        Site Management
-                    </a>
-                    <a href="{% url 'transfer_requests' %}">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 8h13l-3-3"/><path d="M20 16H7l3 3"/></svg>
-                        Transfer Requests
-                    </a>
-                    <a href="{% url 'player_database' %}">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><ellipse cx="12" cy="6.5" rx="7" ry="2.5"/><path d="M5 6.5v11c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-11"/></svg>
-                        Player Database
-                    </a>
-                </div>
+                <div class="panel-heading"><span>CLUBS AND MANAGERS</span><a href="{% url 'control_clubs' %}">VIEW →</a></div>
+                {% for team in teams %}
+                    <div class="table-row">
+                        <strong>{{ team.name }}</strong>
+                        <span>{{ team.league.short_name }} · {% if team.manager %}{{ team.manager.username }}{% else %}VACANT{% endif %}</span>
+                        <b>{{ team.tokens }} TKN</b>
+                    </div>
+                {% empty %}
+                    {% include "mgl/includes/empty_state.html" with title="NO CLUBS YET" %}
+                {% endfor %}
             </div>
-
             <div class="dashboard-panel mgl-cp-panel">
-                <div class="panel-heading"><span>RECENT ACTIVITY</span></div>
+                <div class="panel-heading"><span>RECENT ACTIVITY</span><a href="{% url 'control_logs' %}">VIEW →</a></div>
                 {% for row in recent_activity %}
                     <div class="mgl-cp-activity">
                         <span class="mgl-cp-activity-dot" aria-hidden="true"></span>
@@ -511,54 +144,10 @@
                 {% endfor %}
             </div>
         </section>
-
-        <section class="mgl-section">
-            <div class="section-heading">
-                <div>
-                    <div class="eyebrow">CLUBS</div>
-                    <h2>CLUBS AND MANAGERS</h2>
-                </div>
-            </div>
-            <div class="dashboard-panel">
-                {% for team in teams %}
-                    <div class="table-row">
-                        <strong>{{ team.name }}</strong>
-                        <span>{{ team.league.short_name }} · {% if team.manager %}{{ team.manager.username }}{% else %}VACANT{% endif %}</span>
-                        <b>{{ team.tokens }} TKN</b>
-                        <a href="{% url 'club_squad_admin' team.id %}">SQUAD →</a>
-                    </div>
-                {% empty %}
-                    {% include "mgl/includes/empty_state.html" with title="NO CLUBS YET" %}
-                {% endfor %}
-            </div>
-        </section>
-
-        <section class="mgl-section">
-            <div class="section-heading">
-                <div>
-                    <div class="eyebrow">LEDGER</div>
-                    <h2>TOKEN TRANSACTIONS</h2>
-                </div>
-            </div>
-            <div class="dashboard-panel">
-                {% for row in transactions %}
-                    <div class="table-row">
-                        <span>{{ row.created_at|date:"d M Y H:i" }}</span>
-                        <strong>{{ row.get_transaction_type_display }}</strong>
-                        <span>{{ row.player.name|default:"—" }}</span>
-                        <span>{{ row.from_team.short_name|default:"FA" }} → {{ row.to_team.short_name|default:"—" }}</span>
-                        <b>{{ row.amount }} TKN</b>
-                        <small>{{ row.status }}{% if row.approved_by %} · {{ row.approved_by.username }}{% endif %}</small>
-                    </div>
-                {% empty %}
-                    {% include "mgl/includes/empty_state.html" with title="NO TRANSACTIONS YET" %}
-                {% endfor %}
-            </div>
-        </section>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'core/js/mgl-control.js' %}?v=cp-1"></script>
+<script src="{% static 'core/js/mgl-control.js' %}?v=cp-2"></script>
 {% endblock %}

@@ -200,7 +200,7 @@ def run_monthly_awards(month=None, now=None):
                 "for Owner/Admin approval before tokens are released."
             ),
             actor="MGL Awards",
-            action_url=reverse("control_centre") + "#awards",
+            action_url=reverse("control_monthly_awards"),
             action_label="REVIEW",
         )
     return batch

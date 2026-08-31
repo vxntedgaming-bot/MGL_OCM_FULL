@@ -1,0 +1,21 @@
+{% extends "mgl/includes/control_page.html" %}
+
+{% block control_title %}Clubs & Managers — MGL Control{% endblock %}
+{% block control_kicker %}MANAGEMENT{% endblock %}
+{% block control_heading %}CLUBS AND MANAGERS{% endblock %}
+{% block control_intro %}Existing clubs, managers and squads. Club tokens shown here are the current club record.{% endblock %}
+
+{% block control_body %}
+<section class="dashboard-panel">
+    {% for team in teams %}
+        <div class="table-row">
+            <strong>{{ team.name }}</strong>
+            <span>{{ team.league.short_name }} · {% if team.manager %}{{ team.manager.username }}{% else %}VACANT{% endif %}</span>
+            <b>{{ team.tokens }} TKN</b>
+            <a href="{% url 'club_squad_admin' team.id %}">SQUAD →</a>
+        </div>
+    {% empty %}
+        {% include "mgl/includes/empty_state.html" with title="NO CLUBS YET" %}
+    {% endfor %}
+</section>
+{% endblock %}

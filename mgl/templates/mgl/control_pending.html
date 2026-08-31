@@ -1,0 +1,66 @@
+{% extends "mgl/includes/control_page.html" %}
+
+{% block control_title %}Pending Approvals — MGL Control{% endblock %}
+{% block control_kicker %}APPROVALS{% endblock %}
+{% block control_heading %}PENDING APPROVALS{% endblock %}
+{% block control_intro %}Every item here is waiting for Owner/Admin review.{% endblock %}
+
+{% block control_body %}
+<section class="mgl-cp-grid">
+    <div class="dashboard-panel mgl-cp-panel">
+        <div class="panel-heading"><span>MATCH RESULTS</span><em>{{ pending_counts.results }}</em></div>
+        {% for submission in pending_results %}
+            <div class="table-row mgl-cp-row">
+                <strong>{{ submission.scoreline }}</strong>
+                <span>Opponent approved · {{ submission.submitted_by.username }}</span>
+                <a href="{% url 'control_scores' %}" class="header-button">REVIEW →</a>
+            </div>
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with title="NO CONFIRMED RESULTS" %}
+        {% endfor %}
+    </div>
+    <div class="dashboard-panel mgl-cp-panel">
+        <div class="panel-heading"><span>TRANSFER REQUESTS</span><em>{{ pending_counts.listings }}</em></div>
+        {% for listing in pending_listings %}
+            <div class="table-row mgl-cp-row">
+                <strong>{{ listing.deal.player|default:listing.player.name }}</strong>
+                <span>{{ listing.deal.current_club|default:listing.team.name }} → {{ listing.deal.requesting_club|default:listing.reserved_buyer.display_name }}</span>
+                <a href="{% url 'control_transfers' %}" class="header-button">REVIEW →</a>
+            </div>
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with title="NO TRANSFER REQUESTS" %}
+        {% endfor %}
+    </div>
+    <div class="dashboard-panel mgl-cp-panel">
+        <div class="panel-heading"><span>PRESS CONFERENCES</span><em>{{ pending_counts.press }}</em></div>
+        {% for press in pending_press %}
+            <div class="table-row mgl-cp-row">
+                <strong>{% if press.team %}{{ press.team.name }}{% else %}MGL{% endif %}</strong>
+                <small>{{ press.question|truncatechars:80 }}</small>
+                <a href="{% url 'control_press' %}" class="header-button">REVIEW →</a>
+            </div>
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with title="NO ANSWERS WAITING" %}
+        {% endfor %}
+    </div>
+    <div class="dashboard-panel mgl-cp-panel">
+        <div class="panel-heading"><span>MANAGER APPLICATIONS</span><em>{{ pending_counts.managers }}</em></div>
+        {% for app in pending_managers %}
+            <div class="table-row mgl-cp-row">
+                <strong>{{ app.display_name }}</strong>
+                <span>{{ app.preferred_team|default:app.gamertag }}</span>
+                <a href="{% url 'control_managers' %}" class="header-button">REVIEW →</a>
+            </div>
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with title="NO PENDING APPLICATIONS" %}
+        {% endfor %}
+        {% for app in pending_jobs %}
+            <div class="table-row mgl-cp-row">
+                <strong>{{ app.manager.display_name }}</strong>
+                <span>{{ app.team.name }}</span>
+                <a href="{% url 'control_managers' %}" class="header-button">REVIEW →</a>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

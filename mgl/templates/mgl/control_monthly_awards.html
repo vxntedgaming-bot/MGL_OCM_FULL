@@ -1,0 +1,33 @@
+{% extends "mgl/includes/control_page.html" %}
+
+{% block control_title %}Monthly Awards — MGL Control{% endblock %}
+{% block control_kicker %}APPROVALS{% endblock %}
+{% block control_heading %}MONTHLY AWARDS{% endblock %}
+{% block control_intro %}Manager of the Month +6. Player of the Month +3 to that player's manager.{% endblock %}
+
+{% block control_body %}
+{% for batch in monthly_award_batches %}
+    <article class="mgl-cp-review">
+        <h2>{{ batch.month_start|date:"F Y" }}</h2>
+        <p>{% if batch.status %}{{ batch.status }}{% elif batch.completed %}COMPLETED{% else %}IN PROGRESS{% endif %}{% if batch.has_ties %} · TIE{% endif %}</p>
+        <small>{{ batch.notes|default:"No notes" }}</small>
+        {% if batch.payload.motm %}
+            <p class="mgl-cp-kicker">MANAGER OF THE MONTH · +6.00</p>
+            <p>{{ batch.payload.motm.manager_name|default:batch.payload.motm }}</p>
+        {% endif %}
+        {% if batch.payload.potm %}
+            <p class="mgl-cp-kicker">PLAYER OF THE MONTH · +3.00</p>
+            <p>{{ batch.payload.potm.player_name|default:batch.payload.potm }}</p>
+        {% endif %}
+        {% if batch.status == "PENDING_REVIEW" %}
+            <form method="post" action="{% url 'control_approve_monthly_awards' batch.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="next_page" value="control_monthly_awards">
+                <button class="header-button mgl-cp-approve" type="submit">APPROVE MONTHLY AWARDS</button>
+            </form>
+        {% endif %}
+    </article>
+{% empty %}
+    {% include "mgl/includes/empty_state.html" with title="NO MONTHLY AWARDS YET" %}
+{% endfor %}
+{% endblock %}

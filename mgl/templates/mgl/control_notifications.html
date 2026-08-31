@@ -1,0 +1,20 @@
+{% extends "mgl/includes/control_page.html" %}
+
+{% block control_title %}Notification History — MGL Control{% endblock %}
+{% block control_kicker %}SYSTEM{% endblock %}
+{% block control_heading %}NOTIFICATION HISTORY{% endblock %}
+{% block control_intro %}Historical manager notices from the existing notification table.{% endblock %}
+
+{% block control_body %}
+<section class="dashboard-panel mgl-cp-panel">
+    {% for row in recent_notifications %}
+        <div class="table-row mgl-cp-row">
+            <strong>{{ row.recipient.username }}</strong>
+            <span>{{ row.notification_type }} · {{ row.title }}</span>
+            <small>{{ row.source_key }} · {{ row.created_at|date:"d M Y H:i" }}</small>
+        </div>
+    {% empty %}
+        {% include "mgl/includes/empty_state.html" with title="NO NOTIFICATIONS" %}
+    {% endfor %}
+</section>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "mgl/includes/control_page.html" %}
+
+{% block control_title %}Manager Applications — MGL Control{% endblock %}
+{% block control_kicker %}APPROVALS{% endblock %}
+{% block control_heading %}MANAGER APPLICATIONS{% endblock %}
+{% block control_intro %}Signup does not need approval. Club and manager applications do.{% endblock %}
+
+{% block control_body %}
+<section class="dashboard-panel mgl-cp-panel">
+    <div class="panel-heading"><span>PENDING MANAGER APPLICATIONS</span><em>{{ pending_counts.managers }}</em></div>
+    {% for app in pending_managers %}
+        <div class="table-row mgl-cp-row">
+            <strong>{{ app.display_name }}</strong>
+            <span>{{ app.gamertag }}</span>
+            <small>{{ app.preferred_team }}</small>
+            <div class="mgl-cp-actions">
+                <form method="post" action="{% url 'control_approve_manager' app.id %}">{% csrf_token %}<input type="hidden" name="next_page" value="control_managers"><button class="header-button mgl-cp-approve" type="submit">APPROVE</button></form>
+                <form method="post" action="{% url 'control_reject_manager' app.id %}">{% csrf_token %}<input type="hidden" name="next_page" value="control_managers"><button class="header-button mgl-cp-reject" type="submit">REJECT</button></form>
+            </div>
+        </div>
+    {% empty %}
+        {% include "mgl/includes/empty_state.html" with title="NO PENDING APPLICATIONS" %}
+    {% endfor %}
+</section>
+<section class="dashboard-panel mgl-cp-panel">
+    <div class="panel-heading"><span>JOB CENTRE APPLICATIONS</span><em>{{ pending_counts.jobs }}</em></div>
+    {% for app in pending_jobs %}
+        <div class="table-row mgl-cp-row">
+            <strong>{{ app.manager.display_name }}</strong>
+            <span>{{ app.team.name }}</span>
+            <div class="mgl-cp-actions">
+                <form method="post" action="{% url 'control_approve_job' app.id %}">{% csrf_token %}<input type="hidden" name="next_page" value="control_managers"><button class="header-button mgl-cp-approve" type="submit">APPOINT</button></form>
+                <form method="post" action="{% url 'control_reject_job' app.id %}">{% csrf_token %}<input type="hidden" name="next_page" value="control_managers"><button class="header-button mgl-cp-reject" type="submit">REJECT</button></form>
+            </div>
+        </div>
+    {% empty %}
+        {% include "mgl/includes/empty_state.html" with title="NO CLUB APPLICATIONS" %}
+    {% endfor %}
+</section>
+{% endblock %}

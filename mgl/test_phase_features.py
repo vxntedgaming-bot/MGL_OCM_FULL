@@ -582,7 +582,7 @@ class ControlCentreFreeAgentFilterTests(TestCase):
 
     def test_default_filter_is_62_70_and_does_not_mutate_players(self):
         before = self._snapshot()
-        response = self.client.get(reverse("control_centre"))
+        response = self.client.get(reverse("control_auctions"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "62–70 OVR")
         self.assertContains(response, self.floor.name)
@@ -599,35 +599,35 @@ class ControlCentreFreeAgentFilterTests(TestCase):
 
     def test_all_71_plus_and_under_62_filters_are_selection_only(self):
         before = self._snapshot()
-        all_view = self.client.get(reverse("control_centre"), {"ovr": "all"})
+        all_view = self.client.get(reverse("control_auctions"), {"ovr": "all"})
         self.assertContains(all_view, self.star.name)
         self.assertContains(all_view, self.low.name)
         self.assertContains(all_view, self.mid.name)
         self.assertNotContains(all_view, self.assigned.name)
         self.assertNotContains(all_view, self.fa.name)
 
-        plus = self.client.get(reverse("control_centre"), {"ovr": "71-plus"})
+        plus = self.client.get(reverse("control_auctions"), {"ovr": "71-plus"})
         self.assertContains(plus, self.high.name)
         self.assertContains(plus, self.star.name)
         self.assertNotContains(plus, self.mid.name)
         self.assertNotContains(plus, self.low.name)
-        plus_alias = self.client.get(reverse("control_centre"), {"ovr": "71+"})
+        plus_alias = self.client.get(reverse("control_auctions"), {"ovr": "71+"})
         self.assertContains(plus_alias, self.star.name)
         self.assertNotContains(plus_alias, self.mid.name)
 
-        under = self.client.get(reverse("control_centre"), {"ovr": "under-62"})
+        under = self.client.get(reverse("control_auctions"), {"ovr": "under-62"})
         self.assertContains(under, self.low.name)
         self.assertNotContains(under, self.floor.name)
         self.assertNotContains(under, self.star.name)
 
-        unknown = self.client.get(reverse("control_centre"), {"ovr": "invented"})
+        unknown = self.client.get(reverse("control_auctions"), {"ovr": "invented"})
         self.assertContains(unknown, self.mid.name)
         self.assertNotContains(unknown, self.star.name)
         self.assertEqual(self._snapshot(), before)
 
     def test_auction_from_62_70_filter_uses_existing_auction_system(self):
         before_ratings = list(Player.objects.order_by("id").values_list("id", "overall", "is_free_agent"))
-        next_url = reverse("control_centre") + "?ovr=62-70"
+        next_url = reverse("control_auctions") + "?ovr=62-70"
         response = self.client.post(
             reverse("auction_free_agent", args=[self.mid.id]),
             {

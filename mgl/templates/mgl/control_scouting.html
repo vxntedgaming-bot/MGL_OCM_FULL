@@ -1,0 +1,28 @@
+{% extends "mgl/includes/control_page.html" %}
+
+{% block control_title %}Scouting — MGL Control{% endblock %}
+{% block control_kicker %}MANAGEMENT{% endblock %}
+{% block control_heading %}SCOUTING ACTIVITY{% endblock %}
+{% block control_intro %}Existing scout assignments only. One active scout per manager.{% endblock %}
+
+{% block control_body %}
+<section class="dashboard-panel mgl-cp-panel">
+    <div class="panel-heading"><span>SCOUTING ACTIVITY</span></div>
+    <p class="mgl-cp-kicker">MANAGER · TIER · REGION · POSITION · STATUS</p>
+    {% for row in recent_scouts %}
+        <div class="table-row mgl-cp-row">
+            <strong>{{ row.manager.display_name }}</strong>
+            <span>{{ row.get_tier_display }} · {{ row.region|default:"Anywhere" }} · {{ row.position|default:"Any" }} · {{ row.status }}</span>
+            <small>
+                {% if row.player %}{{ row.player.name }}{% else %}Awaiting reveal{% endif %}
+                {% with report=row.reports.all|first %}
+                    {% if report %} · {% if report.recruited %}ACCEPTED{% else %}RELEASED{% endif %}{% endif %}
+                {% endwith %}
+                · {{ row.started_at|date:"d M Y H:i" }}
+            </small>
+        </div>
+    {% empty %}
+        {% include "mgl/includes/empty_state.html" with title="NO SCOUTING ACTIVITY" %}
+    {% endfor %}
+</section>
+{% endblock %}
