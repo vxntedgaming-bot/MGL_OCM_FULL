@@ -71,6 +71,7 @@ class Migration(migrations.Migration):
             name='status',
             field=models.CharField(blank=True, choices=[('EMPTY', 'No activity'), ('PENDING_REVIEW', 'Awaiting admin review'), ('APPROVED', 'Approved'), ('REJECTED', 'Rejected')], default='', max_length=20),
         ),
+        migrations.RunPython(mark_existing_official_rows, migrations.RunPython.noop),
         migrations.CreateModel(
             name='MonthlyAwardBatch',
             fields=[
