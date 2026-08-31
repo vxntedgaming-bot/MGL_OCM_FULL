@@ -3,8 +3,8 @@
 {% block control_title %}Season Controls — MGL Control{% endblock %}
 {% block control_crumb %}CONTROL / SEASON / CONTROLS{% endblock %}
 {% block control_kicker %}SEASON{% endblock %}
-{% block control_heading %}DANGEROUS SEASON CONTROLS{% endblock %}
-{% block control_intro %}Only existing season actions are available here. Historical completed seasons stay archived.{% endblock %}
+{% block control_heading %}SEASON CONTROLS{% endblock %}
+{% block control_intro %}Manage and control the current season{% endblock %}
 
 {% block control_body %}
 {% if active_season %}
@@ -13,22 +13,22 @@
         <h2>SEASON {{ active_season.number }}</h2>
         <p>Status {{ active_season.get_status_display }} · {% if active_season.is_locked %}LOCKED{% else %}UNLOCKED{% endif %}</p>
     </section>
-    <div class="mgl-cp-league-grid">
-        <article class="mgl-cp-review mgl-cp-danger">
-            <h2>START NEW SEASON</h2>
-            <p>Archives the current active season workflow and opens the next season number. Existing historical snapshots stay in place.</p>
-            <form method="post" action="{% url 'season_management' %}" data-confirm-phrase="START SEASON">
+    <div class="mgl-cp-action-grid">
+        <article class="mgl-cp-action-card mgl-cp-danger">
+            <h2>Start New Season</h2>
+            <p>Archives the current season workflow and opens the next season number. Historical snapshots stay in place.</p>
+            <form method="post" action="{% url 'season_management' %}" data-confirm-phrase="START SEASON" data-confirm="This action cannot be undone. Type START SEASON, then confirm." data-confirm-title="START NEW SEASON" data-confirm-ok="CONFIRM RESTART">
                 {% csrf_token %}
                 <input type="hidden" name="action" value="start_next">
                 <input type="hidden" name="season_id" value="{{ active_season.number }}">
-                <input type="text" name="confirm_text" placeholder='Type START SEASON' required>
+                <input type="text" name="confirm_text" placeholder="Type START SEASON" required>
                 <button class="header-button mgl-cp-reject" type="submit">START NEW SEASON</button>
             </form>
         </article>
-        <article class="mgl-cp-review">
-            <h2>LOCK SEASON</h2>
+        <article class="mgl-cp-action-card">
+            <h2>Lock Season</h2>
             <p>Prevents official result changes until an Owner unlocks it.</p>
-            <form method="post" action="{% url 'season_management' %}">
+            <form method="post" action="{% url 'season_management' %}" data-confirm="Lock this season? Official results cannot change until it is unlocked." data-confirm-title="LOCK SEASON" data-confirm-ok="CONFIRM LOCK">
                 {% csrf_token %}
                 <input type="hidden" name="action" value="lock">
                 <input type="hidden" name="season_id" value="{{ active_season.number }}">
@@ -36,10 +36,10 @@
             </form>
         </article>
         {% if is_owner %}
-        <article class="mgl-cp-review">
-            <h2>UNLOCK SEASON</h2>
+        <article class="mgl-cp-action-card">
+            <h2>Unlock Season</h2>
             <p>Owner only. Allows corrections to a locked season.</p>
-            <form method="post" action="{% url 'season_management' %}">
+            <form method="post" action="{% url 'season_management' %}" data-confirm="Unlock this season for Owner corrections?" data-confirm-title="UNLOCK SEASON" data-confirm-ok="CONFIRM UNLOCK">
                 {% csrf_token %}
                 <input type="hidden" name="action" value="unlock">
                 <input type="hidden" name="season_id" value="{{ active_season.number }}">
@@ -47,12 +47,13 @@
             </form>
         </article>
         {% endif %}
-        <article class="mgl-cp-review">
-            <h2>SEASON ARCHIVE</h2>
+        <article class="mgl-cp-action-card">
+            <h2>Season Archive</h2>
             <p>Open the existing season editor to finalise awards and freeze the snapshot.</p>
             <a href="{% url 'season_management' %}?season={{ active_season.number }}" class="header-button mgl-cp-approve">OPEN SEASON SETTINGS</a>
         </article>
     </div>
+    <p class="mgl-cp-warn">These actions are permanent and cannot be undone!</p>
 {% else %}
     {% include "mgl/includes/empty_state.html" with title="NO ACTIVE SEASON" %}
 {% endif %}

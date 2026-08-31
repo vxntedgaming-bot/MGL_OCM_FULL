@@ -4,26 +4,58 @@
 {% block title %}{% block control_title %}MGL Control{% endblock %}{% endblock %}
 {% block body_class %}mgl-control-body{% endblock %}
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'core/css/mgl-control.css' %}?v=cp-3">
+<link rel="stylesheet" href="{% static 'core/css/mgl-control.css' %}?v=cp-4">
+{% block control_extra_css %}{% endblock %}
 {% endblock %}
 
 {% block content %}
 <div class="mgl-cp-page">
     {% include "mgl/includes/control_sidebar.html" %}
     <div class="mgl-cp-main">
-        <header class="mgl-cp-hero">
-            <div>
-                <p class="mgl-cp-crumb">{% block control_crumb %}CONTROL CENTRE{% endblock %}</p>
-                <p class="eyebrow">{% block control_kicker %}CONTROL CENTRE{% endblock %}</p>
-                <h1>{% block control_heading %}CONTROL{% endblock %}</h1>
-                <p class="mgl-cp-welcome">{% block control_intro %}{% endblock %}</p>
-            </div>
-        </header>
-        {% block control_body %}{% endblock %}
+        <div class="mgl-cp-stage">
+            <header class="mgl-cp-hero">
+                <div>
+                    <p class="mgl-cp-crumb">{% block control_crumb %}CONTROL{% endblock %}</p>
+                    <p class="eyebrow">{% block control_kicker %}CONTROL CENTRE{% endblock %}</p>
+                    <h1>{% block control_heading %}CONTROL{% endblock %}</h1>
+                    <p class="mgl-cp-intro">{% block control_intro %}{% endblock %}</p>
+                </div>
+                <div class="mgl-cp-utils" aria-label="Control utilities">
+                    <a href="{% url 'home' %}" title="Home" aria-label="Home">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 11.5 12 5l8 6.5"/><path d="M6.5 10.5V19h11v-8.5"/></svg>
+                    </a>
+                    <a href="{% url 'manager_profile' %}" title="Profile" aria-label="Profile">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.2"/><path d="M5 19a7 7 0 0 1 14 0"/></svg>
+                    </a>
+                    <a href="{% url 'site_management_settings' %}" title="Settings" aria-label="Settings">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.2a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.2a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.2a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9c.3.7.9 1.2 1.6 1.3H21a2 2 0 1 1 0 4h-.2a1.7 1.7 0 0 0-1.4 1Z"/></svg>
+                    </a>
+                    <form method="post" action="{% url 'manager_logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" title="Logout" aria-label="Logout">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 7V5h10v14H9v-2"/><path d="M13 12H4m0 0 3-3m-3 3 3 3"/></svg>
+                        </button>
+                    </form>
+                </div>
+            </header>
+            {% block control_body %}{% endblock %}
+        </div>
+    </div>
+</div>
+<div class="mgl-cp-modal" id="cp-confirm-modal" hidden>
+    <div class="mgl-cp-modal-card">
+        <p class="mgl-cp-kicker">CONFIRM ACTION</p>
+        <h2 id="cp-confirm-title">This action cannot be undone.</h2>
+        <p id="cp-confirm-copy">Please confirm before continuing.</p>
+        <div class="mgl-cp-actions is-row">
+            <button type="button" class="header-button" id="cp-confirm-cancel">CANCEL</button>
+            <button type="button" class="header-button mgl-cp-reject" id="cp-confirm-ok">CONFIRM</button>
+        </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'core/js/mgl-control.js' %}?v=cp-3"></script>
+<script src="{% static 'core/js/mgl-control.js' %}?v=cp-4"></script>
+{% block control_js %}{% endblock %}
 {% endblock %}

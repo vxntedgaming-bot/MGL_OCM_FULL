@@ -1,42 +1,37 @@
-{% extends "core/base.html" %}
+{% extends "mgl/includes/control_page.html" %}
 {% load mgl_ui %}
 
-{% block title %}Teams — Site Management{% endblock %}
+{% block control_title %}Teams — Site Management{% endblock %}
+{% block control_kicker %}LEAGUE CONTROL{% endblock %}
+{% block control_heading %}TEAM MANAGEMENT{% endblock %}
+{% block control_intro %}Edit existing club names and badges.{% endblock %}
 
-{% block content %}
-<section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">SITE MANAGEMENT</div>
-            <h1>TEAMS</h1>
-        </div>
-        <a href="{% url 'site_management' %}" class="view-all">BACK →</a>
-    </div>
-    <div class="sm-team-grid">
-        {% for team in teams %}
-            <article class="sm-team-card">
-                <div class="sm-team-card-head">
-                    {% team_logo team "lg" %}
-                    <div>
-                        <h2>{{ team.name }}</h2>
-                        <p>{{ team.short_name }}{% if team.league %} · {{ team.league|league_label }}{% endif %}</p>
-                    </div>
+{% block control_body %}
+<p><a href="{% url 'site_management' %}" class="view-all">BACK →</a></p>
+<div class="sm-team-grid">
+    {% for team in teams %}
+        <article class="sm-team-card">
+            <div class="sm-team-card-head">
+                {% team_logo team "lg" %}
+                <div>
+                    <h2>{{ team.name }}</h2>
+                    <p>{{ team.short_name }}{% if team.league %} · {{ team.league|league_label }}{% endif %}</p>
                 </div>
-                <dl class="sm-meta">
-                    <div>
-                        <dt>Manager</dt>
-                        <dd>{% if team.manager %}{{ team.manager.username }}{% else %}Vacant{% endif %}</dd>
-                    </div>
-                    <div>
-                        <dt>Players</dt>
-                        <dd>{{ team.player_count }}</dd>
-                    </div>
-                </dl>
-                <a href="{% url 'site_management_team_edit' team.id %}" class="primary-button">EDIT</a>
-            </article>
-        {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO CLUBS" %}
-        {% endfor %}
-    </div>
-</section>
+            </div>
+            <dl class="sm-meta">
+                <div>
+                    <dt>Manager</dt>
+                    <dd>{% if team.manager %}{{ team.manager.username }}{% else %}Vacant{% endif %}</dd>
+                </div>
+                <div>
+                    <dt>Players</dt>
+                    <dd>{{ team.player_count }}</dd>
+                </div>
+            </dl>
+            <a href="{% url 'site_management_team_edit' team.id %}" class="primary-button">EDIT</a>
+        </article>
+    {% empty %}
+        {% include "mgl/includes/empty_state.html" with title="NO CLUBS" %}
+    {% endfor %}
+</div>
 {% endblock %}

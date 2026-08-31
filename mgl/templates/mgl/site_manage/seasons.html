@@ -1,21 +1,17 @@
-{% extends "core/base.html" %}
+{% extends "mgl/includes/control_page.html" %}
 {% load static %}
 
-{% block title %}Season Management — MGL Control{% endblock %}
-{% block extra_css %}
+{% block control_title %}Season Management — MGL Control{% endblock %}
+{% block control_extra_css %}
 <link rel="stylesheet" href="{% static 'core/css/mgl-history.css' %}?v=hist-1">
 {% endblock %}
+{% block control_kicker %}SEASON{% endblock %}
+{% block control_heading %}SEASON SETTINGS{% endblock %}
+{% block control_intro %}Finalise a completed season to freeze its table, statistics and awards. The next season cannot overwrite a locked snapshot.{% endblock %}
 
-{% block content %}
+{% block control_body %}
+<p><a href="{% url 'historical_tables' %}" class="view-all">VIEW HISTORY →</a></p>
 <section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">SITE MANAGEMENT</div>
-            <h1>SEASON HISTORY</h1>
-            <p>Finalise a completed season to freeze its table, statistics and awards. The next season cannot overwrite a locked snapshot.</p>
-        </div>
-        <a href="{% url 'historical_tables' %}" class="view-all">VIEW HISTORY →</a>
-    </div>
 
     {% if seasons %}
         <div class="mgl-hist-selector" style="margin-bottom:20px">

@@ -1,41 +1,52 @@
 {% extends "mgl/includes/control_page.html" %}
 
 {% block control_title %}Logs & Activity — MGL Control{% endblock %}
-{% block control_crumb %}CONTROL / SEASON / LOGS{% endblock %}
+{% block control_crumb %}CONTROL / SYSTEM / LOGS{% endblock %}
 {% block control_kicker %}SYSTEM{% endblock %}
 {% block control_heading %}LOGS &amp; ACTIVITY{% endblock %}
-{% block control_intro %}Approvals, overrides, rollbacks and token adjustments from the existing audit log.{% endblock %}
+{% block control_intro %}View all system logs and activity{% endblock %}
 
 {% block control_body %}
-<form method="get" class="mgl-inline-form">
+<form method="get" class="mgl-cp-toolbar">
     <input type="search" name="q" value="{{ log_search }}" placeholder="Search admin, action or object">
-    <input type="text" name="action" value="{{ log_action }}" placeholder="Action filter">
+    <select name="action">
+        <option value="">All Actions</option>
+        {% for option in action_options %}
+            <option value="{{ option }}" {% if log_action == option %}selected{% endif %}>{{ option }}</option>
+        {% endfor %}
+    </select>
+    <select name="user">
+        <option value="">All Users</option>
+        {% for option in user_options %}
+            <option value="{{ option }}" {% if log_user == option %}selected{% endif %}>{{ option }}</option>
+        {% endfor %}
+    </select>
+    <input type="date" name="date" value="{{ log_date }}">
     <button class="header-button mgl-cp-review-btn" type="submit">FILTER</button>
 </form>
-<section class="dashboard-panel mgl-cp-panel">
-    <div class="panel-heading"><span>OWNER / ADMIN AUDIT</span></div>
-    {% for row in ocm_audit_log %}
-        <div class="table-row mgl-cp-row">
-            <strong>{{ row.user.username|default:"System" }}</strong>
-            <span>{{ row.action }} · {{ row.summary }}</span>
-            <small>{{ row.object_type }} {{ row.object_label }} · {{ row.created_at|date:"d M Y H:i" }}</small>
-        </div>
-    {% empty %}
-        {% include "mgl/includes/empty_state.html" with title="NO AUDIT ENTRIES" %}
-    {% endfor %}
-</section>
-<section class="dashboard-panel mgl-cp-panel">
-    <div class="panel-heading"><span>MARKET ACTIVITY</span></div>
-    {% for row in recent_activity %}
-        <div class="mgl-cp-activity">
-            <span class="mgl-cp-activity-dot" aria-hidden="true"></span>
-            <div>
-                <strong>{{ row.get_transaction_type_display }}</strong>
-                <p>{{ row.player.name|default:"—" }} · {{ row.from_team.short_name|default:"FA" }} → {{ row.to_team.short_name|default:"—" }} · {{ row.amount }} TKN</p>
-            </div>
-        </div>
-    {% empty %}
-        {% include "mgl/includes/empty_state.html" with title="NO TRANSACTIONS YET" %}
-    {% endfor %}
+
+<section class="dashboard-panel mgl-cp-panel mgl-cp-table-wrap">
+    <table class="mgl-cp-table">
+        <thead>
+            <tr>
+                <th>ACTION</th>
+                <th>USER</th>
+                <th>DETAILS</th>
+                <th>DATE</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in ocm_audit_log %}
+                <tr>
+                    <td><strong>{{ row.action }}</strong></td>
+                    <td><em>{{ row.user.username|default:"System" }}</em></td>
+                    <td>{{ row.summary }}</td>
+                    <td>{{ row.created_at|date:"d/m/Y H:i" }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="4">{% include "mgl/includes/empty_state.html" with title="NO AUDIT ENTRIES" %}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </section>
 {% endblock %}

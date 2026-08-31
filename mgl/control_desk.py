@@ -359,6 +359,105 @@ def control_shell_context(request, section, queues=None):
     }
 
 
+def merge_control_shell(request, section, extra=None):
+    context = control_shell_context(request, section)
+    if extra:
+        context.update(extra)
+    return context
+
+
+def weekly_history_rows(batches):
+    rows = []
+    total = Decimal("0.00")
+    for batch in batches:
+        week = batch.week_start.strftime("%d %b %Y") if batch.week_start else "—"
+        date = batch.week_start.strftime("%d/%m/%Y") if batch.week_start else "—"
+        for payout in getattr(batch, "payouts", []) or []:
+            club = payout.get("club") or "—"
+            manager = payout.get("name") or "Manager"
+            awards = []
+            if payout.get("motw"):
+                awards.append(("Manager of the Week", payout["motw"]))
+            if payout.get("goals"):
+                awards.append(("Top Goal Scorer", payout["goals"]))
+            if payout.get("assists"):
+                awards.append(("Top Assist", payout["assists"]))
+            if payout.get("totw"):
+                awards.append(("Team of the Week", payout["totw"]))
+            if not awards and payout.get("total"):
+                awards.append(("Weekly Reward", payout["total"]))
+            for award, tokens in awards:
+                total += Decimal(str(tokens))
+                rows.append(
+                    {
+                        "week": week,
+                        "manager": manager,
+                        "club": club,
+                        "award": award,
+                        "tokens": tokens,
+                        "date": date,
+                    }
+                )
+    return rows, total
+
+
+def monthly_history_rows(batches):
+    rows = []
+    for batch in batches:
+        month = batch.month_start.strftime("%B %Y") if batch.month_start else "—"
+        date = batch.month_start.strftime("%d/%m/%Y") if batch.month_start else "—"
+        payload = batch.payload or {}
+        motm = payload.get("motm") or {}
+        if motm:
+            rows.append(
+                {
+                    "month": month,
+                    "manager": motm.get("manager_name") or motm,
+                    "club": motm.get("club_name") or "—",
+                    "award": "Manager of the Month",
+                    "tokens": "6",
+                    "date": date,
+                }
+            )
+        potm = payload.get("potm") or {}
+        if potm:
+            rows.append(
+                {
+                    "month": month,
+                    "manager": potm.get("manager_name") or potm.get("player_name") or potm,
+                    "club": potm.get("club_name") or "—",
+                    "award": "Player of the Month",
+                    "tokens": "3",
+                    "date": date,
+                }
+            )
+    return rows
+
+
+def scouting_movement_rows(assignments):
+    rows = []
+    for assignment in assignments:
+        report = next(iter(assignment.reports.all()), None)
+        if not assignment.player_id:
+            continue
+        club = assignment.club or getattr(report, "club", None)
+        recruited = bool(report and report.recruited)
+        rows.append(
+            {
+                "player": assignment.player.name,
+                "position": assignment.player.position or assignment.position or "—",
+                "from_label": "Free Agent",
+                "to_label": club.name if club and recruited else (club.name if club else "—"),
+                "move_type": "SIGNED" if recruited else assignment.status,
+                "date": (assignment.completed_at or assignment.started_at).strftime("%d/%m/%Y")
+                if (assignment.completed_at or assignment.started_at)
+                else "—",
+                "club_name": club.name if club else "",
+            }
+        )
+    return rows
+
+
 def control_dashboard_context(request):
     queues = load_queues()
     context = control_shell_context(request, "dashboard", queues)

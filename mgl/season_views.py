@@ -124,7 +124,13 @@ def season_management(request):
             or HistoricalSeason.objects.order_by("-number").first()
         )
     if selected is None:
-        return render(request, "mgl/site_manage/seasons.html", {"seasons": [], "season": None})
+        from mgl.control_desk import merge_control_shell
+
+        return render(
+            request,
+            "mgl/site_manage/seasons.html",
+            merge_control_shell(request, "season_settings", {"seasons": [], "season": None}),
+        )
 
     league = selected.league or active_league()
     overview = live_overview(league, selected.number) if selected.is_active else None
@@ -185,22 +191,28 @@ def season_management(request):
         .select_related("user")
         .order_by("display_name")
     )
+    from mgl.control_desk import merge_control_shell
+
     return render(
         request,
         "mgl/site_manage/seasons.html",
-        {
-            "seasons": seasons,
-            "season": selected,
-            "overview": overview,
-            "clubs": clubs,
-            "players": players,
-            "managers": managers,
-            "formations": list(FORMATIONS.keys()),
-            "tots": tots_display(selected),
-            "young_suggestions": young_player_suggestions(league, selected.number),
-            "is_owner": is_owner,
-            "can_edit": can_edit,
-            "can_start_next": selected.is_finalized
-            and not HistoricalSeason.objects.filter(status=HistoricalSeason.ACTIVE).exists(),
-        },
+        merge_control_shell(
+            request,
+            "season_settings",
+            {
+                "seasons": seasons,
+                "season": selected,
+                "overview": overview,
+                "clubs": clubs,
+                "players": players,
+                "managers": managers,
+                "formations": list(FORMATIONS.keys()),
+                "tots": tots_display(selected),
+                "young_suggestions": young_player_suggestions(league, selected.number),
+                "is_owner": is_owner,
+                "can_edit": can_edit,
+                "can_start_next": selected.is_finalized
+                and not HistoricalSeason.objects.filter(status=HistoricalSeason.ACTIVE).exists(),
+            },
+        ),
     )

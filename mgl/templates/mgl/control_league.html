@@ -1,84 +1,89 @@
 {% extends "mgl/includes/control_page.html" %}
+{% load mgl_ui %}
 
 {% block control_title %}League Control — MGL Control{% endblock %}
 {% block control_crumb %}CONTROL / LEAGUE CONTROL{% endblock %}
 {% block control_kicker %}LEAGUE CONTROL{% endblock %}
-{% block control_heading %}LEAGUE SETTINGS{% endblock %}
-{% block control_intro %}These cards open the existing Site Management and season tools. Nothing here invents a second settings database.{% endblock %}
+{% block control_heading %}LEAGUE CONTROL{% endblock %}
+{% block control_intro %}Manage league settings and site information{% endblock %}
 
 {% block control_body %}
-<nav class="mgl-cp-tabs" aria-label="League control sections">
-    <a href="#general">GENERAL</a>
-    <a href="#teams">TEAMS &amp; CLUBS</a>
-    <a href="#website">WEBSITE</a>
-    <a href="#season">SEASON</a>
-    <a href="#transfers">TRANSFERS</a>
-    <a href="#rewards">REWARDS</a>
+<div data-review-card>
+<nav class="mgl-cp-tabs" data-cp-tabs aria-label="League control sections">
+    <button type="button" class="is-active" data-tab-target="league-settings">League Settings</button>
+    <button type="button" data-tab-target="team-names">Team Names</button>
+    <button type="button" data-tab-target="season-settings">Season Settings</button>
+    <button type="button" data-tab-target="site-settings">Site Settings</button>
 </nav>
-<section class="mgl-cp-league-grid" id="general">
-    <a href="{% url 'site_management_settings' %}">
-        <p class="mgl-cp-kicker">GENERAL</p>
-        <h2>WEBSITE SETTINGS</h2>
-        <p>{{ site_name }} · {{ site_tagline }}</p>
-    </a>
-    <a href="{% url 'site_management_leagues' %}">
-        <p class="mgl-cp-kicker">GENERAL</p>
-        <h2>LEAGUE NAMES</h2>
-        <p>Edit existing division names and display copy.</p>
-    </a>
-    <a href="{% url 'site_management' %}">
-        <p class="mgl-cp-kicker">GENERAL</p>
-        <h2>SITE MANAGEMENT</h2>
-        <p>Clubs, leagues, website copy and Discord settings.</p>
-    </a>
+
+<section class="mgl-cp-tab-panel" id="league-settings" data-review-card>
+    <form method="post" action="{% url 'site_management_settings' %}" class="mgl-cp-card">
+        {% csrf_token %}
+        <div class="mgl-cp-form-grid">
+            {% for field in settings_fields %}
+                <label class="mgl-cp-field">
+                    {{ field.label }}
+                    <input type="{% if field.kind == 'email' %}email{% elif field.kind == 'url' %}url{% else %}text{% endif %}" name="{{ field.key }}" value="{{ settings_values|dict_get:field.key }}">
+                </label>
+            {% endfor %}
+            <p>Transfer window: <strong>{% if window_open %}OPEN{% else %}CLOSED{% endif %}</strong></p>
+            <p>Current season: <strong>{{ current_season_number }}</strong></p>
+        </div>
+        <button type="submit" name="action" value="save" class="header-button mgl-cp-review-btn">Save Changes</button>
+    </form>
 </section>
-<section class="mgl-cp-league-grid" id="teams">
-    <a href="{% url 'site_management_teams' %}">
-        <p class="mgl-cp-kicker">TEAMS &amp; CLUBS</p>
-        <h2>EDIT CLUBS</h2>
-        <p>Names, badges and assignments. Historical clubs are not deleted.</p>
-    </a>
-    <a href="{% url 'control_clubs' %}">
-        <p class="mgl-cp-kicker">TEAMS &amp; CLUBS</p>
-        <h2>CLUBS &amp; MANAGERS</h2>
-        <p>Live roster, manager and token snapshot.</p>
-    </a>
+
+<section class="mgl-cp-tab-panel" id="team-names" hidden>
+    <div class="mgl-cp-card">
+        <p class="mgl-cp-kicker">TEAM NAMES</p>
+        <p>Edit existing club display names through the current team editor.</p>
+        {% for team in league_teams %}
+            <div class="table-row">
+                <strong>{{ team.name }}</strong>
+                <span>{{ team.short_name }}</span>
+                <a href="{% url 'site_management_team_edit' team.id %}" class="header-button">EDIT</a>
+            </div>
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with title="NO CLUBS YET" %}
+        {% endfor %}
+    </div>
 </section>
-<section class="mgl-cp-league-grid" id="website">
-    <a href="{% url 'site_management_content' %}">
-        <p class="mgl-cp-kicker">WEBSITE</p>
-        <h2>PUBLIC COPY</h2>
-        <p>Homepage and public text stored in the existing content table.</p>
-    </a>
-    <a href="{% url 'site_management_settings' %}">
-        <p class="mgl-cp-kicker">WEBSITE</p>
-        <h2>DISCORD &amp; CONTACT</h2>
-        <p>Invite URL, social links and site name.</p>
-    </a>
+
+<section class="mgl-cp-tab-panel" id="season-settings" hidden>
+    <div class="mgl-cp-card" id="season">
+        <p class="mgl-cp-kicker">SEASON SETTINGS</p>
+        <p>Season name and archive tools stay on the existing season records.</p>
+        <a href="{% url 'season_management' %}" class="header-button mgl-cp-review-btn">OPEN SEASON SETTINGS</a>
+        <a href="{% url 'control_season_history' %}" class="header-button">SEASON HISTORY</a>
+    </div>
 </section>
-<section class="mgl-cp-league-grid" id="season">
-    <a href="{% url 'season_management' %}">
-        <p class="mgl-cp-kicker">SEASON</p>
-        <h2>SEASON SETTINGS</h2>
-        <p>Finalise, lock and archive using the existing season records.</p>
-    </a>
-    <a href="{% url 'control_season_controls' %}">
-        <p class="mgl-cp-kicker">SEASON</p>
-        <h2>SEASON CONTROLS</h2>
-        <p>Confirmed start-next, lock and unlock actions only.</p>
-    </a>
-</section>
-<section class="mgl-cp-league-grid" id="transfers">
-    <article class="mgl-cp-review">
+
+<section class="mgl-cp-tab-panel" id="site-settings" hidden>
+    <div class="mgl-cp-league-grid" id="website">
+        <a href="{% url 'site_management_settings' %}">
+            <p class="mgl-cp-kicker">SITE SETTINGS</p>
+            <h2>WEBSITE SETTINGS</h2>
+            <p>{{ site_name }} · {{ site_tagline }}</p>
+        </a>
+        <a href="{% url 'site_management_content' %}">
+            <p class="mgl-cp-kicker">SITE SETTINGS</p>
+            <h2>PUBLIC COPY</h2>
+            <p>Homepage and public text stored in the existing content table.</p>
+        </a>
+        <a href="{% url 'site_management' %}">
+            <p class="mgl-cp-kicker">SITE SETTINGS</p>
+            <h2>SITE MANAGEMENT</h2>
+            <p>Clubs, leagues, website copy and Discord settings.</p>
+        </a>
+    </div>
+    <div class="mgl-cp-card" id="transfers">
         <p class="mgl-cp-kicker">TRANSFERS</p>
         <h2>TRANSFER WINDOW</h2>
         <p>Current status: <strong>{% if window_open %}OPEN{% else %}CLOSED{% endif %}</strong></p>
-        <p>Window dates and market rules stay on the existing transfer system. Do not invent a second window.</p>
+        <p>Window dates and market rules stay on the existing transfer system.</p>
         <a href="{% url 'transfer_market' %}" class="header-button mgl-cp-review-btn">OPEN MARKET</a>
-    </article>
-</section>
-<section class="mgl-cp-league-grid" id="rewards">
-    <article class="mgl-cp-review">
+    </div>
+    <div class="mgl-cp-card" id="rewards">
         <p class="mgl-cp-kicker">REWARDS</p>
         <h2>CURRENT TOKEN RATES</h2>
         <p>TOTW {{ reward_rates.totw }}</p>
@@ -87,6 +92,7 @@
         <p>Player of Month {{ reward_rates.potm }} · Approved press {{ reward_rates.press }}</p>
         <a href="{% url 'control_tokens' %}" class="header-button mgl-cp-review-btn">TOKEN LEDGER</a>
         <a href="{% url 'control_weekly_awards' %}" class="header-button">WEEKLY REVIEW</a>
-    </article>
+    </div>
 </section>
+</div>
 {% endblock %}

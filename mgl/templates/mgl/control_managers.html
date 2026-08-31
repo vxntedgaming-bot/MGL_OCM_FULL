@@ -1,40 +1,63 @@
 {% extends "mgl/includes/control_page.html" %}
+{% load mgl_ui %}
 
 {% block control_title %}Manager Applications — MGL Control{% endblock %}
 {% block control_kicker %}APPROVALS{% endblock %}
 {% block control_heading %}MANAGER APPLICATIONS{% endblock %}
-{% block control_intro %}Signup does not need approval. Club and manager applications do.{% endblock %}
+{% block control_intro %}Review and manage manager applications.{% endblock %}
 
 {% block control_body %}
-<section class="dashboard-panel mgl-cp-panel">
-    <div class="panel-heading"><span>PENDING MANAGER APPLICATIONS</span><em>{{ pending_counts.managers }}</em></div>
-    {% for app in pending_managers %}
-        <div class="table-row mgl-cp-row">
-            <strong>{{ app.display_name }}</strong>
-            <span>{{ app.gamertag }}</span>
-            <small>{{ app.preferred_team }}</small>
-            <div class="mgl-cp-actions">
-                <form method="post" action="{% url 'control_approve_manager' app.id %}">{% csrf_token %}<input type="hidden" name="next_page" value="control_managers"><button class="header-button mgl-cp-approve" type="submit">APPROVE</button></form>
-                <form method="post" action="{% url 'control_reject_manager' app.id %}">{% csrf_token %}<input type="hidden" name="next_page" value="control_managers"><button class="header-button mgl-cp-reject" type="submit">REJECT</button></form>
+{% for app in pending_managers %}
+    <article class="mgl-cp-review">
+        <div class="mgl-cp-review-grid">
+            <div>
+                <h2 class="mgl-cp-gold">{{ app.display_name }}</h2>
+                <p>Applying for: {{ app.preferred_team|default:"Any available club" }}</p>
+                <p class="mgl-cp-kicker">EXPERIENCE</p>
+                <p>Gamertag {{ app.gamertag }}</p>
+                <p>Account {{ app.user.username }} · {{ app.user.role }}</p>
+                <p>Submitted {{ app.submitted_at|timesince }} ago · {{ app.status }}</p>
+                <p class="mgl-cp-kicker">MESSAGE</p>
+                <p>Preferred club: {{ app.preferred_team|default:"Not specified" }}.</p>
             </div>
+            <aside>
+                <p class="mgl-cp-kicker">ACTIONS</p>
+                <div class="mgl-cp-actions">
+                    <form method="post" action="{% url 'control_approve_manager' app.id %}">{% csrf_token %}<input type="hidden" name="next_page" value="control_managers"><button class="header-button mgl-cp-approve" type="submit">APPROVE</button></form>
+                    <form method="post" action="{% url 'control_reject_manager' app.id %}">{% csrf_token %}<input type="hidden" name="next_page" value="control_managers"><button class="header-button mgl-cp-reject" type="submit">REJECT</button></form>
+                    <a href="{% url 'control_clubs' %}" class="header-button">VIEW PROFILE</a>
+                </div>
+            </aside>
         </div>
-    {% empty %}
-        {% include "mgl/includes/empty_state.html" with title="NO PENDING APPLICATIONS" %}
-    {% endfor %}
-</section>
-<section class="dashboard-panel mgl-cp-panel">
-    <div class="panel-heading"><span>JOB CENTRE APPLICATIONS</span><em>{{ pending_counts.jobs }}</em></div>
-    {% for app in pending_jobs %}
-        <div class="table-row mgl-cp-row">
-            <strong>{{ app.manager.display_name }}</strong>
-            <span>{{ app.team.name }}</span>
-            <div class="mgl-cp-actions">
-                <form method="post" action="{% url 'control_approve_job' app.id %}">{% csrf_token %}<input type="hidden" name="next_page" value="control_managers"><button class="header-button mgl-cp-approve" type="submit">APPOINT</button></form>
-                <form method="post" action="{% url 'control_reject_job' app.id %}">{% csrf_token %}<input type="hidden" name="next_page" value="control_managers"><button class="header-button mgl-cp-reject" type="submit">REJECT</button></form>
+    </article>
+{% empty %}
+    {% include "mgl/includes/empty_state.html" with title="NO PENDING APPLICATIONS" %}
+{% endfor %}
+
+{% for app in pending_jobs %}
+    <article class="mgl-cp-review">
+        <div class="mgl-cp-review-grid">
+            <div>
+                <h2 class="mgl-cp-gold">{{ app.manager.display_name }}</h2>
+                <p>Applying for: {{ app.team.name }}</p>
+                {% team_logo app.team "sm" %}
+                <p class="mgl-cp-kicker">EXPERIENCE</p>
+                <p>Games per week {{ app.games_per_week|default:"—" }}</p>
+                <p>Referred by {{ app.referred_by|default:"—" }}</p>
+                <p>Account {{ app.manager.user.username }} · {{ app.manager.status }}</p>
+                <p class="mgl-cp-kicker">MESSAGE</p>
+                <p>{{ app.message|default:"No application message." }}</p>
+                <small>{{ app.created_at|timesince }} ago</small>
             </div>
+            <aside>
+                <p class="mgl-cp-kicker">ACTIONS</p>
+                <div class="mgl-cp-actions">
+                    <form method="post" action="{% url 'control_approve_job' app.id %}">{% csrf_token %}<input type="hidden" name="next_page" value="control_managers"><button class="header-button mgl-cp-approve" type="submit">APPROVE</button></form>
+                    <form method="post" action="{% url 'control_reject_job' app.id %}">{% csrf_token %}<input type="hidden" name="next_page" value="control_managers"><button class="header-button mgl-cp-reject" type="submit">REJECT</button></form>
+                    <a href="{% url 'club_page' app.team.short_name %}" class="header-button">VIEW PROFILE</a>
+                </div>
+            </aside>
         </div>
-    {% empty %}
-        {% include "mgl/includes/empty_state.html" with title="NO CLUB APPLICATIONS" %}
-    {% endfor %}
-</section>
+    </article>
+{% endfor %}
 {% endblock %}

@@ -4,23 +4,35 @@
 {% block control_crumb %}CONTROL / SEASON / HISTORY{% endblock %}
 {% block control_kicker %}SEASON{% endblock %}
 {% block control_heading %}SEASON HISTORY{% endblock %}
-{% block control_intro %}Completed season snapshots stay locked. Starting a new season does not overwrite them.{% endblock %}
+{% block control_intro %}View and manage past seasons{% endblock %}
 
 {% block control_body %}
-<section class="dashboard-panel mgl-cp-panel">
-    {% for season in seasons %}
-        <div class="table-row mgl-cp-row">
-            <strong>SEASON {{ season.number }}</strong>
-            <span class="mgl-cp-status {% if season.status == 'ACTIVE' %}is-ok{% else %}is-warn{% endif %}">{{ season.get_status_display }}</span>
-            <span>Champion {{ season.league_winner_name|default:"—" }}</span>
-            <span>Top scorer {{ season.top_scorer_name|default:"—" }}</span>
-            <span>Assists {{ season.top_assists_name|default:"—" }}</span>
-            <span>Manager {{ season.manager_of_season_name|default:"—" }}</span>
-            <small>{{ season.games_played }} matches · {{ season.finalized_at|date:"d M Y"|default:"In progress" }}</small>
-            <a href="{% url 'season_management' %}?season={{ season.number }}" class="header-button mgl-cp-review-btn">OPEN ARCHIVE</a>
-        </div>
-    {% empty %}
-        {% include "mgl/includes/empty_state.html" with title="NO SEASONS RECORDED" %}
-    {% endfor %}
+<section class="dashboard-panel mgl-cp-panel mgl-cp-table-wrap">
+    <table class="mgl-cp-table">
+        <thead>
+            <tr>
+                <th>SEASON</th>
+                <th>WINNER</th>
+                <th>RUNNER UP</th>
+                <th>LEAGUE</th>
+                <th>DATE</th>
+                <th>ACTION</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for season in seasons %}
+                <tr>
+                    <td><strong>Season {{ season.number }}{% if season.year_label %} ({{ season.year_label }}){% endif %}</strong></td>
+                    <td>{{ season.league_winner_name|default:"—" }}</td>
+                    <td>{{ season.cup_winner_name|default:"—" }}</td>
+                    <td>{{ season.league.name|default:"—" }}</td>
+                    <td>{% if season.finalized_at %}{{ season.finalized_at|date:"d M Y" }}{% elif season.end_date %}{{ season.end_date|date:"d M Y" }}{% else %}{{ season.get_status_display }}{% endif %}</td>
+                    <td><a href="{% url 'season_management' %}?season={{ season.number }}" class="header-button">View</a></td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="6">{% include "mgl/includes/empty_state.html" with title="NO SEASONS RECORDED" %}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </section>
 {% endblock %}

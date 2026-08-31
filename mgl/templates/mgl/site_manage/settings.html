@@ -1,53 +1,46 @@
-{% extends "core/base.html" %}
+{% extends "mgl/includes/control_page.html" %}
 {% load mgl_ui %}
 
-{% block title %}Site Settings — Site Management{% endblock %}
+{% block control_title %}Site Settings — Site Management{% endblock %}
+{% block control_kicker %}LEAGUE CONTROL{% endblock %}
+{% block control_heading %}SITE SETTINGS{% endblock %}
+{% block control_intro %}Discord buttons use the saved invite URL. Leave it empty to keep the current hide-if-unset behaviour.{% endblock %}
 
-{% block content %}
-<section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">SITE MANAGEMENT</div>
-            <h1>SITE SETTINGS</h1>
-            <p>Discord buttons use the saved invite URL. Leave it empty to keep the current hide-if-unset behaviour.</p>
-        </div>
-        <a href="{% url 'site_management' %}" class="view-all">BACK →</a>
-    </div>
-
-    {{ values|json_script:"sm-content-values" }}
-    <form method="post" class="sm-form">
-        {% csrf_token %}
-        <div class="sm-form-grid">
-            <div class="dashboard-panel">
-                {% for field in fields %}
-                    <label>
-                        {{ field.label }}
-                        <input type="{% if field.kind == 'email' %}email{% elif field.kind == 'url' %}url{% else %}text{% endif %}" name="{{ field.key }}" value="{{ values|dict_get:field.key }}" data-preview-key="{{ field.key }}" maxlength="300"{% if field.kind == 'url' or field.kind == 'email' %} inputmode="url"{% endif %}>
-                    </label>
-                {% endfor %}
-                <p class="sm-help">An empty Discord invite URL keeps JOIN DISCORD hidden unless an environment invite is already set.</p>
-                <div class="sm-actions">
-                    <button type="submit" name="action" value="preview" class="secondary-button">PREVIEW</button>
-                    <button type="submit" name="action" value="save" class="primary-button">SAVE CHANGES</button>
-                    <a href="{% url 'site_management' %}" class="secondary-button">CANCEL</a>
-                </div>
+{% block control_body %}
+<p><a href="{% url 'site_management' %}" class="view-all">BACK →</a></p>
+{{ values|json_script:"sm-content-values" }}
+<form method="post" class="sm-form">
+    {% csrf_token %}
+    <div class="sm-form-grid">
+        <div class="dashboard-panel">
+            {% for field in fields %}
+                <label>
+                    {{ field.label }}
+                    <input type="{% if field.kind == 'email' %}email{% elif field.kind == 'url' %}url{% else %}text{% endif %}" name="{{ field.key }}" value="{{ values|dict_get:field.key }}" data-preview-key="{{ field.key }}" maxlength="300"{% if field.kind == 'url' or field.kind == 'email' %} inputmode="url"{% endif %}>
+                </label>
+            {% endfor %}
+            <p class="sm-help">An empty Discord invite URL keeps JOIN DISCORD hidden unless an environment invite is already set.</p>
+            <div class="sm-actions">
+                <button type="submit" name="action" value="preview" class="secondary-button">PREVIEW</button>
+                <button type="submit" name="action" value="save" class="primary-button">SAVE CHANGES</button>
+                <a href="{% url 'site_management' %}" class="secondary-button">CANCEL</a>
             </div>
-            <aside class="dashboard-panel sm-preview-panel">
-                <div class="eyebrow">PREVIEW</div>
-                {% for field in fields %}
-                    <article class="sm-preview-item" data-preview-target="{{ field.key }}">
-                        <h3>{{ field.label }}</h3>
-                        <p class="sm-current">Current: {{ values|dict_get:field.key|default:"(empty)" }}</p>
-                        <p class="sm-preview-value">{{ values|dict_get:field.key }}</p>
-                    </article>
-                {% endfor %}
-            </aside>
         </div>
-    </form>
-</section>
+        <aside class="dashboard-panel sm-preview-panel">
+            <div class="eyebrow">PREVIEW</div>
+            {% for field in fields %}
+                <article class="sm-preview-item" data-preview-target="{{ field.key }}">
+                    <h3>{{ field.label }}</h3>
+                    <p class="sm-current">Current: {{ values|dict_get:field.key|default:"(empty)" }}</p>
+                    <p class="sm-preview-value">{{ values|dict_get:field.key }}</p>
+                </article>
+            {% endfor %}
+        </aside>
+    </div>
+</form>
 {% endblock %}
 
-{% block extra_js %}
+{% block control_js %}
 <script>
 (function () {
     function refresh() {

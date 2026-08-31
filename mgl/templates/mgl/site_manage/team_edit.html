@@ -1,18 +1,14 @@
-{% extends "core/base.html" %}
+{% extends "mgl/includes/control_page.html" %}
 {% load mgl_ui %}
 
-{% block title %}Edit {{ team.name }} — Site Management{% endblock %}
+{% block control_title %}Edit {{ team.name }} — Site Management{% endblock %}
+{% block control_kicker %}LEAGUE CONTROL{% endblock %}
+{% block control_heading %}EDIT {{ team.name|upper }}{% endblock %}
+{% block control_intro %}Team ID {{ team.id }} stays unchanged. Manager, tokens, league assignment, squad and fixtures are not edited here.{% endblock %}
 
-{% block content %}
+{% block control_body %}
+<p><a href="{% url 'site_management_teams' %}" class="view-all">TEAMS →</a></p>
 <section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">SITE MANAGEMENT · TEAMS</div>
-            <h1>EDIT {{ team.name|upper }}</h1>
-            <p>Team ID {{ team.id }} stays unchanged. Manager, tokens, league assignment, squad and fixtures are not edited here.</p>
-        </div>
-        <a href="{% url 'site_management_teams' %}" class="view-all">TEAMS →</a>
-    </div>
 
     {% if errors %}
         <div class="mgl-messages">
@@ -69,7 +65,7 @@
 </section>
 {% endblock %}
 
-{% block extra_js %}
+{% block control_js %}
 <script>
 (function () {
     var name = document.getElementById("id_name");

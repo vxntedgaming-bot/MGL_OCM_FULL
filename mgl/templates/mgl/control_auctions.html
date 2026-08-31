@@ -1,9 +1,9 @@
 {% extends "mgl/includes/control_page.html" %}
 
-{% block control_title %}Auctions — MGL Control{% endblock %}
+{% block control_title %}Auctions & Release Players — MGL Control{% endblock %}
 {% block control_kicker %}MANAGEMENT{% endblock %}
-{% block control_heading %}AUCTION CONTROL{% endblock %}
-{% block control_intro %}Ownership changes only when an auction completes.{% endblock %}
+{% block control_heading %}AUCTIONS &amp; RELEASE PLAYERS{% endblock %}
+{% block control_intro %}Release unsigned players to the auction market.{% endblock %}
 
 {% block control_body %}
 <section class="dashboard-panel mgl-cp-panel">
@@ -13,7 +13,7 @@
             <strong>{{ auction.player.name }}</strong>
             <span>{{ auction.player.position }} · {{ auction.player.overall }} OVR · {{ auction.winning_bid }} TKN{% if auction.winning_manager %} · {{ auction.winning_manager.display_name }}{% endif %}</span>
             <small>{{ auction.ends_at|date:"d M Y H:i" }} · {{ auction.status }}</small>
-            <div class="mgl-cp-actions">
+            <div class="mgl-cp-actions is-row">
                 <form method="post" action="{% url 'control_close_auction' auction.id %}">{% csrf_token %}<input type="hidden" name="next_page" value="control_auctions"><button class="header-button mgl-cp-approve" type="submit">CLOSE</button></form>
                 <form method="post" action="{% url 'control_cancel_auction' auction.id %}">{% csrf_token %}<input type="hidden" name="next_page" value="control_auctions"><button class="header-button mgl-cp-reject" type="submit">CANCEL</button></form>
             </div>
@@ -23,64 +23,74 @@
     {% endfor %}
 </section>
 
-<section class="dashboard-panel mgl-cp-panel">
-    <div class="panel-heading"><span>RECENTLY ENDED</span></div>
-    {% for auction in ended_auctions %}
-        <div class="table-row mgl-cp-row">
-            <strong>{{ auction.player.name }}</strong>
-            <span>{{ auction.status }} · {{ auction.winning_bid }} TKN</span>
-        </div>
-    {% empty %}
-        {% include "mgl/includes/empty_state.html" with title="NO ENDED AUCTIONS" %}
-    {% endfor %}
-</section>
-
-<section class="mgl-section mgl-cp-auction">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">AUCTIONS</div>
-            <h2>RELEASE AN UNASSIGNED PLAYER</h2>
-            <p>Maximum length 12 hours. Starting bid 0–10 TKN.</p>
-        </div>
-    </div>
-    <form method="get" class="mgl-filter-bar mgl-filter-bar--auction-ovr" role="search">
-        <label class="mgl-filter-check" for="ovr">OVR RANGE</label>
+<form method="get" class="mgl-cp-toolbar" role="search">
+    <label class="mgl-cp-search-wrap">
+        <span class="visually-hidden">Search player</span>
+        <input type="search" id="cp-player-search" name="q" value="{{ search }}" placeholder="Search player...">
+    </label>
+    <label>OVR
         <select id="ovr" name="ovr" onchange="this.form.submit()">
             {% for key, label in free_agent_ovr_filters %}
                 <option value="{{ key }}" {% if free_agent_ovr_filter == key %}selected{% endif %}>{{ label }}</option>
             {% endfor %}
         </select>
-        <label class="mgl-cp-search-wrap">
-            <span class="visually-hidden">Search player</span>
-            <input type="search" id="cp-player-search" placeholder="Search player..." autocomplete="off">
-        </label>
-        <button type="submit" class="header-button">FILTER</button>
-    </form>
-    <p class="mgl-filter-meta">
-        Showing {{ free_agents|length }} of {{ free_agent_match_count }} matching unassigned players
-        ({{ free_agent_total_count }} unassigned in the pool).
-    </p>
-    <div class="dashboard-panel mgl-cp-table-wrap">
-        {% for player in free_agents %}
-            <div class="table-row mgl-cp-player-row" data-player-name="{{ player.name }}">
-                <strong>{{ player.name }}</strong>
-                <span>{{ player.position }} · {{ player.overall }} OVR</span>
-                <form method="post" action="{% url 'auction_free_agent' player.id %}" class="mgl-inline-form">
-                    {% csrf_token %}
-                    <input type="hidden" name="next" value="{{ control_next }}">
-                    <input type="hidden" name="ovr" value="{{ free_agent_ovr_filter }}">
-                    <select name="duration" required>
-                        {% for minutes, label in auction_durations %}
-                            <option value="{{ minutes }}">{{ label }}</option>
-                        {% endfor %}
-                    </select>
-                    <input type="number" name="starting_bid" min="0" max="10" value="1" required>
-                    <button type="submit" class="header-button mgl-cp-approve">AUCTION</button>
-                </form>
-            </div>
-        {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO UNASSIGNED PLAYERS IN THIS RANGE" %}
-        {% endfor %}
-    </div>
+    </label>
+    <label>Position
+        <select id="cp-position-filter" name="position">
+            <option value="all">All Positions</option>
+            {% for key, label in position_choices %}
+                <option value="{{ key }}" {% if selected_position == key %}selected{% endif %}>{{ key }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <button type="submit" class="header-button">FILTER</button>
+</form>
+<p class="mgl-cp-kicker">
+    Showing {{ free_agents|length }} of {{ free_agent_match_count }} matching unassigned players
+    ({{ free_agent_total_count }} unassigned in the pool).
+</p>
+
+<section class="dashboard-panel mgl-cp-panel mgl-cp-table-wrap">
+    <table class="mgl-cp-table">
+        <thead>
+            <tr>
+                <th>PLAYER</th>
+                <th>POSITION</th>
+                <th>OVR</th>
+                <th>STATUS</th>
+                <th>CLUB</th>
+                <th>VALUE</th>
+                <th>ACTION</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for player in free_agents %}
+                <tr class="mgl-cp-player-row" data-player-name="{{ player.name }}" data-position="{{ player.position }}" data-club="Unsigned">
+                    <td><strong>{{ player.name }}</strong></td>
+                    <td>{{ player.position }}</td>
+                    <td>{{ player.overall }}</td>
+                    <td>Unsigned</td>
+                    <td>Free Agent</td>
+                    <td><span class="mgl-cp-gold">Tokens</span></td>
+                    <td>
+                        <form method="post" action="{% url 'auction_free_agent' player.id %}" class="mgl-inline-form" data-confirm="Release {{ player.name }} to the auction market? This uses the existing auction system." data-confirm-title="RELEASE TO AUCTION" data-confirm-ok="CONFIRM RELEASE">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ control_next }}">
+                            <input type="hidden" name="ovr" value="{{ free_agent_ovr_filter }}">
+                            <select name="duration" required>
+                                {% for minutes, label in auction_durations %}
+                                    <option value="{{ minutes }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                            <input type="number" name="starting_bid" min="0" max="10" value="1" required>
+                            <button type="submit" class="header-button mgl-cp-review-btn">Release</button>
+                        </form>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="7">{% include "mgl/includes/empty_state.html" with title="NO UNASSIGNED PLAYERS IN THIS RANGE" %}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </section>
 {% endblock %}

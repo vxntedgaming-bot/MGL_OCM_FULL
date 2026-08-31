@@ -1,28 +1,67 @@
 {% extends "mgl/includes/control_page.html" %}
 
-{% block control_title %}Scouting — MGL Control{% endblock %}
+{% block control_title %}Scouting History — MGL Control{% endblock %}
 {% block control_kicker %}MANAGEMENT{% endblock %}
-{% block control_heading %}SCOUTING ACTIVITY{% endblock %}
-{% block control_intro %}Existing scout assignments only. One active scout per manager.{% endblock %}
+{% block control_heading %}SCOUTING HISTORY{% endblock %}
+{% block control_intro %}History of unsigned players and where they went. SCOUTING ACTIVITY remains the existing assignment log.{% endblock %}
 
 {% block control_body %}
-<section class="dashboard-panel mgl-cp-panel">
-    <div class="panel-heading"><span>SCOUTING ACTIVITY</span></div>
-    <p class="mgl-cp-kicker">MANAGER · TIER · REGION · POSITION · STATUS</p>
-    {% for row in recent_scouts %}
-        <div class="table-row mgl-cp-row">
-            <strong>{{ row.manager.display_name }}</strong>
-            <span>{{ row.get_tier_display }} · {{ row.region|default:"Anywhere" }} · {{ row.position|default:"Any" }} · {{ row.status }}</span>
-            <small>
-                {% if row.player %}{{ row.player.name }}{% else %}Awaiting reveal{% endif %}
-                {% with report=row.reports.all|first %}
-                    {% if report %} · {% if report.recruited %}ACCEPTED{% else %}RELEASED{% endif %}{% endif %}
-                {% endwith %}
-                · {{ row.started_at|date:"d M Y H:i" }}
-            </small>
-        </div>
-    {% empty %}
-        {% include "mgl/includes/empty_state.html" with title="NO SCOUTING ACTIVITY" %}
-    {% endfor %}
+<form method="get" class="mgl-cp-toolbar">
+    <input type="search" name="q" value="{{ search }}" placeholder="Search player or club">
+    <label>From
+        <select name="from">
+            <option value="">All</option>
+            {% for option in from_options %}
+                <option value="{{ option }}" {% if selected_from == option %}selected{% endif %}>{{ option }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <label>To
+        <select name="to">
+            <option value="">All</option>
+            {% for option in to_options %}
+                <option value="{{ option }}" {% if selected_to == option %}selected{% endif %}>{{ option }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <label>Position
+        <select name="position">
+            <option value="">All</option>
+            {% for option in position_options %}
+                <option value="{{ option }}" {% if selected_position == option %}selected{% endif %}>{{ option }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <button class="header-button mgl-cp-review-btn" type="submit">FILTER</button>
+</form>
+
+<section class="dashboard-panel mgl-cp-panel mgl-cp-table-wrap">
+    <p class="visually-hidden">SCOUTING ACTIVITY</p>
+    <table class="mgl-cp-table">
+        <thead>
+            <tr>
+                <th>PLAYER</th>
+                <th>POSITION</th>
+                <th>FROM</th>
+                <th>TO</th>
+                <th>TYPE</th>
+                <th>DATE</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in movement_rows %}
+                <tr>
+                    <td><strong>{{ row.player }}</strong></td>
+                    <td>{{ row.position }}</td>
+                    <td>{{ row.from_label }}</td>
+                    <td>{{ row.to_label }}</td>
+                    <td>{{ row.move_type }}</td>
+                    <td>{{ row.date }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="6">{% include "mgl/includes/empty_state.html" with title="NO SCOUTING ACTIVITY" %}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </section>
 {% endblock %}

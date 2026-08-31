@@ -1,18 +1,14 @@
-{% extends "core/base.html" %}
+{% extends "mgl/includes/control_page.html" %}
 {% load mgl_ui %}
 
-{% block title %}{{ section.label }} — Website Content{% endblock %}
+{% block control_title %}{{ section.label }} — Website Content{% endblock %}
+{% block control_kicker %}LEAGUE CONTROL{% endblock %}
+{% block control_heading %}{{ section.label }}{% endblock %}
+{% block control_intro %}Preview shows the new wording. Nothing is saved until you press SAVE CHANGES.{% endblock %}
 
-{% block content %}
+{% block control_body %}
+<p><a href="{% url 'site_management_content' %}" class="view-all">SECTIONS →</a></p>
 <section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">WEBSITE CONTENT</div>
-            <h1>{{ section.label }}</h1>
-            <p>Preview shows the new wording. Nothing is saved until you press SAVE CHANGES.</p>
-        </div>
-        <a href="{% url 'site_management_content' %}" class="view-all">SECTIONS →</a>
-    </div>
 
     {{ values|json_script:"sm-content-values" }}
     <form method="post" class="sm-form" id="sm-content-form">
@@ -50,7 +46,7 @@
 </section>
 {% endblock %}
 
-{% block extra_js %}
+{% block control_js %}
 <script>
 (function () {
     var node = document.getElementById("sm-content-values");

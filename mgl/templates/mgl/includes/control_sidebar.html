@@ -2,130 +2,63 @@
 <button type="button" class="mgl-cp-menu" id="cp-menu" aria-controls="cp-sidebar" aria-expanded="false">CONTROL MENU</button>
 <aside class="mgl-cp-sidebar" id="cp-sidebar">
     <div class="mgl-cp-brand">
-        <img src="{% static 'core/img/mgl-logo.png' %}" alt="">
-        <p class="mgl-cp-sidebar-title">MGL CONTROL<small>ADMIN BACK OFFICE</small></p>
+        <img src="{% static 'core/img/mgl-logo.png' %}" alt="MGL">
+        <p class="mgl-cp-sidebar-title">MGL<small>CONTROL SYSTEM</small></p>
     </div>
     <nav aria-label="Control panel">
-        <p class="mgl-cp-nav-group">DASHBOARD</p>
-        <a href="{% url 'control_centre' %}" class="{% if control_section == 'dashboard' %}is-active{% endif %}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.2"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.2"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.2"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.2"/></svg>
-            Dashboard
-        </a>
+        <details class="mgl-cp-nav-group {% if control_section == 'dashboard' or control_section == 'pending' or control_section == 'scores' or control_section == 'transfers' or control_section == 'press' or control_section == 'managers' %}is-current{% endif %}" {% if control_section == 'dashboard' or control_section == 'pending' or control_section == 'scores' or control_section == 'transfers' or control_section == 'press' or control_section == 'managers' %}open{% endif %}>
+            <summary>APPROVALS</summary>
+            <a href="{% url 'control_centre' %}" class="{% if control_section == 'dashboard' %}is-active{% endif %}">Approval Center</a>
+            <a href="{% url 'control_pending' %}" class="{% if control_section == 'pending' %}is-active{% endif %}">Pending Approvals{% if pending_counts.approvals %}<span class="mgl-cp-badge">{{ pending_counts.approvals }}</span>{% endif %}</a>
+            <a href="{% url 'control_scores' %}" class="{% if control_section == 'scores' %}is-active{% endif %}">Scores Approvals{% if pending_counts.results %}<span class="mgl-cp-badge">{{ pending_counts.results }}</span>{% endif %}</a>
+            <a href="{% url 'control_transfers' %}" class="{% if control_section == 'transfers' %}is-active{% endif %}">Transfer Approvals{% if pending_counts.listings %}<span class="mgl-cp-badge">{{ pending_counts.listings }}</span>{% endif %}</a>
+            <a href="{% url 'control_press' %}" class="{% if control_section == 'press' %}is-active{% endif %}">Press Conference Approvals{% if pending_counts.press %}<span class="mgl-cp-badge">{{ pending_counts.press }}</span>{% endif %}</a>
+            <a href="{% url 'control_managers' %}" class="{% if control_section == 'managers' %}is-active{% endif %}">Manager Applications{% if pending_counts.managers or pending_counts.jobs %}<span class="mgl-cp-badge">{{ pending_counts.managers|add:pending_counts.jobs }}</span>{% endif %}</a>
+        </details>
 
-        <p class="mgl-cp-nav-group">APPROVALS</p>
-        <a href="{% url 'control_pending' %}" class="{% if control_section == 'pending' %}is-active{% endif %}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><path d="M12 8v4.4l2.6 1.6"/></svg>
-            Pending Approvals
-            {% if pending_counts.approvals %}<span class="mgl-cp-badge">{{ pending_counts.approvals }}</span>{% endif %}
-        </a>
-        <a href="{% url 'control_scores' %}" class="{% if control_section == 'scores' %}is-active{% endif %}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4v16M4 12h16"/></svg>
-            Scores Approvals
-            {% if pending_counts.results %}<span class="mgl-cp-badge">{{ pending_counts.results }}</span>{% endif %}
-        </a>
-        <a href="{% url 'control_transfers' %}" class="{% if control_section == 'transfers' %}is-active{% endif %}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 8h13l-3-3"/><path d="M20 16H7l3 3"/></svg>
-            Transfer Approvals
-            {% if pending_counts.listings %}<span class="mgl-cp-badge">{{ pending_counts.listings }}</span>{% endif %}
-        </a>
-        <a href="{% url 'control_press' %}" class="{% if control_section == 'press' %}is-active{% endif %}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 14a4 4 0 0 0 4-4V6a4 4 0 1 0-8 0v4a4 4 0 0 0 4 4Z"/><path d="M6 11a6 6 0 0 0 12 0"/></svg>
-            Press Conference Approvals
-            {% if pending_counts.press %}<span class="mgl-cp-badge">{{ pending_counts.press }}</span>{% endif %}
-        </a>
-        <a href="{% url 'control_managers' %}" class="{% if control_section == 'managers' %}is-active{% endif %}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="9" cy="8" r="2.4"/><path d="M4.8 17.2a4.3 4.3 0 0 1 8.4 0"/></svg>
-            Manager Applications
-            {% if pending_counts.managers or pending_counts.jobs %}<span class="mgl-cp-badge">{{ pending_counts.managers|add:pending_counts.jobs }}</span>{% endif %}
-        </a>
+        <details class="mgl-cp-nav-group {% if control_section == 'weekly' or control_section == 'monthly' %}is-current{% endif %}" {% if control_section == 'weekly' or control_section == 'monthly' %}open{% endif %}>
+            <summary>HISTORY</summary>
+            <a href="{% url 'control_weekly_awards' %}" class="{% if control_section == 'weekly' %}is-active{% endif %}">Weekly Rewards{% if pending_counts.weekly %}<span class="mgl-cp-badge">{{ pending_counts.weekly }}</span>{% endif %}</a>
+            <a href="{% url 'control_monthly_awards' %}" class="{% if control_section == 'monthly' %}is-active{% endif %}">Monthly Rewards{% if pending_counts.monthly %}<span class="mgl-cp-badge">{{ pending_counts.monthly }}</span>{% endif %}</a>
+        </details>
 
-        <p class="mgl-cp-nav-group">HISTORY</p>
-        <a href="{% url 'control_weekly_awards' %}" class="{% if control_section == 'weekly' %}is-active{% endif %}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M8 4h8v4a4 4 0 0 1-8 0V4Z"/><path d="M12 12v8"/></svg>
-            Weekly Rewards
-            {% if pending_counts.weekly %}<span class="mgl-cp-badge">{{ pending_counts.weekly }}</span>{% endif %}
-        </a>
-        <a href="{% url 'control_monthly_awards' %}" class="{% if control_section == 'monthly' %}is-active{% endif %}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4"/></svg>
-            Monthly Rewards
-            {% if pending_counts.monthly %}<span class="mgl-cp-badge">{{ pending_counts.monthly }}</span>{% endif %}
-        </a>
+        <details class="mgl-cp-nav-group {% if control_section == 'clubs' or control_section == 'scouting' or control_section == 'auctions' or control_section == 'tokens' %}is-current{% endif %}" {% if control_section == 'clubs' or control_section == 'scouting' or control_section == 'auctions' or control_section == 'tokens' %}open{% endif %}>
+            <summary>MANAGEMENT</summary>
+            <a href="{% url 'control_clubs' %}" class="{% if control_section == 'clubs' %}is-active{% endif %}">Clubs &amp; Managers</a>
+            <a href="{% url 'control_scouting' %}" class="{% if control_section == 'scouting' %}is-active{% endif %}">Scouting{% if pending_counts.scouts %}<span class="mgl-cp-badge">{{ pending_counts.scouts }}</span>{% endif %}</a>
+            <a href="{% url 'control_auctions' %}" class="{% if control_section == 'auctions' %}is-active{% endif %}">Auctions / Release Players{% if pending_counts.auctions %}<span class="mgl-cp-badge">{{ pending_counts.auctions }}</span>{% endif %}</a>
+            <a href="{% url 'player_database' %}">Player Database</a>
+            <a href="{% url 'control_tokens' %}" class="{% if control_section == 'tokens' %}is-active{% endif %}">Token Rewards</a>
+        </details>
 
-        <p class="mgl-cp-nav-group">MANAGEMENT</p>
-        <a href="{% url 'control_clubs' %}" class="{% if control_section == 'clubs' %}is-active{% endif %}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 8h16v11H4z"/><path d="M8 8V5h8v3"/></svg>
-            Clubs &amp; Managers
-        </a>
-        <a href="{% url 'control_scouting' %}" class="{% if control_section == 'scouting' %}is-active{% endif %}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="11" cy="11" r="6.2"/><path d="m16 16 4 4"/></svg>
-            Scouting History
-            {% if pending_counts.scouts %}<span class="mgl-cp-badge">{{ pending_counts.scouts }}</span>{% endif %}
-        </a>
-        <a href="{% url 'control_auctions' %}" class="{% if control_section == 'auctions' %}is-active{% endif %}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m7 14 8.5-8.5a2 2 0 0 1 2.8 2.8L10 16.6"/></svg>
-            Auctions / Release Players
-            {% if pending_counts.auctions %}<span class="mgl-cp-badge">{{ pending_counts.auctions }}</span>{% endif %}
-        </a>
-        <a href="{% url 'player_database' %}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><ellipse cx="12" cy="6.5" rx="7" ry="2.5"/><path d="M5 6.5v11c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-11"/></svg>
-            Player Database
-        </a>
-        <a href="{% url 'control_tokens' %}" class="{% if control_section == 'tokens' %}is-active{% endif %}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="7"/><path d="M12 8v8M9 11h6"/></svg>
-            Token Rewards
-        </a>
+        <details class="mgl-cp-nav-group {% if control_section == 'season_history' or control_section == 'season_controls' or control_section == 'season_settings' %}is-current{% endif %}" {% if control_section == 'season_history' or control_section == 'season_controls' or control_section == 'season_settings' %}open{% endif %}>
+            <summary>SEASON</summary>
+            <a href="{% url 'control_season_history' %}" class="{% if control_section == 'season_history' %}is-active{% endif %}">Season History</a>
+            <a href="{% url 'control_season_controls' %}" class="{% if control_section == 'season_controls' %}is-active{% endif %}">Season Controls</a>
+            <a href="{% url 'season_management' %}" class="{% if control_section == 'season_settings' %}is-active{% endif %}">Season Settings</a>
+        </details>
 
-        <p class="mgl-cp-nav-group">SEASON</p>
-        <a href="{% url 'control_season_history' %}" class="{% if control_section == 'season_history' %}is-active{% endif %}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"/></svg>
-            Season History
-        </a>
-        <a href="{% url 'control_season_controls' %}" class="{% if control_section == 'season_controls' %}is-active{% endif %}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 8v8M8 12h8"/><circle cx="12" cy="12" r="8.2"/></svg>
-            Season Controls
-        </a>
-        <a href="{% url 'control_logs' %}" class="{% if control_section == 'logs' %}is-active{% endif %}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 13h4l2-6 4 10 2-4h4"/></svg>
-            Logs &amp; Activity
-        </a>
+        <details class="mgl-cp-nav-group {% if control_section == 'logs' or control_section == 'notifications' %}is-current{% endif %}" {% if control_section == 'logs' or control_section == 'notifications' %}open{% endif %}>
+            <summary>SYSTEM</summary>
+            <a href="{% url 'control_logs' %}" class="{% if control_section == 'logs' %}is-active{% endif %}">Logs &amp; Activity</a>
+            <a href="{% url 'control_notifications' %}" class="{% if control_section == 'notifications' %}is-active{% endif %}">Notification History</a>
+        </details>
 
-        <p class="mgl-cp-nav-group">LEAGUE CONTROL</p>
-        <a href="{% url 'control_league' %}" class="{% if control_section == 'league' %}is-active{% endif %}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="3"/></svg>
-            League Settings
-        </a>
-        <a href="{% url 'site_management_teams' %}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 8h16v11H4z"/></svg>
-            Teams &amp; Clubs
-        </a>
-        <a href="{% url 'site_management_settings' %}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"/></svg>
-            Website Settings
-        </a>
-        <a href="{% url 'season_management' %}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M8 3v4M16 3v4"/><rect x="4" y="5" width="16" height="15" rx="2"/></svg>
-            Season Settings
-        </a>
-        <a href="{% url 'control_league' %}#transfers">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 8h13l-3-3"/></svg>
-            Transfer Settings
-        </a>
-        <a href="{% url 'control_league' %}#rewards">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M8 4h8v4a4 4 0 0 1-8 0V4Z"/></svg>
-            Reward Settings
-        </a>
-        <a href="{% url 'control_notifications' %}" class="{% if control_section == 'notifications' %}is-active{% endif %}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M6 9a6 6 0 0 1 12 0c0 7 2 8 2 8H4s2-1 2-8"/></svg>
-            Notification History
-        </a>
-        <a href="{% url 'site_management' %}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 8h16v11H4z"/></svg>
-            Site Management
-        </a>
+        <details class="mgl-cp-nav-group {% if control_section == 'league' or control_section == 'site' or control_section == 'teams' or control_section == 'settings' %}is-current{% endif %}" {% if control_section == 'league' or control_section == 'site' or control_section == 'teams' or control_section == 'settings' %}open{% endif %}>
+            <summary>LEAGUE CONTROL</summary>
+            <a href="{% url 'control_league' %}" class="{% if control_section == 'league' %}is-active{% endif %}">League Control</a>
+            <a href="{% url 'site_management_settings' %}" class="{% if control_section == 'settings' %}is-active{% endif %}">Site Settings</a>
+            <a href="{% url 'site_management_teams' %}" class="{% if control_section == 'teams' %}is-active{% endif %}">Team Management</a>
+            <a href="{% url 'site_management_leagues' %}" class="{% if control_section == 'leagues' %}is-active{% endif %}">League Settings</a>
+            <a href="{% url 'control_league' %}#transfers">Transfer Settings</a>
+            <a href="{% url 'control_league' %}#rewards">Reward Settings</a>
+            <a href="{% url 'site_management' %}" class="{% if control_section == 'site' %}is-active{% endif %}">Site Management</a>
+        </details>
     </nav>
     <div class="mgl-cp-league-status">
         <p>STATUS <strong>{{ league_status|default:"ACTIVE" }}</strong></p>
         <p>TRANSFER WINDOW <strong>{% if window_open %}OPEN{% else %}CLOSED{% endif %}</strong></p>
     </div>
     <a href="{% url 'home' %}" class="mgl-cp-view-site">VIEW SITE</a>
+    <a href="{% url 'home' %}" class="mgl-cp-sidebar-logo"><img src="{% static 'core/img/mgl-logo.png' %}" alt="MGL"></a>
 </aside>

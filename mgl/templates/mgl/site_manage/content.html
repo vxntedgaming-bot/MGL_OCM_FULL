@@ -1,16 +1,13 @@
-{% extends "core/base.html" %}
+{% extends "mgl/includes/control_page.html" %}
 
-{% block title %}Website Content — Site Management{% endblock %}
+{% block control_title %}Website Content — Site Management{% endblock %}
+{% block control_kicker %}LEAGUE CONTROL{% endblock %}
+{% block control_heading %}WEBSITE CONTENT{% endblock %}
+{% block control_intro %}Edit public copy stored in the existing content table.{% endblock %}
 
-{% block content %}
+{% block control_body %}
+<p><a href="{% url 'site_management' %}" class="view-all">BACK →</a></p>
 <section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">SITE MANAGEMENT</div>
-            <h1>WEBSITE CONTENT</h1>
-        </div>
-        <a href="{% url 'site_management' %}" class="view-all">BACK →</a>
-    </div>
     <div class="sm-section-list">
         {% for section in sections %}
             <article class="sm-section-row">

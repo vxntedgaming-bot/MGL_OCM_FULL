@@ -10,6 +10,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods
 
 from leagues.models import League
+from mgl.control_desk import merge_control_shell
 from mgl.models import SiteChangeLog
 from mgl.permissions import site_manage_required
 from mgl.site_cms import (
@@ -60,10 +61,14 @@ def site_management(request):
     return render(
         request,
         "mgl/site_manage/hub.html",
-        {
-            "recent_changes": recent,
-            "content_sections": public_sections(),
-        },
+        merge_control_shell(
+            request,
+            "site",
+            {
+                "recent_changes": recent,
+                "content_sections": public_sections(),
+            },
+        ),
     )
 
 
@@ -77,7 +82,7 @@ def site_management_teams(request):
     return render(
         request,
         "mgl/site_manage/teams.html",
-        {"teams": teams},
+        merge_control_shell(request, "teams", {"teams": teams}),
     )
 
 
@@ -193,13 +198,17 @@ def site_management_team_edit(request, team_id):
     return render(
         request,
         "mgl/site_manage/team_edit.html",
-        {
-            "team": team,
-            "form": form,
-            "errors": errors,
-            "preview": preview,
-            "player_count": team.players.count(),
-        },
+        merge_control_shell(
+            request,
+            "teams",
+            {
+                "team": team,
+                "form": form,
+                "errors": errors,
+                "preview": preview,
+                "player_count": team.players.count(),
+            },
+        ),
     )
 
 
@@ -208,7 +217,7 @@ def site_management_content(request):
     return render(
         request,
         "mgl/site_manage/content.html",
-        {"sections": public_sections()},
+        merge_control_shell(request, "site", {"sections": public_sections()}),
     )
 
 
@@ -236,13 +245,17 @@ def site_management_content_section(request, section):
     return render(
         request,
         "mgl/site_manage/content_section.html",
-        {
-            "section": section_meta,
-            "fields": fields,
-            "values": values,
-            "errors": errors,
-            "preview": preview,
-        },
+        merge_control_shell(
+            request,
+            "site",
+            {
+                "section": section_meta,
+                "fields": fields,
+                "values": values,
+                "errors": errors,
+                "preview": preview,
+            },
+        ),
     )
 
 
@@ -266,11 +279,15 @@ def site_management_settings(request):
     return render(
         request,
         "mgl/site_manage/settings.html",
-        {
-            "fields": fields,
-            "values": values,
-            "preview": preview,
-        },
+        merge_control_shell(
+            request,
+            "settings",
+            {
+                "fields": fields,
+                "values": values,
+                "preview": preview,
+            },
+        ),
     )
 
 
@@ -282,7 +299,7 @@ def site_management_leagues(request):
     return render(
         request,
         "mgl/site_manage/leagues.html",
-        {"leagues": leagues},
+        merge_control_shell(request, "leagues", {"leagues": leagues}),
     )
 
 
@@ -395,11 +412,15 @@ def site_management_league_edit(request, league_id):
     return render(
         request,
         "mgl/site_manage/league_edit.html",
-        {
-            "league": league,
-            "form": form,
-            "errors": errors,
-            "preview": preview,
-            "team_count": league.teams.count(),
-        },
+        merge_control_shell(
+            request,
+            "leagues",
+            {
+                "league": league,
+                "form": form,
+                "errors": errors,
+                "preview": preview,
+                "team_count": league.teams.count(),
+            },
+        ),
     )

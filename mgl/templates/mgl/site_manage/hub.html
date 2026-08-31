@@ -1,57 +1,44 @@
-{% extends "core/base.html" %}
+{% extends "mgl/includes/control_page.html" %}
 
-{% block title %}Site Management — MGL Control{% endblock %}
+{% block control_title %}Site Management — MGL Control{% endblock %}
+{% block control_kicker %}LEAGUE CONTROL{% endblock %}
+{% block control_heading %}SITE MANAGEMENT{% endblock %}
+{% block control_intro %}Clubs, leagues, website copy and site settings.{% endblock %}
 
-{% block content %}
-<section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">CONTROL CENTRE</div>
-            <h1>SITE MANAGEMENT</h1>
+{% block control_body %}
+<div class="sm-hub-grid">
+    <a class="sm-hub-card" href="{% url 'site_management_teams' %}">
+        <div class="eyebrow">CLUBS</div>
+        <h2>TEAMS</h2>
+    </a>
+    <a class="sm-hub-card" href="{% url 'site_management_leagues' %}">
+        <div class="eyebrow">COMPETITION</div>
+        <h2>LEAGUES</h2>
+    </a>
+    <a class="sm-hub-card" href="{% url 'season_management' %}">
+        <div class="eyebrow">COMPETITION</div>
+        <h2>SEASONS</h2>
+    </a>
+    <a class="sm-hub-card" href="{% url 'site_management_content' %}">
+        <div class="eyebrow">COPY</div>
+        <h2>WEBSITE CONTENT</h2>
+    </a>
+    <a class="sm-hub-card" href="{% url 'site_management_settings' %}">
+        <div class="eyebrow">CONFIG</div>
+        <h2>SITE SETTINGS</h2>
+    </a>
+</div>
+
+<section class="dashboard-panel mgl-cp-panel">
+    <div class="panel-heading"><span>RECENT CHANGES</span></div>
+    {% for row in recent_changes %}
+        <div class="table-row sm-audit-row">
+            <span>{{ row.created_at|date:"d M Y H:i" }}</span>
+            <strong>{{ row.summary }}</strong>
+            <small>{% if row.user %}{{ row.user.username }}{% else %}—{% endif %}</small>
         </div>
-        <a href="{% url 'control_centre' %}" class="view-all">CONTROL →</a>
-    </div>
-    <div class="sm-hub-grid">
-        <a class="sm-hub-card" href="{% url 'site_management_teams' %}">
-            <div class="eyebrow">CLUBS</div>
-            <h2>TEAMS</h2>
-        </a>
-        <a class="sm-hub-card" href="{% url 'site_management_leagues' %}">
-            <div class="eyebrow">COMPETITION</div>
-            <h2>LEAGUES</h2>
-        </a>
-        <a class="sm-hub-card" href="{% url 'season_management' %}">
-            <div class="eyebrow">COMPETITION</div>
-            <h2>SEASONS</h2>
-        </a>
-        <a class="sm-hub-card" href="{% url 'site_management_content' %}">
-            <div class="eyebrow">COPY</div>
-            <h2>WEBSITE CONTENT</h2>
-        </a>
-        <a class="sm-hub-card" href="{% url 'site_management_settings' %}">
-            <div class="eyebrow">CONFIG</div>
-            <h2>SITE SETTINGS</h2>
-        </a>
-    </div>
-</section>
-
-<section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">AUDIT</div>
-            <h2>RECENT CHANGES</h2>
-        </div>
-    </div>
-    <div class="dashboard-panel">
-        {% for row in recent_changes %}
-            <div class="table-row sm-audit-row">
-                <span>{{ row.created_at|date:"d M Y H:i" }}</span>
-                <strong>{{ row.summary }}</strong>
-                <small>{% if row.user %}{{ row.user.username }}{% else %}—{% endif %}</small>
-            </div>
-        {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO SITE MANAGEMENT CHANGES YET" %}
-        {% endfor %}
-    </div>
+    {% empty %}
+        {% include "mgl/includes/empty_state.html" with title="NO SITE MANAGEMENT CHANGES YET" %}
+    {% endfor %}
 </section>
 {% endblock %}

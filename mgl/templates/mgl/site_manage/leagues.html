@@ -1,16 +1,13 @@
-{% extends "core/base.html" %}
+{% extends "mgl/includes/control_page.html" %}
 
-{% block title %}Leagues — Site Management{% endblock %}
+{% block control_title %}Leagues — Site Management{% endblock %}
+{% block control_kicker %}LEAGUE CONTROL{% endblock %}
+{% block control_heading %}LEAGUE SETTINGS{% endblock %}
+{% block control_intro %}Edit existing division names and display copy.{% endblock %}
 
-{% block content %}
+{% block control_body %}
+<p><a href="{% url 'site_management' %}" class="view-all">BACK →</a></p>
 <section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">SITE MANAGEMENT</div>
-            <h1>LEAGUES</h1>
-        </div>
-        <a href="{% url 'site_management' %}" class="view-all">BACK →</a>
-    </div>
     <div class="sm-team-grid">
         {% for league in leagues %}
             <article class="sm-team-card">

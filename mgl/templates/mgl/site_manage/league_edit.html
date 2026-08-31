@@ -1,17 +1,13 @@
-{% extends "core/base.html" %}
+{% extends "mgl/includes/control_page.html" %}
 
-{% block title %}Edit {{ league.public_name }} — Site Management{% endblock %}
+{% block control_title %}Edit {{ league.public_name }} — Site Management{% endblock %}
+{% block control_kicker %}LEAGUE CONTROL{% endblock %}
+{% block control_heading %}EDIT {{ league.public_name|upper }}{% endblock %}
+{% block control_intro %}League ID {{ league.id }} stays unchanged. Canonical name {{ league.name }} / {{ league.short_name }} is not rewritten.{% endblock %}
 
-{% block content %}
+{% block control_body %}
+<p><a href="{% url 'site_management_leagues' %}" class="view-all">LEAGUES →</a></p>
 <section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">SITE MANAGEMENT · LEAGUES</div>
-            <h1>EDIT {{ league.public_name|upper }}</h1>
-            <p>League ID {{ league.id }} stays unchanged. Canonical name {{ league.name }} / {{ league.short_name }} is not rewritten, so existing structure jobs cannot overwrite your public label.</p>
-        </div>
-        <a href="{% url 'site_management_leagues' %}" class="view-all">LEAGUES →</a>
-    </div>
 
     {% if errors %}
         <div class="mgl-messages">
@@ -63,7 +59,7 @@
 </section>
 {% endblock %}
 
-{% block extra_js %}
+{% block control_js %}
 <script>
 (function () {
     var name = document.getElementById("id_display_name");

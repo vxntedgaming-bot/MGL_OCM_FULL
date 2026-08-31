@@ -1,174 +1,163 @@
-{% extends "core/base.html" %}
+{% extends "mgl/includes/control_page.html" %}
 {% load static mgl_ui %}
 
-{% block title %}MGL Control — Owner / Admin{% endblock %}
-{% block body_class %}mgl-control-body{% endblock %}
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'core/css/mgl-control.css' %}?v=cp-3">
-{% endblock %}
+{% block control_title %}MGL Control — Owner / Admin{% endblock %}
+{% block control_crumb %}CONTROL / APPROVAL CENTER{% endblock %}
+{% block control_kicker %}LEAGUE OFFICE{% endblock %}
+{% block control_heading %}OWNER / ADMIN CONTROL{% endblock %}
+{% block control_intro %}Welcome back, {{ user.role|title }}. WHAT NEEDS MY ATTENTION?{% endblock %}
 
-{% block content %}
-<div class="mgl-cp-page">
-    {% include "mgl/includes/control_sidebar.html" %}
-    <div class="mgl-cp-main">
-        <header class="mgl-cp-hero" id="dashboard">
+{% block control_body %}
+<p>
+    Signed in as
+    <span class="mgl-role-badge mgl-role-badge--{{ user.role|lower }}">{{ user.role }}</span>
+    · <a href="{% url 'site_management_teams' %}" class="mgl-cp-link">TEAMS →</a>
+</p>
+
+<section class="sm-hub-grid">
+    <a class="sm-hub-card" href="{% url 'site_management' %}">
+        <div class="eyebrow">OWNER / ADMIN</div>
+        <h2>SITE MANAGEMENT</h2>
+    </a>
+</section>
+
+<section class="mgl-cp-stats" aria-label="Pending approvals">
+    <a class="mgl-cp-stat {% if pending_counts.results %}is-hot{% endif %}" href="{% url 'control_scores' %}">
+        <p>SCORES</p>
+        <p class="visually-hidden">MATCH RESULTS</p>
+        <strong {% if pending_counts.results %}class="is-gold"{% endif %}>{{ pending_counts.results }}</strong>
+        <span class="mgl-cp-smile" aria-hidden="true"></span>
+        <span>Awaiting approval</span>
+        <em>View All</em>
+    </a>
+    <a class="mgl-cp-stat {% if pending_counts.listings %}is-hot{% endif %}" href="{% url 'control_transfers' %}">
+        <p>TRANSFERS</p>
+        <p class="visually-hidden">TRANSFER REQUESTS</p>
+        <strong {% if not pending_counts.listings %}class="is-gold"{% endif %}>{{ pending_counts.listings }}</strong>
+        <span class="mgl-cp-smile" aria-hidden="true"></span>
+        <span>Awaiting approval</span>
+        <em>View All</em>
+    </a>
+    <a class="mgl-cp-stat {% if pending_counts.press %}is-hot{% endif %}" href="{% url 'control_press' %}">
+        <p>PRESS</p>
+        <p class="visually-hidden">PRESS CONFERENCE ANSWERS</p>
+        <strong {% if pending_counts.press %}class="is-gold"{% endif %}>{{ pending_counts.press }}</strong>
+        <span class="mgl-cp-smile" aria-hidden="true"></span>
+        <span>Pending press conferences</span>
+        <em>View All</em>
+    </a>
+    <a class="mgl-cp-stat {% if pending_counts.managers %}is-hot{% endif %}" href="{% url 'control_managers' %}">
+        <p>APPLICATIONS</p>
+        <strong {% if not pending_counts.managers %}class="is-gold"{% endif %}>{{ pending_counts.managers }}</strong>
+        <span class="mgl-cp-smile" aria-hidden="true"></span>
+        <span>New applications</span>
+        <em>View All</em>
+    </a>
+</section>
+
+<section class="mgl-cp-stats" aria-label="Other queues">
+    <a class="mgl-cp-stat {% if pending_counts.approvals %}is-hot{% endif %}" href="{% url 'control_pending' %}">
+        <p>PENDING APPROVALS</p>
+        <p class="visually-hidden">PENDING ACTIONS</p>
+        <strong>{{ pending_counts.approvals }}</strong>
+        <span>Needs your attention</span>
+        <em>VIEW →</em>
+    </a>
+    <a class="mgl-cp-stat {% if pending_counts.awards %}is-hot{% endif %}" href="{% url 'control_weekly_awards' %}">
+        <p>AWARDS</p>
+        <strong>{{ pending_counts.awards }}</strong>
+        <span>Weekly / monthly review</span>
+        <em>VIEW →</em>
+    </a>
+    <a class="mgl-cp-stat {% if pending_counts.auctions %}is-hot{% endif %}" href="{% url 'control_auctions' %}">
+        <p>AUCTIONS</p>
+        <strong>{{ pending_counts.auctions }}</strong>
+        <span>Live auctions</span>
+        <em>VIEW →</em>
+    </a>
+    <a class="mgl-cp-stat {% if pending_counts.scouts %}is-hot{% endif %}" href="{% url 'control_scouting' %}">
+        <p>SCOUTING</p>
+        <strong>{{ pending_counts.scouts }}</strong>
+        <span>Active assignments</span>
+        <em>VIEW →</em>
+    </a>
+</section>
+
+<section class="dashboard-panel mgl-cp-panel" id="approvals">
+    <div class="panel-heading"><span>RECENT SUBMISSIONS</span><a href="{% url 'control_pending' %}">VIEW ALL →</a></div>
+    <p class="mgl-cp-kicker">LATEST PENDING ACTIONS</p>
+    {% for item in attention_items %}
+        <article class="mgl-cp-attention">
+            <span class="mgl-cp-activity-dot" aria-hidden="true"></span>
             <div>
-                <p class="eyebrow">LEAGUE OFFICE</p>
-                <h1>OWNER / ADMIN CONTROL</h1>
-                <p class="mgl-cp-welcome">Welcome back, {{ user.role|title }}.</p>
-                <p class="mgl-cp-welcome">WHAT NEEDS MY ATTENTION?</p>
-                <p>
-                    Signed in as
-                    <span class="mgl-role-badge mgl-role-badge--{{ user.role|lower }}">{{ user.role }}</span>
-                </p>
+                <strong>{{ item.title }}</strong>
+                <p>{{ item.kind }} · {{ item.detail }}</p>
+                <small>{{ item.meta }} · {{ item.when|timesince }} ago</small>
             </div>
-            <img src="{% static 'core/img/mgl-logo.png' %}" alt="" class="mgl-cp-watermark">
-            <a href="{% url 'site_management_teams' %}" class="view-all">TEAMS →</a>
-        </header>
+            <span class="mgl-cp-status is-warn">PENDING</span>
+        </article>
+        <a href="{{ item.url }}" class="header-button mgl-cp-review-btn">REVIEW →</a>
+    {% empty %}
+        {% include "mgl/includes/empty_state.html" with title="NOTHING WAITING" %}
+    {% endfor %}
+</section>
 
-        <section class="sm-hub-grid">
-            <a class="sm-hub-card" href="{% url 'site_management' %}">
-                <div class="eyebrow">OWNER / ADMIN</div>
-                <h2>SITE MANAGEMENT</h2>
-            </a>
-        </section>
+<section class="mgl-cp-census">
+    <article>
+        <p>ACTIVE CLUBS</p>
+        <strong>{{ club_count }}</strong>
+    </article>
+    <article>
+        <p>MANAGERS</p>
+        <strong>{{ manager_count }}</strong>
+    </article>
+    <article>
+        <p>UNSIGNED PLAYERS</p>
+        <strong>{{ unsigned_count }}</strong>
+    </article>
+    <article>
+        <p>CURRENT SEASON</p>
+        <strong>{{ current_season_number }}</strong>
+    </article>
+</section>
 
-        <section class="mgl-cp-stats" aria-label="Pending counts">
-            <a class="mgl-cp-stat {% if pending_counts.approvals %}is-hot{% endif %}" href="{% url 'control_pending' %}">
-                <p>PENDING APPROVALS</p>
-                <p class="visually-hidden">PENDING ACTIONS</p>
-                <strong>{{ pending_counts.approvals }}</strong>
-                <span>Needs your attention</span>
-                <em>VIEW →</em>
-            </a>
-            <a class="mgl-cp-stat {% if pending_counts.results %}is-hot{% endif %}" href="{% url 'control_scores' %}">
-                <p>MATCH RESULTS</p>
-                <strong>{{ pending_counts.results }}</strong>
-                <span>Awaiting approval</span>
-                <em>VIEW →</em>
-            </a>
-            <a class="mgl-cp-stat {% if pending_counts.listings %}is-hot{% endif %}" href="{% url 'control_transfers' %}">
-                <p>TRANSFER REQUESTS</p>
-                <strong>{{ pending_counts.listings }}</strong>
-                <span>Awaiting approval</span>
-                <em>VIEW →</em>
-            </a>
-            <a class="mgl-cp-stat {% if pending_counts.press %}is-hot{% endif %}" href="{% url 'control_press' %}">
-                <p>PRESS CONFERENCE ANSWERS</p>
-                <strong>{{ pending_counts.press }}</strong>
-                <span>Pending press conferences</span>
-                <em>VIEW →</em>
-            </a>
-            <a class="mgl-cp-stat {% if pending_counts.awards %}is-hot{% endif %}" href="{% url 'control_weekly_awards' %}">
-                <p>AWARDS</p>
-                <strong>{{ pending_counts.awards }}</strong>
-                <span>Weekly / monthly review</span>
-                <em>VIEW →</em>
-            </a>
-            <a class="mgl-cp-stat {% if pending_counts.auctions %}is-hot{% endif %}" href="{% url 'control_auctions' %}">
-                <p>AUCTIONS</p>
-                <strong>{{ pending_counts.auctions }}</strong>
-                <span>Live auctions</span>
-                <em>VIEW →</em>
-            </a>
-            <a class="mgl-cp-stat {% if pending_counts.managers %}is-hot{% endif %}" href="{% url 'control_managers' %}">
-                <p>MANAGER APPLICATIONS</p>
-                <strong>{{ pending_counts.managers }}</strong>
-                <span>New applications</span>
-                <em>VIEW →</em>
-            </a>
-            <a class="mgl-cp-stat {% if pending_counts.scouts %}is-hot{% endif %}" href="{% url 'control_scouting' %}">
-                <p>SCOUTING</p>
-                <strong>{{ pending_counts.scouts }}</strong>
-                <span>Active assignments</span>
-                <em>VIEW →</em>
-            </a>
-        </section>
-
-        <section class="dashboard-panel mgl-cp-panel" id="approvals">
-            <div class="panel-heading"><span>NEEDS YOUR ATTENTION</span></div>
-            <p class="mgl-cp-kicker">LATEST PENDING ACTIONS</p>
-            {% for item in attention_items %}
-                <article class="mgl-cp-attention">
-                    <p class="mgl-cp-kicker">{{ item.kind }}</p>
-                    <strong>{{ item.title }}</strong>
-                    <span>{{ item.detail }}</span>
-                    <small>{{ item.meta }}</small>
-                    <a href="{{ item.url }}" class="header-button mgl-cp-approve">REVIEW →</a>
-                </article>
-            {% empty %}
-                {% include "mgl/includes/empty_state.html" with title="NOTHING WAITING" %}
-            {% endfor %}
-            <a href="{% url 'control_pending' %}" class="view-all">VIEW ALL PENDING →</a>
-        </section>
-
-        <section class="mgl-cp-census">
-            <article>
-                <p>ACTIVE CLUBS</p>
-                <p class="visually-hidden">CLUBS</p>
-                <strong>{{ club_count }}</strong>
-            </article>
-            <article>
-                <p>MANAGERS</p>
-                <strong>{{ manager_count }}</strong>
-            </article>
-            <article>
-                <p>UNSIGNED PLAYERS</p>
-                <strong>{{ unsigned_count }}</strong>
-            </article>
-            <article>
-                <p>CURRENT SEASON</p>
-                <strong>{{ current_season_number }}</strong>
-            </article>
-            <article>
-                <p>ASSIGNED PLAYERS</p>
-                <strong>{{ player_count }}</strong>
-            </article>
-        </section>
-
-        <section class="mgl-cp-grid mgl-cp-grid-2">
-            <div class="dashboard-panel mgl-cp-panel">
-                <div class="panel-heading"><span>CLUBS AND MANAGERS</span><a href="{% url 'control_clubs' %}">VIEW →</a></div>
-                {% for team in teams %}
-                    <div class="table-row">
-                        <strong>{{ team.name }}</strong>
-                        <span>{{ team.league.short_name }} · {% if team.manager %}{{ team.manager.username }}{% else %}VACANT{% endif %}</span>
-                        <b>{{ team.tokens }} TKN</b>
-                    </div>
-                {% empty %}
-                    {% include "mgl/includes/empty_state.html" with title="NO CLUBS YET" %}
-                {% endfor %}
+<section class="mgl-cp-grid">
+    <div class="dashboard-panel mgl-cp-panel">
+        <div class="panel-heading"><span>CLUBS AND MANAGERS</span><a href="{% url 'control_clubs' %}">VIEW →</a></div>
+        {% for team in teams %}
+            <div class="table-row">
+                <strong>{{ team.name }}</strong>
+                <span>{{ team.league.short_name }} · {% if team.manager %}{{ team.manager.username }}{% else %}VACANT{% endif %}</span>
+                <b class="mgl-cp-gold">{{ team.tokens }} TKN</b>
             </div>
-            <div class="dashboard-panel mgl-cp-panel">
-                <div class="panel-heading"><span>RECENT ACTIVITY</span><a href="{% url 'control_logs' %}">VIEW →</a></div>
-                {% for row in recent_audit %}
-                    <div class="mgl-cp-activity">
-                        <span class="mgl-cp-activity-dot" aria-hidden="true"></span>
-                        <div>
-                            <strong>{{ row.action }}</strong>
-                            <p>{{ row.summary }}</p>
-                            <small>{{ row.created_at|date:"d M Y H:i" }}{% if row.user %} · {{ row.user.username }}{% endif %}</small>
-                        </div>
-                    </div>
-                {% endfor %}
-                {% for row in recent_activity %}
-                    <div class="mgl-cp-activity">
-                        <span class="mgl-cp-activity-dot" aria-hidden="true"></span>
-                        <div>
-                            <strong>{{ row.get_transaction_type_display }}</strong>
-                            <p>{{ row.player.name|default:"—" }} · {{ row.from_team.short_name|default:"FA" }} → {{ row.to_team.short_name|default:"—" }} · {{ row.amount }} TKN</p>
-                            <small>{{ row.created_at|date:"d M Y H:i" }}{% if row.seller %} · {{ row.seller.display_name }}{% endif %}</small>
-                        </div>
-                    </div>
-                {% empty %}
-                    {% include "mgl/includes/empty_state.html" with title="NO TRANSACTIONS YET" %}
-                {% endfor %}
-            </div>
-        </section>
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with title="NO CLUBS YET" %}
+        {% endfor %}
     </div>
-</div>
-{% endblock %}
-
-{% block extra_js %}
-<script src="{% static 'core/js/mgl-control.js' %}?v=cp-3"></script>
+    <div class="dashboard-panel mgl-cp-panel">
+        <div class="panel-heading"><span>RECENT ACTIVITY</span><a href="{% url 'control_logs' %}">VIEW →</a></div>
+        {% for row in recent_audit %}
+            <div class="mgl-cp-activity">
+                <span class="mgl-cp-activity-dot" aria-hidden="true"></span>
+                <div>
+                    <strong>{{ row.action }}</strong>
+                    <p>{{ row.summary }}</p>
+                    <small>{{ row.created_at|date:"d M Y H:i" }}{% if row.user %} · {{ row.user.username }}{% endif %}</small>
+                </div>
+            </div>
+        {% endfor %}
+        {% for row in recent_activity %}
+            <div class="mgl-cp-activity">
+                <span class="mgl-cp-activity-dot" aria-hidden="true"></span>
+                <div>
+                    <strong>{{ row.get_transaction_type_display }}</strong>
+                    <p>{{ row.player.name|default:"—" }} · {{ row.from_team.short_name|default:"FA" }} → {{ row.to_team.short_name|default:"—" }} · {{ row.amount }} TKN</p>
+                    <small>{{ row.created_at|date:"d M Y H:i" }}{% if row.seller %} · {{ row.seller.display_name }}{% endif %}</small>
+                </div>
+            </div>
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with title="NO TRANSACTIONS YET" %}
+        {% endfor %}
+    </div>
+</section>
 {% endblock %}

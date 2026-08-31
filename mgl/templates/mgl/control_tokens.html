@@ -1,7 +1,7 @@
 {% extends "mgl/includes/control_page.html" %}
 
 {% block control_title %}Token Rewards — MGL Control{% endblock %}
-{% block control_kicker %}FINANCE{% endblock %}
+{% block control_kicker %}MANAGEMENT{% endblock %}
 {% block control_heading %}TOKEN REWARDS{% endblock %}
 {% block control_intro %}Every add, remove or award is written to the existing token ledger.{% endblock %}
 
@@ -19,7 +19,7 @@
         <button class="header-button" type="submit">OPEN LEDGER</button>
     </form>
     {% if selected_manager %}
-        <p class="mgl-cp-kicker">{{ selected_manager.display_name }} · CURRENT BALANCE {{ selected_manager.tokens }}</p>
+        <p class="mgl-cp-kicker">{{ selected_manager.display_name }} · CURRENT BALANCE <span class="mgl-cp-gold">{{ selected_manager.tokens }}</span></p>
     {% endif %}
 </section>
 
@@ -42,37 +42,30 @@
     </form>
 </section>
 
-<section class="dashboard-panel mgl-cp-panel">
-    <div class="panel-heading"><span>TOKEN LEDGER</span></div>
-    {% for row in recent_rewards %}
-        <div class="table-row mgl-cp-row">
-            <strong>{{ row.manager.display_name }}</strong>
-            <span>{{ row.amount }} · {{ row.category }} · {{ row.reason }}</span>
-            <small>
-                {{ row.balance_before|default:"—" }} → {{ row.balance_after|default:"—" }}
-                {% if row.created_by %} · {{ row.created_by.username }}{% endif %}
-                {% if row.reversed_at %} · REVERSED{% endif %}
-                · {{ row.reference|default:"—" }}
-                · {{ row.created_at|date:"d M Y H:i" }}
-            </small>
-        </div>
-    {% empty %}
-        {% include "mgl/includes/empty_state.html" with title="NO REWARD TRANSACTIONS" %}
-    {% endfor %}
-</section>
-
-<section class="dashboard-panel mgl-cp-panel">
-    <div class="panel-heading"><span>TOKEN TRANSACTIONS</span></div>
-    {% for row in transactions %}
-        <div class="table-row">
-            <span>{{ row.created_at|date:"d M Y H:i" }}</span>
-            <strong>{{ row.get_transaction_type_display }}</strong>
-            <span>{{ row.player.name|default:"—" }}</span>
-            <span>{{ row.from_team.short_name|default:"FA" }} → {{ row.to_team.short_name|default:"—" }}</span>
-            <b>{{ row.amount }} TKN</b>
-        </div>
-    {% empty %}
-        {% include "mgl/includes/empty_state.html" with title="NO TRANSACTIONS YET" %}
-    {% endfor %}
+<section class="dashboard-panel mgl-cp-panel mgl-cp-table-wrap">
+    <table class="mgl-cp-table">
+        <thead>
+            <tr>
+                <th>MANAGER</th>
+                <th>AMOUNT</th>
+                <th>CATEGORY</th>
+                <th>REASON</th>
+                <th>DATE</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in recent_rewards %}
+                <tr>
+                    <td>{{ row.manager.display_name }}</td>
+                    <td class="mgl-cp-gold">{{ row.amount }}</td>
+                    <td>{{ row.category }}</td>
+                    <td>{{ row.reason }}</td>
+                    <td>{{ row.created_at|date:"d M Y H:i" }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="5">{% include "mgl/includes/empty_state.html" with title="NO REWARD TRANSACTIONS" %}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </section>
 {% endblock %}
