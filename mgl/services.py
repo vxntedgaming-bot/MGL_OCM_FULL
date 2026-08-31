@@ -39,11 +39,31 @@ def manager_for_user(user):
         return None
 
 
+def _open_reward(manager, category, reference):
+    if not reference:
+        return None
+    return RewardTransaction.objects.filter(
+        manager=manager,
+        category=category,
+        reference=reference,
+        reversed_at__isnull=True,
+    ).first()
+
+
 @transaction.atomic
-def credit_manager(manager, amount, reason, category="OTHER", fixture=None, reference=""):
+def credit_manager(
+    manager,
+    amount,
+    reason,
+    category="OTHER",
+    fixture=None,
+    reference="",
+    created_by=None,
+    reverses=None,
+):
     """
     Add tokens to a manager and permanently record the reward.
-    If reference is set, the same manager/category/reference pays only once.
+    If reference is set, the same open manager/category/reference pays only once.
     """
 
     amount = Decimal(str(amount))
@@ -55,16 +75,12 @@ def credit_manager(manager, amount, reason, category="OTHER", fixture=None, refe
         .get(pk=manager.pk)
     )
 
-    if reference:
-        existing = RewardTransaction.objects.filter(
-            manager=manager,
-            category=category,
-            reference=reference,
-        ).first()
-        if existing:
-            return existing
+    existing = _open_reward(manager, category, reference)
+    if existing:
+        return existing
 
-    manager.tokens = Decimal(manager.tokens) + amount
+    before = Decimal(manager.tokens)
+    manager.tokens = before + amount
     manager.save(update_fields=["tokens"])
 
     return RewardTransaction.objects.create(
@@ -74,14 +90,28 @@ def credit_manager(manager, amount, reason, category="OTHER", fixture=None, refe
         category=category,
         fixture=fixture,
         reference=reference,
+        balance_before=before,
+        balance_after=manager.tokens,
+        created_by=created_by if getattr(created_by, "is_authenticated", False) else None,
+        reverses=reverses,
     )
 
 
 @transaction.atomic
-def debit_manager(manager, amount, reason, category="OTHER", fixture=None, reference=""):
+def debit_manager(
+    manager,
+    amount,
+    reason,
+    category="OTHER",
+    fixture=None,
+    reference="",
+    created_by=None,
+    reverses=None,
+    allow_negative=False,
+):
     """
     Remove tokens safely and permanently record the transaction.
-    If reference is set, the same manager/category/reference debits only once.
+    If reference is set, the same open manager/category/reference debits only once.
     """
 
     amount = Decimal(str(amount))
@@ -93,19 +123,15 @@ def debit_manager(manager, amount, reason, category="OTHER", fixture=None, refer
         .get(pk=manager.pk)
     )
 
-    if reference:
-        existing = RewardTransaction.objects.filter(
-            manager=manager,
-            category=category,
-            reference=reference,
-        ).first()
-        if existing:
-            return existing
+    existing = _open_reward(manager, category, reference)
+    if existing:
+        return existing
 
-    if manager.tokens < amount:
+    if not allow_negative and manager.tokens < amount:
         raise ValueError("Manager does not have enough tokens.")
 
-    manager.tokens = Decimal(manager.tokens) - amount
+    before = Decimal(manager.tokens)
+    manager.tokens = before - amount
     manager.save(update_fields=["tokens"])
 
     return RewardTransaction.objects.create(
@@ -115,6 +141,10 @@ def debit_manager(manager, amount, reason, category="OTHER", fixture=None, refer
         category=category,
         fixture=fixture,
         reference=reference,
+        balance_before=before,
+        balance_after=manager.tokens,
+        created_by=created_by if getattr(created_by, "is_authenticated", False) else None,
+        reverses=reverses,
     )
 
 

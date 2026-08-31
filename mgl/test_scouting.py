@@ -391,6 +391,17 @@ class ScoutGenerationTests(TestCase):
         self.assertIn("Silver Scout", note.message)
         self.assertIn("Southern Europe", note.message)
 
+    def test_one_active_scout_blocks_every_other_tier(self):
+        first = dispatch_scout(self.manager, "BRONZE", "south-america", "ST")
+        with self.assertRaisesMessage(ValueError, "already have an active scout"):
+            dispatch_scout(self.manager, "SILVER", "southern-europe", "CM")
+        with self.assertRaisesMessage(ValueError, "already have an active scout"):
+            dispatch_scout(self.manager, "GOLD", "western-europe", "CB")
+        self.assertEqual(ScoutAssignment.objects.filter(manager=self.manager).count(), 1)
+        first.refresh_from_db()
+        self.assertEqual(first.player_id, self.bronze.id)
+        self.assertEqual(first.status, ScoutAssignment.PENDING)
+
 
 class ScoutRosterLimitTests(TestCase):
     def setUp(self):
@@ -542,3 +553,57 @@ class ScoutPageTests(TestCase):
         other_page = self.client.get(reverse("scouting"))
         self.assertNotContains(other_page, "Silver Scout Target")
         self.assertEqual(ScoutReport.objects.filter(manager=self.other).count(), 0)
+
+    def test_page_disables_all_dispatch_while_one_scout_is_active(self):
+        _player(name="Bronze Page Target", position="ST", overall=50, nationality="Brazil")
+        self.client.login(username="page", password="test-pass-123")
+        idle = self.client.get(reverse("scouting"))
+        self.assertNotContains(idle, "already on assignment")
+        self.assertEqual(idle.content.decode().count('mgl-sc-dispatch" disabled'), 0)
+        assignment = dispatch_scout(self.manager, "BRONZE", "south-america", "ST")
+        busy = self.client.get(reverse("scouting"))
+        self.assertContains(busy, "already on assignment")
+        self.assertEqual(busy.content.decode().count('mgl-sc-dispatch" disabled'), 4)
+        self.assertContains(busy, "BRONZE SCOUT")
+        self.assertContains(busy, "IN PROGRESS")
+        assignment.refresh_from_db()
+        self.assertEqual(assignment.player.name, "Bronze Page Target")
+
+    def test_double_dispatch_post_creates_one_assignment(self):
+        _player(name="Double Dispatch Target", position="ST", overall=51, nationality="Brazil")
+        self.client.login(username="page", password="test-pass-123")
+        payload = {
+            "action": "dispatch",
+            "tier": "BRONZE",
+            "region": "south-america",
+            "position": "ST",
+        }
+        first = self.client.post(reverse("scouting"), payload)
+        second = self.client.post(reverse("scouting"), payload)
+        self.assertEqual(first.status_code, 302)
+        self.assertEqual(second.status_code, 302)
+        self.assertEqual(ScoutAssignment.objects.filter(manager=self.manager).count(), 1)
+        assignment = ScoutAssignment.objects.get(manager=self.manager)
+        self.assertEqual(assignment.tier, "BRONZE")
+        self.assertEqual(assignment.region, "south-america")
+        self.assertEqual(assignment.position, "ST")
+        self.assertEqual(assignment.player.overall, 51)
+        self.assertEqual(assignment.player.nationality, "Brazil")
+
+    def test_assignment_survives_refresh_and_relogin(self):
+        assignment = dispatch_scout(self.manager, "SILVER", "southern-europe", "CM")
+        player_id = assignment.player_id
+        ready_at = assignment.ready_at
+        self.client.login(username="page", password="test-pass-123")
+        first = self.client.get(reverse("scouting"))
+        self.assertContains(first, "SILVER SCOUT")
+        self.assertNotContains(first, "Silver Scout Target")
+        self.client.logout()
+        self.client.login(username="page", password="test-pass-123")
+        second = self.client.get(reverse("scouting"))
+        assignment.refresh_from_db()
+        self.assertEqual(assignment.player_id, player_id)
+        self.assertEqual(assignment.ready_at, ready_at)
+        self.assertEqual(assignment.status, ScoutAssignment.PENDING)
+        self.assertContains(second, "SILVER SCOUT")
+        self.assertNotContains(second, "Silver Scout Target")

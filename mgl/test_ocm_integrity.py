@@ -148,8 +148,9 @@ class OcmIntegrityTests(TestCase):
         self.mgr_a.refresh_from_db()
         self.assertEqual(self.mgr_a.tokens, Decimal("21.00"))
 
-    def test_official_result_rollback_reverses_stats_not_tokens(self):
+    def test_official_result_rollback_reverses_stats_and_match_tokens(self):
         submission = self._submit_and_confirm()
+        start_tokens = self.mgr_a.tokens
         ok, _ = approve_match_submission(submission, self.owner)
         self.assertTrue(ok)
         self.scorer.refresh_from_db()
@@ -158,7 +159,15 @@ class OcmIntegrityTests(TestCase):
         career = ManagerCareerStat.objects.get(manager=self.mgr_a)
         self.assertEqual(career.wins, 1)
         self.mgr_a.refresh_from_db()
-        tokens = self.mgr_a.tokens
+        self.assertEqual(self.mgr_a.tokens, start_tokens + Decimal("1.00"))
+        credit = RewardTransaction.objects.get(
+            manager=self.mgr_a,
+            category="MATCH",
+            reference=f"match:{self.fixture.id}:home",
+            reversed_at__isnull=True,
+        )
+        self.assertEqual(credit.balance_before, start_tokens)
+        self.assertEqual(credit.balance_after, start_tokens + Decimal("1.00"))
         ok, _ = unapprove_match_submission(submission, self.owner)
         self.assertTrue(ok)
         submission.refresh_from_db()
@@ -172,8 +181,77 @@ class OcmIntegrityTests(TestCase):
         self.assertEqual(self.fixture.status, "SCHEDULED")
         self.assertEqual(self._table_played(self.team_a), (0, 0))
         self.mgr_a.refresh_from_db()
-        self.assertEqual(self.mgr_a.tokens, tokens)
+        self.assertEqual(self.mgr_a.tokens, start_tokens)
+        credit.refresh_from_db()
+        self.assertIsNotNone(credit.reversed_at)
+        clawback = RewardTransaction.objects.get(reverses=credit)
+        self.assertEqual(clawback.amount, Decimal("-1.00"))
+        self.assertEqual(clawback.created_by, self.owner)
+        self.assertEqual(clawback.balance_before, start_tokens + Decimal("1.00"))
+        self.assertEqual(clawback.balance_after, start_tokens)
         self.assertTrue(SiteChangeLog.objects.filter(action="match.rollback").exists())
+        self.assertEqual(
+            RewardTransaction.objects.filter(
+                manager=self.mgr_a, category="MATCH", reference=f"match:{self.fixture.id}:home"
+            ).count(),
+            1,
+        )
+        submission.status = ApprovalStatus.PENDING
+        submission.save(update_fields=["status"])
+        ok, _ = approve_match_submission(submission, self.owner)
+        self.assertTrue(ok)
+        self.mgr_a.refresh_from_db()
+        self.assertEqual(self.mgr_a.tokens, start_tokens + Decimal("1.00"))
+        self.assertEqual(
+            RewardTransaction.objects.filter(
+                manager=self.mgr_a,
+                category="MATCH",
+                reference=f"match:{self.fixture.id}:home",
+                reversed_at__isnull=True,
+            ).count(),
+            1,
+        )
+
+    def test_owner_token_adjust_writes_ledger_balances(self):
+        self.client.login(username="owner", password="test-pass-123")
+        before = self.mgr_a.tokens
+        response = self.client.post(
+            reverse("control_adjust_tokens"),
+            {
+                "manager_id": str(self.mgr_a.id),
+                "amount": "2.50",
+                "reason": "Owner correction",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        self.mgr_a.refresh_from_db()
+        self.assertEqual(self.mgr_a.tokens, before + Decimal("2.50"))
+        row = RewardTransaction.objects.get(manager=self.mgr_a, category="ADMIN")
+        self.assertEqual(row.amount, Decimal("2.50"))
+        self.assertEqual(row.balance_before, before)
+        self.assertEqual(row.balance_after, before + Decimal("2.50"))
+        self.assertEqual(row.created_by, self.owner)
+        self.assertEqual(row.reason, "Owner correction")
+        self.assertTrue(SiteChangeLog.objects.filter(action="token.adjust").exists())
+        self.client.post(
+            reverse("control_adjust_tokens"),
+            {
+                "manager_id": str(self.mgr_a.id),
+                "amount": "-1.00",
+                "reason": "Owner clawback",
+            },
+        )
+        self.mgr_a.refresh_from_db()
+        self.assertEqual(self.mgr_a.tokens, before + Decimal("1.50"))
+        debit = RewardTransaction.objects.filter(
+            manager=self.mgr_a, category="ADMIN", reason="Owner clawback"
+        ).get()
+        self.assertEqual(debit.balance_before, before + Decimal("2.50"))
+        self.assertEqual(debit.balance_after, before + Decimal("1.50"))
+        control = self.client.get(reverse("control_centre"))
+        self.assertContains(control, "SCOUTING ACTIVITY")
+        self.assertContains(control, "Owner correction")
+        self.assertContains(control, "APPLY")
 
     def test_weekly_awards_wait_for_admin_then_pay_once(self):
         second = Fixture.objects.create(

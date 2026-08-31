@@ -361,16 +361,19 @@ def dispatch_scout(manager, tier, region="", position=""):
     _assert_roster_space(team)
 
     profile = get_or_create_scout_profile(manager)
+    profile = ScoutProfile.objects.select_for_update().get(pk=profile.pk)
     now = timezone.now()
     complete_ready_assignments(manager, now=now)
 
-    busy = ScoutAssignment.objects.filter(
-        manager=manager,
-        tier=tier,
-        status__in=ACTIVE_STATUSES,
-    ).exists()
+    busy = (
+        ScoutAssignment.objects.select_for_update()
+        .filter(manager=manager, status__in=ACTIVE_STATUSES)
+        .exists()
+    )
     if busy:
-        raise ValueError("That scout is still on assignment.")
+        raise ValueError(
+            "You already have an active scout. Finish that assignment before sending another."
+        )
 
     player = _claim_unreleased_player(tier, region, position)
     _assert_roster_space(_club_for_manager(manager))
@@ -390,6 +393,12 @@ def dispatch_scout(manager, tier, region="", position=""):
                 status=ScoutAssignment.PENDING,
             )
     except IntegrityError as exc:
+        if ScoutAssignment.objects.filter(
+            manager=manager, status__in=ACTIVE_STATUSES
+        ).exists():
+            raise ValueError(
+                "You already have an active scout. Finish that assignment before sending another."
+            ) from exc
         raise ValueError(
             "No available FC26 player matches that scout range, region and position."
         ) from exc
@@ -444,6 +453,17 @@ def send_scout_to_team(manager, assignment):
         f"{team.name} recruited {player.name} through the MGL scouting network.",
         team=team,
     )
+    from mgl.audit import log_ocm_action
+
+    log_ocm_action(
+        getattr(manager, "user", None),
+        action="scout.recruit",
+        object_type="ScoutAssignment",
+        object_id=assignment.pk,
+        object_label=player.name,
+        new_value=team.name,
+        summary=f"{player.name} recruited to {team.name} via {assignment.tier} scout.",
+    )
     return report
 
 
@@ -467,5 +487,19 @@ def release_scout_player(manager, assignment):
         position=assignment.position,
         recruited=False,
         club=None,
+    )
+    from mgl.audit import log_ocm_action
+
+    log_ocm_action(
+        getattr(manager, "user", None),
+        action="scout.release",
+        object_type="ScoutAssignment",
+        object_id=assignment.pk,
+        object_label=getattr(player, "name", ""),
+        new_value="RELEASED",
+        summary=(
+            f"{getattr(player, 'name', 'Player')} released from "
+            f"{assignment.tier} scout back to the unreleased pool."
+        ),
     )
     return report

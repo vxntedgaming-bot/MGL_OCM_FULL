@@ -16,9 +16,6 @@ def mark_existing_official_rows(apps, schema_editor):
 
 class Migration(migrations.Migration):
 
-
-class Migration(migrations.Migration):
-
     dependencies = [
         ('mgl', '0018_notify_rewards_weekly'),
         ('players', '0009_player_dob_playstyles'),

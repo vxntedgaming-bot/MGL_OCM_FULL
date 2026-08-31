@@ -150,13 +150,30 @@ class RewardTransaction(models.Model):
     category=models.CharField(max_length=40,default="OTHER")
     fixture=models.ForeignKey(Fixture,on_delete=models.SET_NULL,null=True,blank=True,related_name="rewards")
     reference=models.CharField(max_length=120,blank=True,default="",db_index=True)
+    balance_before=models.DecimalField(max_digits=8,decimal_places=2,null=True,blank=True)
+    balance_after=models.DecimalField(max_digits=8,decimal_places=2,null=True,blank=True)
+    created_by=models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="token_adjustments",
+    )
+    reverses=models.ForeignKey(
+        "self",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="reversed_by_rows",
+    )
+    reversed_at=models.DateTimeField(null=True,blank=True)
     created_at=models.DateTimeField(auto_now_add=True)
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
                 fields=["manager", "category", "reference"],
-                condition=~models.Q(reference=""),
+                condition=~models.Q(reference="") & models.Q(reversed_at__isnull=True),
                 name="unique_reward_reference",
             )
         ]
@@ -562,9 +579,9 @@ class ScoutAssignment(models.Model):
                 name="unique_active_scout_player",
             ),
             models.UniqueConstraint(
-                fields=["manager", "tier"],
+                fields=["manager"],
                 condition=models.Q(status__in=["PENDING", "READY", "OPENED"]),
-                name="unique_active_scout_tier_per_manager",
+                name="unique_active_scout_per_manager",
             ),
         ]
 

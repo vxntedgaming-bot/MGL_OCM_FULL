@@ -1945,6 +1945,14 @@ def scouting(request):
     team = club_for_user(request.user)
     roster_count = roster_occupancy(team) if team else 0
     roster_full = bool(team) and roster_count >= 30
+    scout_busy = ScoutAssignment.objects.filter(
+        manager=manager,
+        status__in=[
+            ScoutAssignment.PENDING,
+            ScoutAssignment.READY,
+            ScoutAssignment.OPENED,
+        ],
+    ).exists()
     panels = []
     for tier, label in ((BRONZE, "Bronze"), (SILVER, "Silver"), (GOLD, "Gold"), (ELITE, "Elite")):
         current = (
@@ -1977,7 +1985,7 @@ def scouting(request):
                 "current": current,
                 "remaining": wait,
                 "ready": ready,
-                "available": current is None and not roster_full,
+                "available": current is None and not roster_full and not scout_busy,
             }
         )
     active = (
@@ -2034,6 +2042,7 @@ def scouting(request):
             "positions": scout_positions(),
             "reports": reports,
             "active_scouts": active,
+            "scout_busy": scout_busy,
             "pack": pack,
             "club": team,
             "roster_count": roster_count,

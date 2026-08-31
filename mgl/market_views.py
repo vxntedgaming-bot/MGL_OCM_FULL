@@ -1,4 +1,5 @@
-from decimal import Decimal
+import uuid
+from decimal import Decimal, InvalidOperation
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -40,6 +41,7 @@ from .models import (
     PlayerListing,
     PressConference,
     RewardTransaction,
+    ScoutAssignment,
     SiteChangeLog,
     WeeklyAwardBatch,
     MonthlyAwardBatch,
@@ -608,7 +610,7 @@ def control_centre(request):
             "control_next": f"{reverse('control_centre')}?ovr={ovr_filter}",
             "auction_durations": AUCTION_DURATION_CHOICES,
             "recent_rewards": RewardTransaction.objects.select_related(
-                "manager", "manager__user", "fixture"
+                "manager", "manager__user", "fixture", "created_by"
             ).order_by("-created_at")[:40],
             "weekly_award_batches": WeeklyAwardBatch.objects.order_by("-week_start")[:12],
             "monthly_award_batches": MonthlyAwardBatch.objects.order_by("-month_start")[:12],
@@ -617,6 +619,12 @@ def control_centre(request):
             "recent_notifications": ManagerNotification.objects.select_related(
                 "recipient", "team", "player"
             ).order_by("-created_at")[:40],
+            "recent_scouts": ScoutAssignment.objects.select_related(
+                "manager", "manager__user", "player", "club"
+            ).prefetch_related("reports").order_by("-started_at")[:25],
+            "token_managers": ManagerApplication.objects.select_related("user").order_by(
+                "display_name"
+            ),
         },
     )
 
@@ -735,6 +743,64 @@ def control_approve_monthly_awards(request, batch_id):
     batch = get_object_or_404(MonthlyAwardBatch, pk=batch_id)
     approve_monthly_awards(batch, request.user)
     messages.success(request, "Monthly awards approved. Token rewards released once.")
+    return control_centre_redirect(request)
+
+
+@owner_admin_required
+@require_POST
+def control_adjust_tokens(request):
+    from mgl.audit import log_ocm_action
+    from mgl.services import credit_manager, debit_manager
+
+    reason = (request.POST.get("reason") or "").strip()
+    try:
+        amount = Decimal(str(request.POST.get("amount") or "0"))
+    except (InvalidOperation, TypeError, ValueError):
+        messages.error(request, "Enter a valid token amount.")
+        return control_centre_redirect(request)
+    if amount == 0:
+        messages.error(request, "Token adjustments must be a non-zero amount.")
+        return control_centre_redirect(request)
+    if not reason:
+        messages.error(request, "Record a reason for every token adjustment.")
+        return control_centre_redirect(request)
+    manager = get_object_or_404(ManagerApplication, pk=request.POST.get("manager_id"))
+    reference = f"admin:{request.user.id}:{uuid.uuid4().hex[:12]}"
+    before = Decimal(manager.tokens)
+    if amount > 0:
+        row = credit_manager(
+            manager,
+            amount,
+            reason,
+            category="ADMIN",
+            reference=reference,
+            created_by=request.user,
+        )
+    else:
+        row = debit_manager(
+            manager,
+            abs(amount),
+            reason,
+            category="ADMIN",
+            reference=reference,
+            created_by=request.user,
+            allow_negative=True,
+        )
+    manager.refresh_from_db()
+    log_ocm_action(
+        request.user,
+        action="token.adjust",
+        object_type="RewardTransaction",
+        object_id=row.pk,
+        object_label=manager.display_name,
+        old_value=str(before),
+        new_value=str(manager.tokens),
+        summary=f"{request.user.username} adjusted {manager.display_name} by {amount}: {reason}",
+    )
+    messages.success(
+        request,
+        f"{manager.display_name}: {before} → {manager.tokens} tokens.",
+    )
     return control_centre_redirect(request)
 
 

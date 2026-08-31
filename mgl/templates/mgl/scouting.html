@@ -71,6 +71,9 @@
         {% if roster_full %}
             <p class="mgl-flash-error">Your squad is full — maximum 30 players.</p>
         {% endif %}
+        {% if scout_busy %}
+            <p class="mgl-flash-error">A scout is already on assignment. Finish that report before sending another.</p>
+        {% endif %}
         <div class="mgl-sc-grid">
             {% for panel in panels %}
                 <article class="mgl-sc-card mgl-sc-card--{{ panel.tier|lower }}">

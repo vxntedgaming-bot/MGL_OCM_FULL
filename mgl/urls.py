@@ -324,6 +324,11 @@ urlpatterns = [
         name="control_approve_monthly_awards",
     ),
     path(
+        "control/tokens/adjust/",
+        views_market.control_adjust_tokens,
+        name="control_adjust_tokens",
+    ),
+    path(
         "control/auctions/<int:auction_id>/close/",
         views_market.control_close_auction,
         name="control_close_auction",

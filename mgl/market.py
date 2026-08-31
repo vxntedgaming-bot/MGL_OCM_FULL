@@ -49,12 +49,21 @@ def lock_manager(manager):
 
 
 def debit_manager_tokens(manager, amount, reason, auction=None):
+    from mgl.services import debit_manager
+
     amount = Decimal(str(amount))
+    try:
+        debit_manager(
+            manager,
+            amount,
+            reason,
+            category="MARKET",
+        )
+    except ValueError as exc:
+        if "enough tokens" in str(exc).lower():
+            raise ValueError("You do not have enough tokens.") from exc
+        raise
     manager = lock_manager(manager)
-    if manager.tokens < amount:
-        raise ValueError("You do not have enough tokens.")
-    manager.tokens = Decimal(manager.tokens) - amount
-    manager.save(update_fields=["tokens"])
     record_token_transaction(
         manager,
         -int(amount),
@@ -66,10 +75,16 @@ def debit_manager_tokens(manager, amount, reason, auction=None):
 
 
 def credit_manager_tokens(manager, amount, reason, auction=None):
+    from mgl.services import credit_manager
+
     amount = Decimal(str(amount))
+    credit_manager(
+        manager,
+        amount,
+        reason,
+        category="MARKET",
+    )
     manager = lock_manager(manager)
-    manager.tokens = Decimal(manager.tokens) + amount
-    manager.save(update_fields=["tokens"])
     record_token_transaction(
         manager,
         int(amount),

@@ -608,6 +608,10 @@ class RewardTransactionAdmin(admin.ModelAdmin):
         "amount",
         "category",
         "reason",
+        "balance_before",
+        "balance_after",
+        "created_by",
+        "reversed_at",
         "reference",
     )
     list_filter = ("category",)
@@ -624,6 +628,11 @@ class RewardTransactionAdmin(admin.ModelAdmin):
         "category",
         "fixture",
         "reference",
+        "balance_before",
+        "balance_after",
+        "created_by",
+        "reverses",
+        "reversed_at",
         "created_at",
     )
 

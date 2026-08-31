@@ -18,7 +18,7 @@ from mgl.models import (
     NewsPost,
     PlayerMatchRating,
 )
-from mgl.services import create_news, credit_manager, get_or_create_career
+from mgl.services import create_news, credit_manager, debit_manager, get_or_create_career
 from players.models import Player
 
 
@@ -172,6 +172,41 @@ def reverse_match_statistics(sub):
             _refresh_average_rating(player_id)
     sub.stats_applied = False
     sub.save(update_fields=["stats_applied"])
+
+
+def reverse_match_tokens(sub, reviewer=None):
+    """Claw back the +1 match rewards without deleting the original ledger rows."""
+    from mgl.models import RewardTransaction
+
+    fixture = sub.fixture
+    now = timezone.now()
+    for manager, side in (
+        (_manager_for_team(fixture.home_team), "home"),
+        (_manager_for_team(fixture.away_team), "away"),
+    ):
+        if manager is None:
+            continue
+        original = RewardTransaction.objects.select_for_update().filter(
+            manager=manager,
+            category="MATCH",
+            reference=f"match:{fixture.id}:{side}",
+            reversed_at__isnull=True,
+        ).first()
+        if original is None:
+            continue
+        debit_manager(
+            manager,
+            original.amount,
+            f"Rollback: {original.reason}",
+            category="MATCH",
+            fixture=fixture,
+            reference=f"match-rollback:{original.id}",
+            created_by=reviewer,
+            reverses=original,
+            allow_negative=True,
+        )
+        original.reversed_at = now
+        original.save(update_fields=["reversed_at"])
 
 
 def _pay_match_tokens(sub):
@@ -359,7 +394,7 @@ def reject_match_submission(sub, reviewer):
 
 @transaction.atomic
 def unapprove_match_submission(sub, reviewer):
-    """Owner/Admin rollback of an official result. Tokens already paid stay paid."""
+    """Owner/Admin rollback of an official result. Stats and match tokens reverse. Ledger stays."""
     sub = (
         MatchSubmission.objects.select_for_update()
         .select_related("fixture__home_team", "fixture__away_team", "submitted_by")
@@ -371,6 +406,7 @@ def unapprove_match_submission(sub, reviewer):
     if season_is_locked(fixture.season_number):
         return False, "This season is locked. Unlock it before changing official results."
     reverse_match_statistics(sub)
+    reverse_match_tokens(sub, reviewer)
     sub.status = ApprovalStatus.REJECTED
     sub.reviewed_by = reviewer
     sub.reviewed_at = timezone.now()
