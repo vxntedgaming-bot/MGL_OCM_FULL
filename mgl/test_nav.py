@@ -533,7 +533,8 @@ class PlayerSearchAndCardNameTests(TestCase):
             manager=self.user,
         )
         signed_in = self.client.get(reverse("free_agents"))
-        self.assertContains(signed_in, "SIGN FOR 0 TKN")
+        self.assertContains(signed_in, ">BUY</button>")
+        self.assertNotContains(signed_in, "SIGN FOR 0 TKN")
         self.assertContains(signed_in, reverse("sign_free_agent", args=[self.vvd.id]))
 
         self.client.logout()

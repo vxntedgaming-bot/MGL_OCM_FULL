@@ -234,7 +234,8 @@ class AuctionWorkflowTests(TestCase):
         self.assertContains(response, "FREE AGENT Z")
         self.assertNotContains(response, "UNASSIGNED Z")
         self.assertNotContains(response, "RELEASE TO AUCTION")
-        self.assertContains(response, "SIGN FOR 0 TKN")
+        self.assertContains(response, ">BUY</button>")
+        self.assertNotContains(response, "SIGN FOR 0 TKN")
 
     def test_unassigned_page_is_admin_only_and_excludes_free_agents(self):
         self.client.login(username="seller", password="test-pass-123")
@@ -322,7 +323,8 @@ class AuctionWorkflowTests(TestCase):
         self.client.login(username="buyer", password="test-pass-123")
         page = self.client.get(reverse("free_agents"))
         self.assertContains(page, "UNASSIGNED Z")
-        self.assertContains(page, "SIGN FOR 0 TKN")
+        self.assertContains(page, ">BUY</button>")
+        self.assertNotContains(page, "SIGN FOR 0 TKN")
 
     def test_winning_unassigned_auction_assigns_club_not_free_agent(self):
         auction = create_free_agent_auction(self.unassigned, self.owner, 30)
@@ -365,7 +367,8 @@ class AuctionWorkflowTests(TestCase):
         self.assertIsNone(self.owned.mgl_team_id)
         page = self.client.get(reverse("free_agents"))
         self.assertContains(page, "CLUB PLAYER")
-        self.assertContains(page, "SIGN FOR 0 TKN")
+        self.assertContains(page, ">BUY</button>")
+        self.assertNotContains(page, "SIGN FOR 0 TKN")
 
     def test_manager_cannot_release_other_club_or_unassigned_player(self):
         self.client.login(username="seller", password="test-pass-123")
