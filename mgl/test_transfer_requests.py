@@ -98,13 +98,15 @@ class TransferRequestsPageTests(TestCase):
         self.assertEqual(page.status_code, 200)
         self.assertContains(page, "TRANSFERS")
         self.assertContains(page, "COMPLETED TRANSFERS")
+        self.assertContains(page, "No completed transfers yet.")
         self.assertNotContains(page, "INCOMING REQUESTS")
         self.assertNotContains(page, "OUTGOING REQUESTS")
         self.assertNotContains(page, "AWAITING OPPONENT")
         self.assertNotContains(page, "AWAITING ADMIN")
-        self.assertNotContains(page, "Blue Midfielder")
+        history = page.content.decode().split("<main", 1)[-1].split("</main>", 1)[0]
+        self.assertNotIn("Blue Midfielder", history)
         self.assertNotContains(page, ">APPROVE</button>")
-        self.assertNotContains(page, ">REJECT</button>")
+        self.assertNotIn(">REJECT</button>", history)
         self.assertNotContains(page, 'href="?status=pending"')
 
     def test_outgoing_pending_offers_stay_off_completed_history(self):
@@ -113,11 +115,13 @@ class TransferRequestsPageTests(TestCase):
         page = self.client.get(reverse("transfer_requests"))
         self.assertEqual(page.status_code, 200)
         self.assertContains(page, "COMPLETED TRANSFERS")
+        self.assertContains(page, "No completed transfers yet.")
         self.assertNotContains(page, "OUTGOING REQUESTS")
         self.assertNotContains(page, "INCOMING REQUESTS")
-        self.assertNotContains(page, "Blue Midfielder")
+        history = page.content.decode().split("<main", 1)[-1].split("</main>", 1)[0]
+        self.assertNotIn("Blue Midfielder", history)
         self.assertNotContains(page, ">APPROVE</button>")
-        self.assertNotContains(page, ">REJECT</button>")
+        self.assertNotIn(">REJECT</button>", history)
 
     def test_pending_offers_for_other_clubs_are_not_shown_as_completed(self):
         create_transfer_offer(self.player_b, self.mgr_a, "8.00")
@@ -125,8 +129,10 @@ class TransferRequestsPageTests(TestCase):
         self.client.login(username="outsider", password="test-pass-123")
         page = self.client.get(reverse("transfer_requests"))
         self.assertEqual(page.status_code, 200)
-        self.assertNotContains(page, "Lilywhite Winger")
-        self.assertNotContains(page, "Blue Midfielder")
+        self.assertContains(page, "No completed transfers yet.")
+        history = page.content.decode().split("<main", 1)[-1].split("</main>", 1)[0]
+        self.assertNotIn("Lilywhite Winger", history)
+        self.assertNotIn("Blue Midfielder", history)
         self.assertNotContains(page, "INCOMING REQUESTS")
         self.assertNotContains(page, "OUTGOING REQUESTS")
 
