@@ -136,6 +136,16 @@ NAV_DROPDOWNS = (
             },
         ),
     },
+    {
+        "id": "about",
+        "label": "ABOUT",
+        "current": set(),
+        "items": (
+            {"label": "About MGL", "href": "/#mgl-about"},
+            {"label": "Rules", "href": "/#mgl-how", "divider": True},
+            {"label": "How It Works", "href": "/#mgl-how", "divider": True},
+        ),
+    },
 )
 
 SIGNED_IN_NAV_DROPDOWNS = (
@@ -264,6 +274,16 @@ SIGNED_IN_NAV_DROPDOWNS = (
         "items": (
             {"label": "Pressroom", "url_name": "pressroom"},
             {"label": "Live Activity", "url_name": "live_activity", "divider": True},
+        ),
+    },
+    {
+        "id": "about",
+        "label": "ABOUT",
+        "current": set(),
+        "items": (
+            {"label": "About MGL", "href": "/#mgl-about"},
+            {"label": "Rules", "href": "/#mgl-how", "divider": True},
+            {"label": "How It Works", "href": "/#mgl-how", "divider": True},
         ),
     },
 )

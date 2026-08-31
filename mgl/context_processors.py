@@ -1,3 +1,4 @@
+from django.db.utils import OperationalError, ProgrammingError
 from django.utils import timezone
 
 from accounts.models import User
@@ -7,6 +8,29 @@ from mgl.notifications import notifications_for_user, unread_count_for_user
 from mgl.services import manager_for_user
 from mgl.site_cms import site_chrome
 from mgl.transfer_requests import incoming_offer_count_for_user
+
+
+def _current_season_context():
+    try:
+        from mgl.models import HistoricalSeason
+        from mgl.season_history import current_season_number
+
+        number = current_season_number()
+        season = HistoricalSeason.objects.filter(number=number).only(
+            "number", "year_label", "start_date", "end_date"
+        ).first()
+        label = ""
+        if season:
+            if season.start_date and season.end_date:
+                label = f"{season.start_date:%b %Y} – {season.end_date:%b %Y}"
+            elif season.year_label:
+                label = season.year_label
+        return {
+            "mgl_current_season": number,
+            "mgl_current_season_range": label,
+        }
+    except (OperationalError, ProgrammingError):
+        return {"mgl_current_season": 1, "mgl_current_season_range": ""}
 
 
 def mgl_nav(request):
@@ -38,5 +62,6 @@ def mgl_nav(request):
         "mgl_notifications": notifications,
         "mgl_unread_notification_count": unread_count,
         "incoming_transfer_count": incoming_transfer_count,
+        **_current_season_context(),
         **site_chrome(),
     }

@@ -22,7 +22,7 @@ def manager_register(request):
             )
 
             user.role = User.MANAGER
-            user.is_active = False
+            user.is_active = True
             user.save()
 
             ManagerApplication.objects.create(

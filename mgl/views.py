@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import F, Q
 from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -105,17 +105,20 @@ def mgl_index(request):
 
 
 def home(request):
-    if approved_manager(request.user) and club_for_user(request.user):
-        return redirect("manager_hub")
+    from mgl.season_history import current_season_number
 
     league = active_league()
-    upcoming_qs = Fixture.objects.filter(
-        is_released=True,
-        status="SCHEDULED",
-    ).select_related(
-        "home_team",
-        "away_team",
-        "league",
+    upcoming_qs = (
+        Fixture.objects.filter(
+            is_released=True,
+            status="SCHEDULED",
+        )
+        .select_related(
+            "home_team",
+            "away_team",
+            "league",
+        )
+        .order_by(F("scheduled_at").asc(nulls_last=True), "matchweek", "id")
     )
     completed_qs = Fixture.objects.filter(
         is_released=True,
@@ -126,11 +129,9 @@ def home(request):
     ).prefetch_related(
         "submission__team_stats",
     ).order_by("-id")
-    if league:
-        upcoming_qs = upcoming_qs.filter(league=league)
-        completed_qs = completed_qs.filter(league=league)
 
-    upcoming = upcoming_qs[:5]
+    upcoming = list(upcoming_qs[:5])
+    next_fixture = upcoming[0] if upcoming else None
 
     news = _attach_news_logos(
         list(
@@ -166,9 +167,7 @@ def home(request):
         .order_by("-goals", "name")[:5]
     )
     table = build_live_league_table(league)
-    club_qs = Team.objects.all()
-    if league:
-        club_qs = Team.objects.filter(league=league)
+    club_qs = Team.objects.filter(league__is_active=True)
     recent_transfers = (
         MarketTransaction.objects.filter(status=MarketTransaction.COMPLETED)
         .select_related("player", "from_team", "to_team")
@@ -178,8 +177,6 @@ def home(request):
         is_released=True,
         status="COMPLETED",
     )
-    if league:
-        matches_played_qs = matches_played_qs.filter(league=league)
 
     appointments = (
         ClubApplication.objects.filter(status=ApprovalStatus.APPROVED)
@@ -230,11 +227,20 @@ def home(request):
             }
         )
 
+    jobs_url = reverse("job_centre")
+    if request.user.is_authenticated:
+        apply_club_url = jobs_url
+        join_mgl_url = jobs_url
+    else:
+        apply_club_url = f"{reverse('manager_login')}?next={jobs_url}"
+        join_mgl_url = reverse("manager_register")
+
     return render(
         request,
         "core/home.html",
         {
             "upcoming": upcoming,
+            "next_fixture": next_fixture,
             "news": news,
             "recent_results": recent_results,
             "top_scorers": top_scorers,
@@ -243,6 +249,7 @@ def home(request):
             "player_count": Player.objects.count(),
             "manager_count": club_qs.filter(manager__isnull=False).count(),
             "matches_played": matches_played_qs.count(),
+            "current_season_number": current_season_number(),
             "unassigned_count": unassigned_players().count(),
             "free_agent_count": free_agent_qs().count(),
             "live_listing_count": PlayerListing.objects.filter(
@@ -252,6 +259,8 @@ def home(request):
             "activity": activity,
             "active_league": league,
             "table": table,
+            "apply_club_url": apply_club_url,
+            "join_mgl_url": join_mgl_url,
         },
     )
 

@@ -9,8 +9,8 @@
     <div class="mgl-auth-card">
         <img src="{% static 'core/img/mgl-logo.png' %}" alt="MGL" class="mgl-auth-logo">
         <div class="eyebrow">JOIN MGL</div>
-        <h1>MANAGER APPLICATION</h1>
-        <p>Apply to become an official MGL manager. You receive 20 tokens once approved. That balance stays with your account if you change clubs.</p>
+        <h1>CREATE YOUR ACCOUNT</h1>
+        <p>Create a member account and apply for a vacant club. Signing up does not need approval. You receive 20 tokens once you are approved as a manager. That balance stays with your account if you change clubs.</p>
 
         <form method="post" class="mgl-form">
             {% csrf_token %}
@@ -26,10 +26,10 @@
                 {% endfor %}
             {% endfor %}
 
-            <button type="submit" class="primary-button">SUBMIT APPLICATION</button>
+            <button type="submit" class="primary-button">SIGN UP</button>
         </form>
 
-        <p class="mgl-help">Applications are reviewed by an Owner or Admin before you can log in.</p>
+        <p class="mgl-help">Already have an account? <a href="{% url 'manager_login' %}">Log in</a>. Job applications still need Owner or Admin approval before you are assigned a club.</p>
     </div>
 </section>
 {% endblock %}

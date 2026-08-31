@@ -7,10 +7,13 @@
 <section class="mgl-section">
     <div class="mgl-auth-card">
         <img src="{% static 'core/img/mgl-logo.png' %}" alt="MGL" class="mgl-auth-logo">
-        <div class="eyebrow">APPLICATION RECEIVED</div>
-        <h1>YOU'RE IN THE QUEUE</h1>
-        <p>An MGL Owner or Admin will review your manager application. You will be able to log in after approval and will start with 20 tokens.</p>
-        <a href="{% url 'home' %}" class="primary-button">BACK TO HOME</a>
+        <div class="eyebrow">ACCOUNT CREATED</div>
+        <h1>YOU CAN LOG IN</h1>
+        <p>Your member account is ready. Log in, then apply for a vacant club. Job applications stay pending until an Owner or Admin appoints you. Approved managers start with 20 tokens.</p>
+        <div class="hero-actions">
+            <a href="{% url 'manager_login' %}" class="primary-button">LOGIN</a>
+            <a href="{% url 'home' %}" class="secondary-button">BACK TO HOME</a>
+        </div>
     </div>
 </section>
 {% endblock %}

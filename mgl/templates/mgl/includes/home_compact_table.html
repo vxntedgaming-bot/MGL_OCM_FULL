@@ -1,0 +1,23 @@
+{% load mgl_ui %}
+{% if table %}
+<div class="mgl-home-table" role="table" aria-label="League table preview">
+    <div class="mgl-home-table-head" role="row">
+        <span>POS</span>
+        <span>CLUB</span>
+        <span>P</span>
+        <span>GD</span>
+        <span>PTS</span>
+    </div>
+    {% for row in table %}
+    <div class="mgl-home-table-row" role="row">
+        <span>{{ row.position }}</span>
+        <strong class="mgl-home-table-club">{% team_logo row.team "xs" %} <a href="{% club_url row.team %}">{{ row.team.name }}</a></strong>
+        <span>{{ row.played }}</span>
+        <span>{% if row.gd > 0 %}+{% endif %}{{ row.gd }}</span>
+        <b>{{ row.points }}</b>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+    {% include "mgl/includes/empty_state.html" with kicker="TABLE" title="NO CLUBS YET" %}
+{% endif %}

@@ -2,27 +2,30 @@
 {% load static mgl_ui %}
 
 {% block title %}MGL – MetaGamingLeague{% endblock %}
+{% block body_class %}mgl-home-body{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/mgl-home.css' %}">
+{% endblock %}
 
 {% block content %}
-<section class="mgl-hero-pro">
-    <div class="mgl-hero-pitch" aria-hidden="true"></div>
-    <div class="mgl-hero-copy">
-        <div class="mgl-live-badge"><span></span> SEASON {{ active_league.season|default:"1" }} LIVE</div>
-        <img src="{% static 'core/img/mgl-logo.png' %}" alt="" class="mgl-hero-logo">
-        <h1>
-            {% site_text "home.hero_title" as hero_title %}
-            {% if hero_title == "COMPETE. MANAGE. WIN." %}
-                COMPETE. <span>MANAGE.</span> WIN.
-            {% else %}
-                {{ hero_title }}
-            {% endif %}
-        </h1>
-        <p>
+<section class="mgl-home-hero">
+    <div class="mgl-home-hero-media" aria-hidden="true">
+        <img src="{% static 'core/img/mgl-home-hero.jpg' %}" alt="">
+    </div>
+    <div class="mgl-home-hero-copy">
+        <p class="mgl-home-kicker">WELCOME TO</p>
+        <h1>META GAMING LEAGUE</h1>
+        <p class="mgl-home-hero-mode">ONLINE CAREER MODE</p>
+        {% site_text "home.hero_title" as hero_title %}
+        {% if hero_title %}
+            <p class="mgl-home-hero-cms">{{ hero_title }}</p>
+        {% endif %}
+        <p class="mgl-home-hero-lead">
             {% site_text "home.hero_subtitle" %}
         </p>
         <div class="hero-actions">
-            <a href="{% url 'job_centre' %}" class="primary-button">APPLY FOR A CLUB</a>
-            <a href="{% url 'leagues_page' %}" class="secondary-button">LEAGUE TABLES</a>
+            <a href="{{ apply_club_url }}" class="primary-button">APPLY FOR A CLUB</a>
+            <a href="{% url 'leagues_page' %}" class="secondary-button">VIEW LEAGUES</a>
             {% if discord_invite_url %}
                 <a href="{{ discord_invite_url }}" class="secondary-button" target="_blank" rel="noopener">JOIN DISCORD</a>
             {% endif %}
@@ -30,87 +33,162 @@
     </div>
 </section>
 
-<section class="mgl-section">
+<section class="mgl-home-stats" aria-label="Live MGL summary">
+    <div class="mgl-home-stats-inner">
+        <div>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 20V8l8-4 8 4v12"/><path d="M9 20v-6h6v6"/></svg>
+            <strong>{{ club_count }}</strong>
+            <span>ACTIVE CLUBS</span>
+        </div>
+        <div>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 12a3.5 3.5 0 1 0-3.5-3.5A3.5 3.5 0 0 0 12 12Z"/><path d="M5 20a7 7 0 0 1 14 0"/><path d="M18 8a2.4 2.4 0 1 0 0-4.8"/></svg>
+            <strong>{{ manager_count }}</strong>
+            <span>ACTIVE MANAGERS</span>
+        </div>
+        <div>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><path d="M12 8v4.2l2.8 1.6"/></svg>
+            <strong>{{ matches_played }}</strong>
+            <span>MATCHES PLAYED</span>
+        </div>
+        <div>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M6 15.5 12 4l6 11.5"/><path d="M8.2 20h7.6"/><path d="M12 4v16"/></svg>
+            <strong>SEASON {{ current_season_number }}</strong>
+            <span>CURRENT SEASON</span>
+        </div>
+    </div>
+</section>
+
+<section class="mgl-home-board-wrap">
     <div class="mgl-home-board">
         <article class="mgl-home-card" id="mgl-news">
-            <h2>LATEST NEWS</h2>
+            <div class="mgl-home-card-head">
+                <h2>LATEST NEWS</h2>
+                <a href="{% url 'news_centre' %}" class="view-all">VIEW ALL →</a>
+            </div>
             {% for post in news %}
                 {% include "mgl/includes/home_news_row.html" %}
             {% empty %}
-                {% for item in activity %}
-                    {% if forloop.counter <= 4 %}
-                    <div class="mgl-news-row">
-                        <div class="mgl-news-thumb" aria-hidden="true"></div>
-                        <div>
-                            <strong>{{ item.title }}</strong>
-                            <small>{{ item.kind }}{% if item.when %} · {{ item.when|date:"d M Y" }}{% endif %}</small>
-                        </div>
-                    </div>
-                    {% endif %}
-                {% empty %}
-                    {% include "mgl/includes/empty_state.html" with title="NO PUBLISHED NEWS YET" %}
-                {% endfor %}
+                {% include "mgl/includes/empty_state.html" with title="NO PUBLISHED NEWS YET" %}
             {% endfor %}
-            <p style="margin-top:16px"><a href="{% url 'news_centre' %}" class="view-all">ALL NEWS →</a></p>
         </article>
 
         <article class="mgl-home-card">
-            <h2>NEXT FIXTURE</h2>
-            {% with fixture=upcoming.0 %}
-                {% if fixture %}
-                    <div class="mgl-next-fixture">
-                        <small>{% if fixture.scheduled_at %}{{ fixture.scheduled_at|date:"D d M · H:i"|upper }}{% else %}DATE TBC{% endif %}</small>
-                        <div class="mgl-club-pair">
-                            <div>
-                                {% team_logo fixture.home_team "lg" %}
-                                <strong>{{ fixture.home_team.name }}</strong>
-                            </div>
-                            <span class="mgl-vs">VS</span>
-                            <div>
-                                {% team_logo fixture.away_team "lg" %}
-                                <strong>{{ fixture.away_team.name }}</strong>
-                            </div>
+            <div class="mgl-home-card-head">
+                <h2>NEXT FIXTURE</h2>
+            </div>
+            {% if next_fixture %}
+                <div class="mgl-home-fixture">
+                    <p class="mgl-home-fixture-comp">
+                        {% if next_fixture.league %}{{ next_fixture.league|league_label|upper }}{% else %}MGL{% endif %}
+                        {% if next_fixture.matchweek %} · GAMEWEEK {{ next_fixture.matchweek }}{% endif %}
+                    </p>
+                    <div class="mgl-home-fixture-clubs">
+                        <div>
+                            {% team_logo next_fixture.home_team "lg" %}
+                            <strong>{{ next_fixture.home_team.name }}</strong>
                         </div>
-                        <a href="{% url 'fixture_list' %}" class="secondary-button">ALL FIXTURES</a>
+                        <span class="mgl-vs">VS</span>
+                        <div>
+                            {% team_logo next_fixture.away_team "lg" %}
+                            <strong>{{ next_fixture.away_team.name }}</strong>
+                        </div>
                     </div>
-                {% else %}
-                    {% include "mgl/includes/empty_state.html" with kicker="UPCOMING FIXTURES" title="NO FIXTURES HAVE BEEN RELEASED YET" body="No upcoming fixtures have been released." %}
-                {% endif %}
-            {% endwith %}
+                    <p class="mgl-home-fixture-when">
+                        {% if next_fixture.scheduled_at %}
+                            {{ next_fixture.scheduled_at|date:"l j M Y, g:i A"|upper }}
+                        {% else %}
+                            DATE TBC
+                        {% endif %}
+                    </p>
+                    <a href="{% url 'fixture_list' %}" class="secondary-button">VIEW FIXTURES</a>
+                </div>
+            {% else %}
+                {% include "mgl/includes/empty_state.html" with kicker="UPCOMING FIXTURES" title="NO FIXTURES HAVE BEEN RELEASED YET" body="No upcoming fixtures have been released." %}
+                <p class="mgl-home-card-cta"><a href="{% url 'fixture_list' %}" class="secondary-button">VIEW FIXTURES</a></p>
+            {% endif %}
         </article>
 
         <article class="mgl-home-card">
-            <h2>LEAGUE TABLE</h2>
-            {% include "mgl/includes/league_table.html" with table=table|slice:":8" league=active_league %}
-            <p style="margin-top:16px"><a href="{% url 'leagues_page' %}" class="view-all">FULL TABLE →</a></p>
+            <div class="mgl-home-card-head">
+                <h2>LEAGUE TABLE</h2>
+                <a href="{% url 'leagues_page' %}" class="view-all">VIEW FULL TABLE →</a>
+            </div>
+            <p class="mgl-home-table-league">{% if active_league %}{{ active_league|league_label|upper }}{% else %}PREMIER LEAGUE{% endif %}</p>
+            {% include "mgl/includes/home_compact_table.html" with table=table|slice:":5" league=active_league %}
         </article>
     </div>
 </section>
 
-<section class="mgl-section" id="mgl-about">
+<section class="mgl-home-feature mgl-home-cup">
+    <div class="mgl-home-feature-media">
+        <img src="{% static 'core/img/mgl-cup-trophy.png' %}" alt="The MGL Cup trophy">
+    </div>
+    <div class="mgl-home-feature-copy">
+        <p class="mgl-home-kicker">THE MGL CUP</p>
+        <h2>ONE CUP. ONE CHANCE. ONE CHAMPION.</h2>
+        <p>The MGL Cup is the knockout competition every manager wants on the cabinet. One run. No second lives. Lift the trophy that belongs to this league alone.</p>
+        <div class="hero-actions">
+            <a href="{% url 'competition_page' slug='cups' %}" class="primary-button">VIEW MGL CUP</a>
+            <a href="{% url 'home' %}#mgl-how" class="secondary-button">HOW IT WORKS</a>
+        </div>
+    </div>
+</section>
+
+<section class="mgl-home-feature mgl-home-legacy">
+    <div class="mgl-home-feature-copy">
+        <p class="mgl-home-kicker">YOUR CLUB. YOUR SQUAD.</p>
+        <h2>BUILD YOUR LEGACY</h2>
+        <p>Take control of a club, build your squad, compete against other managers and fight for trophies.</p>
+        {% site_text "home.league_intro" as league_intro %}
+        {% if league_intro %}
+            <p>{{ league_intro }}</p>
+        {% endif %}
+        <div class="hero-actions">
+            <a href="{{ apply_club_url }}" class="primary-button">APPLY FOR A CLUB</a>
+            <a href="{% url 'home' %}#mgl-how" class="secondary-button">HOW IT WORKS</a>
+        </div>
+    </div>
+    <div class="mgl-home-feature-media">
+        <img src="{% static 'core/img/mgl-starting-xi.png' %}" alt="">
+    </div>
+</section>
+
+<section class="mgl-home-experience">
+    <div class="mgl-home-experience-head">
+        <p class="mgl-home-kicker">THE MGL EXPERIENCE</p>
+        <h2>MORE THAN JUST A GAME</h2>
+    </div>
+    <div class="mgl-home-experience-grid">
+        <article>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 9h8M8 13h5"/><circle cx="16.5" cy="16.5" r="1.5"/></svg>
+            <h3>MANAGE YOUR CLUB</h3>
+            <p>Build and manage your squad. Tactics stay yours. The official roster lives on MGL.</p>
+        </article>
+        <article>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M8 14a3.2 3.2 0 1 0-3.2-3.2A3.2 3.2 0 0 0 8 14Z"/><path d="M2.8 20a5.4 5.4 0 0 1 10.4 0"/><path d="M16 14a3.2 3.2 0 1 0-1.2-6.2"/><path d="M14.4 20a5.4 5.4 0 0 1 6.8-4.2"/></svg>
+            <h3>COMPETE ONLINE</h3>
+            <p>Play matches and compete for trophies against other managers in Online Career Mode.</p>
+        </article>
+        <article>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M8 18V8l4-3 4 3v10"/><path d="M8 12h8"/></svg>
+            <h3>LIVE MARKET</h3>
+            <p>Buy, sell, loan and manage players through the existing MGL transfer and auction systems.</p>
+        </article>
+        <article>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 19V9h4v10H4Zm6 0V5h4v14h-4Zm6 0v-7h4v7h-4Z"/></svg>
+            <h3>REAL STATS</h3>
+            <p>Matches, results and statistics are recorded through MGL. Pending results stay off the public site.</p>
+        </article>
+    </div>
+</section>
+
+<section class="mgl-section mgl-home-about" id="mgl-about">
     <div class="section-heading">
         <div>
             <div class="eyebrow">ABOUT US</div>
-            <h2>THE LEAGUE</h2>
+            <h2>ABOUT MGL</h2>
             <p>{% site_text "home.about_us" %}</p>
         </div>
-    </div>
-    <div class="mgl-pillar-grid">
-        <article class="mgl-pillar">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M8 21V8l4-3 4 3v13"/><path d="M8 12h8"/></svg>
-            <h3>COMPETITIVE</h3>
-            <p>Fixtures, tables and results are recorded officially. Win your league the hard way.</p>
-        </article>
-        <article class="mgl-pillar">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z"/><path d="M4 20a8 8 0 0 1 16 0"/></svg>
-            <h3>COMMUNITY</h3>
-            <p>Managers compete, trade and apply for clubs inside one shared Online Career Mode.</p>
-        </article>
-        <article class="mgl-pillar">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3 4 7v6c0 5 3.4 7.8 8 9 4.6-1.2 8-4 8-9V7l-8-4Z"/></svg>
-            <h3>INTEGRITY</h3>
-            <p>Owner and admin tools keep auctions, tokens and squads honest. Unassigned players are not Free Agents.</p>
-        </article>
     </div>
 </section>
 
@@ -146,112 +224,43 @@
     </div>
 </section>
 
-<section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">TWO SCREENS. ONE SQUAD.</div>
-            <h2>YOUR CLUB. YOUR SQUAD.</h2>
-            <p>{% site_text "home.league_intro" %}</p>
-        </div>
-    </div>
-    <div class="mgl-split">
-        <div class="mgl-split-panel">
-            <div class="eyebrow">IN EA FC</div>
-            <h3>FORMATION BOARD</h3>
-            <div class="mgl-pitch" aria-hidden="true">
-                <div class="mgl-pitch-row"><span class="mgl-pitch-chip"><b>ST</b></span><span class="mgl-pitch-chip"><b>ST</b></span></div>
-                <div class="mgl-pitch-row"><span class="mgl-pitch-chip"><b>LM</b></span><span class="mgl-pitch-chip"><b>CM</b></span><span class="mgl-pitch-chip"><b>CM</b></span><span class="mgl-pitch-chip"><b>RM</b></span></div>
-                <div class="mgl-pitch-row"><span class="mgl-pitch-chip"><b>LB</b></span><span class="mgl-pitch-chip"><b>CB</b></span><span class="mgl-pitch-chip"><b>CB</b></span><span class="mgl-pitch-chip"><b>RB</b></span></div>
-                <div class="mgl-pitch-row"><span class="mgl-pitch-chip"><b>GK</b></span></div>
-            </div>
-            <p>Mirror your assigned 26-player squad in Edit Team. Tactics stay yours.</p>
-        </div>
-        <div class="mgl-split-panel">
-            <div class="eyebrow">ON MGL</div>
-            <h3>SQUAD MANAGEMENT</h3>
-            <div class="mgl-squad-mock">
-                <div><b>GK</b><span>Starter pool</span><em>Official</em></div>
-                <div><b>DEF</b><span>Back line</span><em>26 start</em></div>
-                <div><b>MID</b><span>Engine room</span><em>Tokens</em></div>
-                <div><b>FWD</b><span>Attack</span><em>Market</em></div>
-            </div>
-            <p>Ratings, ownership and transfers live on the site. Clubs keep their squad if a manager leaves.</p>
-        </div>
-    </div>
+<section class="mgl-home-support" id="mgl-support">
+    <article id="mgl-faq">
+        <h2>FAQ</h2>
+        <h3>How do I join?</h3>
+        <p>Create an account, then apply for a vacant club in the Job Centre. Signing up does not require approval.</p>
+        <h3>When do I get a club?</h3>
+        <p>Job applications stay pending until an Owner or Admin approves them. You are not assigned a club when you submit.</p>
+    </article>
+    <article id="mgl-contact">
+        <h2>CONTACT</h2>
+        <p>{% if footer_contact_text %}{{ footer_contact_text }}{% else %}Reach the league office through the MGL Discord or the contact address below.{% endif %}</p>
+        {% if site_contact_email %}
+            <p><a href="mailto:{{ site_contact_email }}">{{ site_contact_email }}</a></p>
+        {% endif %}
+        {% if discord_invite_url %}
+            <p><a href="{{ discord_invite_url }}" target="_blank" rel="noopener">Join the MGL Discord</a></p>
+        {% endif %}
+    </article>
+    <article id="mgl-privacy">
+        <h2>PRIVACY</h2>
+        <p>MGL stores the account, club and match records needed to run Online Career Mode. Public pages only show approved results, news and appointments. We do not sell member data.</p>
+    </article>
+    <article id="mgl-terms">
+        <h2>TERMS</h2>
+        <p>By creating an account you agree to play by the published MGL rules, keep job applications honest, and accept that Owner/Admin decisions on appointments, results and market actions are final for the competition.</p>
+    </article>
 </section>
 
-<section class="mgl-stat-strip">
-    <div class="mgl-stat-strip-inner">
-        <div>
-            <strong>{{ club_count }}</strong>
-            <span>ACTIVE CLUBS</span>
-        </div>
-        <div>
-            <strong>{{ manager_count }}</strong>
-            <span>ACTIVE MANAGERS</span>
-        </div>
-        <div>
-            <strong>{{ matches_played }}</strong>
-            <span>MATCHES PLAYED</span>
-        </div>
-        <div>
-            <strong>SEASON {{ active_league.season|default:"1" }}</strong>
-            <span>CURRENT SEASON</span>
-        </div>
+<section class="mgl-home-cta" id="mgl-join">
+    <div class="mgl-home-cta-media" aria-hidden="true">
+        <img src="{% static 'core/img/mgl-stadium-cta.jpg' %}" alt="">
     </div>
-</section>
-
-<section class="mgl-section">
-    <div class="section-heading">
-        <div>
-            <div class="eyebrow">MATCH CENTRE</div>
-            <h2>FIXTURES &amp; RESULTS</h2>
-        </div>
-        <a href="{% url 'fixture_list' %}" class="view-all">VIEW ALL →</a>
-    </div>
-    <div class="match-layout">
-        <div class="match-panel">
-            <div class="panel-heading"><span>UPCOMING FIXTURES</span><b>THIS WEEK</b></div>
-            {% for fixture in upcoming %}
-            <div class="match-row">
-                <span class="match-date">{% if fixture.scheduled_at %}{{ fixture.scheduled_at|date:"d M"|upper }}{% else %}TBC{% endif %}</span>
-                <strong class="mgl-standings-club">{% team_logo fixture.home_team "xs" %} {{ fixture.home_team.name }}</strong>
-                <span class="vs">VS</span>
-                <strong class="mgl-standings-club">{% team_logo fixture.away_team "xs" %} {{ fixture.away_team.name }}</strong>
-            </div>
-            {% empty %}
-            {% include "mgl/includes/empty_state.html" with kicker="UPCOMING FIXTURES" title="NO FIXTURES HAVE BEEN RELEASED YET" body="No upcoming fixtures have been released." %}
-            {% endfor %}
-        </div>
-        <div class="match-panel">
-            <div class="panel-heading"><span>RECENT RESULTS</span><b>MGL</b></div>
-            {% for fixture in recent_results %}
-            <div class="result-row">
-                <span class="result-win">FT</span>
-                <strong class="mgl-standings-club">{% team_logo fixture.home_team "xs" %} {{ fixture.home_team.name }}</strong>
-                <b>{% if fixture.home_goals != None and fixture.away_goals != None %}{{ fixture.home_goals }} - {{ fixture.away_goals }}{% else %}—{% endif %}</b>
-                <strong class="mgl-standings-club">{% team_logo fixture.away_team "xs" %} {{ fixture.away_team.name }}</strong>
-            </div>
-            {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO APPROVED RESULTS YET" %}
-            {% endfor %}
-        </div>
-    </div>
-</section>
-
-<section class="mgl-cta" id="mgl-join">
-    <img src="{% static 'core/img/mgl-logo.png' %}" alt="" class="mgl-logo-img">
-    <div>
-        <div class="eyebrow">YOUR CAREER STARTS HERE</div>
+    <div class="mgl-home-cta-copy">
+        <p class="mgl-home-kicker">YOUR CAREER STARTS HERE</p>
         <h2>{% site_text "home.join_title" %}</h2>
         <p>{% site_text "home.join_text" %}</p>
-    </div>
-    <div class="hero-actions">
-        <a href="{% url 'job_centre' %}" class="primary-button">APPLY FOR A CLUB</a>
-        <a href="{% url 'leagues_page' %}" class="secondary-button">VIEW LEAGUE</a>
-        {% if discord_invite_url %}
-            <a href="{{ discord_invite_url }}" class="secondary-button" target="_blank" rel="noopener">JOIN DISCORD</a>
-        {% endif %}
+        <a href="{{ join_mgl_url }}" class="primary-button">JOIN MGL TODAY</a>
     </div>
 </section>
 {% endblock %}

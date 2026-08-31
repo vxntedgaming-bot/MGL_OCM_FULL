@@ -32,6 +32,9 @@ class NavigationDropdownTests(TestCase):
         for source in (NAV_DROPDOWNS, SIGNED_IN_NAV_DROPDOWNS):
             for menu in source:
                 for item in menu["items"]:
+                    if item.get("href"):
+                        self.assertTrue(item["href"].startswith("/"), item)
+                        continue
                     url = reverse(item["url_name"], kwargs=item.get("url_kwargs") or None)
                     self.assertTrue(url.startswith("/"), item)
                     self.assertNotEqual(url, "#")
@@ -47,8 +50,11 @@ class NavigationDropdownTests(TestCase):
         self.assertIn('data-nav-dropdown="leagues"', html)
         self.assertIn('data-nav-dropdown="stats"', html)
         self.assertIn('data-nav-dropdown="news"', html)
+        self.assertIn('data-nav-dropdown="about"', html)
         self.assertContains(response, "Pressroom")
         self.assertContains(response, "Live Activity")
+        self.assertContains(response, "About MGL")
+        self.assertContains(response, "How It Works")
         self.assertNotContains(response, "Latest News")
         self.assertNotContains(response, "Official News")
         self.assertNotContains(response, "MY TEAM")
@@ -57,6 +63,7 @@ class NavigationDropdownTests(TestCase):
         self.assertContains(response, "STATISTICS")
         self.assertContains(response, "JOBS")
         self.assertContains(response, "LOGIN")
+        self.assertContains(response, "SIGN UP")
         self.assertNotContains(response, ">JOIN<")
         self.assertNotContains(response, "Team Management")
         self.assertNotContains(response, ">TEAMS<")
@@ -124,7 +131,9 @@ class NavigationDropdownTests(TestCase):
         self.assertIn("STATISTICS", nav)
         self.assertIn("JOBS", nav)
         self.assertIn("NEWS", nav)
+        self.assertIn("ABOUT", nav)
         self.assertIn("LOGIN", nav)
+        self.assertIn("SIGN UP", nav)
         self.assertNotIn("FIXTURES", nav)
         self.assertNotIn("TEAMS", nav)
         self.assertNotIn("TRANSFERS", nav)

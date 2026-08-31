@@ -1,3 +1,4 @@
+from datetime import timedelta
 from decimal import Decimal
 
 from django.test import Client, TestCase
@@ -550,8 +551,13 @@ class ManagerHubExperienceTests(TestCase):
     def test_assigned_manager_homepage_becomes_hub(self):
         self.client.login(username="hubmgr", password="test-pass-123")
         home = self.client.get("/")
-        self.assertEqual(home.status_code, 302)
-        self.assertEqual(home["Location"], reverse("manager_hub"))
+        self.assertEqual(home.status_code, 200)
+        self.assertContains(home, "META GAMING LEAGUE")
+        self.assertContains(home, "LATEST NEWS")
+        self.assertContains(home, "ACCOUNT")
+        self.assertContains(home, "LOGOUT")
+        self.assertContains(home, reverse("job_centre"))
+        self.assertNotContains(home, "LEAGUE LIVE UPDATES")
         hub = self.client.get(reverse("manager_hub"))
         self.assertContains(hub, "Hub United")
         self.assertContains(hub, "MGL MANAGER HUB")
@@ -586,7 +592,10 @@ class ManagerHubExperienceTests(TestCase):
         home = self.client.get("/")
         self.assertEqual(home.status_code, 200)
         self.assertContains(home, "COMPETE.")
+        self.assertContains(home, "META GAMING LEAGUE")
         self.assertContains(home, "LATEST NEWS")
+        self.assertContains(home, "ACCOUNT")
+        self.assertContains(home, reverse("job_centre"))
         self.assertNotContains(home, "LEAGUE LIVE UPDATES")
         self.assertNotContains(home, "mgl-activity-feed--home")
         self.assertNotContains(home, "MGL CLUBS")
@@ -615,3 +624,62 @@ class NewsAndTablePublicTests(TestCase):
         self.assertEqual(self.client.get(reverse("pressroom")).status_code, 200)
         self.assertEqual(self.client.get(reverse("fixture_list")).status_code, 200)
         self.assertEqual(self.client.get(reverse("clubs_index")).status_code, 200)
+
+
+class PublicHomepageRedesignTests(TestCase):
+    def setUp(self):
+        self.client = Client(HTTP_HOST="127.0.0.1")
+        ensure_premier_league()
+
+    def test_unpublished_news_stays_off_homepage(self):
+        NewsPost.objects.create(
+            category=NewsPost.RESULTS,
+            title="Pending Leak",
+            body="Should stay hidden.",
+            published=False,
+        )
+        NewsPost.objects.create(
+            category=NewsPost.RESULTS,
+            title="Official MGL Result",
+            body="Approved.",
+            published=True,
+        )
+        home = self.client.get("/")
+        self.assertContains(home, "Official MGL Result")
+        self.assertNotContains(home, "Pending Leak")
+
+    def test_apply_and_cup_buttons_use_real_routes(self):
+        home = self.client.get("/")
+        self.assertEqual(home.status_code, 200)
+        self.assertContains(
+            home, reverse("manager_login") + "?next=" + reverse("job_centre")
+        )
+        self.assertContains(home, reverse("leagues_page"))
+        self.assertContains(home, reverse("fixture_list"))
+        self.assertContains(home, reverse("competition_page", kwargs={"slug": "cups"}))
+        self.assertContains(home, reverse("manager_register"))
+        self.assertContains(home, "VIEW MGL CUP")
+        self.assertContains(home, "BUILD YOUR LEGACY")
+        self.assertContains(home, "THE MGL EXPERIENCE")
+        self.assertContains(home, "CURRENT SEASON")
+        self.assertContains(home, "ACTIVE CLUBS")
+        self.assertContains(home, "No upcoming fixtures have been released.")
+
+    def test_next_fixture_uses_live_mgl_data(self):
+        league = ensure_premier_league()
+        home_team = Team.objects.filter(league=league).order_by("name").first()
+        away_team = Team.objects.filter(league=league).exclude(pk=home_team.pk).order_by("name").first()
+        Fixture.objects.create(
+            league=league,
+            home_team=home_team,
+            away_team=away_team,
+            matchweek=3,
+            is_released=True,
+            status="SCHEDULED",
+            scheduled_at=timezone.now() + timedelta(days=2),
+        )
+        home = self.client.get("/")
+        self.assertContains(home, home_team.name)
+        self.assertContains(home, away_team.name)
+        self.assertContains(home, "GAMEWEEK 3")
+        self.assertNotContains(home, "No upcoming fixtures have been released.")

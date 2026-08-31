@@ -385,7 +385,11 @@ def job_centre(request):
                 status=ApprovalStatus.PENDING
             ).values_list("team_id", flat=True)
         )
-    can_apply = bool(approved_manager(request.user) and not club_for_user(request.user))
+    can_apply = bool(
+        manager
+        and manager.status != ManagerApplication.REJECTED
+        and not club_for_user(request.user)
+    )
     job_leagues = []
     seen_leagues = set()
     for team in vacant:
@@ -414,9 +418,12 @@ def job_centre(request):
 @login_required
 @require_POST
 def apply_for_club(request, team_id):
-    manager = approved_manager(request.user)
+    manager = manager_for_user(request.user)
     if not manager:
-        messages.error(request, "Your manager application must be approved first.")
+        messages.error(request, "Create an account before applying for a club.")
+        return redirect("manager_register")
+    if manager.status == ManagerApplication.REJECTED:
+        messages.error(request, "Your manager application was rejected.")
         return redirect("job_centre")
     if club_for_user(request.user):
         messages.error(request, "You already manage a club.")
@@ -682,6 +689,11 @@ def control_approve_job(request, application_id):
         messages.error(request, f"{team.name} already has a manager.")
         return control_centre_redirect(request)
     new_manager = application.manager.user
+    if application.manager.status == ManagerApplication.PENDING:
+        try:
+            approve_manager_application(application.manager, request.user)
+        except ValueError:
+            pass
     if club_for_user(new_manager):
         messages.error(request, "That manager already has a club.")
         return control_centre_redirect(request)

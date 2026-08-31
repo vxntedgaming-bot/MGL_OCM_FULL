@@ -82,17 +82,17 @@ class OcmEndToEndTests(TestCase):
         self.assertContains(register, "20 tokens")
 
         user_a = User.objects.get(username="alice")
-        self.assertFalse(user_a.is_active)
+        self.assertTrue(user_a.is_active)
         self.assertEqual(user_a.role, User.MANAGER)
         application_a = ManagerApplication.objects.get(user=user_a)
         self.assertEqual(application_a.status, ManagerApplication.PENDING)
 
-        blocked = self.client.post(
-            reverse("manager_login"),
-            {"username": "alice", "password": "Ocm-pass-12345"},
-        )
-        self.assertEqual(blocked.status_code, 200)
-        self.assertFalse(blocked.wsgi_request.user.is_authenticated)
+        self.assertTrue(self.client.login(username="alice", password="Ocm-pass-12345"))
+        public_home = self.client.get("/")
+        self.assertEqual(public_home.status_code, 200)
+        self.assertContains(public_home, "META GAMING LEAGUE")
+        self.assertContains(public_home, "ACCOUNT")
+        self.client.logout()
 
         self.assertEqual(self.client.get(reverse("control_centre")).status_code, 302)
         self.assertEqual(self.client.get(reverse("manager_hub")).status_code, 302)
