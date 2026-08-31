@@ -1,0 +1,57 @@
+/* Player profile extras. Existing card/attribute styles stay in mgl.css. */
+
+.mgl-pp-crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 18px;
+    color: rgba(255, 255, 255, 0.55);
+    letter-spacing: 0.1em;
+    font-size: 13px;
+}
+
+.mgl-pp-crumbs a {
+    color: var(--mgl-orange, #ff5c00);
+    text-decoration: none;
+}
+
+.mgl-info-box img {
+    width: 18px;
+    height: 12px;
+    object-fit: cover;
+}
+
+.mgl-pp-styles {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin: 0 0 28px;
+    padding: 18px;
+    border: 1px solid rgba(255, 92, 0, 0.28);
+    border-radius: 14px;
+    background: #0d1118;
+}
+
+.mgl-pp-styles ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 10px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.mgl-pp-styles li {
+    padding: 6px 10px;
+    border: 1px solid rgba(255, 92, 0, 0.35);
+    border-radius: 999px;
+    color: #fff;
+    font-size: 13px;
+}
+
+@media (max-width: 720px) {
+    .mgl-pp-styles,
+    .mgl-profile-layout {
+        grid-template-columns: 1fr;
+    }
+}

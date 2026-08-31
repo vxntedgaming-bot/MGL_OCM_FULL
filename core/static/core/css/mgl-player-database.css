@@ -1,6 +1,76 @@
-.mgl-pdb-page {
-    display: grid;
-    gap: 22px;
+/* Player Database page. Loaded on /mgl/players/. */
+
+body.mgl-pdb-page {
+    overflow-x: hidden;
+    background:
+        radial-gradient(ellipse at 50% 0%, rgba(255, 92, 0, 0.07), transparent 42%),
+        #050505;
+}
+
+.mgl-pdb-page .mgl-section {
+    max-width: 1240px;
+    margin: 0 auto;
+}
+
+.mgl-pdb-crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 22px;
+    color: rgba(255, 255, 255, 0.55);
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+}
+
+.mgl-pdb-crumb-icon,
+.mgl-pdb-crumb-current {
+    color: var(--mgl-orange, #ff5c00);
+}
+
+.mgl-pdb-crumb-icon {
+    width: 16px;
+    height: 16px;
+}
+
+.mgl-pdb-crumbs a {
+    color: rgba(255, 255, 255, 0.62);
+    text-decoration: none;
+}
+
+.mgl-pdb-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin: 0 0 24px;
+}
+
+.mgl-pdb-hero-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 92, 0, 0.4);
+    background: rgba(255, 92, 0, 0.1);
+    color: var(--mgl-orange, #ff5c00);
+    flex-shrink: 0;
+}
+
+.mgl-pdb-hero-icon svg {
+    width: 26px;
+    height: 26px;
+}
+
+.mgl-pdb-page h1 {
+    margin: 0;
+    color: #fff;
+    font-size: clamp(32px, 5vw, 56px);
+    letter-spacing: 0.04em;
+    line-height: 0.95;
 }
 
 .mgl-pdb-layout {
@@ -10,21 +80,34 @@
     align-items: start;
 }
 
+.mgl-pdb-table-head,
+.mgl-pdb-row {
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1.4fr) 64px 48px 56px 36px;
+    gap: 12px;
+    align-items: center;
+}
+
+.mgl-pdb-table-head {
+    padding: 0 14px 10px;
+    color: rgba(255, 255, 255, 0.45);
+    font-family: var(--font-display);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+}
+
 .mgl-pdb-list {
     display: grid;
     gap: 0;
     min-width: 0;
-    background: var(--mgl-card);
-    border: 1px solid var(--mgl-line);
+    background: #0d1118;
+    border: 1px solid rgba(255, 92, 0, 0.28);
+    border-radius: 14px;
 }
 
 .mgl-pdb-row {
-    display: grid;
-    grid-template-columns: 72px minmax(0, 1fr) 64px;
-    gap: 14px;
-    align-items: center;
     padding: 12px 14px;
-    border-top: 1px solid var(--mgl-line);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .mgl-pdb-row:first-child {
@@ -45,41 +128,86 @@
     color: #fff;
     text-decoration: none;
     font-weight: 800;
+    letter-spacing: 0.04em;
 }
 
 .mgl-pdb-identity a:hover {
-    color: var(--mgl-orange);
+    color: var(--mgl-orange, #ff5c00);
 }
 
-.mgl-pdb-meta {
+.mgl-pdb-nation {
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
     align-items: center;
-    margin-top: 6px;
+    gap: 8px;
+    margin: 6px 0 0;
+    color: rgba(255, 255, 255, 0.62);
+    font-size: 13px;
 }
 
-.mgl-pdb-pos {
-    color: var(--mgl-orange);
+.mgl-pdb-nation img {
+    width: 18px;
+    height: 12px;
+    object-fit: cover;
+}
+
+.mgl-pdb-page .mgl-pos-badge {
+    display: inline-flex;
+    min-width: 42px;
+    justify-content: center;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
     font-weight: 800;
-    letter-spacing: 0.06em;
+    background: #2a3340;
+    color: #fff;
+}
+
+.mgl-pdb-page .mgl-pos-badge[data-pos="GK"] { background: #c9a227; color: #111; }
+.mgl-pdb-page .mgl-pos-badge[data-pos="CB"],
+.mgl-pdb-page .mgl-pos-badge[data-pos="LB"],
+.mgl-pdb-page .mgl-pos-badge[data-pos="RB"],
+.mgl-pdb-page .mgl-pos-badge[data-pos="LWB"],
+.mgl-pdb-page .mgl-pos-badge[data-pos="RWB"] { background: #2f6bdc; }
+.mgl-pdb-page .mgl-pos-badge[data-pos="CDM"],
+.mgl-pdb-page .mgl-pos-badge[data-pos="CM"],
+.mgl-pdb-page .mgl-pos-badge[data-pos="CAM"],
+.mgl-pdb-page .mgl-pos-badge[data-pos="LM"],
+.mgl-pdb-page .mgl-pos-badge[data-pos="RM"] { background: #2f9e57; }
+.mgl-pdb-page .mgl-pos-badge[data-pos="LW"],
+.mgl-pdb-page .mgl-pos-badge[data-pos="RW"],
+.mgl-pdb-page .mgl-pos-badge[data-pos="CF"],
+.mgl-pdb-page .mgl-pos-badge[data-pos="ST"] { background: #d24a2f; }
+
+.mgl-pdb-age {
+    color: #fff;
+    font-weight: 700;
 }
 
 .mgl-pdb-ovr {
-    width: 52px;
-    height: 52px;
+    width: 44px;
+    height: 44px;
     display: grid;
     place-items: center;
-    border: 1px solid var(--mgl-orange);
+    border: 1px solid var(--mgl-orange, #ff5c00);
     border-radius: 50%;
-    color: var(--mgl-orange);
+    color: var(--mgl-orange, #ff5c00);
     font-family: var(--font-display);
-    font-size: 20px;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.mgl-pdb-arrow {
+    color: var(--mgl-orange, #ff5c00);
+    font-size: 28px;
+    line-height: 1;
+    text-decoration: none;
+    text-align: center;
 }
 
 .mgl-pdb-filters {
-    background: var(--mgl-card);
-    border: 1px solid var(--mgl-line);
+    background: #0d1118;
+    border: 1px solid rgba(255, 92, 0, 0.28);
+    border-radius: 14px;
     padding: 16px;
     display: grid;
     gap: 14px;
@@ -89,6 +217,7 @@
 .mgl-pdb-filters h2 {
     margin: 0;
     font-size: 16px;
+    letter-spacing: 0.1em;
 }
 
 .mgl-pdb-filters label {
@@ -103,6 +232,30 @@
 .mgl-pdb-filters select {
     width: 100%;
     min-width: 0;
+    min-height: 40px;
+    padding: 0 10px;
+    border: 1px solid rgba(255, 92, 0, 0.28);
+    border-radius: 8px;
+    background: #050505;
+    color: #fff;
+}
+
+.mgl-pdb-more {
+    border: 1px solid rgba(255, 92, 0, 0.2);
+    border-radius: 10px;
+}
+
+.mgl-pdb-more summary {
+    padding: 10px 12px;
+    cursor: pointer;
+    color: var(--mgl-orange, #ff5c00);
+    letter-spacing: 0.08em;
+}
+
+.mgl-pdb-more-body {
+    display: grid;
+    gap: 14px;
+    padding: 0 12px 12px;
 }
 
 .mgl-pdb-positions {
@@ -112,7 +265,7 @@
 }
 
 .mgl-pdb-pos-btn {
-    border: 1px solid var(--mgl-line);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     background: transparent;
     color: #fff;
     padding: 7px 4px;
@@ -122,8 +275,8 @@
 
 .mgl-pdb-pos-btn.is-active,
 .mgl-pdb-pos-btn:hover {
-    border-color: var(--mgl-orange);
-    color: var(--mgl-orange);
+    border-color: var(--mgl-orange, #ff5c00);
+    color: var(--mgl-orange, #ff5c00);
 }
 
 .mgl-pdb-range,
@@ -143,9 +296,18 @@
     gap: 8px;
 }
 
-.mgl-pdb-actions .secondary-button,
-.mgl-pdb-actions .primary-button {
-    text-align: center;
+.mgl-pdb-pager {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.mgl-pdb-pages {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 @media (max-width: 960px) {
@@ -156,22 +318,32 @@
     .mgl-pdb-filters {
         order: -1;
     }
+
+    .mgl-pdb-table-head {
+        display: none;
+    }
+
+    .mgl-pdb-row {
+        grid-template-columns: 56px minmax(0, 1fr) 44px 36px;
+        grid-template-areas:
+            "card identity ovr arrow"
+            "card pos age arrow";
+    }
+
+    .mgl-pdb-row .mgl-player-card-link,
+    .mgl-pdb-row .mgl-player-card { grid-area: card; }
+    .mgl-pdb-identity { grid-area: identity; }
+    .mgl-pdb-ovr { grid-area: ovr; }
+    .mgl-pdb-arrow { grid-area: arrow; }
 }
 
 @media (max-width: 640px) {
-    .mgl-pdb-row {
-        grid-template-columns: 56px minmax(0, 1fr) 48px;
-        gap: 10px;
-    }
-
-    .mgl-pdb-ovr {
-        width: 44px;
-        height: 44px;
-        font-size: 16px;
-    }
-
     .mgl-pdb-positions,
     .mgl-pdb-face {
         grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .mgl-pdb-actions {
+        grid-template-columns: 1fr;
     }
 }

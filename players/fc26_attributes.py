@@ -158,6 +158,9 @@ def apply_fc26_attributes(player, row) -> list[str]:
     if getattr(player, "fc_work_rate", "") != work_rate:
         player.fc_work_rate = work_rate
         changed.append("fc_work_rate")
+    from players.display import apply_fc26_identity
+
+    changed.extend(apply_fc26_identity(player, row))
     return changed
 
 

@@ -53,7 +53,13 @@ DETAIL_FIELDS = [
 ]
 FACE_FIELDS = ["player_face_url", "image_url"]
 NAME_FIELDS = ["name"]
-ATTRIBUTE_FIELDS = ATTR_FIELD_NAMES + ["fc_work_rate"]
+ATTRIBUTE_FIELDS = ATTR_FIELD_NAMES + [
+    "fc_work_rate",
+    "date_of_birth",
+    "age",
+    "fc_playstyles",
+    "fc_playstyle_plus",
+]
 BATCH_SIZE = 400
 SQLITE_VAR_LIMIT = 900
 

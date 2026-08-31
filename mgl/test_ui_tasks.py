@@ -237,6 +237,7 @@ class PlayerDatabaseFilterTests(TestCase):
             weak_foot=4,
             pace=97,
             shooting=89,
+            age=26,
             mgl_team=self.club,
         )
         self.cb = Player.objects.create(
@@ -308,3 +309,29 @@ class PlayerDatabaseFilterTests(TestCase):
         self.assertEqual(self.client.get(reverse("player_profile", args=[self.mbappe.id])).status_code, 200)
         self.client.logout()
         self.assertEqual(self.client.get("/").status_code, 200)
+
+    def test_database_row_shows_age_and_opens_full_profile(self):
+        page = self.client.get(reverse("player_database"), {"search": "Mbappe"})
+        self.assertContains(page, "26")
+        self.assertContains(page, "2 PLAYERS")
+        self.assertContains(page, "mgl-pdb-arrow")
+        self.assertContains(page, reverse("player_profile", args=[self.mbappe.id]))
+        self.mbappe.fc_playstyles = "Technical, Rapid"
+        self.mbappe.fc_playstyle_plus = "Finesse Shot+"
+        self.mbappe.save(update_fields=["fc_playstyles", "fc_playstyle_plus"])
+        profile = self.client.get(reverse("player_profile", args=[self.mbappe.id]))
+        self.assertContains(profile, "Kylian Mbappe")
+        self.assertContains(profile, "AGE")
+        self.assertContains(profile, "26")
+        self.assertContains(profile, "★★★★★")
+        self.assertContains(profile, "★★★★☆")
+        self.assertContains(profile, "PLAYSTYLES")
+        self.assertContains(profile, "Technical")
+        self.assertContains(profile, "PLAYSTYLE+")
+        self.assertContains(profile, "Finesse Shot+")
+        self.assertContains(profile, "PREFERRED FOOT")
+        self.assertContains(profile, "CURRENT CLUB")
+        self.assertContains(profile, "Database FC")
+        empty = self.client.get(reverse("player_profile", args=[self.cb.id]))
+        self.assertNotContains(empty, "PLAYSTYLES")
+        self.assertNotContains(empty, "Finesse Shot+")

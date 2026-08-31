@@ -56,7 +56,7 @@
                     <h3>{{ pack.player|card_name }}</h3>
                     <p>
                         {{ pack.player.position }} · OVR {{ pack.player.overall }}
-                        {% if pack.player.age %} · AGE {{ pack.player.age }}{% endif %}
+                        {% if pack.player|player_age %} · AGE {{ pack.player|player_age }}{% endif %}
                         {% if pack.player.nationality %} · {{ pack.player.nationality }}{% endif %}
                         {% if pack.player.preferred_foot %} · {{ pack.player.preferred_foot }}{% endif %}
                     </p>

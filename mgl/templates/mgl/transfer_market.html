@@ -149,7 +149,7 @@
                             </div>
                             <div>
                                 <span class="mgl-market-mobile-label">AGE</span>
-                                {% if listing.player.age %}{{ listing.player.age }}{% endif %}
+                                {{ listing.player|player_age }}
                             </div>
                             <div class="mgl-market-price-cell">
                                 <span class="mgl-market-mobile-label">ASKING PRICE</span>
@@ -203,7 +203,7 @@
                                 {% endif %}
                                 <p>
                                     {% if row.player.position %}{{ row.player.position }}{% endif %}
-                                    {% if row.player.age %} · {{ row.player.age }}{% endif %}
+                                    {% if row.player|player_age %} · {{ row.player|player_age }}{% endif %}
                                 </p>
                             </div>
                         </div>

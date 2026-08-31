@@ -264,3 +264,32 @@ def flag_code(nationality):
     if not nationality:
         return ""
     return NATIONALITY_ISO.get(nationality.strip(), "")
+
+
+@register.filter
+def player_age(player):
+    from players.display import player_age as resolve_age
+
+    age = resolve_age(player)
+    return "" if age is None else age
+
+
+@register.filter
+def star_rating(value):
+    from players.display import star_rating as stars
+
+    return stars(value)
+
+
+@register.filter
+def pos_line(position):
+    pos = (position or "").upper()
+    if pos == "GK":
+        return "gk"
+    if pos in {"CB", "LB", "RB", "LWB", "RWB"}:
+        return "def"
+    if pos in {"ST", "CF", "LW", "RW"}:
+        return "att"
+    if pos:
+        return "mid"
+    return ""

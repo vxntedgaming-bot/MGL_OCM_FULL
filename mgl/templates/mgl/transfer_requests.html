@@ -61,7 +61,7 @@
                             <p>
                                 {% if row.player %}{{ row.player.position }}{% endif %}
                                 {% if row.player and row.player.overall %} · {{ row.player.overall }}{% endif %}
-                                {% if row.player and row.player.age %} · {{ row.player.age }}{% endif %}
+                                {% if row.player|player_age %} · {{ row.player|player_age }}{% endif %}
                             </p>
                         </div>
                     </div>

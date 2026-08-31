@@ -70,6 +70,11 @@ class Player(models.Model):
         blank=True,
     )
 
+    date_of_birth = models.DateField(
+        null=True,
+        blank=True,
+    )
+
     card_tier = models.CharField(max_length=10, blank=True)
     released_at = models.DateTimeField(null=True, blank=True)
     nationality = models.CharField(max_length=100, blank=True)
@@ -126,6 +131,8 @@ class Player(models.Model):
     fc_gk_positioning = models.PositiveSmallIntegerField(null=True, blank=True)
     fc_gk_reflexes = models.PositiveSmallIntegerField(null=True, blank=True)
     fc_gk_speed = models.PositiveSmallIntegerField(null=True, blank=True)
+    fc_playstyles = models.TextField(blank=True)
+    fc_playstyle_plus = models.TextField(blank=True)
 
     # MGL information
     mgl_team = models.ForeignKey(

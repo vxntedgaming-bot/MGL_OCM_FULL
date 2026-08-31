@@ -118,7 +118,7 @@
                                 data-pos="{{ player.position }}"
                                 data-nation="{{ player.nationality|default:''|lower }}"
                                 data-ovr="{{ player.overall }}"
-                                data-age="{{ player.age|default:'' }}"
+                                data-age="{{ player|player_age }}"
                                 data-line="{{ player.line }}"
                             >
                                 <td class="mgl-sq-num">{{ forloop.counter }}</td>
@@ -144,7 +144,7 @@
                                         {{ player.nationality }}
                                     {% endif %}
                                 </td>
-                                <td>{% if player.age %}{{ player.age }}{% endif %}</td>
+                                <td>{{ player|player_age }}</td>
                                 <td class="mgl-squad-actions">
                                     <a href="{% url 'player_profile' player.id %}" class="mgl-sq-view" aria-label="View {{ player.name }}">VIEW</a>
                                     {% if player.current_listing %}

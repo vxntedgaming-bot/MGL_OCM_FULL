@@ -1,16 +1,27 @@
 {% extends "core/base.html" %}
-{% load mgl_ui %}
+{% load static mgl_ui %}
 
 {% block title %}{{ player.name }} — MGL{% endblock %}
+{% block body_class %}mgl-profile-page{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/mgl-player-profile.css' %}?v=pp-1">
+{% endblock %}
 
 {% block content %}
 <section class="mgl-section mgl-profile">
+    <nav class="mgl-pp-crumbs" aria-label="Player profile location">
+        <a href="{% url 'player_database' %}">PLAYER DATABASE</a>
+        <span aria-hidden="true">›</span>
+        <span>{{ player|card_name }}</span>
+    </nav>
+
     <div class="mgl-profile-header">
         <div class="eyebrow">PLAYER PROFILE</div>
         <h1>{{ player.name }}</h1>
         <p>
             {{ player.position }}
             · {{ player.overall }} OVR
+            {% if player_age_value %} · AGE {{ player_age_value }}{% endif %}
             · {% if player.mgl_team %}{{ player.mgl_team.name }}{% else %}{{ player|market_status_label }}{% endif %}
         </p>
     </div>
@@ -27,13 +38,32 @@
                 {% if player.nationality %}
                 <div class="mgl-info-box">
                     <span>NATIONALITY</span>
-                    <strong>{{ player.nationality }}</strong>
+                    <strong class="mgl-info-club">
+                        {% with iso=player.nationality|flag_code %}
+                            {% if iso %}
+                                <img src="https://flagcdn.com/w40/{{ iso }}.png" alt="" loading="lazy" onerror="this.style.display='none'">
+                            {% endif %}
+                        {% endwith %}
+                        {{ player.nationality }}
+                    </strong>
                 </div>
                 {% endif %}
                 <div class="mgl-info-box">
                     <span>POSITION</span>
                     <strong>{{ player.position|default:"—" }}</strong>
                 </div>
+                {% if player_age_value %}
+                <div class="mgl-info-box">
+                    <span>AGE</span>
+                    <strong>{{ player_age_value }}</strong>
+                </div>
+                {% endif %}
+                {% if player.date_of_birth %}
+                <div class="mgl-info-box">
+                    <span>DATE OF BIRTH</span>
+                    <strong>{{ player.date_of_birth|date:"d M Y" }}</strong>
+                </div>
+                {% endif %}
                 {% if player.height_cm %}
                 <div class="mgl-info-box">
                     <span>HEIGHT</span>
@@ -55,13 +85,13 @@
                 {% if player.skill_moves %}
                 <div class="mgl-info-box">
                     <span>SKILL MOVES</span>
-                    <strong>{{ player.skill_moves }}★</strong>
+                    <strong>{{ player.skill_moves|star_rating }}</strong>
                 </div>
                 {% endif %}
                 {% if player.weak_foot %}
                 <div class="mgl-info-box">
                     <span>WEAK FOOT</span>
-                    <strong>{{ player.weak_foot }}★</strong>
+                    <strong>{{ player.weak_foot|star_rating }}</strong>
                 </div>
                 {% endif %}
                 {% if player.fc_work_rate %}
@@ -71,25 +101,64 @@
                 </div>
                 {% endif %}
                 <div class="mgl-info-box">
-                    <span>CLUB</span>
+                    <span>STATUS</span>
+                    <strong>{{ player|market_status_label }}</strong>
+                </div>
+                <div class="mgl-info-box">
+                    <span>CURRENT CLUB</span>
                     <strong class="mgl-info-club">
                         {% team_logo player.mgl_team "sm" %}
-                        {% if player.mgl_team %}{{ player.mgl_team.name }}{% else %}{{ player|market_status_label }}{% endif %}
+                        {% if player.mgl_team %}
+                            {{ player.mgl_team.name }}
+                        {% else %}
+                            {{ player|market_status_label }}
+                        {% endif %}
                     </strong>
                 </div>
+                {% if player.mgl_team and player.mgl_team.league %}
+                <div class="mgl-info-box">
+                    <span>LEAGUE</span>
+                    <strong>{{ player.mgl_team.league|league_label }}</strong>
+                </div>
+                {% endif %}
+                {% if club_manager %}
+                <div class="mgl-info-box">
+                    <span>MANAGER</span>
+                    <strong>{{ club_manager.display_name }}</strong>
+                </div>
+                {% endif %}
                 <div class="mgl-info-box">
                     <span>CARD TIER</span>
                     <strong>{{ player|player_tier }}</strong>
                 </div>
-                {% if player.age %}
-                <div class="mgl-info-box">
-                    <span>AGE</span>
-                    <strong>{{ player.age }}</strong>
-                </div>
-                {% endif %}
             </div>
         </div>
     </div>
+
+    {% if playstyles or playstyle_plus %}
+    <div class="mgl-pp-styles">
+        {% if playstyles %}
+            <div>
+                <div class="eyebrow">PLAYSTYLES</div>
+                <ul>
+                    {% for style in playstyles %}
+                        <li>{{ style }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        {% if playstyle_plus %}
+            <div>
+                <div class="eyebrow">PLAYSTYLE+</div>
+                <ul>
+                    {% for style in playstyle_plus %}
+                        <li>{{ style }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    </div>
+    {% endif %}
 
     <div class="mgl-main-ratings">
         <div class="eyebrow">ATTRIBUTES</div>
@@ -117,6 +186,24 @@
     {% endif %}
 
     {% player_stats_panel player %}
+
+    {% if live_listing or live_auction %}
+    <div class="mgl-history">
+        <div class="eyebrow">TRANSFER INFORMATION</div>
+        {% if live_listing %}
+            <div class="mgl-history-row">
+                <strong>LISTED FOR TRANSFER</strong>
+                <span>{{ live_listing.asking_price }} TKN · {{ live_listing.team.name }}{% if live_listing.seller %} · {{ live_listing.seller.display_name }}{% endif %}</span>
+            </div>
+        {% endif %}
+        {% if live_auction %}
+            <div class="mgl-history-row">
+                <strong>IN AUCTION</strong>
+                <span>{{ live_auction.ends_at|time_left }}</span>
+            </div>
+        {% endif %}
+    </div>
+    {% endif %}
 
     <div class="mgl-history">
         <div class="eyebrow">MGL OWNERSHIP HISTORY</div>

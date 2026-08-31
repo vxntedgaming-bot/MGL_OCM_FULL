@@ -270,7 +270,7 @@ def home(request):
 
 def player_profile(request, player_id):
     player = get_object_or_404(
-        Player.objects.select_related("mgl_team"),
+        Player.objects.select_related("mgl_team", "mgl_team__league", "mgl_team__manager"),
         pk=player_id,
     )
 
@@ -292,13 +292,38 @@ def player_profile(request, player_id):
         .order_by("-submitted_at")
     )
 
+    from auctions.models import PlayerAuction
     from mgl.market import transfer_offer_context_for
+    from mgl.models import PlayerListing
+    from mgl.player_state import LIVE_AUCTION_STATUSES, LIVE_LISTING_STATUSES
+    from players.display import playstyles_for_player, player_age
+
+    live_listing = (
+        PlayerListing.objects.filter(player=player, status__in=LIVE_LISTING_STATUSES)
+        .select_related("team", "seller")
+        .first()
+    )
+    live_auction = (
+        PlayerAuction.objects.filter(player=player, status__in=LIVE_AUCTION_STATUSES)
+        .select_related("origin_team")
+        .first()
+    )
+    playstyles, playstyle_plus = playstyles_for_player(player)
+    club_manager = None
+    if player.mgl_team_id and getattr(player.mgl_team, "manager_id", None):
+        club_manager = manager_for_user(player.mgl_team.manager)
 
     return render(
         request,
         "mgl/player_profile.html",
         {
             "player": player,
+            "player_age_value": player_age(player),
+            "playstyles": playstyles,
+            "playstyle_plus": playstyle_plus,
+            "live_listing": live_listing,
+            "live_auction": live_auction,
+            "club_manager": club_manager,
             "ownership_history": ownership_history,
             "totw_selections": totw_selections,
             "auction_requests": auction_requests,
@@ -1494,14 +1519,13 @@ def team_management(request):
         "defenders": sum(1 for player in players if player.line == "defenders"),
         "keepers": sum(1 for player in players if player.line == "keepers"),
     }
+    from players.display import player_age as resolve_age
+
+    ages = [resolve_age(player) for player in players]
     age_counts = {
-        "u23": sum(1 for player in players if player.age is not None and player.age < 23),
-        "prime": sum(
-            1
-            for player in players
-            if player.age is not None and 23 <= player.age <= 29
-        ),
-        "veteran": sum(1 for player in players if player.age is not None and player.age >= 30),
+        "u23": sum(1 for age in ages if age is not None and age < 23),
+        "prime": sum(1 for age in ages if age is not None and 23 <= age <= 29),
+        "veteran": sum(1 for age in ages if age is not None and age >= 30),
     }
     squad_positions = sorted(
         {player.position for player in players if player.position}
