@@ -1,11 +1,17 @@
 {% extends "mgl/includes/control_page.html" %}
 
 {% block control_title %}Logs & Activity — MGL Control{% endblock %}
+{% block control_crumb %}CONTROL / SEASON / LOGS{% endblock %}
 {% block control_kicker %}SYSTEM{% endblock %}
-{% block control_heading %}OWNER / ADMIN AUDIT{% endblock %}
+{% block control_heading %}LOGS &amp; ACTIVITY{% endblock %}
 {% block control_intro %}Approvals, overrides, rollbacks and token adjustments from the existing audit log.{% endblock %}
 
 {% block control_body %}
+<form method="get" class="mgl-inline-form">
+    <input type="search" name="q" value="{{ log_search }}" placeholder="Search admin, action or object">
+    <input type="text" name="action" value="{{ log_action }}" placeholder="Action filter">
+    <button class="header-button mgl-cp-review-btn" type="submit">FILTER</button>
+</form>
 <section class="dashboard-panel mgl-cp-panel">
     <div class="panel-heading"><span>OWNER / ADMIN AUDIT</span></div>
     {% for row in ocm_audit_log %}

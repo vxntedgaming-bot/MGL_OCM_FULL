@@ -23,19 +23,39 @@ class ControlCommandCentreTests(TestCase):
         self.assertContains(dashboard, reverse("control_transfers"))
         pages = (
             "control_pending",
+            "control_approvals",
             "control_scores",
+            "control_approvals_scores",
             "control_transfers",
+            "control_approvals_transfers",
             "control_press",
+            "control_approvals_press",
             "control_weekly_awards",
+            "control_history_weekly",
             "control_monthly_awards",
+            "control_history_monthly",
             "control_managers",
+            "control_approvals_managers",
             "control_tokens",
             "control_scouting",
+            "control_management_scouting",
             "control_auctions",
+            "control_management_auctions",
             "control_clubs",
+            "control_management_clubs",
             "control_notifications",
             "control_logs",
+            "control_season_history",
+            "control_season_controls",
+            "control_league",
         )
         for name in pages:
             response = self.client.get(reverse(name))
             self.assertEqual(response.status_code, 200, name)
+        self.client.logout()
+        User.objects.create_user(
+            username="ctrlmgr", password="test-pass-123", role=User.MANAGER
+        )
+        self.client.login(username="ctrlmgr", password="test-pass-123")
+        blocked = self.client.get(reverse("control_centre"))
+        self.assertEqual(blocked.status_code, 302)

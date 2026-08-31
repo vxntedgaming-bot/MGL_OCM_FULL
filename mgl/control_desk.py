@@ -9,7 +9,7 @@ from auctions.models import PlayerAuction
 from managers.models import ManagerApplication
 from teams.models import Team
 
-from mgl.market import transfer_offer_details, transfer_window_is_open
+from mgl.market import club_for_user, transfer_offer_details, transfer_window_is_open
 from mgl.models import (
     ApprovalStatus,
     ClubApplication,
@@ -63,7 +63,29 @@ def pending_listings():
     )
     for listing in rows:
         listing.deal = transfer_offer_details(listing)
+        listing.warnings = listing_warnings(listing)
     return rows
+
+
+def listing_warnings(listing):
+    warnings = []
+    player = listing.player
+    if player is None:
+        warnings.append("Player record is missing.")
+        return warnings
+    if player.mgl_team_id and listing.team_id and player.mgl_team_id != listing.team_id:
+        warnings.append("Player no longer belongs to the selling club.")
+    buyer = listing.reserved_buyer
+    buyer_club = club_for_user(buyer.user) if buyer and buyer.user_id else None
+    if buyer_club and player.mgl_team_id == buyer_club.id:
+        warnings.append("Buyer already owns this player.")
+    if not transfer_window_is_open():
+        warnings.append("Transfer window is closed.")
+    if buyer and listing.asking_price and buyer.tokens < listing.asking_price:
+        warnings.append("Buyer does not have enough tokens.")
+    if listing.status != PlayerListing.PENDING:
+        warnings.append("This listing is not waiting for approval.")
+    return warnings
 
 
 def pending_confirmed_results():
@@ -365,9 +387,16 @@ def control_dashboard_context(request):
                 ).count(),
                 "assigned_players": Team.objects.none(),
             },
+            "recent_audit": SiteChangeLog.objects.select_related("user").order_by(
+                "-created_at"
+            )[:10],
         }
     )
     from players.models import Player
+    from mgl.player_state import free_agents
+    from mgl.season_history import current_season_number
 
     context["player_count"] = Player.objects.filter(mgl_team__isnull=False).count()
+    context["unsigned_count"] = free_agents().count()
+    context["current_season_number"] = current_season_number()
     return context

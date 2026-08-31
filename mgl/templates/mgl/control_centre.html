@@ -4,7 +4,7 @@
 {% block title %}MGL Control — Owner / Admin{% endblock %}
 {% block body_class %}mgl-control-body{% endblock %}
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'core/css/mgl-control.css' %}?v=cp-2">
+<link rel="stylesheet" href="{% static 'core/css/mgl-control.css' %}?v=cp-3">
 {% endblock %}
 
 {% block content %}
@@ -15,6 +15,7 @@
             <div>
                 <p class="eyebrow">LEAGUE OFFICE</p>
                 <h1>OWNER / ADMIN CONTROL</h1>
+                <p class="mgl-cp-welcome">Welcome back, {{ user.role|title }}.</p>
                 <p class="mgl-cp-welcome">WHAT NEEDS MY ATTENTION?</p>
                 <p>
                     Signed in as
@@ -34,7 +35,8 @@
 
         <section class="mgl-cp-stats" aria-label="Pending counts">
             <a class="mgl-cp-stat {% if pending_counts.approvals %}is-hot{% endif %}" href="{% url 'control_pending' %}">
-                <p>PENDING ACTIONS</p>
+                <p>PENDING APPROVALS</p>
+                <p class="visually-hidden">PENDING ACTIONS</p>
                 <strong>{{ pending_counts.approvals }}</strong>
                 <span>Needs your attention</span>
                 <em>VIEW →</em>
@@ -102,12 +104,21 @@
 
         <section class="mgl-cp-census">
             <article>
-                <p>CLUBS</p>
+                <p>ACTIVE CLUBS</p>
+                <p class="visually-hidden">CLUBS</p>
                 <strong>{{ club_count }}</strong>
             </article>
             <article>
                 <p>MANAGERS</p>
                 <strong>{{ manager_count }}</strong>
+            </article>
+            <article>
+                <p>UNSIGNED PLAYERS</p>
+                <strong>{{ unsigned_count }}</strong>
+            </article>
+            <article>
+                <p>CURRENT SEASON</p>
+                <strong>{{ current_season_number }}</strong>
             </article>
             <article>
                 <p>ASSIGNED PLAYERS</p>
@@ -130,6 +141,16 @@
             </div>
             <div class="dashboard-panel mgl-cp-panel">
                 <div class="panel-heading"><span>RECENT ACTIVITY</span><a href="{% url 'control_logs' %}">VIEW →</a></div>
+                {% for row in recent_audit %}
+                    <div class="mgl-cp-activity">
+                        <span class="mgl-cp-activity-dot" aria-hidden="true"></span>
+                        <div>
+                            <strong>{{ row.action }}</strong>
+                            <p>{{ row.summary }}</p>
+                            <small>{{ row.created_at|date:"d M Y H:i" }}{% if row.user %} · {{ row.user.username }}{% endif %}</small>
+                        </div>
+                    </div>
+                {% endfor %}
                 {% for row in recent_activity %}
                     <div class="mgl-cp-activity">
                         <span class="mgl-cp-activity-dot" aria-hidden="true"></span>
@@ -149,5 +170,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'core/js/mgl-control.js' %}?v=cp-2"></script>
+<script src="{% static 'core/js/mgl-control.js' %}?v=cp-3"></script>
 {% endblock %}

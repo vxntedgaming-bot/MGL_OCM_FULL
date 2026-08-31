@@ -1,0 +1,92 @@
+{% extends "mgl/includes/control_page.html" %}
+
+{% block control_title %}League Control — MGL Control{% endblock %}
+{% block control_crumb %}CONTROL / LEAGUE CONTROL{% endblock %}
+{% block control_kicker %}LEAGUE CONTROL{% endblock %}
+{% block control_heading %}LEAGUE SETTINGS{% endblock %}
+{% block control_intro %}These cards open the existing Site Management and season tools. Nothing here invents a second settings database.{% endblock %}
+
+{% block control_body %}
+<nav class="mgl-cp-tabs" aria-label="League control sections">
+    <a href="#general">GENERAL</a>
+    <a href="#teams">TEAMS &amp; CLUBS</a>
+    <a href="#website">WEBSITE</a>
+    <a href="#season">SEASON</a>
+    <a href="#transfers">TRANSFERS</a>
+    <a href="#rewards">REWARDS</a>
+</nav>
+<section class="mgl-cp-league-grid" id="general">
+    <a href="{% url 'site_management_settings' %}">
+        <p class="mgl-cp-kicker">GENERAL</p>
+        <h2>WEBSITE SETTINGS</h2>
+        <p>{{ site_name }} · {{ site_tagline }}</p>
+    </a>
+    <a href="{% url 'site_management_leagues' %}">
+        <p class="mgl-cp-kicker">GENERAL</p>
+        <h2>LEAGUE NAMES</h2>
+        <p>Edit existing division names and display copy.</p>
+    </a>
+    <a href="{% url 'site_management' %}">
+        <p class="mgl-cp-kicker">GENERAL</p>
+        <h2>SITE MANAGEMENT</h2>
+        <p>Clubs, leagues, website copy and Discord settings.</p>
+    </a>
+</section>
+<section class="mgl-cp-league-grid" id="teams">
+    <a href="{% url 'site_management_teams' %}">
+        <p class="mgl-cp-kicker">TEAMS &amp; CLUBS</p>
+        <h2>EDIT CLUBS</h2>
+        <p>Names, badges and assignments. Historical clubs are not deleted.</p>
+    </a>
+    <a href="{% url 'control_clubs' %}">
+        <p class="mgl-cp-kicker">TEAMS &amp; CLUBS</p>
+        <h2>CLUBS &amp; MANAGERS</h2>
+        <p>Live roster, manager and token snapshot.</p>
+    </a>
+</section>
+<section class="mgl-cp-league-grid" id="website">
+    <a href="{% url 'site_management_content' %}">
+        <p class="mgl-cp-kicker">WEBSITE</p>
+        <h2>PUBLIC COPY</h2>
+        <p>Homepage and public text stored in the existing content table.</p>
+    </a>
+    <a href="{% url 'site_management_settings' %}">
+        <p class="mgl-cp-kicker">WEBSITE</p>
+        <h2>DISCORD &amp; CONTACT</h2>
+        <p>Invite URL, social links and site name.</p>
+    </a>
+</section>
+<section class="mgl-cp-league-grid" id="season">
+    <a href="{% url 'season_management' %}">
+        <p class="mgl-cp-kicker">SEASON</p>
+        <h2>SEASON SETTINGS</h2>
+        <p>Finalise, lock and archive using the existing season records.</p>
+    </a>
+    <a href="{% url 'control_season_controls' %}">
+        <p class="mgl-cp-kicker">SEASON</p>
+        <h2>SEASON CONTROLS</h2>
+        <p>Confirmed start-next, lock and unlock actions only.</p>
+    </a>
+</section>
+<section class="mgl-cp-league-grid" id="transfers">
+    <article class="mgl-cp-review">
+        <p class="mgl-cp-kicker">TRANSFERS</p>
+        <h2>TRANSFER WINDOW</h2>
+        <p>Current status: <strong>{% if window_open %}OPEN{% else %}CLOSED{% endif %}</strong></p>
+        <p>Window dates and market rules stay on the existing transfer system. Do not invent a second window.</p>
+        <a href="{% url 'transfer_market' %}" class="header-button mgl-cp-review-btn">OPEN MARKET</a>
+    </article>
+</section>
+<section class="mgl-cp-league-grid" id="rewards">
+    <article class="mgl-cp-review">
+        <p class="mgl-cp-kicker">REWARDS</p>
+        <h2>CURRENT TOKEN RATES</h2>
+        <p>TOTW {{ reward_rates.totw }}</p>
+        <p>Top goals {{ reward_rates.top_goals }} · Top assists {{ reward_rates.top_assists }}</p>
+        <p>Manager of Week {{ reward_rates.motw }} · Manager of Month {{ reward_rates.motm }}</p>
+        <p>Player of Month {{ reward_rates.potm }} · Approved press {{ reward_rates.press }}</p>
+        <a href="{% url 'control_tokens' %}" class="header-button mgl-cp-review-btn">TOKEN LEDGER</a>
+        <a href="{% url 'control_weekly_awards' %}" class="header-button">WEEKLY REVIEW</a>
+    </article>
+</section>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "mgl/includes/control_page.html" %}
+
+{% block control_title %}Season History — MGL Control{% endblock %}
+{% block control_crumb %}CONTROL / SEASON / HISTORY{% endblock %}
+{% block control_kicker %}SEASON{% endblock %}
+{% block control_heading %}SEASON HISTORY{% endblock %}
+{% block control_intro %}Completed season snapshots stay locked. Starting a new season does not overwrite them.{% endblock %}
+
+{% block control_body %}
+<section class="dashboard-panel mgl-cp-panel">
+    {% for season in seasons %}
+        <div class="table-row mgl-cp-row">
+            <strong>SEASON {{ season.number }}</strong>
+            <span class="mgl-cp-status {% if season.status == 'ACTIVE' %}is-ok{% else %}is-warn{% endif %}">{{ season.get_status_display }}</span>
+            <span>Champion {{ season.league_winner_name|default:"—" }}</span>
+            <span>Top scorer {{ season.top_scorer_name|default:"—" }}</span>
+            <span>Assists {{ season.top_assists_name|default:"—" }}</span>
+            <span>Manager {{ season.manager_of_season_name|default:"—" }}</span>
+            <small>{{ season.games_played }} matches · {{ season.finalized_at|date:"d M Y"|default:"In progress" }}</small>
+            <a href="{% url 'season_management' %}?season={{ season.number }}" class="header-button mgl-cp-review-btn">OPEN ARCHIVE</a>
+        </div>
+    {% empty %}
+        {% include "mgl/includes/empty_state.html" with title="NO SEASONS RECORDED" %}
+    {% endfor %}
+</section>
+{% endblock %}

@@ -1,11 +1,41 @@
 {% extends "mgl/includes/control_page.html" %}
 
 {% block control_title %}Pending Approvals — MGL Control{% endblock %}
+{% block control_crumb %}CONTROL / APPROVALS / PENDING{% endblock %}
 {% block control_kicker %}APPROVALS{% endblock %}
 {% block control_heading %}PENDING APPROVALS{% endblock %}
 {% block control_intro %}Every item here is waiting for Owner/Admin review.{% endblock %}
 
 {% block control_body %}
+<nav class="mgl-cp-tabs" aria-label="Approval type">
+    <a href="?type=all" class="{% if inbox_type == 'all' %}is-active{% endif %}">ALL {{ pending_counts.approvals }}</a>
+    <a href="?type=scores" class="{% if inbox_type == 'scores' %}is-active{% endif %}">SCORES {{ pending_counts.results }}</a>
+    <a href="?type=transfers" class="{% if inbox_type == 'transfers' %}is-active{% endif %}">TRANSFERS {{ pending_counts.listings }}</a>
+    <a href="?type=press" class="{% if inbox_type == 'press' %}is-active{% endif %}">PRESS {{ pending_counts.press }}</a>
+    <a href="?type=managers" class="{% if inbox_type == 'managers' %}is-active{% endif %}">MANAGER APPLICATIONS {{ pending_counts.managers|add:pending_counts.jobs }}</a>
+</nav>
+
+<form method="get" class="mgl-inline-form">
+    <input type="hidden" name="type" value="{{ inbox_type }}">
+    <input type="search" name="q" value="{{ search }}" placeholder="Search type, club or submitter">
+    <button class="header-button mgl-cp-review-btn" type="submit">FILTER</button>
+</form>
+
+<section class="dashboard-panel mgl-cp-panel">
+    <div class="panel-heading"><span>INBOX</span><em>{{ inbox|length }}</em></div>
+    {% for row in inbox %}
+        <div class="table-row mgl-cp-row">
+            <span class="mgl-cp-status is-warn">{{ row.kind }}</span>
+            <strong>{{ row.title }}</strong>
+            <span>{{ row.submitted_by }} · {{ row.club }}</span>
+            <small>{{ row.when|date:"d M Y H:i" }}</small>
+            <a href="{{ row.url }}" class="header-button mgl-cp-review-btn">REVIEW</a>
+        </div>
+    {% empty %}
+        {% include "mgl/includes/empty_state.html" with title="NOTHING WAITING" %}
+    {% endfor %}
+</section>
+
 <section class="mgl-cp-grid">
     <div class="dashboard-panel mgl-cp-panel">
         <div class="panel-heading"><span>MATCH RESULTS</span><em>{{ pending_counts.results }}</em></div>

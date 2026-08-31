@@ -1,0 +1,59 @@
+{% extends "mgl/includes/control_page.html" %}
+
+{% block control_title %}Season Controls — MGL Control{% endblock %}
+{% block control_crumb %}CONTROL / SEASON / CONTROLS{% endblock %}
+{% block control_kicker %}SEASON{% endblock %}
+{% block control_heading %}DANGEROUS SEASON CONTROLS{% endblock %}
+{% block control_intro %}Only existing season actions are available here. Historical completed seasons stay archived.{% endblock %}
+
+{% block control_body %}
+{% if active_season %}
+    <section class="dashboard-panel mgl-cp-panel">
+        <p class="mgl-cp-kicker">ACTIVE SEASON</p>
+        <h2>SEASON {{ active_season.number }}</h2>
+        <p>Status {{ active_season.get_status_display }} · {% if active_season.is_locked %}LOCKED{% else %}UNLOCKED{% endif %}</p>
+    </section>
+    <div class="mgl-cp-league-grid">
+        <article class="mgl-cp-review mgl-cp-danger">
+            <h2>START NEW SEASON</h2>
+            <p>Archives the current active season workflow and opens the next season number. Existing historical snapshots stay in place.</p>
+            <form method="post" action="{% url 'season_management' %}" data-confirm-phrase="START SEASON">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="start_next">
+                <input type="hidden" name="season_id" value="{{ active_season.number }}">
+                <input type="text" name="confirm_text" placeholder='Type START SEASON' required>
+                <button class="header-button mgl-cp-reject" type="submit">START NEW SEASON</button>
+            </form>
+        </article>
+        <article class="mgl-cp-review">
+            <h2>LOCK SEASON</h2>
+            <p>Prevents official result changes until an Owner unlocks it.</p>
+            <form method="post" action="{% url 'season_management' %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="lock">
+                <input type="hidden" name="season_id" value="{{ active_season.number }}">
+                <button class="header-button mgl-cp-review-btn" type="submit">LOCK</button>
+            </form>
+        </article>
+        {% if is_owner %}
+        <article class="mgl-cp-review">
+            <h2>UNLOCK SEASON</h2>
+            <p>Owner only. Allows corrections to a locked season.</p>
+            <form method="post" action="{% url 'season_management' %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="unlock">
+                <input type="hidden" name="season_id" value="{{ active_season.number }}">
+                <button class="header-button mgl-cp-review-btn" type="submit">UNLOCK</button>
+            </form>
+        </article>
+        {% endif %}
+        <article class="mgl-cp-review">
+            <h2>SEASON ARCHIVE</h2>
+            <p>Open the existing season editor to finalise awards and freeze the snapshot.</p>
+            <a href="{% url 'season_management' %}?season={{ active_season.number }}" class="header-button mgl-cp-approve">OPEN SEASON SETTINGS</a>
+        </article>
+    </div>
+{% else %}
+    {% include "mgl/includes/empty_state.html" with title="NO ACTIVE SEASON" %}
+{% endif %}
+{% endblock %}

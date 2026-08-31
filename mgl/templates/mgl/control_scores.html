@@ -2,76 +2,94 @@
 {% load mgl_ui %}
 
 {% block control_title %}Scores Approval — MGL Control{% endblock %}
+{% block control_crumb %}CONTROL / APPROVALS / SCORES{% endblock %}
 {% block control_kicker %}APPROVALS{% endblock %}
 {% block control_heading %}SCORES APPROVAL{% endblock %}
 {% block control_intro %}Approve a result only after the opponent has confirmed it.{% endblock %}
 
 {% block control_body %}
 {% for submission in pending_results %}
-    <article class="mgl-cp-review">
+    <article class="mgl-cp-review" data-review-card>
         <header>
             <div class="mgl-cp-score">
-                {% team_logo submission.fixture.home_team "xs" %}
-                <h2>{{ submission.fixture.home_team.name }} {{ submission.home_goals }} — {{ submission.away_goals }} {{ submission.fixture.away_team.name }}</h2>
-                {% team_logo submission.fixture.away_team "xs" %}
+                {% team_logo submission.fixture.home_team "sm" %}
+                <div>
+                    <p class="mgl-cp-kicker">{{ submission.fixture.league.name }} · GAMEWEEK {{ submission.fixture.matchweek }}</p>
+                    <p class="mgl-cp-scoreline">{{ submission.home_goals }} — {{ submission.away_goals }}</p>
+                    <h2>{{ submission.fixture.home_team.name }} vs {{ submission.fixture.away_team.name }}</h2>
+                </div>
+                {% team_logo submission.fixture.away_team "sm" %}
             </div>
-            <p>{{ submission.fixture.league.name }} · Gameweek {{ submission.fixture.matchweek }}</p>
-            <p>Submitted by {{ submission.submitted_by.username }} · Opponent approved</p>
+            <p>Submitted by {{ submission.submitted_by.username }} · <span class="mgl-cp-status is-warn">PENDING</span> · Opponent approved</p>
         </header>
-        <div class="mgl-cp-review-grid">
-            <section>
-                <p class="mgl-cp-kicker">MATCH INFORMATION</p>
-                <p>Goals: {{ submission.fixture.home_team.name }} {{ submission.home_goals }} · {{ submission.fixture.away_team.name }} {{ submission.away_goals }}</p>
-                {% if submission.home_stats and submission.away_stats %}
-                    <p>Possession: {{ submission.home_stats.possession }}% · {{ submission.away_stats.possession }}%</p>
-                    <p>Shots: {{ submission.home_stats.shots }} · {{ submission.away_stats.shots }}</p>
-                    <p>Yellow cards: {{ submission.home_stats.yellow_cards }} · {{ submission.away_stats.yellow_cards }}</p>
-                    <p>Red cards: {{ submission.home_stats.red_cards }} · {{ submission.away_stats.red_cards }}</p>
-                {% endif %}
-            </section>
-            <section>
-                <p class="mgl-cp-kicker">GOAL SCORERS</p>
-                <p><strong>{{ submission.fixture.home_team.name }}</strong></p>
-                {% if submission.home_stats %}
-                    {% for goal in submission.home_stats.goal_events.all %}<p>{{ goal.player.name }}</p>{% empty %}<p>None</p>{% endfor %}
-                {% endif %}
-                <p><strong>{{ submission.fixture.away_team.name }}</strong></p>
-                {% if submission.away_stats %}
-                    {% for goal in submission.away_stats.goal_events.all %}<p>{{ goal.player.name }}</p>{% empty %}<p>None</p>{% endfor %}
-                {% endif %}
-            </section>
-            <section>
-                <p class="mgl-cp-kicker">ASSISTS</p>
-                {% if submission.home_stats %}
-                    {% for assist in submission.home_stats.assist_events.all %}<p>{{ submission.fixture.home_team.name }} · {{ assist.player.name }}</p>{% endfor %}
-                {% endif %}
-                {% if submission.away_stats %}
-                    {% for assist in submission.away_stats.assist_events.all %}<p>{{ submission.fixture.away_team.name }} · {{ assist.player.name }}</p>{% endfor %}
-                {% endif %}
-            </section>
-            <section>
-                <p class="mgl-cp-kicker">PLAYER RATINGS</p>
-                {% if submission.home_stats %}
-                    {% for rating in submission.home_stats.player_ratings.all %}<p>{{ rating.player.name }} · {{ rating.rating }}</p>{% endfor %}
-                    {% for rating in submission.home_stats.defender_ratings.all %}<p>{{ rating.player.name }} · {{ rating.rating }}</p>{% endfor %}
-                {% endif %}
-                {% if submission.away_stats %}
-                    {% for rating in submission.away_stats.player_ratings.all %}<p>{{ rating.player.name }} · {{ rating.rating }}</p>{% endfor %}
-                    {% for rating in submission.away_stats.defender_ratings.all %}<p>{{ rating.player.name }} · {{ rating.rating }}</p>{% endfor %}
-                {% endif %}
-            </section>
+        <nav class="mgl-cp-tabs" data-cp-tabs>
+            <button type="button" class="is-active" data-tab-target="stats-{{ submission.id }}">MATCH STATS</button>
+            <button type="button" data-tab-target="goals-{{ submission.id }}">GOALS &amp; ASSISTS</button>
+            <button type="button" data-tab-target="ratings-{{ submission.id }}">PLAYER RATINGS</button>
+        </nav>
+        <div class="mgl-cp-tab-panel" id="stats-{{ submission.id }}">
+            <p class="mgl-cp-kicker">MATCH INFORMATION</p>
+            <p>Goals: {{ submission.fixture.home_team.name }} {{ submission.home_goals }} · {{ submission.fixture.away_team.name }} {{ submission.away_goals }}</p>
+            {% if submission.home_stats and submission.away_stats %}
+                <p>Possession: {{ submission.home_stats.possession }}% · {{ submission.away_stats.possession }}%</p>
+                <p>Shots: {{ submission.home_stats.shots }} · {{ submission.away_stats.shots }}</p>
+                <p>Yellow cards: {{ submission.home_stats.yellow_cards }} · {{ submission.away_stats.yellow_cards }}</p>
+                <p>Red cards: {{ submission.home_stats.red_cards }} · {{ submission.away_stats.red_cards }}</p>
+            {% endif %}
+        </div>
+        <div class="mgl-cp-tab-panel" id="goals-{{ submission.id }}" hidden>
+            <p class="mgl-cp-kicker">GOAL SCORERS</p>
+            <p><strong>{{ submission.fixture.home_team.name }}</strong></p>
+            {% if submission.home_stats %}
+                {% for goal in submission.home_stats.goal_events.all %}<p>Goal {{ forloop.counter }} — {{ goal.player.name }}</p>{% empty %}<p>None</p>{% endfor %}
+            {% endif %}
+            <p><strong>{{ submission.fixture.away_team.name }}</strong></p>
+            {% if submission.away_stats %}
+                {% for goal in submission.away_stats.goal_events.all %}<p>Goal {{ forloop.counter }} — {{ goal.player.name }}</p>{% empty %}<p>None</p>{% endfor %}
+            {% endif %}
+            <p class="mgl-cp-kicker">ASSISTS</p>
+            {% if submission.home_stats %}
+                {% for assist in submission.home_stats.assist_events.all %}<p>{{ submission.fixture.home_team.name }} · {{ assist.player.name }}</p>{% endfor %}
+            {% endif %}
+            {% if submission.away_stats %}
+                {% for assist in submission.away_stats.assist_events.all %}<p>{{ submission.fixture.away_team.name }} · {{ assist.player.name }}</p>{% endfor %}
+            {% endif %}
+        </div>
+        <div class="mgl-cp-tab-panel" id="ratings-{{ submission.id }}" hidden>
+            <p class="mgl-cp-kicker">PLAYER RATINGS</p>
+            {% if submission.home_stats %}
+                {% for rating in submission.home_stats.player_ratings.all %}<p>{{ rating.player.name }} · {{ rating.rating }}</p>{% endfor %}
+            {% endif %}
+            {% if submission.away_stats %}
+                {% for rating in submission.away_stats.player_ratings.all %}<p>{{ rating.player.name }} · {{ rating.rating }}</p>{% endfor %}
+            {% endif %}
+            <p class="mgl-cp-kicker">DEFENDER PERFORMANCE</p>
+            {% if submission.home_stats %}
+                {% for rating in submission.home_stats.defender_ratings.all %}<p>{{ rating.player.name }} · {{ rating.tackles }} tackles · {{ rating.rating }}</p>{% endfor %}
+            {% endif %}
+            {% if submission.away_stats %}
+                {% for rating in submission.away_stats.defender_ratings.all %}<p>{{ rating.player.name }} · {{ rating.tackles }} tackles · {{ rating.rating }}</p>{% endfor %}
+            {% endif %}
+            <p class="mgl-cp-kicker">GOALKEEPER PERFORMANCE</p>
+            {% if submission.home_stats %}
+                {% for row in submission.home_stats.gk_saves.all %}<p>{{ row.player.name }} · {{ row.saves }} saves · {{ row.rating|default:"—" }}</p>{% endfor %}
+            {% endif %}
+            {% if submission.away_stats %}
+                {% for row in submission.away_stats.gk_saves.all %}<p>{{ row.player.name }} · {{ row.saves }} saves · {{ row.rating|default:"—" }}</p>{% endfor %}
+            {% endif %}
         </div>
         <div class="mgl-cp-actions">
             <form method="post" action="{% url 'control_approve_result' submission.id %}">
                 {% csrf_token %}
                 <input type="hidden" name="next_page" value="control_scores">
-                <button class="header-button mgl-cp-approve" type="submit">APPROVE RESULT</button>
+                <button class="header-button mgl-cp-approve" type="submit">APPROVE MATCH</button>
             </form>
             <form method="post" action="{% url 'control_reject_result' submission.id %}" class="mgl-cp-reject-form">
                 {% csrf_token %}
                 <input type="hidden" name="next_page" value="control_scores">
-                <input type="text" name="reason" required placeholder="Rejection reason">
-                <button class="header-button mgl-cp-reject" type="submit">REJECT RESULT</button>
+                <input type="text" name="reason" required placeholder="Rejection / correction reason">
+                <button class="header-button mgl-cp-reject" type="submit">REJECT</button>
+                <button class="header-button mgl-cp-review-btn" type="submit">REQUEST CORRECTION</button>
             </form>
         </div>
     </article>

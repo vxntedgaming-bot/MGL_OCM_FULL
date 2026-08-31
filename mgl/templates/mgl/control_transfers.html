@@ -1,6 +1,7 @@
 {% extends "mgl/includes/control_page.html" %}
 
 {% block control_title %}Transfers Approval — MGL Control{% endblock %}
+{% block control_crumb %}CONTROL / APPROVALS / TRANSFERS{% endblock %}
 {% block control_kicker %}APPROVALS{% endblock %}
 {% block control_heading %}TRANSFERS APPROVAL{% endblock %}
 {% block control_intro %}Approval updates the existing player, squad and token records once.{% endblock %}
@@ -8,24 +9,40 @@
 {% block control_body %}
 {% for listing in pending_listings %}
     <article class="mgl-cp-review">
+        <p class="mgl-cp-kicker">{{ listing.deal.transfer_type|default:"TRANSFER" }} · <span class="mgl-cp-status is-warn">PENDING</span></p>
         <h2>{{ listing.deal.player|default:listing.player.name }}</h2>
-        <p>{{ listing.deal.current_club|default:listing.team.name }}</p>
-        <p>↓</p>
-        <p>{{ listing.deal.requesting_club|default:listing.reserved_buyer.display_name }}</p>
+        <div class="mgl-cp-transfer">
+            <div>
+                <p class="mgl-cp-kicker">FROM</p>
+                <strong>{{ listing.deal.current_club|default:listing.team.name }}</strong>
+                <p>SELLER {{ listing.seller.display_name|default:"—" }} · {{ listing.seller.tokens|default:"—" }} TKN</p>
+            </div>
+            <p>↓</p>
+            <div>
+                <p class="mgl-cp-kicker">TO</p>
+                <strong>{{ listing.deal.requesting_club|default:listing.reserved_buyer.display_name }}</strong>
+                <p>BUYER {{ listing.deal.buyer_manager|default:listing.reserved_buyer.display_name }} · {{ listing.reserved_buyer.tokens }} TKN</p>
+            </div>
+        </div>
         <p>Amount: {{ listing.deal.amount|default:listing.asking_price }} TKN</p>
         <p>SELLER RECEIVES {{ listing.deal.seller_receives|default:listing.asking_price }}</p>
         <p>BUYER RECEIVES {{ listing.deal.buyer_receives|default:listing.player.name }}</p>
-        {% if listing.deal.buyer_manager %}<p>BUYER {{ listing.deal.buyer_manager }}</p>{% endif %}
+        <p>Player ownership: {{ listing.player.mgl_team.name|default:"Unsigned" }} · Window {% if window_open %}OPEN{% else %}CLOSED{% endif %}</p>
+        {% for warning in listing.warnings %}
+            <p class="mgl-cp-warn">{{ warning }}</p>
+        {% endfor %}
         <div class="mgl-cp-actions">
             <form method="post" action="{% url 'control_approve_listing' listing.id %}">
                 {% csrf_token %}
                 <input type="hidden" name="next_page" value="control_transfers">
                 <button class="header-button mgl-cp-approve" type="submit">APPROVE TRANSFER</button>
             </form>
-            <form method="post" action="{% url 'control_reject_listing' listing.id %}">
+            <form method="post" action="{% url 'control_reject_listing' listing.id %}" class="mgl-cp-reject-form">
                 {% csrf_token %}
                 <input type="hidden" name="next_page" value="control_transfers">
-                <button class="header-button mgl-cp-reject" type="submit">REJECT TRANSFER</button>
+                <input type="text" name="reason" placeholder="Rejection / correction reason">
+                <button class="header-button mgl-cp-reject" type="submit">REJECT</button>
+                <button class="header-button mgl-cp-review-btn" type="submit">REQUEST CORRECTION</button>
             </form>
         </div>
     </article>
