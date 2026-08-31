@@ -12,13 +12,11 @@ from mgl.site_views import (
 from mgl.views import (
     compare_players,
     competition_page,
-    head_to_head,
     historical_tables,
     home,
     manager_search,
     scouting,
     transfer_history,
-    youth_academy,
 )
 
 
@@ -34,7 +32,6 @@ urlpatterns = [
     path("news/pressroom/<int:press_id>/answer/", answer_press, name="answer_press"),
     path("stats/", stats_page, name="stats_page"),
     path("stats/history/", historical_tables, name="historical_tables"),
-    path("stats/head-to-head/", head_to_head, name="head_to_head"),
     path("stats/compare/", compare_players, name="compare_players"),
     path("stats/managers/", manager_search, name="manager_search"),
     path("stats/<slug:slug>/", league_stats_page, name="league_stats"),
@@ -43,6 +40,5 @@ urlpatterns = [
     path("market/transfers/", transfer_history, name="transfer_history"),
     path("transfers/", transfer_history, name="public_transfers"),
     path("market/scouting/", scouting, name="scouting"),
-    path("market/youth-academy/", youth_academy, name="youth_academy"),
     path("mgl/", include("mgl.urls")),
 ]

@@ -2,8 +2,8 @@
 
 body.mgl-jobs-body {
     background:
-        radial-gradient(ellipse at 12% 0%, rgba(255, 92, 0, 0.12), transparent 42%),
-        radial-gradient(ellipse at 88% 18%, rgba(255, 92, 0, 0.07), transparent 38%),
+        radial-gradient(ellipse at 12% 0%, rgba(197, 157, 95, 0.12), transparent 42%),
+        radial-gradient(ellipse at 88% 18%, rgba(197, 157, 95, 0.07), transparent 38%),
         linear-gradient(180deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
         #050505;
@@ -51,7 +51,7 @@ body.mgl-jobs-body .mgl-main {
     display: flex;
     align-items: center;
     gap: 10px;
-    color: var(--mgl-orange, #ff5c00);
+    color: var(--mgl-orange, #c59d5f);
 }
 
 .mgl-jobs-status-window svg {
@@ -117,7 +117,7 @@ body.mgl-jobs-body .mgl-main {
 }
 
 .mgl-jobs-status-news:hover {
-    color: var(--mgl-orange, #ff5c00);
+    color: var(--mgl-orange, #c59d5f);
 }
 
 .mgl-jobs-shell {
@@ -149,7 +149,7 @@ body.mgl-jobs-body .mgl-main {
 }
 
 .mgl-jobs-hero h1 em {
-    color: var(--mgl-orange, #ff5c00);
+    color: var(--mgl-orange, #c59d5f);
     font-style: italic;
 }
 
@@ -170,7 +170,7 @@ body.mgl-jobs-body .mgl-main {
 .mgl-jobs-openings svg {
     width: 22px;
     height: 22px;
-    color: var(--mgl-orange, #ff5c00);
+    color: var(--mgl-orange, #c59d5f);
 }
 
 .mgl-jobs-openings strong {
@@ -183,10 +183,10 @@ body.mgl-jobs-body .mgl-main {
     grid-template-columns: auto 1fr;
     gap: 12px;
     padding: 16px 18px;
-    border: 1px solid rgba(255, 92, 0, 0.28);
+    border: 1px solid rgba(197, 157, 95, 0.28);
     border-radius: 12px;
     background: #101318;
-    box-shadow: 0 0 24px rgba(255, 92, 0, 0.06);
+    box-shadow: 0 0 24px rgba(197, 157, 95, 0.06);
 }
 
 .mgl-jobs-info-icon {
@@ -196,7 +196,7 @@ body.mgl-jobs-body .mgl-main {
     width: 22px;
     height: 22px;
     border-radius: 50%;
-    background: var(--mgl-orange, #ff5c00);
+    background: var(--mgl-orange, #c59d5f);
     color: #111;
     font-family: var(--font-display, "Barlow Condensed", sans-serif);
     font-size: 13px;
@@ -250,8 +250,8 @@ body.mgl-jobs-body .mgl-main {
 
 .mgl-jobs-filter.is-active,
 .mgl-jobs-filter:hover {
-    background: var(--mgl-orange, #ff5c00);
-    border-color: var(--mgl-orange, #ff5c00);
+    background: var(--mgl-orange, #c59d5f);
+    border-color: var(--mgl-orange, #c59d5f);
     color: #111;
 }
 
@@ -336,8 +336,8 @@ body.mgl-jobs-body .mgl-main {
 
 .mgl-jobs-card:hover,
 .mgl-jobs-card.is-selected {
-    border-color: rgba(255, 92, 0, 0.55);
-    box-shadow: 0 0 0 1px rgba(255, 92, 0, 0.18), 0 14px 32px rgba(255, 92, 0, 0.08);
+    border-color: rgba(197, 157, 95, 0.55);
+    box-shadow: 0 0 0 1px rgba(197, 157, 95, 0.18), 0 14px 32px rgba(197, 157, 95, 0.08);
     transform: translateY(-1px);
 }
 
@@ -361,7 +361,7 @@ body.mgl-jobs-body .mgl-main {
 
 .mgl-jobs-card-league {
     margin: 6px 0 10px;
-    color: var(--mgl-orange, #ff5c00);
+    color: var(--mgl-orange, #c59d5f);
     font-family: var(--font-display, "Barlow Condensed", sans-serif);
     font-size: 14px;
     font-weight: 800;
@@ -393,9 +393,9 @@ body.mgl-jobs-body .mgl-main {
 }
 
 .mgl-jobs-badge-open {
-    background: rgba(255, 92, 0, 0.16);
-    border: 1px solid rgba(255, 92, 0, 0.38);
-    color: #ffb27a;
+    background: rgba(197, 157, 95, 0.16);
+    border: 1px solid rgba(197, 157, 95, 0.38);
+    color: #c59d5f;
 }
 
 .mgl-jobs-card-identity .mgl-job-pending {
@@ -453,12 +453,12 @@ body.mgl-jobs-body .mgl-main {
 
 .mgl-jobs-page .mgl-jobs-view {
     background: transparent;
-    border: 1px solid var(--mgl-orange, #ff5c00);
+    border: 1px solid var(--mgl-orange, #c59d5f);
     color: #fff;
 }
 
 .mgl-jobs-page .mgl-jobs-view:hover {
-    background: rgba(255, 92, 0, 0.12);
+    background: rgba(197, 157, 95, 0.12);
     color: #fff;
 }
 
@@ -485,7 +485,7 @@ body.mgl-jobs-body .mgl-main {
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 14px;
     background: #10141c;
-    box-shadow: 0 0 28px rgba(255, 92, 0, 0.05);
+    box-shadow: 0 0 28px rgba(197, 157, 95, 0.05);
 }
 
 .mgl-jobs-panel-title {
@@ -499,7 +499,7 @@ body.mgl-jobs-body .mgl-main {
 }
 
 .mgl-jobs-panel-title em {
-    color: var(--mgl-orange, #ff5c00);
+    color: var(--mgl-orange, #c59d5f);
     font-style: normal;
 }
 
@@ -542,8 +542,8 @@ body.mgl-jobs-body .mgl-main {
 .mgl-jobs-page .mgl-job-form input:focus,
 .mgl-jobs-page .mgl-job-form select:focus {
     outline: none;
-    border-color: var(--mgl-orange, #ff5c00);
-    box-shadow: 0 0 0 3px rgba(255, 92, 0, 0.18);
+    border-color: var(--mgl-orange, #c59d5f);
+    box-shadow: 0 0 0 3px rgba(197, 157, 95, 0.18);
 }
 
 .mgl-jobs-page .mgl-job-check {
@@ -564,7 +564,7 @@ body.mgl-jobs-body .mgl-main {
     height: 18px;
     min-height: 18px;
     margin-top: 2px;
-    accent-color: var(--mgl-orange, #ff5c00);
+    accent-color: var(--mgl-orange, #c59d5f);
 }
 
 .mgl-job-check--preview {
@@ -593,7 +593,7 @@ body.mgl-jobs-body .mgl-main {
 }
 
 .mgl-job-pending {
-    color: var(--mgl-orange, #ff5c00);
+    color: var(--mgl-orange, #c59d5f);
     font-weight: 700;
 }
 

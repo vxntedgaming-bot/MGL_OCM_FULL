@@ -3,7 +3,7 @@
 body.mgl-hist-page {
     overflow-x: hidden;
     background:
-        radial-gradient(ellipse at 18% 0%, rgba(255, 92, 0, 0.08), transparent 38%),
+        radial-gradient(ellipse at 18% 0%, rgba(197, 157, 95, 0.08), transparent 38%),
         #050505;
 }
 
@@ -22,7 +22,7 @@ body.mgl-hist-page {
 }
 
 .mgl-hist-crumb-current {
-    color: var(--mgl-orange, #ff5c00);
+    color: var(--mgl-orange, #c59d5f);
 }
 
 .mgl-hist-hero {
@@ -95,14 +95,14 @@ body.mgl-hist-page {
 }
 
 .mgl-hist-chip.is-active {
-    border-color: var(--mgl-orange, #ff5c00);
-    color: var(--mgl-orange, #ff5c00);
+    border-color: var(--mgl-orange, #c59d5f);
+    color: var(--mgl-orange, #c59d5f);
 }
 
 .mgl-hist-overview {
     padding: 22px;
     margin: 0 0 24px;
-    border: 1px solid rgba(255, 92, 0, 0.28);
+    border: 1px solid rgba(197, 157, 95, 0.28);
     border-radius: 14px;
     background: #0d1118;
 }
@@ -121,8 +121,8 @@ body.mgl-hist-page {
 
 .mgl-hist-year,
 .mgl-hist-badge {
-    border: 1px solid var(--mgl-orange, #ff5c00);
-    color: var(--mgl-orange, #ff5c00);
+    border: 1px solid var(--mgl-orange, #c59d5f);
+    color: var(--mgl-orange, #c59d5f);
     border-radius: 999px;
     padding: 4px 10px;
     font-size: 12px;
@@ -137,7 +137,7 @@ body.mgl-hist-page {
 
 .mgl-hist-meta span {
     display: block;
-    color: var(--mgl-orange, #ff5c00);
+    color: var(--mgl-orange, #c59d5f);
     letter-spacing: 0.1em;
     font-size: 11px;
 }
@@ -152,7 +152,7 @@ body.mgl-hist-page {
 .mgl-hist-award {
     min-height: 180px;
     padding: 14px;
-    border: 1px solid rgba(255, 92, 0, 0.28);
+    border: 1px solid rgba(197, 157, 95, 0.28);
     border-radius: 12px;
     background: #0d1118;
     display: flex;
@@ -186,7 +186,7 @@ body.mgl-hist-page {
     height: 56px;
     object-fit: cover;
     border-radius: 50%;
-    border: 1px solid rgba(255, 92, 0, 0.4);
+    border: 1px solid rgba(197, 157, 95, 0.4);
 }
 
 .mgl-hist-score {
@@ -217,8 +217,8 @@ body.mgl-hist-page {
 }
 
 .mgl-tots-dot.is-filled {
-    background: var(--mgl-orange, #ff5c00);
-    box-shadow: 0 0 0 3px rgba(255, 92, 0, 0.2);
+    background: var(--mgl-orange, #c59d5f);
+    box-shadow: 0 0 0 3px rgba(197, 157, 95, 0.2);
 }
 
 .mgl-hist-table-wrap {
@@ -244,7 +244,7 @@ body.mgl-hist-page {
 }
 
 .mgl-hist-standings b {
-    color: var(--mgl-orange, #ff5c00);
+    color: var(--mgl-orange, #c59d5f);
 }
 
 .mgl-hist-past-row {
@@ -257,7 +257,7 @@ body.mgl-hist-page {
 .mgl-hist-past-card {
     flex: 0 0 220px;
     padding: 16px;
-    border: 1px solid rgba(255, 92, 0, 0.28);
+    border: 1px solid rgba(197, 157, 95, 0.28);
     border-radius: 12px;
     background: #0d1118;
     display: grid;
@@ -265,7 +265,7 @@ body.mgl-hist-page {
 }
 
 .mgl-hist-past-card a {
-    color: var(--mgl-orange, #ff5c00);
+    color: var(--mgl-orange, #c59d5f);
     text-decoration: none;
 }
 

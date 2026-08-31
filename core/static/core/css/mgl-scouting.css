@@ -3,7 +3,7 @@
 body.mgl-scout-page {
     overflow-x: hidden;
     background:
-        radial-gradient(ellipse at 50% 0%, rgba(255, 92, 0, 0.08), transparent 42%),
+        radial-gradient(ellipse at 50% 0%, rgba(197, 157, 95, 0.08), transparent 42%),
         #050505;
 }
 
@@ -27,7 +27,7 @@ body.mgl-scout-page {
 
 .mgl-sc-crumb-icon,
 .mgl-sc-crumb-current {
-    color: var(--mgl-orange, #ff5c00);
+    color: var(--mgl-orange, #c59d5f);
 }
 
 .mgl-sc-crumb-icon {
@@ -55,9 +55,9 @@ body.mgl-scout-page {
     width: 52px;
     height: 52px;
     border-radius: 50%;
-    border: 1px solid rgba(255, 92, 0, 0.4);
-    background: rgba(255, 92, 0, 0.1);
-    color: var(--mgl-orange, #ff5c00);
+    border: 1px solid rgba(197, 157, 95, 0.4);
+    background: rgba(197, 157, 95, 0.1);
+    color: var(--mgl-orange, #c59d5f);
     flex-shrink: 0;
 }
 
@@ -84,7 +84,7 @@ body.mgl-scout-page {
 
 .mgl-sc-kicker {
     margin: 0 0 6px;
-    color: var(--mgl-orange, #ff5c00);
+    color: var(--mgl-orange, #c59d5f);
     font-family: var(--font-display);
     font-size: 12px;
     letter-spacing: 0.14em;
@@ -95,7 +95,7 @@ body.mgl-scout-page {
 .mgl-sc-pack {
     margin: 0 0 28px;
     padding: 18px;
-    border: 1px solid rgba(255, 92, 0, 0.28);
+    border: 1px solid rgba(197, 157, 95, 0.28);
     border-radius: 16px;
     background: #0d1118;
 }
@@ -117,7 +117,7 @@ body.mgl-scout-page {
 }
 
 .mgl-sc-free {
-    color: var(--mgl-orange, #ff5c00);
+    color: var(--mgl-orange, #c59d5f);
     font-family: var(--font-display);
     font-size: 12px;
     letter-spacing: 0.14em;
@@ -133,7 +133,7 @@ body.mgl-scout-page {
     display: grid;
     gap: 10px;
     padding: 16px;
-    border: 1px solid rgba(255, 92, 0, 0.28);
+    border: 1px solid rgba(197, 157, 95, 0.28);
     border-radius: 14px;
     background: #080b10;
 }
@@ -176,7 +176,7 @@ body.mgl-scout-page {
 }
 
 .mgl-sc-status.is-ready {
-    color: var(--mgl-orange, #ff5c00);
+    color: var(--mgl-orange, #c59d5f);
 }
 
 .mgl-scout-form,
@@ -199,7 +199,7 @@ body.mgl-scout-page {
     width: 100%;
     min-height: 44px;
     padding: 0 12px;
-    border: 1px solid rgba(255, 92, 0, 0.35);
+    border: 1px solid rgba(197, 157, 95, 0.35);
     border-radius: 8px;
     background: #050505;
     color: #fff;
@@ -216,7 +216,7 @@ body.mgl-scout-page {
 
 .mgl-sc-guide {
     margin-top: 16px;
-    border: 1px solid rgba(255, 92, 0, 0.28);
+    border: 1px solid rgba(197, 157, 95, 0.28);
     border-radius: 10px;
 }
 
@@ -224,7 +224,7 @@ body.mgl-scout-page {
     padding: 12px 14px;
     cursor: pointer;
     list-style: none;
-    color: var(--mgl-orange, #ff5c00);
+    color: var(--mgl-orange, #c59d5f);
     font-family: var(--font-display);
     letter-spacing: 0.08em;
 }
@@ -264,11 +264,11 @@ body.mgl-scout-page {
 }
 
 .mgl-sc-pips i.is-on {
-    background: var(--mgl-orange, #ff5c00);
+    background: var(--mgl-orange, #c59d5f);
 }
 
 .mgl-sc-tokens strong {
-    color: var(--mgl-orange, #ff5c00);
+    color: var(--mgl-orange, #c59d5f);
 }
 
 .mgl-sc-active,
@@ -310,8 +310,8 @@ body.mgl-scout-page {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    border: 1px solid var(--mgl-orange, #ff5c00);
-    color: var(--mgl-orange, #ff5c00);
+    border: 1px solid var(--mgl-orange, #c59d5f);
+    color: var(--mgl-orange, #c59d5f);
     font-family: var(--font-display);
     font-weight: 800;
 }
@@ -340,11 +340,11 @@ body.mgl-scout-page {
     min-height: 180px;
     margin: 16px auto;
     max-width: 280px;
-    border: 1px solid var(--mgl-orange, #ff5c00);
+    border: 1px solid var(--mgl-orange, #c59d5f);
     border-radius: 18px;
     background:
-        linear-gradient(180deg, rgba(255, 92, 0, 0.22), rgba(5, 5, 5, 0.9));
-    color: var(--mgl-orange, #ff5c00);
+        linear-gradient(180deg, rgba(197, 157, 95, 0.22), rgba(5, 5, 5, 0.9));
+    color: var(--mgl-orange, #c59d5f);
 }
 
 .mgl-sc-pack-sealed strong {
@@ -357,7 +357,7 @@ body.mgl-scout-page {
     height: 84px;
     border-radius: 50%;
     object-fit: cover;
-    border: 1px solid rgba(255, 92, 0, 0.4);
+    border: 1px solid rgba(197, 157, 95, 0.4);
 }
 
 .mgl-sc-pack-actions {

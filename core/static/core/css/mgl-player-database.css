@@ -3,7 +3,7 @@
 body.mgl-pdb-page {
     overflow-x: hidden;
     background:
-        radial-gradient(ellipse at 50% 0%, rgba(255, 92, 0, 0.07), transparent 42%),
+        radial-gradient(ellipse at 50% 0%, rgba(197, 157, 95, 0.07), transparent 42%),
         #050505;
 }
 
@@ -27,7 +27,7 @@ body.mgl-pdb-page {
 
 .mgl-pdb-crumb-icon,
 .mgl-pdb-crumb-current {
-    color: var(--mgl-orange, #ff5c00);
+    color: var(--mgl-orange, #c59d5f);
 }
 
 .mgl-pdb-crumb-icon {
@@ -54,9 +54,9 @@ body.mgl-pdb-page {
     width: 52px;
     height: 52px;
     border-radius: 50%;
-    border: 1px solid rgba(255, 92, 0, 0.4);
-    background: rgba(255, 92, 0, 0.1);
-    color: var(--mgl-orange, #ff5c00);
+    border: 1px solid rgba(197, 157, 95, 0.4);
+    background: rgba(197, 157, 95, 0.1);
+    color: var(--mgl-orange, #c59d5f);
     flex-shrink: 0;
 }
 
@@ -105,7 +105,7 @@ body.mgl-pdb-page {
     gap: 0;
     min-width: 0;
     background: #0d1118;
-    border: 1px solid rgba(255, 92, 0, 0.28);
+    border: 1px solid rgba(197, 157, 95, 0.28);
     border-radius: 14px;
 }
 
@@ -136,7 +136,7 @@ body.mgl-pdb-page {
 }
 
 .mgl-pdb-identity a:hover {
-    color: var(--mgl-orange, #ff5c00);
+    color: var(--mgl-orange, #c59d5f);
 }
 
 .mgl-pdb-nation {
@@ -192,16 +192,16 @@ body.mgl-pdb-page {
     height: 44px;
     display: grid;
     place-items: center;
-    border: 1px solid var(--mgl-orange, #ff5c00);
+    border: 1px solid var(--mgl-orange, #c59d5f);
     border-radius: 50%;
-    color: var(--mgl-orange, #ff5c00);
+    color: var(--mgl-orange, #c59d5f);
     font-family: var(--font-display);
     font-size: 18px;
     font-weight: 800;
 }
 
 .mgl-pdb-arrow {
-    color: var(--mgl-orange, #ff5c00);
+    color: var(--mgl-orange, #c59d5f);
     font-size: 28px;
     line-height: 1;
     text-decoration: none;
@@ -210,7 +210,7 @@ body.mgl-pdb-page {
 
 .mgl-pdb-filters {
     background: #0d1118;
-    border: 1px solid rgba(255, 92, 0, 0.28);
+    border: 1px solid rgba(197, 157, 95, 0.28);
     border-radius: 14px;
     padding: 16px;
     display: grid;
@@ -238,21 +238,21 @@ body.mgl-pdb-page {
     min-width: 0;
     min-height: 40px;
     padding: 0 10px;
-    border: 1px solid rgba(255, 92, 0, 0.28);
+    border: 1px solid rgba(197, 157, 95, 0.28);
     border-radius: 8px;
     background: #050505;
     color: #fff;
 }
 
 .mgl-pdb-more {
-    border: 1px solid rgba(255, 92, 0, 0.2);
+    border: 1px solid rgba(197, 157, 95, 0.2);
     border-radius: 10px;
 }
 
 .mgl-pdb-more summary {
     padding: 10px 12px;
     cursor: pointer;
-    color: var(--mgl-orange, #ff5c00);
+    color: var(--mgl-orange, #c59d5f);
     letter-spacing: 0.08em;
 }
 
@@ -279,8 +279,8 @@ body.mgl-pdb-page {
 
 .mgl-pdb-pos-btn.is-active,
 .mgl-pdb-pos-btn:hover {
-    border-color: var(--mgl-orange, #ff5c00);
-    color: var(--mgl-orange, #ff5c00);
+    border-color: var(--mgl-orange, #c59d5f);
+    color: var(--mgl-orange, #c59d5f);
 }
 
 .mgl-pdb-range,

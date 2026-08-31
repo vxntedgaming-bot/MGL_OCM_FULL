@@ -3,7 +3,7 @@
     margin: 8px 0 36px;
     padding: 32px 8px 18px;
     background:
-        linear-gradient(180deg, rgba(255, 122, 24, 0.045), transparent 46%),
+        linear-gradient(180deg, rgba(197, 157, 95, 0.045), transparent 46%),
         repeating-linear-gradient(
             0deg,
             transparent,
@@ -39,7 +39,7 @@
 
 .mgl-press-brief-club {
     margin: 6px 0 0;
-    color: var(--mgl-orange, #ff7a18);
+    color: var(--mgl-orange, #c59d5f);
     font-family: "Barlow Condensed", sans-serif;
     font-size: 15px;
     font-weight: 700;
@@ -66,7 +66,7 @@
 
 .mgl-press-brief-label {
     margin: 0 0 10px;
-    color: var(--mgl-orange, #ff7a18);
+    color: var(--mgl-orange, #c59d5f);
     font-size: 11px;
     font-weight: 800;
     letter-spacing: 0.16em;
@@ -76,7 +76,7 @@
     margin: 0 0 24px;
     padding: 0 0 0 16px;
     border: 0;
-    border-left: 2px solid var(--mgl-orange, #ff7a18);
+    border-left: 2px solid var(--mgl-orange, #c59d5f);
     background: none;
     color: rgba(236, 236, 236, 0.86);
     font-size: clamp(20px, 3vw, 28px);
@@ -91,9 +91,9 @@
     justify-content: center;
     min-height: 44px;
     padding: 0 22px;
-    border: 1px solid var(--mgl-orange, #ff7a18);
+    border: 1px solid var(--mgl-orange, #c59d5f);
     background: transparent;
-    color: var(--mgl-orange, #ff7a18);
+    color: var(--mgl-orange, #c59d5f);
     font-size: 13px;
     font-weight: 800;
     letter-spacing: 0.12em;
@@ -101,7 +101,7 @@
 }
 
 .mgl-press-brief-cta:hover {
-    background: var(--mgl-orange, #ff7a18);
+    background: var(--mgl-orange, #c59d5f);
     color: #120800;
 }
 

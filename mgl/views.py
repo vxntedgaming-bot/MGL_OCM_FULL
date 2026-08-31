@@ -95,18 +95,6 @@ def _attach_news_logos(posts):
     return posts
 
 
-def _feature_page(request, title, kicker, body):
-    return render(
-        request,
-        "mgl/feature_unavailable.html",
-        {
-            "title": title,
-            "kicker": kicker,
-            "body": body,
-        },
-    )
-
-
 def mgl_index(request):
     """
     /mgl/ is the manager area entry point, not a second homepage.
@@ -1755,17 +1743,6 @@ def historical_tables(request):
     return render(request, "mgl/historical_tables.html", context)
 
 
-def head_to_head(request):
-    from mgl.site_cms import get_content
-
-    return _feature_page(
-        request,
-        "Head to Head",
-        "STATS & HISTORY",
-        get_content("community.h2h_intro"),
-    )
-
-
 def compare_players(request):
     raise Http404("Player comparison has been removed.")
 
@@ -2072,10 +2049,3 @@ def auction_free_agent(request, player_id):
     return redirect(request.POST.get("next") or "unassigned_players")
 
 
-def youth_academy(request):
-    return _feature_page(
-        request,
-        "Youth Academy",
-        "MARKET",
-        "Youth Academy is not live yet. The FC26 player pool already includes every registered player available to MGL.",
-    )
