@@ -155,7 +155,7 @@ body.mgl-fa-page {
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    margin: 0 0 12px;
+    margin: 0;
 }
 
 .mgl-fa-tabs {
@@ -300,38 +300,12 @@ body.mgl-fa-page {
     color: #fff;
 }
 
-.mgl-fa-filters {
-    display: flex;
-    flex-wrap: nowrap;
-    align-items: center;
-    gap: 8px;
-    overflow-x: auto;
-    padding: 4px 0 8px;
-}
-
-.mgl-fa-filter {
-    min-height: 32px;
-    padding: 0 12px;
-    border: 1px solid rgba(197, 157, 95, 0.28);
-    border-radius: 999px;
-    background: #0b0e14;
-    color: rgba(255, 255, 255, 0.68);
-    font-family: var(--font-display);
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    cursor: pointer;
-    flex-shrink: 0;
-}
-
-.mgl-fa-filter:hover,
-.mgl-fa-filter.is-active {
-    border-color: #c59d5f;
-    background: rgba(197, 157, 95, 0.16);
-    color: #fff;
-}
-
 .mgl-fa-card {
+    padding: 16px;
+    background: #0d1118;
+    border: 1px solid rgba(197, 157, 95, 0.28);
+    border-radius: 14px;
+}
     padding: 16px;
     background: #0d1118;
     border: 1px solid rgba(197, 157, 95, 0.28);

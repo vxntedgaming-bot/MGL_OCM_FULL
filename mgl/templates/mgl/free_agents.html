@@ -4,7 +4,7 @@
 {% block title %}Free Agents — MGL{% endblock %}
 {% block body_class %}mgl-fa-page{% endblock %}
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'core/css/mgl-free-agents.css' %}?v=fa-1">
+<link rel="stylesheet" href="{% static 'core/css/mgl-free-agents.css' %}?v=fa-2">
 {% endblock %}
 
 {% block content %}
@@ -85,28 +85,6 @@
                             </div>
                         </details>
                     </div>
-                </div>
-
-                <div class="mgl-fa-filters" role="group" aria-label="Filter free agents by position">
-                    <button type="submit" name="position" value="" class="mgl-fa-filter{% if not selected_position %} is-active{% endif %}">ALL</button>
-                    <button type="submit" name="position" value="GK" class="mgl-fa-filter{% if selected_position == 'GK' %} is-active{% endif %}">GK</button>
-                    <button type="submit" name="position" value="DEFENDERS" class="mgl-fa-filter{% if selected_position == 'DEFENDERS' %} is-active{% endif %}">DEFENDERS</button>
-                    <button type="submit" name="position" value="MIDFIELDERS" class="mgl-fa-filter{% if selected_position == 'MIDFIELDERS' %} is-active{% endif %}">MIDFIELDERS</button>
-                    <button type="submit" name="position" value="ATTACKERS" class="mgl-fa-filter{% if selected_position == 'ATTACKERS' %} is-active{% endif %}">ATTACKERS</button>
-                    <button type="submit" name="position" value="CB" class="mgl-fa-filter{% if selected_position == 'CB' %} is-active{% endif %}">CB</button>
-                    <button type="submit" name="position" value="LB" class="mgl-fa-filter{% if selected_position == 'LB' %} is-active{% endif %}">LB</button>
-                    <button type="submit" name="position" value="RB" class="mgl-fa-filter{% if selected_position == 'RB' %} is-active{% endif %}">RB</button>
-                    <button type="submit" name="position" value="LWB" class="mgl-fa-filter{% if selected_position == 'LWB' %} is-active{% endif %}">LWB</button>
-                    <button type="submit" name="position" value="RWB" class="mgl-fa-filter{% if selected_position == 'RWB' %} is-active{% endif %}">RWB</button>
-                    <button type="submit" name="position" value="CDM" class="mgl-fa-filter{% if selected_position == 'CDM' %} is-active{% endif %}">CDM</button>
-                    <button type="submit" name="position" value="CM" class="mgl-fa-filter{% if selected_position == 'CM' %} is-active{% endif %}">CM</button>
-                    <button type="submit" name="position" value="CAM" class="mgl-fa-filter{% if selected_position == 'CAM' %} is-active{% endif %}">CAM</button>
-                    <button type="submit" name="position" value="LM" class="mgl-fa-filter{% if selected_position == 'LM' %} is-active{% endif %}">LM</button>
-                    <button type="submit" name="position" value="RM" class="mgl-fa-filter{% if selected_position == 'RM' %} is-active{% endif %}">RM</button>
-                    <button type="submit" name="position" value="LW" class="mgl-fa-filter{% if selected_position == 'LW' %} is-active{% endif %}">LW</button>
-                    <button type="submit" name="position" value="RW" class="mgl-fa-filter{% if selected_position == 'RW' %} is-active{% endif %}">RW</button>
-                    <button type="submit" name="position" value="CF" class="mgl-fa-filter{% if selected_position == 'CF' %} is-active{% endif %}">CF</button>
-                    <button type="submit" name="position" value="ST" class="mgl-fa-filter{% if selected_position == 'ST' %} is-active{% endif %}">ST</button>
                 </div>
             </div>
 
