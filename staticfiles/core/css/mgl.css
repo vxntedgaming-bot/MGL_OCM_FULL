@@ -1,17 +1,17 @@
 /* =========================================================
    MGL — METAGAMINGLEAGUE
-   DARK / ORANGE UI
+   DARK / GOLD UI
 ========================================================= */
 
 :root {
     --bg: #000000;
-    --bg-soft: #070707;
-    --panel: #121212;
-    --panel-hover: #1a1a1a;
-    --border: rgba(255, 255, 255, 0.08);
-    --orange: #ff5c00;
-    --orange-light: #ff7a24;
-    --orange-dark: #c44700;
+    --bg-soft: #050505;
+    --panel: #0d1118;
+    --panel-hover: #141a24;
+    --border: rgba(197, 157, 95, 0.28);
+    --orange: #c59d5f;
+    --orange-light: #d4b07a;
+    --orange-dark: #a07a3d;
     --text: #ffffff;
     --muted: #a0a0a0;
     --muted-light: #d4d4d4;
@@ -20,7 +20,7 @@
     --header-h: 72px;
     --font-display: "Barlow Condensed", "Arial Narrow", sans-serif;
     --font-body: "Manrope", Arial, Helvetica, sans-serif;
-    --glow: 0 0 18px rgba(255, 92, 0, 0.45);
+    --glow: 0 0 18px rgba(197, 157, 95, 0.45);
 }
 
 * {
@@ -227,12 +227,13 @@ textarea {
     gap: 12px;
     padding: 14px 18px;
     color: var(--muted-light);
-    font-family: var(--font-display);
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-style: italic;
+    font-weight: 500;
+    letter-spacing: 0.02em;
     line-height: 1.35;
-    text-transform: uppercase;
+    text-transform: none;
     white-space: normal;
 }
 
@@ -249,22 +250,16 @@ textarea {
     color: var(--orange);
     text-decoration: underline;
     text-underline-offset: 3px;
-    background: rgba(255, 122, 24, 0.08);
+    background: rgba(197, 157, 95, 0.08);
 }
 
 .mgl-nav-item-label {
     min-width: 0;
+    overflow-wrap: anywhere;
 }
 
 .mgl-nav-item--sub {
     padding-left: 28px;
-    color: var(--muted-light);
-    font-family: var(--font-body);
-    font-size: 13px;
-    font-style: italic;
-    font-weight: 500;
-    letter-spacing: 0.02em;
-    text-transform: none;
 }
 
 .mgl-nav-item--sub.is-current {
@@ -289,6 +284,15 @@ textarea {
     letter-spacing: 0.12em;
 }
 
+.mgl-nav-badge.is-count {
+    min-width: 18px;
+    background: var(--orange);
+    color: #050608;
+    text-align: center;
+    letter-spacing: 0;
+    font-size: 11px;
+}
+
 .mgl-nav-mobile-auth {
     display: none;
 }
@@ -302,7 +306,7 @@ textarea {
 .header-button {
     min-width: 88px;
     padding: 10px 16px;
-    border: 1px solid rgba(255, 122, 24, .55);
+    border: 1px solid rgba(197, 157, 95, .55);
     color: var(--orange);
     text-align: center;
     font-size: 12px;
@@ -974,9 +978,11 @@ button.header-button {
 
 .scorer-row {
     min-height: 54px;
-    padding: 0 20px;
+    min-width: 0;
+    padding: 12px 16px;
     display: grid;
-    grid-template-columns: 35px 1fr 35px 50px;
+    grid-template-columns: 36px minmax(0, 1fr) auto;
+    gap: 8px 12px;
     align-items: center;
     border-bottom: 1px solid var(--border);
 }
@@ -987,23 +993,39 @@ button.header-button {
 
 .scorer-row .rank {
     color: var(--orange);
-    font-size: 9px;
+    font-size: 11px;
     font-weight: 900;
 }
 
-.scorer-row strong {
+.scorer-copy {
+    min-width: 0;
+    display: grid;
+    gap: 2px;
+}
+
+.scorer-copy strong {
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+
+.scorer-copy span {
+    color: var(--muted);
     font-size: 11px;
+}
+
+.scorer-stat {
+    text-align: right;
 }
 
 .scorer-row b {
     color: var(--text);
-    text-align: right;
+    display: block;
 }
 
 .scorer-row small {
     color: var(--muted);
-    text-align: right;
-    font-size: 8px;
+    font-size: 10px;
+    letter-spacing: 0.08em;
 }
 
 /* =========================================================
@@ -2159,7 +2181,7 @@ textarea {
     position: absolute;
     inset: 0;
     background:
-        radial-gradient(ellipse at 50% 0%, rgba(255, 122, 24, 0.16), transparent 42%),
+        radial-gradient(ellipse at 50% 0%, rgba(197, 157, 95, 0.16), transparent 42%),
         linear-gradient(180deg, rgba(255,255,255,0.02), transparent 30%),
         repeating-linear-gradient(90deg, transparent 0 78px, rgba(255,255,255,0.025) 78px 79px),
         repeating-linear-gradient(0deg, transparent 0 78px, rgba(255,255,255,0.02) 78px 79px);
@@ -2177,7 +2199,7 @@ textarea {
     gap: 8px;
     margin-bottom: 18px;
     padding: 8px 14px;
-    border: 1px solid rgba(255, 122, 24, 0.35);
+    border: 1px solid rgba(197, 157, 95, 0.35);
     border-radius: 999px;
     color: var(--orange);
     font-family: var(--font-display);
@@ -2199,7 +2221,7 @@ textarea {
     height: 108px;
     object-fit: contain;
     margin: 8px auto 18px;
-    filter: drop-shadow(0 0 28px rgba(255, 122, 24, 0.25));
+    filter: drop-shadow(0 0 28px rgba(197, 157, 95, 0.25));
     mix-blend-mode: lighten;
 }
 
@@ -2279,7 +2301,7 @@ textarea {
 .mgl-action-card {
     border: 1px solid var(--border);
     background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-    box-shadow: 0 0 0 1px rgba(255, 122, 24, 0.02);
+    box-shadow: 0 0 0 1px rgba(197, 157, 95, 0.02);
 }
 
 .mgl-step-card {
@@ -2291,7 +2313,7 @@ textarea {
 .mgl-club-card:hover,
 .mgl-action-card:hover {
     transform: translateY(-4px);
-    border-color: rgba(255, 122, 24, 0.35);
+    border-color: rgba(197, 157, 95, 0.35);
 }
 
 .mgl-step-icon {
@@ -2300,7 +2322,7 @@ textarea {
     margin-bottom: 18px;
     display: grid;
     place-items: center;
-    border: 1px solid rgba(255, 122, 24, 0.4);
+    border: 1px solid rgba(197, 157, 95, 0.4);
     color: var(--orange);
     font-family: var(--font-display);
     font-size: 18px;
@@ -2333,9 +2355,9 @@ textarea {
     position: relative;
     height: 240px;
     margin: 20px 0;
-    border: 1px solid rgba(255, 122, 24, 0.2);
+    border: 1px solid rgba(197, 157, 95, 0.2);
     background:
-        radial-gradient(circle at 50% 50%, rgba(255,122,24,0.08), transparent 55%),
+        radial-gradient(circle at 50% 50%, rgba(197,157,95,0.08), transparent 55%),
         repeating-linear-gradient(0deg, transparent 0 39px, rgba(255,255,255,0.04) 39px 40px);
 }
 
@@ -2345,7 +2367,7 @@ textarea {
     height: 12px;
     border-radius: 50%;
     background: var(--orange);
-    box-shadow: 0 0 10px rgba(255,122,24,0.6);
+    box-shadow: 0 0 10px rgba(197,157,95,0.6);
 }
 
 .mgl-pitch-mock span:nth-child(1) { left: 48%; top: 86%; }
@@ -2414,7 +2436,7 @@ textarea {
     margin: 0 auto 12px;
     display: grid;
     place-items: center;
-    border: 1px solid rgba(255,122,24,0.35);
+    border: 1px solid rgba(197,157,95,0.35);
     color: var(--orange);
     font-family: var(--font-display);
     font-size: 16px;
@@ -2439,8 +2461,8 @@ textarea {
     justify-items: center;
     text-align: center;
     gap: 16px;
-    border: 1px solid rgba(255,122,24,0.25);
-    background: radial-gradient(circle at 50% 0%, rgba(255,122,24,0.12), transparent 55%);
+    border: 1px solid rgba(197,157,95,0.25);
+    background: radial-gradient(circle at 50% 0%, rgba(197,157,95,0.12), transparent 55%);
 }
 
 .mgl-cta h2 {
@@ -2509,7 +2531,7 @@ textarea {
     gap: 6px;
     padding: 40px 24px;
     background:
-        radial-gradient(circle at 50% 0%, rgba(255,122,24,0.08), transparent 58%),
+        radial-gradient(circle at 50% 0%, rgba(197,157,95,0.08), transparent 58%),
         var(--bg-soft);
 }
 
@@ -2569,8 +2591,8 @@ textarea {
 }
 
 .mgl-action-card.featured-card {
-    border-color: rgba(255, 122, 24, 0.4);
-    box-shadow: 0 0 24px rgba(255, 122, 24, 0.08);
+    border-color: rgba(197, 157, 95, 0.4);
+    box-shadow: 0 0 24px rgba(197, 157, 95, 0.08);
 }
 
 .card-icon {
@@ -2578,7 +2600,7 @@ textarea {
     height: 44px;
     display: grid;
     place-items: center;
-    border: 1px solid rgba(255, 122, 24, 0.35);
+    border: 1px solid rgba(197, 157, 95, 0.35);
     color: var(--orange);
     font-size: 18px;
 }
@@ -2644,7 +2666,7 @@ textarea {
     padding: 40px 36px;
     text-align: center;
     background:
-        radial-gradient(circle at 50% 0%, rgba(255,122,24,0.12), transparent 55%),
+        radial-gradient(circle at 50% 0%, rgba(197,157,95,0.12), transparent 55%),
         linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
 }
 
@@ -3379,7 +3401,7 @@ textarea {
     display: grid;
     place-items: center;
     border-radius: 50%;
-    background: linear-gradient(180deg, #f59e0b, #ea580c);
+    background: linear-gradient(180deg, #f4c15d, #c59d5f);
     color: #111;
     font-family: var(--font-display);
     font-size: 36px;
@@ -3454,8 +3476,8 @@ textarea {
 }
 
 .mgl-scout-pips i.is-on {
-    background: #f59e0b;
-    border-color: #f59e0b;
+    background: #c59d5f;
+    border-color: #c59d5f;
 }
 
 .mgl-scout-form,
