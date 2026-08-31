@@ -1,0 +1,52 @@
+{% load mgl_ui %}
+<div class="mgl-notify-head">
+    <div class="mgl-notify-head-row">
+        <strong>NOTIFICATIONS</strong>
+        <a class="mgl-notify-all" href="{% url 'manager_notifications' %}">VIEW ALL</a>
+    </div>
+    <span>{% if mgl_unread_notification_count %}{{ mgl_unread_notification_count }} unread{% else %}You're up to date{% endif %}</span>
+    <form method="post" action="{% url 'notification_mark_all_read' %}" data-notify-read-all>
+        {% csrf_token %}
+        <button type="submit" class="mgl-notify-mark">MARK ALL AS READ</button>
+    </form>
+</div>
+{% for item in notifications %}
+    <article class="mgl-notify-item{% if item.is_unread %} is-unread{% endif %}" data-notify-item data-notify-read-url="{% url 'notification_mark_read' item.id %}">
+        <small>{{ item.notification_type }}</small>
+        <h2>{{ item.title }}</h2>
+        <p>{{ item.message }}</p>
+        {% if item.press and item.press.question %}
+            <blockquote>“{{ item.press.question }}”</blockquote>
+            {% if item.press_pending %}
+                <form method="post" action="{% url 'answer_press' item.press.id %}" class="mgl-notify-press-form">
+                    {% csrf_token %}
+                    <textarea name="answer" rows="3" placeholder="TYPE YOUR ANSWER..." required></textarea>
+                    <button type="submit" class="mgl-notify-cta">SUBMIT ANSWER</button>
+                </form>
+            {% elif item.press.answer %}
+                <p class="mgl-notify-answered">Answered</p>
+            {% else %}
+                <p class="mgl-notify-answered">Answered — awaiting league-office publication</p>
+            {% endif %}
+        {% endif %}
+        <span>{{ item.created_at|date:"j M Y, H:i" }}</span>
+        {% if item.can_respond %}
+            <div class="mgl-notify-actions">
+                <form method="post" action="{% url 'manager_notification_respond' item.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="accept">
+                    <button type="submit" class="mgl-notify-cta">ACCEPT</button>
+                </form>
+                <form method="post" action="{% url 'manager_notification_respond' item.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="reject">
+                    <button type="submit" class="mgl-notify-cta mgl-notify-cta-reject">REJECT</button>
+                </form>
+            </div>
+        {% elif item.action_url %}
+            <a href="{{ item.action_url }}" class="mgl-notify-cta">{{ item.action_label|default:"VIEW" }}</a>
+        {% endif %}
+    </article>
+{% empty %}
+    <p class="mgl-notify-empty">No notifications yet.</p>
+{% endfor %}

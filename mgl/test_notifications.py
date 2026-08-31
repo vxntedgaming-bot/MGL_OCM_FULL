@@ -110,8 +110,9 @@ class NotificationAndPressroomTests(TestCase):
         self.client.login(username="kai", password="test-pass-123")
         hub = self.client.get(reverse("manager_hub"))
         self.assertContains(hub, reverse("manager_notifications"))
-        self.assertContains(hub, "1 Notification")
-        self.assertNotContains(hub, "data-notify-dropdown")
+        self.assertContains(hub, "data-notify-dropdown")
+        self.assertContains(hub, "mgl-notify-count")
+        self.assertNotContains(hub, "1 Notification")
         self.assertNotContains(hub, "ACTION REQUIRED")
         self.assertNotContains(hub, "PENDING ACTIONS")
         inbox = self.client.get(reverse("manager_notifications"))
@@ -149,6 +150,13 @@ class NotificationAndPressroomTests(TestCase):
         after = self.client.get(reverse("manager_notifications"))
         self.assertNotContains(after, "ANSWER NOW")
         self.assertNotContains(after, reverse("answer_press", args=[press.pk]))
+        self.mgr_a.refresh_from_db()
+        self.assertEqual(self.mgr_a.tokens, Decimal("20.50"))
+        reward_notes = inbox_queryset_for_user(self.user_a).filter(
+            source_key=f"press-reward-{press.pk}"
+        )
+        self.assertEqual(reward_notes.count(), 1)
+        self.client.post(reverse("notification_mark_all_read"))
         self.assertEqual(unread_count_for_user(self.user_a), 0)
 
         pending_room = self.client.get(reverse("pressroom"))
@@ -343,7 +351,7 @@ class NotificationAndPressroomTests(TestCase):
         self.assertContains(home, reverse("leagues_page"))
         self.assertContains(home, reverse("league_stats", kwargs={"slug": "premier-league"}))
         self.assertContains(home, "ACCOUNT")
-        self.assertNotContains(home, "data-notify-dropdown")
+        self.assertContains(home, "data-notify-dropdown")
         self.assertNotContains(home, "ACTION REQUIRED")
         self.assertNotContains(home, reverse("unassigned_players"))
         control = self.client.get(reverse("control_centre"))
@@ -450,7 +458,8 @@ class NotificationAndPressroomTests(TestCase):
         self.client.login(username="kai", password="test-pass-123")
         hub = self.client.get(reverse("manager_hub"))
         self.assertContains(hub, reverse("manager_notifications"))
-        self.assertContains(hub, "1 Notification")
+        self.assertContains(hub, "data-notify-dropdown")
+        self.assertContains(hub, "mgl-notify-count")
         self.assertContains(hub, f'href="{reverse("manager_profile")}"')
         self.assertContains(hub, "RESIGN")
         self.assertNotContains(hub, "Club Profile")
@@ -475,9 +484,10 @@ class NotificationAndPressroomTests(TestCase):
             * inbox_queryset_for_user(self.user_a).count(),
         )
 
+        self.client.post(reverse("notification_mark_all_read"))
         hub_after = self.client.get(reverse("manager_hub"))
         self.assertContains(hub_after, "Notifications")
-        self.assertNotContains(hub_after, "1 Notification")
+        self.assertNotContains(hub_after, 'class="mgl-notify-count"')
         self.assertEqual(unread_count_for_user(self.user_a), 0)
         self.assertEqual(unread_count_for_user(self.user_b), 1)
 
@@ -567,13 +577,13 @@ class NotificationAndPressroomTests(TestCase):
         self.assertEqual(unread_count_for_user(self.user_a), 5)
         self.client.login(username="kai", password="test-pass-123")
         hub = self.client.get(reverse("manager_hub"))
-        self.assertContains(hub, "5 Notifications")
+        self.assertContains(hub, "mgl-notify-count")
+        self.assertContains(hub, ">5</span>")
         inbox_for_user(self.user_a)
         ManagerNotification.objects.filter(
             recipient=self.user_a, source_key="admin-batch-0"
         ).update(read_at=None)
-        # Opening the inbox marks the current unread rows read.
-        self.client.get(reverse("manager_notifications"))
+        self.client.post(reverse("notification_mark_all_read"))
         self.assertEqual(unread_count_for_user(self.user_a), 0)
 
     def test_duplicate_notification_keys_are_not_repeated(self):

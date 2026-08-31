@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import random
 from datetime import timedelta
+from decimal import Decimal
 
 from django.utils import timezone
 
@@ -14,6 +15,7 @@ from mgl.press_questions import (
     MULTI_SIGNING_CATEGORIES,
     ODD_MATCHDAY_CATEGORIES,
     QUESTION_BANK,
+    RELEASE_CATEGORIES,
     RECENT_QUESTION_LIMIT,
     SIGNING_CATEGORIES,
 )
@@ -99,6 +101,8 @@ def create_press_question(
     trigger,
     fixture=None,
     matchweek=None,
+    available_at=None,
+    allow_multiple=False,
 ):
     if manager is None:
         return None
@@ -112,7 +116,7 @@ def create_press_question(
         status=ApprovalStatus.PENDING,
     ).exclude(manager=manager).exists():
         return None
-    if _has_pending(manager, trigger=trigger, fixture=fixture):
+    if not allow_multiple and _has_pending(manager, trigger=trigger, fixture=fixture):
         return None
     return PressConference.objects.create(
         fixture=fixture,
@@ -124,6 +128,8 @@ def create_press_question(
         question=_format_question(question, team),
         status=ApprovalStatus.PENDING,
         matchweek=matchweek,
+        available_at=available_at,
+        reward=Decimal("0.50"),
     )
 
 
@@ -266,7 +272,7 @@ def maybe_create_signing_press(user, team):
         created_at__gte=week_ago,
         body__icontains=team.name,
     ).count()
-    if recent < 2:
+    if recent < 1:
         return None
     categories = MULTI_SIGNING_CATEGORIES if recent >= 3 else SIGNING_CATEGORIES
     category, key, question = _pick_question(categories, user)
@@ -277,6 +283,26 @@ def maybe_create_signing_press(user, team):
         question_key=key,
         category=category,
         trigger=PressConference.SIGNING,
+    )
+
+
+def create_release_press(user, team, player=None):
+    if user is None or team is None:
+        return None
+    if _has_pending(user, trigger=PressConference.RELEASE):
+        return None
+    category, key, question = _pick_question(RELEASE_CATEGORIES, user)
+    if player is not None and player.name and player.name not in question:
+        question = (
+            f"You've decided to release {player.name}. What led to the decision?"
+        )
+    return create_press_question(
+        manager=user,
+        team=team,
+        question=question,
+        question_key=key,
+        category=category,
+        trigger=PressConference.RELEASE,
     )
 
 
@@ -294,9 +320,29 @@ def submit_press_answer(press, answer):
     press.answer = answer
     press.status = ApprovalStatus.PENDING
     press.save(update_fields=["answer", "status"])
-    from mgl.notifications import mark_action_complete
+    from mgl.notifications import mark_action_complete, notify_user
+    from mgl.services import credit_manager, manager_for_user as reward_manager
 
     mark_action_complete(press.manager, f"press-{press.pk}")
+    application = reward_manager(press.manager)
+    if application:
+        credit_manager(
+            application,
+            Decimal("0.50"),
+            "Press Conference Answered",
+            "PRESS",
+            fixture=press.fixture,
+            reference=f"press:{press.pk}",
+        )
+        notify_user(
+            press.manager,
+            source_key=f"press-reward-{press.pk}",
+            notification_type="REWARD",
+            title="PRESS CONFERENCE ANSWERED",
+            message="+0.50 TOKENS have been added to your balance.",
+            actor="MGL Press Room",
+            team=press.team,
+        )
     return press
 
 

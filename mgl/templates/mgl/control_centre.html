@@ -38,6 +38,18 @@
                 Press Conferences
                 {% if pending_counts.press %}<span class="mgl-cp-badge">{{ pending_counts.press }}</span>{% endif %}
             </a>
+            <a href="#awards">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M8 4h8v4a4 4 0 0 1-8 0V4Z"/><path d="M8 6H5.5A2.5 2.5 0 0 0 8 8.5"/><path d="M16 6h2.5A2.5 2.5 0 0 1 16 8.5"/><path d="M12 12v8"/><path d="M8 20h8"/></svg>
+                Weekly Awards
+            </a>
+            <a href="#rewards">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="7"/><path d="M12 8v8M9 11h6"/></svg>
+                Token Rewards
+            </a>
+            <a href="#notify-log">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M6 9a6 6 0 0 1 12 0c0 7 2 8 2 8H4s2-1 2-8"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>
+                Notification History
+            </a>
             <a href="#managers">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="9" cy="8" r="2.4"/><circle cx="15.5" cy="8.8" r="2"/><path d="M4.8 17.2a4.3 4.3 0 0 1 8.4 0"/><path d="M13.4 16.6a3.6 3.6 0 0 1 5.8 2"/></svg>
                 Manager Applications
@@ -242,6 +254,50 @@
                     </div>
                 {% empty %}
                     {% include "mgl/includes/empty_state.html" with title="NO LIVE AUCTIONS" %}
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="mgl-cp-grid" id="awards">
+            <div class="dashboard-panel mgl-cp-panel">
+                <div class="panel-heading"><span>WEEKLY AWARDS</span></div>
+                <p class="mgl-cp-kicker">SUNDAY–SUNDAY BATCHES</p>
+                {% for batch in weekly_award_batches %}
+                    <div class="table-row mgl-cp-row">
+                        <strong>Week of {{ batch.week_start|date:"d M Y" }}</strong>
+                        <span>{% if batch.completed %}COMPLETED{% else %}IN PROGRESS{% endif %}</span>
+                        <small>{{ batch.notes|default:"No notes" }}</small>
+                    </div>
+                {% empty %}
+                    {% include "mgl/includes/empty_state.html" with title="NO WEEKLY AWARDS YET" %}
+                {% endfor %}
+            </div>
+
+            <div class="dashboard-panel mgl-cp-panel" id="rewards">
+                <div class="panel-heading"><span>TOKEN REWARDS</span></div>
+                <p class="mgl-cp-kicker">RECENT TRANSACTIONS</p>
+                {% for row in recent_rewards %}
+                    <div class="table-row mgl-cp-row">
+                        <strong>{{ row.manager.display_name }}</strong>
+                        <span>{{ row.amount }} · {{ row.category }} · {{ row.reason }}</span>
+                        <small>{{ row.reference|default:"—" }} · {{ row.created_at|date:"d M Y H:i" }}</small>
+                    </div>
+                {% empty %}
+                    {% include "mgl/includes/empty_state.html" with title="NO REWARD TRANSACTIONS" %}
+                {% endfor %}
+            </div>
+
+            <div class="dashboard-panel mgl-cp-panel" id="notify-log">
+                <div class="panel-heading"><span>NOTIFICATION HISTORY</span></div>
+                <p class="mgl-cp-kicker">LATEST MANAGER NOTICES</p>
+                {% for row in recent_notifications %}
+                    <div class="table-row mgl-cp-row">
+                        <strong>{{ row.recipient.username }}</strong>
+                        <span>{{ row.notification_type }} · {{ row.title }}</span>
+                        <small>{{ row.source_key }} · {{ row.created_at|date:"d M Y H:i" }}</small>
+                    </div>
+                {% empty %}
+                    {% include "mgl/includes/empty_state.html" with title="NO NOTIFICATIONS" %}
                 {% endfor %}
             </div>
         </section>

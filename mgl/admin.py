@@ -24,6 +24,7 @@ from .models import (
     TOTWSelection,
     ManagerWeek,
     ApprovalRequest,
+    WeeklyAwardBatch,
 )
 
 from .services import create_news, credit_manager
@@ -214,6 +215,7 @@ def approve_match_submission(sub, reviewer):
             "Approved league match",
             "MATCH",
             fixture,
+            reference=f"match:{fixture.id}:home",
         )
 
     if away_manager:
@@ -223,6 +225,7 @@ def approve_match_submission(sub, reviewer):
             "Approved league match",
             "MATCH",
             fixture,
+            reference=f"match:{fixture.id}:away",
         )
 
     # ---------------------------------------------------------
@@ -291,7 +294,7 @@ def approve_match_submission(sub, reviewer):
             source_key=f"score-approved-{sub.pk}",
             notification_type="SCORE",
             title="RESULT APPROVED",
-            message=f"{scoreline} has been approved and is now official.",
+            message=f"{scoreline} has been approved and is now official. +1.00 TOKEN awarded.",
             actor="MGL Admin",
             action_url=reverse("fixture_list"),
             action_label="VIEW FIXTURES",
@@ -437,7 +440,6 @@ admin.site.register(GoalEvent)
 admin.site.register(AssistEvent)
 admin.site.register(DefenderRating)
 admin.site.register(GKSave)
-admin.site.register(RewardTransaction)
 admin.site.register(TeamOfTheWeek)
 admin.site.register(TOTWSelection)
 admin.site.register(ManagerWeek)
@@ -449,7 +451,7 @@ admin.site.register(ApprovalRequest)
 
 
 @admin.action(
-    description="Approve selected press conferences and award 0.20 tokens"
+    description="Approve selected press conferences"
 )
 def approve_press(modeladmin, request, queryset):
 
@@ -479,10 +481,11 @@ def approve_press(modeladmin, request, queryset):
 
             credit_manager(
                 manager,
-                Decimal("0.20"),
+                Decimal("0.50"),
                 "Approved post-match press conference",
                 "PRESS",
                 obj.fixture,
+                reference=f"press:{obj.pk}",
             )
 
             approved += 1
@@ -887,7 +890,43 @@ class SiteContentAdmin(admin.ModelAdmin):
     readonly_fields = ("updated_at",)
 
 
-from .models import ManagerNotification
+from .models import ManagerNotification, RewardTransaction, WeeklyAwardBatch
+
+
+@admin.register(RewardTransaction)
+class RewardTransactionAdmin(admin.ModelAdmin):
+    list_display = (
+        "created_at",
+        "manager",
+        "amount",
+        "category",
+        "reason",
+        "reference",
+    )
+    list_filter = ("category",)
+    search_fields = (
+        "reason",
+        "reference",
+        "manager__display_name",
+        "manager__user__username",
+    )
+    readonly_fields = (
+        "manager",
+        "amount",
+        "reason",
+        "category",
+        "fixture",
+        "reference",
+        "created_at",
+    )
+
+
+@admin.register(WeeklyAwardBatch)
+class WeeklyAwardBatchAdmin(admin.ModelAdmin):
+    list_display = ("week_start", "completed", "created_at", "notes")
+    list_filter = ("completed",)
+    search_fields = ("notes",)
+    readonly_fields = ("week_start", "notes", "completed", "created_at")
 
 
 @admin.register(ManagerNotification)

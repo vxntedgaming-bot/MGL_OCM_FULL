@@ -40,18 +40,30 @@ def manager_for_user(user):
 
 
 @transaction.atomic
-def credit_manager(manager, amount, reason, category="OTHER", fixture=None):
+@transaction.atomic
+def credit_manager(manager, amount, reason, category="OTHER", fixture=None, reference=""):
     """
     Add tokens to a manager and permanently record the reward.
+    If reference is set, the same manager/category/reference pays only once.
     """
 
     amount = Decimal(str(amount))
+    reference = (reference or "").strip()
 
     manager = (
         ManagerApplication.objects
         .select_for_update()
         .get(pk=manager.pk)
     )
+
+    if reference:
+        existing = RewardTransaction.objects.filter(
+            manager=manager,
+            category=category,
+            reference=reference,
+        ).first()
+        if existing:
+            return existing
 
     manager.tokens = Decimal(manager.tokens) + amount
     manager.save(update_fields=["tokens"])
@@ -62,6 +74,7 @@ def credit_manager(manager, amount, reason, category="OTHER", fixture=None):
         reason=reason,
         category=category,
         fixture=fixture,
+        reference=reference,
     )
 
 
@@ -203,7 +216,21 @@ def release_player(player, team, source="MANAGER_RELEASE"):
         f"{player.name} has been released by {team.name} and is now a Free Agent.",
         team=team,
     )
+    if team.manager_id:
+        from mgl.notifications import notify_user
+        from mgl.press import create_release_press
 
+        notify_user(
+            team.manager,
+            source_key=f"player-released-{player.pk}-{team.id}",
+            notification_type="CLUB",
+            title="PLAYER RELEASED",
+            message=f"{player.name} has left {team.name} and is now a Free Agent.",
+            actor=team.name,
+            team=team,
+            player=player,
+        )
+        create_release_press(team.manager, team, player)
     return player
 
 

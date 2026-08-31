@@ -330,6 +330,13 @@ def player_profile(request, player_id):
     )
 
 
+def _notify_next(request):
+    nxt = (request.POST.get("next") or request.META.get("HTTP_REFERER") or "").strip()
+    if nxt.startswith("/") and not nxt.startswith("//"):
+        return nxt
+    return reverse("manager_hub")
+
+
 @login_required
 def manager_notifications(request):
     manager = manager_for_user(request.user)
@@ -341,10 +348,9 @@ def manager_notifications(request):
         )
         return redirect("manager_login")
 
-    from mgl.notifications import inbox_for_user, mark_inbox_read
+    from mgl.notifications import inbox_for_user
 
     inbox = inbox_for_user(request.user)
-    mark_inbox_read(request.user)
     return render(
         request,
         "mgl/notifications.html",
@@ -353,6 +359,56 @@ def manager_notifications(request):
             "notifications": inbox,
         },
     )
+
+
+@login_required
+def notification_panel(request):
+    manager = manager_for_user(request.user)
+    is_control = getattr(request.user, "role", None) in ("OWNER", "ADMIN")
+    if not manager and not is_control:
+        return render(request, "mgl/includes/notify_panel.html", {"notifications": []})
+    from mgl.notifications import inbox_for_user
+
+    return render(
+        request,
+        "mgl/includes/notify_panel.html",
+        {
+            "notifications": inbox_for_user(request.user)[:12],
+            "mgl_unread_notification_count": unread_count_safe(request.user),
+        },
+    )
+
+
+def unread_count_safe(user):
+    from mgl.notifications import unread_count_for_user
+
+    return unread_count_for_user(user)
+
+
+@login_required
+@require_POST
+def notification_mark_all_read(request):
+    from mgl.notifications import mark_inbox_read
+
+    mark_inbox_read(request.user)
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        from django.http import JsonResponse
+
+        return JsonResponse({"ok": True, "unread": 0})
+    return redirect(request.POST.get("next") or request.META.get("HTTP_REFERER") or "manager_hub")
+
+
+@login_required
+@require_POST
+def notification_mark_read(request, notification_id):
+    from mgl.notifications import mark_notification_read, unread_count_for_user
+
+    mark_notification_read(request.user, notification_id)
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        from django.http import JsonResponse
+
+        return JsonResponse({"ok": True, "unread": unread_count_for_user(request.user)})
+    return redirect(request.POST.get("next") or request.META.get("HTTP_REFERER") or "manager_hub")
 
 
 @login_required
@@ -374,24 +430,24 @@ def manager_notification_respond(request, notification_id):
     notification = notification_for_recipient(request.user, notification_id)
     if notification is None:
         messages.error(request, "That notification does not belong to your account.")
-        return redirect("manager_notifications")
+        return redirect(_notify_next(request))
 
     accept = (request.POST.get("action") or "").strip().lower() == "accept"
     reject = (request.POST.get("action") or "").strip().lower() == "reject"
     if not accept and not reject:
         messages.error(request, "Choose Accept or Reject.")
-        return redirect("manager_notifications")
+        return redirect(_notify_next(request))
     try:
         respond_to_inbox_notification(request.user, notification, accept)
     except PermissionDenied:
         messages.error(request, "You are not allowed to action this notification.")
-        return redirect("manager_notifications")
+        return redirect(_notify_next(request))
     except InboxActionError as exc:
         messages.error(request, str(exc))
-        return redirect("manager_notifications")
+        return redirect(_notify_next(request))
     except ValueError as exc:
         messages.error(request, str(exc))
-        return redirect("manager_notifications")
+        return redirect(_notify_next(request))
     source = notification.source_key or ""
     if accept and source.startswith("admin-listing-"):
         messages.success(
@@ -405,7 +461,7 @@ def manager_notification_respond(request, notification_id):
         )
     else:
         messages.success(request, "You rejected this request.")
-    return redirect("manager_notifications")
+    return redirect(_notify_next(request))
 
 
 @login_required

@@ -25,6 +25,21 @@ urlpatterns = [
         name="manager_notifications",
     ),
     path(
+        "notifications/panel/",
+        views.notification_panel,
+        name="notification_panel",
+    ),
+    path(
+        "notifications/read-all/",
+        views.notification_mark_all_read,
+        name="notification_mark_all_read",
+    ),
+    path(
+        "notifications/<int:notification_id>/read/",
+        views.notification_mark_read,
+        name="notification_mark_read",
+    ),
+    path(
         "notifications/<int:notification_id>/respond/",
         views.manager_notification_respond,
         name="manager_notification_respond",

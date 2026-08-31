@@ -60,12 +60,6 @@
                         <span>{{ active_league|league_label }}</span>
                     {% endif %}
                 </p>
-                {% if user.is_authenticated %}
-                    <a class="mgl-fx-notify" href="{% url 'manager_notifications' %}">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 9a6 6 0 0 1 12 0c0 7 2 8 2 8H4s2-1 2-8"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>
-                        NOTIFICATIONS
-                    </a>
-                {% endif %}
             </div>
         </div>
         <div class="mgl-fx-club-stats">

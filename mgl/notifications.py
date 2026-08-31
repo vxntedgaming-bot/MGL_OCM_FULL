@@ -83,6 +83,10 @@ def _press_copy(press):
         return f"Sky Sports want to speak to you after your appointment at {club}."
     if press.trigger == PressConference.SIGNING:
         return "Sky Sports have a question for you after your latest signing."
+    if press.trigger == PressConference.RELEASE:
+        return "Sky Sports have a question for you after a player release."
+    if press.trigger == PressConference.DAILY:
+        return "MGL Sports has a question for you."
     if press.trigger == PressConference.ODD_MATCHDAY:
         return "Sky Sports have a question for you."
     return "You have a press conference question waiting."
@@ -90,12 +94,14 @@ def _press_copy(press):
 
 class PressConferenceSource(NotificationSource):
     def pending_for(self, user):
+        now = timezone.now()
         for press in (
             PressConference.objects.filter(
                 manager=user,
                 status=ApprovalStatus.PENDING,
                 answer="",
             )
+            .filter(Q(available_at__isnull=True) | Q(available_at__lte=now))
             .select_related("team")
             .order_by("-created_at")
         ):
@@ -429,6 +435,9 @@ def sync_pending_notifications(user):
 
 
 def unread_count_for_user(user):
+    from mgl.runtime_tick import runtime_tick
+
+    runtime_tick(user)
     sync_pending_notifications(user)
     return (
         inbox_queryset_for_user(user)
@@ -710,6 +719,14 @@ def close_admin_result_notices(submission, status):
 def mark_inbox_read(user):
     now = timezone.now()
     inbox_queryset_for_user(user).filter(read_at__isnull=True).update(read_at=now)
+
+
+def mark_notification_read(user, notification_id):
+    now = timezone.now()
+    return inbox_queryset_for_user(user).filter(
+        pk=notification_id,
+        read_at__isnull=True,
+    ).update(read_at=now)
 
 
 def mark_action_complete(user, source_key):

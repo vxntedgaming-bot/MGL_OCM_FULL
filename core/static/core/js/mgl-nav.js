@@ -57,6 +57,78 @@
     }
   }
 
+  function csrfToken() {
+    const match = document.cookie.match(/(?:^|; )csrftoken=([^;]+)/);
+    return match ? decodeURIComponent(match[1]) : "";
+  }
+
+  function loadNotifyPanel(box) {
+    const panel = box.querySelector("[data-notify-panel]");
+    if (!panel) return;
+    const url = panel.getAttribute("data-notify-url");
+    if (!url) return;
+    fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" }, credentials: "same-origin" })
+      .then(function (response) { return response.text(); })
+      .then(function (html) {
+        panel.innerHTML = html;
+        bindNotifyPanel(box);
+        positionNotify(box);
+      })
+      .catch(function () {
+        panel.innerHTML = '<p class="mgl-notify-empty">Could not load notifications.</p>';
+      });
+  }
+
+  function bindNotifyPanel(box) {
+    const panel = box.querySelector("[data-notify-panel]");
+    if (!panel) return;
+    const markAll = panel.querySelector("[data-notify-read-all]");
+    if (markAll) {
+      markAll.addEventListener("submit", function (event) {
+        event.preventDefault();
+        fetch(markAll.action, {
+          method: "POST",
+          headers: {
+            "X-Requested-With": "XMLHttpRequest",
+            "X-CSRFToken": csrfToken(),
+          },
+          credentials: "same-origin",
+          body: new FormData(markAll),
+        }).then(function () {
+          loadNotifyPanel(box);
+          const badge = box.querySelector(".mgl-notify-count");
+          if (badge) badge.remove();
+        });
+      });
+    }
+    panel.querySelectorAll("[data-notify-item]").forEach(function (item) {
+      item.addEventListener("click", function (event) {
+        if (event.target.closest("a, button, form, textarea, input")) return;
+        const url = item.getAttribute("data-notify-read-url");
+        if (!url || !item.classList.contains("is-unread")) return;
+        const body = new URLSearchParams();
+        body.set("csrfmiddlewaretoken", csrfToken());
+        fetch(url, {
+          method: "POST",
+          headers: {
+            "X-Requested-With": "XMLHttpRequest",
+            "X-CSRFToken": csrfToken(),
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          credentials: "same-origin",
+          body: body.toString(),
+        }).then(function (response) { return response.json(); }).then(function (data) {
+          item.classList.remove("is-unread");
+          const badge = box.querySelector(".mgl-notify-count");
+          if (badge && data && typeof data.unread === "number") {
+            if (data.unread > 0) badge.textContent = data.unread;
+            else badge.remove();
+          }
+        }).catch(function () {});
+      });
+    });
+  }
+
   function positionNotify(box) {
     const panel = box.querySelector(".mgl-notify-panel");
     if (!panel) return;
@@ -124,6 +196,7 @@
         if (panel) {
           panel.hidden = false;
           positionNotify(box);
+          loadNotifyPanel(box);
         }
       }
       return;

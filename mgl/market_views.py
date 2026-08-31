@@ -33,11 +33,14 @@ from .models import (
     ApprovalStatus,
     ClubApplication,
     Fixture,
+    ManagerNotification,
     MarketTransaction,
     MatchSubmission,
     NewsPost,
     PlayerListing,
     PressConference,
+    RewardTransaction,
+    WeeklyAwardBatch,
 )
 from managers.models import ManagerApplication
 from managers.services import STARTING_TOKENS, approve_manager_application, reject_manager_application
@@ -582,6 +585,13 @@ def control_centre(request):
             "market_counts": counts,
             "control_next": f"{reverse('control_centre')}?ovr={ovr_filter}",
             "auction_durations": AUCTION_DURATION_CHOICES,
+            "recent_rewards": RewardTransaction.objects.select_related(
+                "manager", "manager__user", "fixture"
+            ).order_by("-created_at")[:40],
+            "weekly_award_batches": WeeklyAwardBatch.objects.order_by("-week_start")[:12],
+            "recent_notifications": ManagerNotification.objects.select_related(
+                "recipient", "team", "player"
+            ).order_by("-created_at")[:40],
         },
     )
 

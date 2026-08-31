@@ -172,6 +172,12 @@ QUESTION_BANK = {
         ("fm_training", "Has anything changed on the training ground?"),
         ("fm_belief", "Do you still have full belief in this group?"),
     ],
+    "release": [
+        ("rl_decision", "You've decided to release one of your squad players. What led to the decision?"),
+        ("rl_replace", "Will you look to replace the player you have just released?"),
+        ("rl_squad", "How does that release change the look of your squad?"),
+        ("rl_message", "What message does that decision send to the rest of the group?"),
+    ],
 }
 
 MATCH_CATEGORY_BY_RESULT = {
@@ -184,5 +190,6 @@ ODD_MATCHDAY_CATEGORIES = ("season", "squad", "tactics", "upcoming", "form", "ri
 SIGNING_CATEGORIES = ("transfers",)
 MULTI_SIGNING_CATEGORIES = ("multiple_signings", "transfers")
 APPOINTMENT_CATEGORIES = ("appointment",)
+RELEASE_CATEGORIES = ("release", "squad")
 
 RECENT_QUESTION_LIMIT = 12

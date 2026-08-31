@@ -1,0 +1,16 @@
+{% if mgl_signed_in_nav %}
+<div class="mgl-notify" data-notify-dropdown>
+    <button type="button" class="mgl-notify-toggle" data-notify-trigger aria-expanded="false" aria-label="Notifications">
+        <svg class="mgl-notify-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path d="M6 9a6 6 0 0 1 12 0c0 7 2 8 2 8H4s2-1 2-8"/>
+            <path d="M10 20a2 2 0 0 0 4 0"/>
+        </svg>
+        {% if mgl_unread_notification_count %}
+            <span class="mgl-notify-count">{{ mgl_unread_notification_count }}</span>
+        {% endif %}
+    </button>
+    <div class="mgl-notify-panel" hidden data-notify-panel data-notify-url="{% url 'notification_panel' %}" data-inbox-url="{% url 'manager_notifications' %}">
+        <p class="mgl-notify-empty">Loading…</p>
+    </div>
+</div>
+{% endif %}

@@ -9,14 +9,16 @@
 
 {% block content %}
 <section class="mgl-section">
-    <div class="section-heading">
+    <header class="mgl-notify-page-head">
         <div>
-            <div class="eyebrow">MANAGER INBOX</div>
-            <h1>NOTIFICATIONS</h1>
-            <p>@{{ user.username }}{% if manager %} · {{ manager.display_name }}{% endif %}</p>
+            <h1>MANAGER NOTIFICATIONS</h1>
+            <p>Review and respond to pending match, transfer and press actions.</p>
         </div>
-        <span class="section-line"></span>
-    </div>
+        <form method="post" action="{% url 'notification_mark_all_read' %}">
+            {% csrf_token %}
+            <button type="submit" class="secondary-button">MARK ALL AS READ</button>
+        </form>
+    </header>
 
     <div class="mgl-inbox">
         {% for item in notifications %}
@@ -100,5 +102,10 @@
             <p class="mgl-notify-empty">No notifications yet.</p>
         {% endfor %}
     </div>
+
+    <aside class="mgl-inbox-help">
+        <h2>HOW NOTIFICATIONS WORK</h2>
+        <p>Match results, transfer requests and press conferences stay pending until you respond. Opening a notice marks it read. Token rewards are paid once and recorded against the original event.</p>
+    </aside>
 </section>
 {% endblock %}

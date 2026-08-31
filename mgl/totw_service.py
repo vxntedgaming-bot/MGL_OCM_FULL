@@ -109,6 +109,9 @@ def player_score(player, week_start, week_end):
         if participated:
             appearances += 1
 
+    if appearances == 0:
+        return 0.0
+
     score += goals * 6
     score += assists * 4
     score += appearances * 2
@@ -214,6 +217,8 @@ def generate_totw(week_start):
             continue
 
         score, player = available[0]
+        if score <= 0:
+            continue
 
         TOTWSelection.objects.create(
             totw=totw,
@@ -271,6 +276,7 @@ def approve_totw(totw, reviewer=None):
             Decimal("0.20"),
             f"TOTW selection: {selection.player.name}",
             "TOTW",
+            reference=f"totw:{totw.week_start.isoformat()}:{selection.player_id}",
         )
 
     totw.approved = True
@@ -359,7 +365,7 @@ def generate_manager_of_week(week_start):
                 week_start=week_start,
                 manager=manager,
                 wins=win_count,
-                reward=Decimal("0.50"),
+        reward=Decimal("1.00"),
                 approved=False,
             )
         )
@@ -378,7 +384,7 @@ def generate_manager_of_week(week_start):
 @transaction.atomic
 def approve_manager_of_week(manager_week):
     """
-    Approve MOTW and award +0.50 tokens exactly once.
+    Approve MOTW and award +1.00 token exactly once.
     """
 
     manager_week = (
@@ -394,9 +400,10 @@ def approve_manager_of_week(manager_week):
 
     credit_manager(
         manager_week.manager,
-        Decimal("0.50"),
+        Decimal("1.00"),
         "Manager of the Week",
         "MOTW",
+        reference=f"motw:{manager_week.week_start.isoformat()}",
     )
 
     career = get_or_create_career(

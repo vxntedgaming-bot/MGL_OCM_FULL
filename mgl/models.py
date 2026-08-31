@@ -91,11 +91,15 @@ class PressConference(models.Model):
     SIGNING = "SIGNING"
     APPOINTMENT = "APPOINTMENT"
     ODD_MATCHDAY = "ODD_MATCHDAY"
+    DAILY = "DAILY"
+    RELEASE = "RELEASE"
     TRIGGER_CHOICES = [
         (MATCH, "Match"),
         (SIGNING, "Signing"),
         (APPOINTMENT, "Appointment"),
         (ODD_MATCHDAY, "Odd matchday"),
+        (DAILY, "Daily"),
+        (RELEASE, "Release"),
     ]
 
     fixture=models.ForeignKey(Fixture,on_delete=models.CASCADE,related_name="press_conferences",null=True,blank=True)
@@ -109,6 +113,7 @@ class PressConference(models.Model):
     status=models.CharField(max_length=20,choices=ApprovalStatus.choices,default=ApprovalStatus.PENDING)
     reward=models.DecimalField(max_digits=6,decimal_places=2,default=Decimal("0.20"))
     matchweek=models.PositiveIntegerField(null=True,blank=True)
+    available_at=models.DateTimeField(null=True,blank=True,db_index=True)
     created_at=models.DateTimeField(auto_now_add=True)
     approved_at=models.DateTimeField(null=True,blank=True)
     class Meta:
@@ -131,7 +136,27 @@ class RewardTransaction(models.Model):
     reason=models.CharField(max_length=255)
     category=models.CharField(max_length=40,default="OTHER")
     fixture=models.ForeignKey(Fixture,on_delete=models.SET_NULL,null=True,blank=True,related_name="rewards")
+    reference=models.CharField(max_length=120,blank=True,default="",db_index=True)
     created_at=models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["manager", "category", "reference"],
+                condition=~models.Q(reference=""),
+                name="unique_reward_reference",
+            )
+        ]
+
+class WeeklyAwardBatch(models.Model):
+    week_start = models.DateField(unique=True)
+    notes = models.TextField(blank=True)
+    completed = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Weekly awards {self.week_start}"
+
 
 class TeamOfTheWeek(models.Model):
     week_start=models.DateField()

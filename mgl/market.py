@@ -780,6 +780,29 @@ def settle_auction(auction, reviewer=None):
         amount=highest.amount,
         approved_by=reviewer,
     )
+    from mgl.notifications import notify_user
+
+    notify_user(
+        winner.user,
+        source_key=f"auction-won-{auction.pk}",
+        notification_type="TRANSFER",
+        title="AUCTION WON",
+        message=f"{player.name} has joined {club.name} after your winning bid of {highest.amount} TKN.",
+        actor="MGL Auctions",
+        team=club,
+        player=player,
+    )
+    if auction.listed_by_manager_id and auction.listed_by_manager_id != winner.id:
+        notify_user(
+            auction.listed_by_manager.user,
+            source_key=f"auction-sold-{auction.pk}",
+            notification_type="TRANSFER",
+            title="PLAYER SOLD AT AUCTION",
+            message=f"{player.name} was sold to {club.name} for {highest.amount} TKN.",
+            actor="MGL Auctions",
+            team=origin,
+            player=player,
+        )
     create_news(
         NewsPost.AUCTION,
         f"{player.name} sold at auction",
