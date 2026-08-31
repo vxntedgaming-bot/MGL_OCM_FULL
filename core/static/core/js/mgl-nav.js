@@ -68,20 +68,25 @@
     const url = panel.getAttribute("data-notify-url");
     if (!url) return;
     fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" }, credentials: "same-origin" })
-      .then(function (response) { return response.text(); })
+      .then(function (response) {
+        if (!response.ok || /\/login\//.test(response.url || "")) {
+          throw new Error("notify");
+        }
+        return response.text();
+      })
       .then(function (html) {
+        if (!html || html.indexOf("mgl-notify-head") === -1) return;
         panel.innerHTML = html;
         bindNotifyPanel(box);
         positionNotify(box);
       })
-      .catch(function () {
-        panel.innerHTML = '<p class="mgl-notify-empty">Could not load notifications.</p>';
-      });
+      .catch(function () {});
   }
 
   function bindNotifyPanel(box) {
     const panel = box.querySelector("[data-notify-panel]");
-    if (!panel) return;
+    if (!panel || panel.getAttribute("data-bound") === "1") return;
+    panel.setAttribute("data-bound", "1");
     const markAll = panel.querySelector("[data-notify-read-all]");
     if (markAll) {
       markAll.addEventListener("submit", function (event) {
@@ -195,6 +200,7 @@
         const panel = box.querySelector(".mgl-notify-panel");
         if (panel) {
           panel.hidden = false;
+          bindNotifyPanel(box);
           positionNotify(box);
           loadNotifyPanel(box);
         }

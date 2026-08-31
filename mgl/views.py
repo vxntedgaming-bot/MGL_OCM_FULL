@@ -367,14 +367,14 @@ def notification_panel(request):
     is_control = getattr(request.user, "role", None) in ("OWNER", "ADMIN")
     if not manager and not is_control:
         return render(request, "mgl/includes/notify_panel.html", {"notifications": []})
-    from mgl.notifications import inbox_for_user
+    from mgl.notifications import inbox_for_user, unread_count_for_user
 
     return render(
         request,
         "mgl/includes/notify_panel.html",
         {
             "notifications": inbox_for_user(request.user)[:12],
-            "mgl_unread_notification_count": unread_count_safe(request.user),
+            "mgl_unread_notification_count": unread_count_for_user(request.user, tick=False),
         },
     )
 

@@ -163,7 +163,7 @@ class NotificationAndPressroomTests(TestCase):
         self.assertNotContains(pending_room, "We controlled the game from the start.")
         self.assertFalse(NewsPost.objects.filter(category=NewsPost.PRESS).exists())
         pending_activity = self.client.get(reverse("live_activity"))
-        self.assertNotContains(pending_activity, "PRESS CONFERENCE")
+        self.assertContains(pending_activity, "No league activity yet.")
         self.assertNotContains(pending_activity, "We controlled the game from the start.")
 
         self.client.logout()

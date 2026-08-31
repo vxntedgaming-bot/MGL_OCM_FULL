@@ -434,10 +434,11 @@ def sync_pending_notifications(user):
     return pending
 
 
-def unread_count_for_user(user):
-    from mgl.runtime_tick import runtime_tick
+def unread_count_for_user(user, tick=True):
+    if tick:
+        from mgl.runtime_tick import runtime_tick
 
-    runtime_tick(user)
+        runtime_tick(user)
     sync_pending_notifications(user)
     return (
         inbox_queryset_for_user(user)

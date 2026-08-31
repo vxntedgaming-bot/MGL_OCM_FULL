@@ -43,7 +43,7 @@
                     <button type="submit" class="mgl-notify-cta mgl-notify-cta-reject">REJECT</button>
                 </form>
             </div>
-        {% elif item.action_url %}
+        {% elif item.action_url and not item.press %}
             <a href="{{ item.action_url }}" class="mgl-notify-cta">{{ item.action_label|default:"VIEW" }}</a>
         {% endif %}
     </article>

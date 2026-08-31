@@ -9,8 +9,8 @@
             <span class="mgl-notify-count">{{ mgl_unread_notification_count }}</span>
         {% endif %}
     </button>
-    <div class="mgl-notify-panel" hidden data-notify-panel data-notify-url="{% url 'notification_panel' %}" data-inbox-url="{% url 'manager_notifications' %}">
-        <p class="mgl-notify-empty">Loading…</p>
+    <div class="mgl-notify-panel" hidden data-notify-panel data-notify-url="{% url 'notification_panel' %}">
+        {% include "mgl/includes/notify_panel.html" with notifications=mgl_notify_items %}
     </div>
 </div>
 {% endif %}

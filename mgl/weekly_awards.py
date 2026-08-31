@@ -117,6 +117,11 @@ def run_weekly_awards(week_start=None, now=None):
 
     notes = []
     totw = None
+    if not _approved_submissions(week_start).exists():
+        batch.notes = "No approved weekly activity"
+        batch.completed = True
+        batch.save(update_fields=["notes", "completed"])
+        return batch
     try:
         totw = generate_totw(week_start)
         if totw.selections.exists() and not totw.approved:
