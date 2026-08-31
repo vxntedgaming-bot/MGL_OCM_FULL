@@ -41,22 +41,22 @@ LEGACY_SQUAD_SHAPE = (
     ("RW", 2),
 )
 
-# Written UFL list sums to 22. Three extra slots keep the mandatory 25.
+# Official UFL starting shape. Total must stay 25.
 UFL_SQUAD_SHAPE = (
     ("GK", 2),
-    ("CB", 5),
+    ("CB", 4),
     ("RB", 1),
     ("LB", 1),
     ("RWB", 1),
     ("LWB", 1),
-    ("CM", 3),
+    ("CM", 2),
     ("CDM", 2),
     ("CAM", 2),
     ("RM", 1),
     ("LM", 1),
     ("RW", 1),
     ("LW", 1),
-    ("ST", 3),
+    ("ST", 2),
 )
 UFL_MIN_OVR = 64
 UFL_MAX_OVR = 69

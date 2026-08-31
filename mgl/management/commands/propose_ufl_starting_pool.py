@@ -16,4 +16,5 @@ class Command(BaseCommand):
             self.stdout.write(f"  {count} × {position}")
         self.stdout.write(f"Total per club: {total}")
         self.stdout.write(f"OVR window: {UFL_MIN_OVR}–{UFL_MAX_OVR}")
+        self.stdout.write("Owner preview lives at Control → Season → Starting Squads.")
         self.stdout.write(self.style.WARNING("No players were assigned."))

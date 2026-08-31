@@ -249,6 +249,11 @@ urlpatterns = [
     path("control/logs/", views_control.control_logs, name="control_logs"),
     path("control/season/history/", views_control.control_season_history, name="control_season_history"),
     path("control/season/controls/", views_control.control_season_controls, name="control_season_controls"),
+    path(
+        "control/season/starting-squads/",
+        views_control.control_starting_squads,
+        name="control_starting_squads",
+    ),
     path("control/league/", views_control.control_league, name="control_league"),
     path(
         "control/site/",

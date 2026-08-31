@@ -528,3 +528,103 @@ def control_league(request):
         }
     )
     return render(request, "mgl/control_league.html", context)
+
+
+def _starting_proposal_view(proposal):
+    from mgl.ufl_starting import POSITIONS, squads_from_payload
+
+    if proposal is None:
+        return None
+    squads = squads_from_payload(proposal.payload or {})
+    clubs = []
+    for squad in squads:
+        clubs.append(
+            {
+                "squad": squad,
+                "by_position": [
+                    (position, squad.by_position().get(position, []))
+                    for position in POSITIONS
+                ],
+            }
+        )
+    return {
+        "proposal": proposal,
+        "clubs": clubs,
+        "checks": (proposal.validation or {}).get("checks") or [],
+        "problems": (proposal.validation or {}).get("problems") or [],
+        "can_approve": proposal.status == proposal.DRAFT
+        and bool((proposal.validation or {}).get("ok")),
+    }
+
+
+@owner_admin_required
+def control_starting_squads(request):
+    from django.contrib import messages
+    from django.shortcuts import redirect
+
+    from mgl.models import StartingSquadProposal
+    from mgl.permissions import is_owner
+    from mgl.ufl_starting import approve_proposal, create_proposal, reject_proposal, season_lock
+
+    owner = is_owner(request.user)
+    if request.method == "POST":
+        action = request.POST.get("action")
+        proposal_id = request.POST.get("proposal")
+        proposal = None
+        if proposal_id and str(proposal_id).isdigit():
+            proposal = StartingSquadProposal.objects.filter(pk=int(proposal_id)).first()
+        try:
+            if action in {"generate", "regenerate"}:
+                if not owner:
+                    raise ValueError("Only the Owner can generate a starting-squad proposal.")
+                seed_raw = (request.POST.get("seed") or "").strip()
+                seed = int(seed_raw) if seed_raw.isdigit() else None
+                include_fa = request.POST.get("include_free_agents") == "1"
+                created = create_proposal(
+                    request.user,
+                    seed=seed,
+                    include_free_agents=include_fa,
+                )
+                messages.success(
+                    request,
+                    f"Proposal {created.pk} generated. Live squads were not changed.",
+                )
+                return redirect("control_starting_squads")
+            if not owner:
+                raise ValueError("Only the Owner can change starting-squad proposals.")
+            if proposal is None:
+                raise ValueError("That proposal was not found.")
+            if action == "reject":
+                reject_proposal(proposal, request.user)
+                messages.success(request, f"Proposal {proposal.pk} rejected. Live squads were not changed.")
+            elif action == "approve":
+                if request.POST.get("confirm_approval") != "1":
+                    raise ValueError("Approval requires explicit confirmation.")
+                approved = approve_proposal(proposal, request.user, confirm=True)
+                messages.success(
+                    request,
+                    f"Proposal {approved.pk} approved. Starting squads are now live.",
+                )
+            else:
+                raise ValueError("Unknown starting-squad action.")
+        except ValueError as exc:
+            messages.error(request, str(exc))
+        return redirect("control_starting_squads")
+
+    queues = load_queues()
+    context = control_shell_context(request, "starting_squads", queues)
+    selected_id = request.GET.get("proposal")
+    selected = None
+    if selected_id and str(selected_id).isdigit():
+        selected = StartingSquadProposal.objects.filter(pk=int(selected_id)).first()
+    if selected is None:
+        selected = StartingSquadProposal.objects.order_by("-id").first()
+    context.update(
+        {
+            "is_owner": owner,
+            "lock": season_lock(),
+            "history": StartingSquadProposal.objects.select_related("created_by", "approved_by")[:20],
+            "selected": _starting_proposal_view(selected),
+        }
+    )
+    return render(request, "mgl/control_starting_squads.html", context)

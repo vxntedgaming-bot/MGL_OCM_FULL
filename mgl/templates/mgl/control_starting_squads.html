@@ -1,0 +1,190 @@
+{% extends "mgl/includes/control_page.html" %}
+{% load static %}
+
+{% block control_title %}Starting Squad Generator — UFL Control{% endblock %}
+{% block control_crumb %}CONTROL / SEASON / STARTING SQUADS{% endblock %}
+{% block control_kicker %}CAREER MODE SETUP{% endblock %}
+{% block control_heading %}UFL STARTING SQUAD GENERATOR{% endblock %}
+{% block control_intro %}Preview a balanced 25-man allocation from the FC26 unassigned pool. Live squads stay untouched until the Owner approves.{% endblock %}
+
+{% block control_extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/mgl-control-starting.css' %}?v=ss-1">
+{% endblock %}
+
+{% block control_body %}
+{% if lock %}
+<section class="dashboard-panel mgl-cp-panel mgl-ss-lock">
+    <p class="mgl-cp-kicker">SEASON LOCK</p>
+    <h2>STARTING SQUADS ALREADY ALLOCATED</h2>
+    <p>Season {{ lock.season }} was locked by {{ lock.approved_by.username|default:"Owner" }} on {{ lock.approved_at|date:"d M Y, H:i" }}. Proposal {{ lock.proposal_id }} assigned {{ lock.players_assigned }} players across {{ lock.club_count }} clubs. A new season is required before another official allocation.</p>
+</section>
+{% endif %}
+
+<section class="dashboard-panel mgl-cp-panel">
+    <div class="mgl-ss-toolbar">
+        <div>
+            <p class="mgl-cp-kicker">GENERATOR</p>
+            <h2>BUILD A PROPOSAL</h2>
+            <p>Uses UNASSIGNED FC26 players rated 64–69. Does not write club ownership.</p>
+        </div>
+        {% if is_owner %}
+        <form method="post" class="mgl-ss-generate">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="{% if selected %}regenerate{% else %}generate{% endif %}">
+            <label>SEED
+                <input type="text" name="seed" placeholder="Optional" value="{% if selected %}{{ selected.proposal.seed }}{% endif %}">
+            </label>
+            <label class="mgl-ss-check">
+                <input type="checkbox" name="include_free_agents" value="1">
+                Include Free Agents
+            </label>
+            <button class="header-button mgl-cp-review-btn" type="submit">{% if selected %}REGENERATE PROPOSAL{% else %}GENERATE PROPOSAL{% endif %}</button>
+        </form>
+        {% else %}
+        <p class="mgl-ss-admin-note">Admin can review proposals. Only the Owner can generate or approve.</p>
+        {% endif %}
+    </div>
+</section>
+
+{% if selected %}
+<section class="mgl-ss-summary">
+    <article><span>CLUBS</span><strong>{{ selected.proposal.club_count }}</strong></article>
+    <article><span>PLAYERS REQUIRED</span><strong>{{ selected.proposal.players_required }}</strong></article>
+    <article><span>PLAYERS AVAILABLE</span><strong>{{ selected.proposal.players_available }}</strong></article>
+    <article><span>RATING RANGE</span><strong>{{ selected.proposal.rating_min }}–{{ selected.proposal.rating_max }}</strong></article>
+    <article><span>SQUAD SIZE</span><strong>{{ selected.proposal.squad_size }}</strong></article>
+    <article><span>BALANCE DIFFERENCE</span><strong>{{ selected.proposal.largest_avg_diff }} OVR</strong></article>
+</section>
+
+<p class="mgl-ss-banner {% if selected.proposal.status == 'APPROVED' %}is-live{% elif selected.can_approve %}is-ready{% else %}is-draft{% endif %}">
+    {% if selected.proposal.status == 'APPROVED' %}
+        APPROVED — LIVE ALLOCATION
+    {% elif selected.proposal.status == 'DRAFT' %}
+        PROPOSAL {{ selected.proposal.pk }} — NOT YET LIVE
+    {% else %}
+        PROPOSAL {{ selected.proposal.pk }} — {{ selected.proposal.status }}
+    {% endif %}
+</p>
+
+<section class="dashboard-panel mgl-cp-panel">
+    <p class="mgl-cp-kicker">VALIDATION</p>
+    <ul class="mgl-ss-checks">
+        {% for check in selected.checks %}
+            <li class="{% if check.ok %}is-ok{% else %}is-bad{% endif %}">
+                <span>{% if check.ok %}✓{% else %}✗{% endif %}</span>
+                <div>
+                    <strong>{{ check.label }}</strong>
+                    {% if check.detail %}<p>{{ check.detail }}</p>{% endif %}
+                </div>
+            </li>
+        {% empty %}
+            <li class="is-bad"><span>✗</span><div><strong>No validation has been recorded.</strong></div></li>
+        {% endfor %}
+    </ul>
+    {% if selected.problems %}
+        <div class="mgl-ss-problems">
+            <p class="mgl-cp-kicker">FAILED CHECKS</p>
+            {% for problem in selected.problems %}
+                <p>{{ problem }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% if selected.proposal.notes %}
+        <div class="mgl-ss-notes">
+            {% for note in selected.proposal.notes %}
+                <p>{{ note }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% if is_owner and selected.proposal.status == 'DRAFT' %}
+        <div class="mgl-cp-actions is-row">
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="reject">
+                <input type="hidden" name="proposal" value="{{ selected.proposal.pk }}">
+                <button class="header-button mgl-cp-reject" type="submit">REJECT PROPOSAL</button>
+            </form>
+            {% if selected.can_approve and not lock %}
+            <form method="post" data-confirm="Approving this proposal will assign 25 players to every UFL club and establish the starting squads for the season." data-confirm-title="APPROVE STARTING SQUADS" data-confirm-ok="APPROVE STARTING SQUADS">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="approve">
+                <input type="hidden" name="proposal" value="{{ selected.proposal.pk }}">
+                <input type="hidden" name="confirm_approval" value="1">
+                <button class="header-button mgl-cp-approve" type="submit">APPROVE STARTING SQUADS</button>
+            </form>
+            {% endif %}
+        </div>
+    {% endif %}
+</section>
+
+{% for block in selected.clubs %}
+<section class="dashboard-panel mgl-cp-panel mgl-ss-club">
+    <header class="mgl-ss-club-head">
+        <div>
+            <p class="mgl-cp-kicker">{{ block.squad.short_name }}</p>
+            <h2>{{ block.squad.club_name }}</h2>
+            <p>{{ block.squad.players|length }} Players</p>
+        </div>
+        <dl>
+            <div><dt>Average OVR</dt><dd>{{ block.squad.average_ovr|floatformat:1 }}</dd></div>
+            <div><dt>Total OVR</dt><dd>{{ block.squad.total_ovr }}</dd></div>
+            <div><dt>Highest</dt><dd>{{ block.squad.highest_ovr }}</dd></div>
+            <div><dt>Lowest</dt><dd>{{ block.squad.lowest_ovr }}</dd></div>
+        </dl>
+    </header>
+    <div class="mgl-ss-positions">
+        {% for position, players in block.by_position %}
+            <article>
+                <h3>{{ position }}</h3>
+                {% for player in players %}
+                    <p>
+                        <span class="mgl-ss-ovr">{{ player.overall }}</span>
+                        <strong>{{ player.name }}</strong>
+                        <small>FC26 {{ player.fc27_id|default:"—" }}</small>
+                    </p>
+                {% empty %}
+                    <p class="mgl-ss-empty">No player in this slot</p>
+                {% endfor %}
+            </article>
+        {% endfor %}
+    </div>
+</section>
+{% empty %}
+    {% include "mgl/includes/empty_state.html" with title="NO CLUBS IN THIS PROPOSAL" body="Generate a proposal after UFL clubs exist and the unassigned 64–69 pool is large enough." %}
+{% endfor %}
+{% else %}
+    {% include "mgl/includes/empty_state.html" with title="NO STARTING PROPOSAL YET" body="Generate a proposal to preview balanced 25-man squads. Nothing is assigned until the Owner approves." %}
+{% endif %}
+
+<section class="dashboard-panel mgl-cp-panel mgl-cp-table-wrap">
+    <p class="mgl-cp-kicker">PROPOSAL HISTORY</p>
+    <table class="mgl-cp-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>CREATED BY</th>
+                <th>DATE</th>
+                <th>CLUBS</th>
+                <th>AVG OVR</th>
+                <th>DIFF</th>
+                <th>STATUS</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in history %}
+                <tr>
+                    <td><a href="?proposal={{ row.pk }}">{{ row.pk }}</a></td>
+                    <td>{{ row.created_by.username|default:"—" }}</td>
+                    <td>{{ row.created_at|date:"d M Y H:i" }}</td>
+                    <td>{{ row.club_count }}</td>
+                    <td>{{ row.average_league_ovr }}</td>
+                    <td>{{ row.largest_avg_diff }}</td>
+                    <td>{{ row.status }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="7">{% include "mgl/includes/empty_state.html" with title="NO PROPOSALS YET" %}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}

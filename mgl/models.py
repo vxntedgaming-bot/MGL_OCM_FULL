@@ -1141,3 +1141,91 @@ class ScoutWatchlist(models.Model):
                 name="unique_scout_watchlist_player",
             )
         ]
+
+
+class StartingSquadProposal(models.Model):
+    """Owner preview of a UFL starting allocation. Generation never writes ownership."""
+
+    DRAFT = "DRAFT"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+    SUPERSEDED = "SUPERSEDED"
+    STATUS_CHOICES = [
+        (DRAFT, "Draft"),
+        (APPROVED, "Approved"),
+        (REJECTED, "Rejected"),
+        (SUPERSEDED, "Superseded"),
+    ]
+
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="starting_squad_proposals",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    seed = models.BigIntegerField()
+    include_free_agents = models.BooleanField(default=False)
+    club_count = models.PositiveIntegerField(default=0)
+    players_required = models.PositiveIntegerField(default=0)
+    players_available = models.PositiveIntegerField(default=0)
+    rating_min = models.PositiveSmallIntegerField(default=64)
+    rating_max = models.PositiveSmallIntegerField(default=69)
+    squad_size = models.PositiveSmallIntegerField(default=25)
+    average_league_ovr = models.DecimalField(max_digits=6, decimal_places=3, default=0)
+    largest_avg_diff = models.DecimalField(max_digits=6, decimal_places=3, default=0)
+    max_allowed_avg_diff = models.DecimalField(max_digits=6, decimal_places=3, default=1.500)
+    status = models.CharField(max_length=12, choices=STATUS_CHOICES, default=DRAFT)
+    payload = models.JSONField(default=dict, blank=True)
+    validation = models.JSONField(default=dict, blank=True)
+    notes = models.JSONField(default=list, blank=True)
+    approved_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="starting_squad_approvals",
+    )
+    approved_at = models.DateTimeField(null=True, blank=True)
+    rejected_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="starting_squad_rejections",
+    )
+    rejected_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+
+    def __str__(self):
+        return f"Starting proposal {self.pk} ({self.status})"
+
+
+class StartingSquadLock(models.Model):
+    """Records that official starting squads were applied for a season."""
+
+    season = models.PositiveIntegerField(unique=True)
+    proposal = models.OneToOneField(
+        StartingSquadProposal,
+        on_delete=models.PROTECT,
+        related_name="season_lock",
+    )
+    approved_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="starting_squad_locks",
+    )
+    approved_at = models.DateTimeField()
+    club_count = models.PositiveIntegerField(default=0)
+    players_assigned = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["-season"]
+
+    def __str__(self):
+        return f"Starting lock season {self.season}"

@@ -9,6 +9,14 @@ from accounts.models import User
 from mgl.services import manager_for_user
 
 
+def is_owner(user):
+    return bool(
+        user
+        and getattr(user, "is_authenticated", False)
+        and getattr(user, "role", None) == User.OWNER
+    )
+
+
 def is_owner_or_admin(user):
     return bool(
         user

@@ -31,10 +31,11 @@
             <a href="{% url 'control_tokens' %}" class="{% if control_section == 'tokens' %}is-active{% endif %}">Token Rewards</a>
         </details>
 
-        <details class="mgl-cp-nav-group {% if control_section == 'season_history' or control_section == 'season_controls' or control_section == 'season_settings' %}is-current{% endif %}" {% if control_section == 'season_history' or control_section == 'season_controls' or control_section == 'season_settings' %}open{% endif %}>
+        <details class="mgl-cp-nav-group {% if control_section == 'season_history' or control_section == 'season_controls' or control_section == 'season_settings' or control_section == 'starting_squads' %}is-current{% endif %}" {% if control_section == 'season_history' or control_section == 'season_controls' or control_section == 'season_settings' or control_section == 'starting_squads' %}open{% endif %}>
             <summary>SEASON</summary>
             <a href="{% url 'control_season_history' %}" class="{% if control_section == 'season_history' %}is-active{% endif %}">Season History</a>
             <a href="{% url 'control_season_controls' %}" class="{% if control_section == 'season_controls' %}is-active{% endif %}">Season Controls</a>
+            <a href="{% url 'control_starting_squads' %}" class="{% if control_section == 'starting_squads' %}is-active{% endif %}">Starting Squads</a>
             <a href="{% url 'season_management' %}" class="{% if control_section == 'season_settings' %}is-active{% endif %}">Season Settings</a>
         </details>
 

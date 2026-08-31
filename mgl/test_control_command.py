@@ -47,6 +47,7 @@ class ControlCommandCentreTests(TestCase):
             "control_logs",
             "control_season_history",
             "control_season_controls",
+            "control_starting_squads",
             "control_league",
         )
         for name in pages:
