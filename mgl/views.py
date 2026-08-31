@@ -1863,6 +1863,7 @@ def scouting(request):
         complete_ready_assignments,
         cooldown_hours,
         dispatch_scout,
+        file_scout_report,
         format_hours,
         get_or_create_scout_profile,
         hours_saved,
@@ -1870,8 +1871,8 @@ def scouting(request):
         manager_scout_level,
         next_upgrade,
         open_scout_pack,
-        release_scout_player,
         remaining_wait,
+        scout_availability_label,
         scout_positions,
         scout_region_menu,
         scout_times,
@@ -1880,6 +1881,7 @@ def scouting(request):
         watchlist_for,
     )
     from mgl.market import club_for_user
+    from mgl.permissions import is_owner_or_admin
     from mgl.regions import REGION_NATIONS, region_label
     from mgl.player_state import roster_occupancy
 
@@ -1917,21 +1919,33 @@ def scouting(request):
                 opened = open_scout_pack(manager, assignment)
                 return redirect(f"{reverse('scouting')}?pack={opened.id}")
             elif action == "send_to_team":
-                report = send_scout_to_team(manager, assignment)
+                if not is_owner_or_admin(request.user):
+                    raise ValueError("Scouting discovers players. It does not acquire them.")
+                report = send_scout_to_team(manager, assignment, actor=request.user)
                 messages.success(
                     request,
-                    f"{report.player.name} joined {report.club.name}.",
+                    f"League office assigned {report.player.name} to {report.club.name}.",
                 )
-            elif action == "release_player":
-                release_scout_player(manager, assignment)
-                messages.success(request, "Player released back to the unreleased pool.")
+            elif action in {"release_player", "file_report"}:
+                report = file_scout_report(manager, assignment)
+                messages.success(
+                    request,
+                    f"Scout report filed for {report.player.name}. Ownership unchanged.",
+                )
             elif action == "watchlist":
                 if assignment and assignment.player_id:
-                    add_to_watchlist(manager, assignment.player)
-                    messages.success(
-                        request,
-                        f"{assignment.player.name} added to your private scouting watchlist. Scouting does not transfer ownership.",
-                    )
+                    if assignment.status == ScoutAssignment.OPENED:
+                        report = file_scout_report(manager, assignment, watchlist=True)
+                        messages.success(
+                            request,
+                            f"{report.player.name} added to your watchlist. Scout report filed. Scouting does not transfer ownership.",
+                        )
+                    else:
+                        add_to_watchlist(manager, assignment.player)
+                        messages.success(
+                            request,
+                            f"{assignment.player.name} added to your private scouting watchlist. Scouting does not transfer ownership.",
+                        )
             else:
                 messages.error(request, "Unknown scouting action.")
         except ValueError as exc:
@@ -1996,7 +2010,7 @@ def scouting(request):
                 "current": current,
                 "remaining": wait,
                 "ready": ready,
-                "available": current is None and not roster_full and not scout_busy,
+                "available": current is None and team is not None and not scout_busy,
             }
         )
     active = (
@@ -2028,6 +2042,9 @@ def scouting(request):
         ).select_related("player").first()
         if pack:
             pack.region_display = region_label(pack.region)
+            pack.availability_label = (
+                scout_availability_label(pack.player) if pack.player_id else ""
+            )
 
     region_guide = [
         (group, [(key, label, sorted(REGION_NATIONS.get(key, ()))) for key, label in items])
@@ -2058,8 +2075,16 @@ def scouting(request):
             "club": team,
             "roster_count": roster_count,
             "roster_full": roster_full,
-            "watchlist": watchlist_for(manager),
+            "roster_limit": effective_roster_limit(team) if team else 0,
+            "watchlist": [
+                {
+                    "row": row,
+                    "availability": scout_availability_label(row.player),
+                }
+                for row in watchlist_for(manager)
+            ],
             "scout_profile": get_or_create_scout_profile(manager),
+            "can_admin_assign_scout": is_owner_or_admin(request.user),
         },
     )
 

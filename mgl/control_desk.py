@@ -468,7 +468,7 @@ def scouting_movement_rows(assignments):
                 "position": assignment.player.position or assignment.position or "—",
                 "from_label": "Free Agent",
                 "to_label": club.name if club and recruited else (club.name if club else "—"),
-                "move_type": "SIGNED" if recruited else assignment.status,
+                "move_type": "SIGNED" if recruited else ("DISCOVERED" if report else assignment.status),
                 "date": (assignment.completed_at or assignment.started_at).strftime("%d/%m/%Y")
                 if (assignment.completed_at or assignment.started_at)
                 else "—",

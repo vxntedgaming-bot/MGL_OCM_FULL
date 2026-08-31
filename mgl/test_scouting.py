@@ -15,14 +15,14 @@ from mgl.scouting import (
     cooldown_hours,
     dispatch_scout,
     eligible_players,
+    file_scout_report,
     get_or_create_scout_profile,
     manager_scout_level,
     open_scout_pack,
-    release_scout_player,
     send_scout_to_team,
     upgrade_scout,
 )
-from mgl.models import ManagerNotification, ScoutAssignment, ScoutProfile, ScoutReport
+from mgl.models import LeagueSettings, ManagerNotification, ScoutAssignment, ScoutProfile, ScoutReport
 from mgl.regions import (
     REGION_MENU,
     REGION_NATIONS,
@@ -284,8 +284,9 @@ class ScoutGenerationTests(TestCase):
         self.gold = _player(name="Gold Scout Target", position="CB", overall=75, nationality="Germany")
         self.elite = _player(name="Elite Scout Target", position="ST", overall=85, nationality="France")
 
-    def _recruit(self, tier, region, position, expected):
+    def _discover(self, tier, region, position, expected):
         before = Player.objects.count()
+        tokens_before = self.manager.tokens
         snapshot = (
             expected.name,
             expected.overall,
@@ -306,13 +307,15 @@ class ScoutGenerationTests(TestCase):
         expected.refresh_from_db()
         self.assertIsNone(expected.mgl_team_id)
         open_scout_pack(self.manager, assignment)
-        report = send_scout_to_team(self.manager, assignment)
+        report = file_scout_report(self.manager, assignment)
         expected.refresh_from_db()
+        self.manager.refresh_from_db()
         self.assertEqual(report.player_id, expected.id)
-        self.assertTrue(report.recruited)
-        self.assertEqual(report.club_id, self.club.id)
-        self.assertEqual(expected.mgl_team_id, self.club.id)
+        self.assertFalse(report.recruited)
+        self.assertIsNone(report.club_id)
+        self.assertIsNone(expected.mgl_team_id)
         self.assertFalse(expected.is_free_agent)
+        self.assertEqual(self.manager.tokens, tokens_before)
         self.assertEqual(Player.objects.count(), before)
         self.assertEqual(Player.objects.filter(pk=expected.pk).count(), 1)
         self.assertEqual(
@@ -327,20 +330,57 @@ class ScoutGenerationTests(TestCase):
         )
         return report
 
-    def test_bronze_silver_gold_elite_recruit_existing_players(self):
-        self._recruit("BRONZE", "south-america", "ST", self.bronze)
-        self._recruit("SILVER", "southern-europe", "CM", self.silver)
-        self._recruit("GOLD", "western-europe", "CB", self.gold)
-        self._recruit("ELITE", "europe", "ST", self.elite)
+    def test_bronze_silver_gold_elite_discover_existing_players(self):
+        self._discover("BRONZE", "south-america", "ST", self.bronze)
+        self._discover("SILVER", "southern-europe", "CM", self.silver)
+        self._discover("GOLD", "western-europe", "CB", self.gold)
+        self._discover("ELITE", "europe", "ST", self.elite)
 
     def test_region_and_position_combination(self):
         other = _player(name="Wrong Combo", position="ST", overall=50, nationality="France")
-        report = self._recruit("BRONZE", "south-america", "ST", self.bronze)
+        report = self._discover("BRONZE", "south-america", "ST", self.bronze)
         self.assertEqual(report.region, "south-america")
         self.assertEqual(report.position, "ST")
         other.refresh_from_db()
         self.assertFalse(other.is_free_agent)
         self.assertIsNone(other.mgl_team_id)
+
+    def test_manager_cannot_acquire_through_scouting(self):
+        assignment = dispatch_scout(self.manager, "BRONZE", "south-america", "ST")
+        _finish(assignment)
+        assignment.refresh_from_db()
+        open_scout_pack(self.manager, assignment)
+        with self.assertRaisesMessage(ValueError, "does not acquire"):
+            send_scout_to_team(self.manager, assignment)
+        self.bronze.refresh_from_db()
+        self.assertIsNone(self.bronze.mgl_team_id)
+        self.assertFalse(self.bronze.is_free_agent)
+        self.assertEqual(ScoutReport.objects.filter(assignment=assignment, recruited=True).count(), 0)
+
+    def test_legacy_flag_does_not_restore_manager_recruit(self):
+        LeagueSettings.objects.create(scout_can_recruit=True)
+        assignment = dispatch_scout(self.manager, "BRONZE", "south-america", "ST")
+        _finish(assignment)
+        assignment.refresh_from_db()
+        open_scout_pack(self.manager, assignment)
+        with self.assertRaisesMessage(ValueError, "does not acquire"):
+            send_scout_to_team(self.manager, assignment)
+        self.bronze.refresh_from_db()
+        self.assertIsNone(self.bronze.mgl_team_id)
+
+    def test_owner_can_assign_scouted_player_as_correction(self):
+        owner_user = _user("scout-owner", role=User.OWNER)
+        owner_mgr = _manager(owner_user, tokens="50.00")
+        owner_club = _club(owner_user, self.league, name="Office FC", short="OFF")
+        open_club_spell(owner_mgr, owner_club)
+        assignment = dispatch_scout(owner_mgr, "BRONZE", "south-america", "ST")
+        _finish(assignment)
+        assignment.refresh_from_db()
+        open_scout_pack(owner_mgr, assignment)
+        report = send_scout_to_team(owner_mgr, assignment, actor=owner_user)
+        self.bronze.refresh_from_db()
+        self.assertTrue(report.recruited)
+        self.assertEqual(self.bronze.mgl_team_id, owner_club.id)
 
     def test_dispatch_reserves_player_and_survives_reload(self):
         assignment = dispatch_scout(self.manager, "BRONZE", "south-america", "ST")
@@ -372,7 +412,7 @@ class ScoutGenerationTests(TestCase):
         _finish(assignment)
         assignment.refresh_from_db()
         open_scout_pack(self.manager, assignment)
-        report = release_scout_player(self.manager, assignment)
+        report = file_scout_report(self.manager, assignment)
         self.assertFalse(report.recruited)
         self.bronze.refresh_from_db()
         self.assertIsNone(self.bronze.mgl_team_id)
@@ -423,45 +463,53 @@ class ScoutRosterLimitTests(TestCase):
                 mgl_team=self.club,
             )
 
-    def test_27_players_allows_recruitment_to_28(self):
-        self._fill(27)
+    def test_full_squad_can_still_scout(self):
+        self._fill(28)
         assignment = dispatch_scout(self.manager, "BRONZE", "europe", "ST")
         ready, _notices = _finish(assignment)
         self.assertEqual(len(ready), 1)
         open_scout_pack(self.manager, assignment)
-        send_scout_to_team(self.manager, assignment)
+        report = file_scout_report(self.manager, assignment)
         self.target.refresh_from_db()
-        self.assertEqual(self.target.mgl_team_id, self.club.id)
-        self.assertEqual(Player.objects.filter(mgl_team=self.club).count(), 28)
-        self.assertFalse(self.target.is_free_agent)
-
-    def test_28_players_rejects_recruitment_and_keeps_player_free(self):
-        self._fill(28)
-        with self.assertRaisesMessage(ValueError, SQUAD_FULL_MESSAGE):
-            dispatch_scout(self.manager, "BRONZE", "europe", "ST")
-        self.target.refresh_from_db()
-        self.assertFalse(self.target.is_free_agent)
+        self.assertFalse(report.recruited)
         self.assertIsNone(self.target.mgl_team_id)
         self.assertEqual(Player.objects.filter(mgl_team=self.club).count(), 28)
         self.assertEqual(Player.objects.filter(name="Last Recruit").count(), 1)
 
-    def test_pending_scout_cannot_push_squad_past_28(self):
+    def test_manager_cannot_assign_even_with_roster_space(self):
+        self._fill(27)
         assignment = dispatch_scout(self.manager, "BRONZE", "europe", "ST")
-        self._fill(28)
-        assignment.ready_at = timezone.now() - timedelta(seconds=5)
-        assignment.save(update_fields=["ready_at"])
-        ready, notices = complete_ready_assignments(self.manager)
-        self.assertEqual(len(ready), 1)
+        _finish(assignment)
         assignment.refresh_from_db()
-        self.assertEqual(assignment.status, ScoutAssignment.READY)
-        self.target.refresh_from_db()
-        self.assertIsNone(self.target.mgl_team_id)
         open_scout_pack(self.manager, assignment)
-        with self.assertRaisesMessage(ValueError, SQUAD_FULL_MESSAGE):
+        with self.assertRaisesMessage(ValueError, "does not acquire"):
             send_scout_to_team(self.manager, assignment)
         self.target.refresh_from_db()
-        self.assertFalse(self.target.is_free_agent)
-        self.assertEqual(Player.objects.filter(mgl_team=self.club).count(), 28)
+        self.assertIsNone(self.target.mgl_team_id)
+        self.assertEqual(Player.objects.filter(mgl_team=self.club).count(), 27)
+
+    def test_admin_assign_still_respects_roster_limit(self):
+        admin_user = _user("scout-admin", role=User.ADMIN)
+        admin_mgr = _manager(admin_user, tokens="50.00")
+        admin_club = _club(admin_user, self.league, name="Admin FC", short="ADM")
+        open_club_spell(admin_mgr, admin_club)
+        for i in range(28):
+            _player(
+                name=f"Admin Squad {i}",
+                position="CM",
+                overall=61,
+                nationality="England",
+                is_free_agent=False,
+                mgl_team=admin_club,
+            )
+        assignment = dispatch_scout(admin_mgr, "BRONZE", "europe", "ST")
+        _finish(assignment)
+        assignment.refresh_from_db()
+        open_scout_pack(admin_mgr, assignment)
+        with self.assertRaisesMessage(ValueError, SQUAD_FULL_MESSAGE):
+            send_scout_to_team(admin_mgr, assignment, actor=admin_user)
+        self.target.refresh_from_db()
+        self.assertIsNone(self.target.mgl_team_id)
 
 
 class ScoutPageTests(TestCase):
@@ -523,8 +571,11 @@ class ScoutPageTests(TestCase):
         )
         opened = self.client.get(reverse("scouting") + f"?pack={assignment.id}")
         self.assertContains(opened, "SILVER SCOUT TARGET")
-        self.assertContains(opened, "SEND TO TEAM MANAGEMENT")
-        self.assertContains(opened, "RELEASE PLAYER")
+        self.assertContains(opened, "ADD TO WATCHLIST")
+        self.assertContains(opened, "FILE REPORT")
+        self.assertContains(opened, "VIEW PLAYER")
+        self.assertNotContains(opened, "SEND TO TEAM MANAGEMENT")
+        self.assertNotContains(opened, "ADMIN: ASSIGN TO CLUB")
         self.client.login(username="other", password="test-pass-123")
         other_page = self.client.get(reverse("scouting") + f"?pack={assignment.id}")
         self.assertNotContains(other_page, "SILVER SCOUT TARGET")
@@ -537,16 +588,17 @@ class ScoutPageTests(TestCase):
         self.assertEqual(assignment.status, ScoutAssignment.OPENED)
         self.assertEqual(ScoutReport.objects.filter(manager=self.other).count(), 0)
 
-    def test_reports_are_private_and_mark_recruited(self):
+    def test_reports_are_private_and_mark_discovered(self):
         assignment = dispatch_scout(self.manager, "SILVER", "southern-europe", "CM")
         _finish(assignment)
         assignment.refresh_from_db()
         open_scout_pack(self.manager, assignment)
-        send_scout_to_team(self.manager, assignment)
+        file_scout_report(self.manager, assignment)
         self.client.login(username="page", password="test-pass-123")
         page = self.client.get(reverse("scouting"))
         self.assertContains(page, "Silver Scout Target")
-        self.assertContains(page, "RECRUITED")
+        self.assertContains(page, "DISCOVERED")
+        self.assertNotContains(page, "RECRUITED")
         self.assertContains(page, "BRONZE")
         self.assertContains(page, "Anywhere")
         self.client.login(username="other", password="test-pass-123")
@@ -607,3 +659,63 @@ class ScoutPageTests(TestCase):
         self.assertEqual(assignment.status, ScoutAssignment.PENDING)
         self.assertContains(second, "SILVER SCOUT")
         self.assertNotContains(second, "Silver Scout Target")
+
+    def test_manager_http_cannot_send_scouted_player_to_squad(self):
+        assignment = dispatch_scout(self.manager, "SILVER", "southern-europe", "CM")
+        _finish(assignment)
+        assignment.refresh_from_db()
+        open_scout_pack(self.manager, assignment)
+        tokens_before = self.manager.tokens
+        self.client.login(username="page", password="test-pass-123")
+        response = self.client.post(
+            reverse("scouting"),
+            {"action": "send_to_team", "assignment": str(assignment.id)},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.silver.refresh_from_db()
+        self.manager.refresh_from_db()
+        assignment.refresh_from_db()
+        self.assertIsNone(self.silver.mgl_team_id)
+        self.assertFalse(self.silver.is_free_agent)
+        self.assertEqual(self.manager.tokens, tokens_before)
+        self.assertEqual(assignment.status, ScoutAssignment.OPENED)
+        self.assertEqual(ScoutReport.objects.filter(assignment=assignment, recruited=True).count(), 0)
+
+    def test_manager_http_watchlist_files_report_without_ownership(self):
+        assignment = dispatch_scout(self.manager, "SILVER", "southern-europe", "CM")
+        _finish(assignment)
+        assignment.refresh_from_db()
+        open_scout_pack(self.manager, assignment)
+        self.client.login(username="page", password="test-pass-123")
+        response = self.client.post(
+            reverse("scouting"),
+            {"action": "watchlist", "assignment": str(assignment.id)},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.silver.refresh_from_db()
+        assignment.refresh_from_db()
+        self.assertIsNone(self.silver.mgl_team_id)
+        self.assertEqual(assignment.status, ScoutAssignment.COMPLETE)
+        self.assertEqual(self.manager.scout_watchlist.filter(player=self.silver).count(), 1)
+        self.assertEqual(ScoutReport.objects.filter(assignment=assignment, recruited=False).count(), 1)
+
+    def test_owner_http_can_assign_as_correction(self):
+        owner_user = _user("page-owner", role=User.OWNER)
+        owner_mgr = _manager(owner_user, tokens="50.00")
+        owner_club = _club(owner_user, self.league, name="Office Page FC", short="OPF")
+        open_club_spell(owner_mgr, owner_club)
+        assignment = dispatch_scout(owner_mgr, "SILVER", "southern-europe", "CM")
+        _finish(assignment)
+        assignment.refresh_from_db()
+        open_scout_pack(owner_mgr, assignment)
+        client = Client(HTTP_HOST="127.0.0.1")
+        client.login(username="page-owner", password="test-pass-123")
+        opened = client.get(reverse("scouting") + f"?pack={assignment.id}")
+        self.assertContains(opened, "ADMIN: ASSIGN TO CLUB")
+        response = client.post(
+            reverse("scouting"),
+            {"action": "send_to_team", "assignment": str(assignment.id)},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.silver.refresh_from_db()
+        self.assertEqual(self.silver.mgl_team_id, owner_club.id)

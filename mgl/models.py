@@ -1006,8 +1006,8 @@ class LeagueSettings(models.Model):
     listings_per_24h = models.PositiveSmallIntegerField(default=3)
     allow_manager_auctions = models.BooleanField(default=False)
     scout_can_recruit = models.BooleanField(
-        default=True,
-        help_text="Legacy scout-to-squad claim. UFL Career Mode should turn this off.",
+        default=False,
+        help_text="Legacy scout-to-squad claim. Managers cannot use this. Owner/Admin only.",
     )
     scout_requires_tokens = models.BooleanField(default=False)
     max_scouts_per_club = models.PositiveSmallIntegerField(default=1)

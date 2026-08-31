@@ -23,6 +23,7 @@ from mgl.ufl_settings import (
     UFL_SQUAD_SHAPE,
     max_active_listings,
     max_squad_size,
+    scout_can_recruit,
     starting_tokens,
     ufl_access_role,
 )
@@ -209,6 +210,9 @@ class UFLFoundationTests(TestCase):
         profile = get_or_create_scout_profile(self.mgr_a)
         self.assertGreaterEqual(profile.judging_ability, 1)
         self.assertLessEqual(profile.judging_ability, 5)
+
+    def test_managers_cannot_recruit_via_scouting_setting(self):
+        self.assertFalse(scout_can_recruit())
 
     def test_public_branding(self):
         client = Client()

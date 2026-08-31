@@ -28,6 +28,7 @@ from .regions import (
     region_keys,
     region_label,
 )
+from .permissions import is_owner_or_admin
 from .services import assign_player, create_news
 
 
@@ -275,7 +276,11 @@ def eligible_players(tier, region="", position=""):
 
 
 def _claim_unreleased_player(tier, region, position):
-    """Lock and reserve an unreleased player so two scouts cannot claim the same one."""
+    """Pick one unassigned player for this mission so two live reports do not reveal the same row.
+
+    This is a discovery lock only. It does not transfer ownership, grant signing
+    rights, or keep the player exclusive after the report is filed.
+    """
     candidate_ids = list(
         eligible_players(tier, region, position).order_by("?").values_list("id", flat=True)[:25]
     )
@@ -495,7 +500,8 @@ def dispatch_scout(manager, tier, region="", position="", duration_hours=None):
     region = validate_region(region)
     position = validate_position(position)
     team = _club_for_manager(manager)
-    _assert_roster_space(team)
+    if team is None:
+        raise ValueError("You must manage a club before sending a scout.")
 
     profile = get_or_create_scout_profile(manager)
     profile = ScoutProfile.objects.select_for_update().get(pk=profile.pk)
@@ -513,7 +519,6 @@ def dispatch_scout(manager, tier, region="", position="", duration_hours=None):
         )
 
     player = _claim_unreleased_player(tier, region, position)
-    _assert_roster_space(_club_for_manager(manager))
     level = profile.scout_level or STARTING_LEVEL
     wait = cooldown_hours(tier, level)
     if duration_hours:
@@ -595,11 +600,19 @@ def open_scout_pack(manager, assignment):
     return assignment
 
 
+def _assert_admin_scout_assign(user):
+    if not is_owner_or_admin(user):
+        raise ValueError("Scouting discovers players. It does not acquire them.")
+
+
 @transaction.atomic
-def send_scout_to_team(manager, assignment):
+def send_scout_to_team(manager, assignment, actor=None):
+    """Owner/Admin correction only. Managers cannot acquire a player through scouting."""
+    actor = actor or getattr(manager, "user", None)
+    _assert_admin_scout_assign(actor)
     assignment = ScoutAssignment.objects.select_for_update().get(pk=_owned_assignment(manager, assignment).pk)
     if assignment.status != ScoutAssignment.OPENED:
-        raise ValueError("Open the scouting pack before sending the player to your club.")
+        raise ValueError("Open the scouting pack before assigning the player.")
     team = _club_for_manager(manager)
     _assert_roster_space(team)
     player = Player.objects.select_for_update().get(pk=assignment.player_id)
@@ -631,20 +644,20 @@ def send_scout_to_team(manager, assignment):
     )
     create_news(
         NewsPost.SCOUTING,
-        f"{player.name} recruited",
-        f"{team.name} recruited {player.name} through the UFL scouting network.",
+        f"{player.name} assigned by league office",
+        f"{team.name} received {player.name} after an Owner/Admin scouting correction.",
         team=team,
     )
     from mgl.audit import log_ocm_action
 
     log_ocm_action(
         getattr(manager, "user", None),
-        action="scout.recruit",
+        action="scout.admin_assign",
         object_type="ScoutAssignment",
         object_id=assignment.pk,
         object_label=player.name,
         new_value=team.name,
-        summary=f"{player.name} recruited to {team.name} via {assignment.tier} scout.",
+        summary=f"{player.name} assigned to {team.name} by Owner/Admin via {assignment.tier} scout.",
     )
     return report
 
@@ -669,19 +682,32 @@ def release_scout_player(manager, assignment):
         position=assignment.position,
         recruited=False,
         club=None,
+        confidence=assignment.confidence,
+        recommendation="Worth following" if (assignment.confidence or 0) >= 60 else "Monitor",
+        estimated_potential_low=assignment.estimated_potential_low,
+        estimated_potential_high=assignment.estimated_potential_high,
     )
     from mgl.audit import log_ocm_action
 
     log_ocm_action(
         getattr(manager, "user", None),
-        action="scout.release",
+        action="scout.report",
         object_type="ScoutAssignment",
         object_id=assignment.pk,
         object_label=getattr(player, "name", ""),
-        new_value="RELEASED",
+        new_value="DISCOVERED",
         summary=(
-            f"{getattr(player, 'name', 'Player')} released from "
-            f"{assignment.tier} scout back to the unreleased pool."
+            f"{getattr(player, 'name', 'Player')} scout report filed. "
+            "Ownership unchanged."
         ),
     )
+    return report
+
+
+@transaction.atomic
+def file_scout_report(manager, assignment, watchlist=False):
+    """Complete a mission as a discovery report. Never transfers ownership."""
+    report = release_scout_player(manager, assignment)
+    if watchlist and report.player_id:
+        add_to_watchlist(manager, report.player, report=report)
     return report

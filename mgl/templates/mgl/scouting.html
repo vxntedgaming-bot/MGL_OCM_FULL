@@ -45,26 +45,30 @@
                     </p>
                     <a href="{% url 'player_profile' pack.player.id %}" class="secondary-button">VIEW PLAYER</a>
                     {% if pack.confidence %}<p>Scout confidence {{ pack.confidence }}%</p>{% endif %}
+                    {% if pack.availability_label %}<p class="mgl-sc-muted">{{ pack.availability_label }}</p>{% endif %}
+                    <p class="mgl-sc-muted">Scouting discovers this player. It does not sign them.</p>
                     <form method="post">
                         {% csrf_token %}
                         <input type="hidden" name="action" value="watchlist">
                         <input type="hidden" name="assignment" value="{{ pack.id }}">
-                        <button type="submit" class="secondary-button">ADD TO WATCHLIST</button>
+                        <button type="submit" class="primary-button">ADD TO WATCHLIST</button>
                     </form>
                 </div>
                 <div class="mgl-sc-pack-actions">
                     <form method="post">
                         {% csrf_token %}
-                        <input type="hidden" name="action" value="send_to_team">
+                        <input type="hidden" name="action" value="file_report">
                         <input type="hidden" name="assignment" value="{{ pack.id }}">
-                        <button type="submit" class="primary-button">SEND TO TEAM MANAGEMENT</button>
+                        <button type="submit" class="secondary-button">FILE REPORT</button>
                     </form>
+                    {% if can_admin_assign_scout %}
                     <form method="post">
                         {% csrf_token %}
-                        <input type="hidden" name="action" value="release_player">
+                        <input type="hidden" name="action" value="send_to_team">
                         <input type="hidden" name="assignment" value="{{ pack.id }}">
-                        <button type="submit" class="secondary-button">RELEASE PLAYER</button>
+                        <button type="submit" class="secondary-button">ADMIN: ASSIGN TO CLUB</button>
                     </form>
+                    {% endif %}
                 </div>
             {% endif %}
         </section>
@@ -75,8 +79,8 @@
             <h2>SEND YOUR SCOUT</h2>
             <span class="mgl-sc-free">Free</span>
         </div>
-        {% if roster_full %}
-            <p class="mgl-flash-error">Your squad is full — maximum 28 players.</p>
+        {% if not club %}
+            <p class="mgl-flash-error">Take a club job before dispatching a scout.</p>
         {% endif %}
         {% if scout_busy %}
             <p class="mgl-flash-error">A scout is already on assignment. Finish that report before sending another.</p>
@@ -171,7 +175,7 @@
                 {% endif %}
                 <p class="mgl-sc-muted">You keep your scout level even if you leave a club.</p>
                 {% if club %}
-                    <p class="mgl-sc-muted">Squad {{ roster_count }} / 30 · {{ club.name }}</p>
+                    <p class="mgl-sc-muted">Squad {{ roster_count }} / {{ roster_limit }} · {{ club.name }}</p>
                 {% else %}
                     <p class="mgl-sc-muted">Take a club job before dispatching a scout.</p>
                 {% endif %}
@@ -234,19 +238,20 @@
             <h2>SCOUTING WATCHLIST</h2>
         </div>
         <div class="mgl-report-list">
-            {% for row in watchlist %}
+            {% for item in watchlist %}
                 <article class="mgl-sc-report">
-                    <span class="mgl-sc-ovr">{{ row.player.overall }}</span>
+                    <span class="mgl-sc-ovr">{{ item.row.player.overall }}</span>
                     <div>
-                        <h3><a href="{% url 'player_profile' row.player.id %}">{{ row.player.name }}</a></h3>
+                        <h3><a href="{% url 'player_profile' item.row.player.id %}">{{ item.row.player.name }}</a></h3>
                         <p>
-                            {{ row.player.position }}
-                            · {{ row.player.overall }} OVR
-                            · {{ row.player.fc27_club|default:"FC26 club unknown" }}
-                            · Added {{ row.created_at|date:"d M Y" }}
+                            {{ item.row.player.position }}
+                            · {{ item.row.player.overall }} OVR
+                            · {{ item.row.player.fc27_club|default:"FC26 club unknown" }}
+                            · Added {{ item.row.created_at|date:"d M Y" }}
+                            {% if item.availability %} · {{ item.availability }}{% endif %}
                         </p>
                     </div>
-                    <a href="{% url 'player_profile' row.player.id %}" class="secondary-button">VIEW PLAYER</a>
+                    <a href="{% url 'player_profile' item.row.player.id %}" class="secondary-button">VIEW PLAYER</a>
                 </article>
             {% empty %}
                 {% include "mgl/includes/empty_state.html" with title="NO WATCHLIST PLAYERS" %}
@@ -269,7 +274,7 @@
                             · {{ report.tier }}
                             · {{ report.position|default:"Any Position" }}
                             · {{ report.region_display|default:"Anywhere" }}
-                            · {% if report.recruited %}RECRUITED{% else %}RELEASED{% endif %}
+                            · {% if report.recruited %}ASSIGNED BY LEAGUE OFFICE{% else %}DISCOVERED{% endif %}
                         </p>
                     </div>
                     <time datetime="{{ report.discovered_at|date:'c' }}">{{ report.discovered_at|date:"d M Y" }}</time>
