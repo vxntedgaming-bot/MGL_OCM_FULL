@@ -4,7 +4,7 @@
 {% block title %}{% if team %}{{ team.name }} — Squad{% else %}Team Management — MGL{% endif %}{% endblock %}
 {% block body_class %}mgl-team-page{% endblock %}
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'core/css/mgl-team.css' %}?v=sq-1">
+<link rel="stylesheet" href="{% static 'core/css/mgl-team.css' %}?v=sq-2">
 {% endblock %}
 
 {% block content %}
@@ -100,6 +100,14 @@
                 </div>
                 <div class="mgl-squad-scroll">
                     <table class="mgl-squad-table" id="mgl-squad-table">
+                        <colgroup>
+                            <col class="mgl-sq-col-num">
+                            <col class="mgl-sq-col-player">
+                            <col class="mgl-sq-col-pos">
+                            <col class="mgl-sq-col-nation">
+                            <col class="mgl-sq-col-age">
+                            <col class="mgl-sq-col-actions">
+                        </colgroup>
                         <thead>
                             <tr>
                                 <th>#</th>
@@ -121,31 +129,31 @@
                                 data-age="{{ player|player_age }}"
                                 data-line="{{ player.line }}"
                             >
-                                <td class="mgl-sq-num">{{ forloop.counter }}</td>
-                                <td class="mgl-squad-player">
+                                <td class="mgl-sq-num" data-label="#">{{ forloop.counter }}</td>
+                                <td class="mgl-squad-player" data-label="PLAYER">
                                     {% player_face_url player "small" as face %}
                                     {% if face %}
                                         <img src="{{ face }}" alt="" class="mgl-sq-face" loading="lazy" onerror="this.style.display='none'">
                                     {% endif %}
                                     <a href="{% url 'player_profile' player.id %}">{{ player|card_name }}</a>
                                 </td>
-                                <td>
+                                <td class="mgl-squad-pos" data-label="POS">
                                     {% if player.position %}
                                         <span class="mgl-pos-badge mgl-pos-{{ player.position|lower }}{% if player.position == 'GK' %} mgl-pos-gk{% elif player.position == 'CB' or player.position == 'LB' or player.position == 'RB' or player.position == 'LWB' or player.position == 'RWB' %} mgl-pos-def{% elif player.position == 'ST' or player.position == 'CF' or player.position == 'LW' or player.position == 'RW' %} mgl-pos-att{% else %} mgl-pos-mid{% endif %}">{{ player.position }}</span>
                                     {% endif %}
                                 </td>
-                                <td class="mgl-squad-nation">
+                                <td class="mgl-squad-nation" data-label="NATION">
                                     {% if player.nationality %}
                                         {% with iso=player.nationality|flag_code %}
                                             {% if iso %}
                                                 <img class="mgl-sq-flag" src="https://flagcdn.com/w40/{{ iso }}.png" alt="" loading="lazy" onerror="this.style.display='none'">
                                             {% endif %}
                                         {% endwith %}
-                                        {{ player.nationality }}
+                                        <span class="mgl-squad-nation-name">{{ player.nationality }}</span>
                                     {% endif %}
                                 </td>
-                                <td>{{ player|player_age }}</td>
-                                <td class="mgl-squad-actions">
+                                <td class="mgl-squad-age" data-label="AGE">{{ player|player_age }}</td>
+                                <td class="mgl-squad-actions" data-label="ACTIONS">
                                     <a href="{% url 'player_profile' player.id %}" class="mgl-sq-view" aria-label="View {{ player.name }}">VIEW</a>
                                     {% if player.current_listing %}
                                         <span class="mgl-card-status">TRANSFER LISTED · {{ player.current_listing.asking_price }} TKN</span>
@@ -286,5 +294,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'core/js/mgl-team.js' %}?v=sq-1"></script>
+<script src="{% static 'core/js/mgl-team.js' %}?v=sq-2"></script>
 {% endblock %}

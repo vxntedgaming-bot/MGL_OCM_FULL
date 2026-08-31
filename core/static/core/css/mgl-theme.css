@@ -1369,8 +1369,8 @@ body.mgl-auth-body .mgl-main {
     overflow-x: auto;
 }
 
-.mgl-squad-table-head,
-.mgl-squad-row {
+.mgl-squad-table-wrap .mgl-squad-table-head,
+.mgl-squad-table-wrap .mgl-squad-row {
     display: grid;
     grid-template-columns: 1fr 70px 60px;
     gap: 10px;
@@ -1378,7 +1378,7 @@ body.mgl-auth-body .mgl-main {
     align-items: center;
 }
 
-.mgl-squad-row {
+.mgl-squad-table-wrap .mgl-squad-row {
     color: inherit;
     text-decoration: none;
     border-top: 1px solid var(--mgl-line);
@@ -1500,8 +1500,8 @@ body.mgl-auth-body .mgl-main {
 }
 
 @media (max-width: 390px) {
-    .mgl-squad-table-head,
-    .mgl-squad-row {
+    .mgl-squad-table-wrap .mgl-squad-table-head,
+    .mgl-squad-table-wrap .mgl-squad-row {
         grid-template-columns: 1fr 48px 44px;
         font-size: 13px;
     }

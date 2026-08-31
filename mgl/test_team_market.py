@@ -82,6 +82,14 @@ class TeamMarketListingTests(TestCase):
         self.assertNotContains(page, "TOKEN ASKING PRICE")
         self.assertNotContains(page, "class=\"table-row\"")
         self.assertNotContains(page, "core/img/mgl-starting-xi.png")
+        self.assertContains(page, 'class="mgl-squad-pos"')
+        self.assertContains(page, 'class="mgl-squad-age"')
+        theme = Path(__file__).resolve().parents[1].joinpath("core/static/core/css/mgl-theme.css").read_text(encoding="utf-8")
+        team_css = Path(__file__).resolve().parents[1].joinpath("core/static/core/css/mgl-team.css").read_text(encoding="utf-8")
+        self.assertIn("display: table-row", team_css)
+        self.assertIn("table-layout: fixed", team_css)
+        self.assertNotRegex(theme, r"(?m)^\.mgl-squad-row \{")
+        self.assertNotRegex(theme, r"(?m)^\.mgl-squad-table-head,")
 
     def test_manager_can_list_own_player_and_not_another_club(self):
         listing = list_player_for_sale(self.owned, self.mgr_a, "5.00")
