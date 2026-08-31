@@ -978,8 +978,17 @@ def free_agents(request):
     search = request.GET.get("search", "").strip()
     position = request.GET.get("position", "").strip()
     min_ovr = request.GET.get("min_ovr", "").strip()
+    max_ovr = request.GET.get("max_ovr", "").strip()
+    nationality = request.GET.get("nationality", "").strip()
+    min_age = request.GET.get("min_age", "").strip()
+    max_age = request.GET.get("max_age", "").strip()
     sort = request.GET.get("sort", "-overall")
-    players = free_agent_qs()
+    per_page_raw = request.GET.get("per_page", "").strip()
+    page_size = 40
+    if per_page_raw.isdigit() and int(per_page_raw) in {10, 40, 80}:
+        page_size = int(per_page_raw)
+    all_free_agents = free_agent_qs()
+    players = all_free_agents
     if search:
         players = apply_player_search(players, search)
     if position in FREE_AGENT_POSITION_GROUPS:
@@ -988,6 +997,14 @@ def free_agents(request):
         players = players.filter(position=position)
     if min_ovr.isdigit():
         players = players.filter(overall__gte=int(min_ovr))
+    if max_ovr.isdigit():
+        players = players.filter(overall__lte=int(max_ovr))
+    if nationality:
+        players = players.filter(nationality=nationality)
+    if min_age.isdigit():
+        players = players.filter(age__gte=int(min_age))
+    if max_age.isdigit():
+        players = players.filter(age__lte=int(max_age))
     allowed_sort = {
         "overall": "overall",
         "-overall": "-overall",
@@ -995,7 +1012,30 @@ def free_agents(request):
         "-name": "-name",
     }
     players = players.order_by(allowed_sort.get(sort, "-overall"), "name")
-    page = Paginator(players, 40).get_page(request.GET.get("page"))
+    page = Paginator(players, page_size).get_page(request.GET.get("page"))
+    gk = {"GK"}
+    line_counts = {
+        "total": all_free_agents.count(),
+        "keepers": all_free_agents.filter(position__in=gk).count(),
+        "defenders": all_free_agents.filter(
+            position__in=FREE_AGENT_POSITION_GROUPS["DEFENDERS"]
+        ).count(),
+        "midfielders": all_free_agents.filter(
+            position__in=FREE_AGENT_POSITION_GROUPS["MIDFIELDERS"]
+        ).count(),
+        "attackers": all_free_agents.filter(
+            position__in=FREE_AGENT_POSITION_GROUPS["ATTACKERS"]
+        ).count(),
+    }
+    nations = sorted(
+        {
+            name
+            for name in all_free_agents.exclude(nationality="")
+            .values_list("nationality", flat=True)
+            .distinct()
+            if name
+        }
+    )
     return render(
         request,
         "mgl/free_agents.html",
@@ -1005,8 +1045,15 @@ def free_agents(request):
             "search": search,
             "selected_position": position,
             "min_ovr": min_ovr,
+            "max_ovr": max_ovr,
+            "nationality": nationality,
+            "min_age": min_age,
+            "max_age": max_age,
             "selected_sort": sort,
+            "per_page": page_size,
             "positions": [choice[0] for choice in Player.POSITION_CHOICES],
+            "nations": nations,
+            "line_counts": line_counts,
             "querystring": _querystring(request),
             "result_count": page.paginator.count,
             "can_sign": bool(club_for_user(request.user)),

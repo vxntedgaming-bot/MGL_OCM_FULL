@@ -4,138 +4,281 @@
 {% block title %}Free Agents — MGL{% endblock %}
 {% block body_class %}mgl-fa-page{% endblock %}
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'core/css/mgl-free-agents.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/mgl-free-agents.css' %}?v=fa-1">
 {% endblock %}
 
 {% block content %}
 <section class="mgl-section mgl-fa-page">
-    <div class="mgl-fa-head">
-        <div>
-            <div class="eyebrow">MGL MARKET</div>
-            <h1>FREE AGENTS</h1>
+    <nav class="mgl-fa-crumbs" aria-label="Free Agents location">
+        <svg class="mgl-fa-crumb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 3 20 7v6c0 5-3.5 7.5-8 8-4.5-.5-8-3-8-8V7l8-4z"/></svg>
+        <a href="{% url 'manager_hub' %}">MY CLUB</a>
+        <span aria-hidden="true">›</span>
+        <span class="mgl-fa-crumb-current">FREE AGENTS</span>
+    </nav>
+
+    <header class="mgl-fa-head">
+        <div class="mgl-fa-hero">
+            <div class="mgl-fa-hero-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="3.2"/><path d="M5 19a7 7 0 0 1 14 0"/><path d="M17.5 6.5 20 4"/></svg>
+            </div>
+            <div>
+                <h1>FREE AGENTS</h1>
+                <p>Search and sign available players who are not currently contracted to any club.</p>
+            </div>
         </div>
-        <div>
-            {% if page_obj %}
-                <p class="mgl-fa-page-meta">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</p>
+        <div class="mgl-fa-stats">
+            <div>
+                <span>TOTAL PLAYERS</span>
+                <strong>{{ line_counts.total }}</strong>
+            </div>
+            <div>
+                <span>ATTACKERS</span>
+                <strong>{{ line_counts.attackers }}</strong>
+            </div>
+            <div>
+                <span>MIDFIELDERS</span>
+                <strong>{{ line_counts.midfielders }}</strong>
+            </div>
+            <div>
+                <span>DEFENDERS</span>
+                <strong>{{ line_counts.defenders }}</strong>
+            </div>
+            <div>
+                <span>GOALKEEPERS</span>
+                <strong>{{ line_counts.keepers }}</strong>
+            </div>
+        </div>
+    </header>
+
+    <div class="mgl-fa-layout">
+        <form method="get" class="mgl-fa-form" role="search">
+            <input type="hidden" name="position" id="fa-pos" value="{{ selected_position }}">
+            <div class="mgl-fa-controls">
+                <div class="mgl-fa-toolbar">
+                    <div class="mgl-fa-tabs">
+                        <button type="submit" name="position" value="" class="mgl-fa-tab{% if not selected_position %} is-active{% endif %}">ALL PLAYERS</button>
+                        <button type="submit" name="position" value="ATTACKERS" class="mgl-fa-tab{% if selected_position == 'ATTACKERS' %} is-active{% endif %}">ATTACKERS</button>
+                        <button type="submit" name="position" value="MIDFIELDERS" class="mgl-fa-tab{% if selected_position == 'MIDFIELDERS' %} is-active{% endif %}">MIDFIELDERS</button>
+                        <button type="submit" name="position" value="DEFENDERS" class="mgl-fa-tab{% if selected_position == 'DEFENDERS' %} is-active{% endif %}">DEFENDERS</button>
+                        <button type="submit" name="position" value="GK" class="mgl-fa-tab{% if selected_position == 'GK' %} is-active{% endif %}">GOALKEEPERS</button>
+                    </div>
+                    <div class="mgl-fa-tools">
+                        <div class="mgl-fa-search">
+                            <input type="search" name="search" value="{{ search }}" placeholder="Search players...">
+                            <button type="submit" class="mgl-fa-search-btn" aria-label="SEARCH">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                    <circle cx="11" cy="11" r="7"></circle>
+                                    <path d="m20 20-3.5-3.5"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <details class="mgl-fa-more">
+                            <summary>FILTERS</summary>
+                            <div class="mgl-fa-sort">
+                                <label for="mgl-fa-sort">SORT</label>
+                                <select id="mgl-fa-sort" name="sort" onchange="this.form.submit()">
+                                    <option value="-overall" {% if selected_sort == "-overall" %}selected{% endif %}>OVR (high → low)</option>
+                                    <option value="overall" {% if selected_sort == "overall" %}selected{% endif %}>OVR (low → high)</option>
+                                    <option value="name" {% if selected_sort == "name" %}selected{% endif %}>Name A–Z</option>
+                                    <option value="-name" {% if selected_sort == "-name" %}selected{% endif %}>Name Z–A</option>
+                                </select>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+
+                <div class="mgl-fa-filters" role="group" aria-label="Filter free agents by position">
+                    <button type="submit" name="position" value="" class="mgl-fa-filter{% if not selected_position %} is-active{% endif %}">ALL</button>
+                    <button type="submit" name="position" value="GK" class="mgl-fa-filter{% if selected_position == 'GK' %} is-active{% endif %}">GK</button>
+                    <button type="submit" name="position" value="DEFENDERS" class="mgl-fa-filter{% if selected_position == 'DEFENDERS' %} is-active{% endif %}">DEFENDERS</button>
+                    <button type="submit" name="position" value="MIDFIELDERS" class="mgl-fa-filter{% if selected_position == 'MIDFIELDERS' %} is-active{% endif %}">MIDFIELDERS</button>
+                    <button type="submit" name="position" value="ATTACKERS" class="mgl-fa-filter{% if selected_position == 'ATTACKERS' %} is-active{% endif %}">ATTACKERS</button>
+                    <button type="submit" name="position" value="CB" class="mgl-fa-filter{% if selected_position == 'CB' %} is-active{% endif %}">CB</button>
+                    <button type="submit" name="position" value="LB" class="mgl-fa-filter{% if selected_position == 'LB' %} is-active{% endif %}">LB</button>
+                    <button type="submit" name="position" value="RB" class="mgl-fa-filter{% if selected_position == 'RB' %} is-active{% endif %}">RB</button>
+                    <button type="submit" name="position" value="LWB" class="mgl-fa-filter{% if selected_position == 'LWB' %} is-active{% endif %}">LWB</button>
+                    <button type="submit" name="position" value="RWB" class="mgl-fa-filter{% if selected_position == 'RWB' %} is-active{% endif %}">RWB</button>
+                    <button type="submit" name="position" value="CDM" class="mgl-fa-filter{% if selected_position == 'CDM' %} is-active{% endif %}">CDM</button>
+                    <button type="submit" name="position" value="CM" class="mgl-fa-filter{% if selected_position == 'CM' %} is-active{% endif %}">CM</button>
+                    <button type="submit" name="position" value="CAM" class="mgl-fa-filter{% if selected_position == 'CAM' %} is-active{% endif %}">CAM</button>
+                    <button type="submit" name="position" value="LM" class="mgl-fa-filter{% if selected_position == 'LM' %} is-active{% endif %}">LM</button>
+                    <button type="submit" name="position" value="RM" class="mgl-fa-filter{% if selected_position == 'RM' %} is-active{% endif %}">RM</button>
+                    <button type="submit" name="position" value="LW" class="mgl-fa-filter{% if selected_position == 'LW' %} is-active{% endif %}">LW</button>
+                    <button type="submit" name="position" value="RW" class="mgl-fa-filter{% if selected_position == 'RW' %} is-active{% endif %}">RW</button>
+                    <button type="submit" name="position" value="CF" class="mgl-fa-filter{% if selected_position == 'CF' %} is-active{% endif %}">CF</button>
+                    <button type="submit" name="position" value="ST" class="mgl-fa-filter{% if selected_position == 'ST' %} is-active{% endif %}">ST</button>
+                </div>
+            </div>
+
+            <aside class="mgl-fa-side">
+                <section class="mgl-fa-card">
+                    <h2>FREE AGENT MARKET</h2>
+                    <p>These players are currently without a club. They are real Free Agents from unsold auctions or club releases — not the unused FC26 pool.</p>
+                    <details class="mgl-fa-how">
+                        <summary>HOW IT WORKS</summary>
+                        <p>Approved managers with a club can sign a Free Agent for 0 TKN. Signing uses the existing MGL rules, roster limit, and ownership checks. Unassigned FC26 players do not appear here.</p>
+                    </details>
+                </section>
+
+                <section class="mgl-fa-card">
+                    <div class="mgl-fa-card-head">
+                        <h2>FILTER PLAYERS</h2>
+                        <a href="{% url 'free_agents' %}" class="secondary-button">RESET</a>
+                    </div>
+                    <label>
+                        POSITION
+                        <select onchange="document.getElementById('fa-pos').value=this.value">
+                            <option value="">All Positions</option>
+                            <option value="ATTACKERS" {% if selected_position == "ATTACKERS" %}selected{% endif %}>Attackers</option>
+                            <option value="MIDFIELDERS" {% if selected_position == "MIDFIELDERS" %}selected{% endif %}>Midfielders</option>
+                            <option value="DEFENDERS" {% if selected_position == "DEFENDERS" %}selected{% endif %}>Defenders</option>
+                            <option value="GK" {% if selected_position == "GK" %}selected{% endif %}>Goalkeepers</option>
+                            {% for pos in positions %}
+                                <option value="{{ pos }}" {% if selected_position == pos %}selected{% endif %}>{{ pos }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        NATION
+                        <select name="nationality">
+                            <option value="">All Nations</option>
+                            {% for nation in nations %}
+                                <option value="{{ nation }}" {% if nationality == nation %}selected{% endif %}>{{ nation }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <div class="mgl-fa-range">
+                        <span>AGE</span>
+                        <input type="number" name="min_age" min="15" max="50" value="{{ min_age }}" placeholder="Min">
+                        <input type="number" name="max_age" min="15" max="50" value="{{ max_age }}" placeholder="Max">
+                    </div>
+                    <div class="mgl-fa-range mgl-fa-min">
+                        <span>OVR RATING</span>
+                        <label class="mgl-fa-ovr-label" for="mgl-fa-min-ovr">MIN OVR</label>
+                        <input id="mgl-fa-min-ovr" type="number" name="min_ovr" min="1" max="99" value="{{ min_ovr }}" placeholder="Min">
+                        <input type="number" name="max_ovr" min="1" max="99" value="{{ max_ovr }}" placeholder="Max">
+                    </div>
+                    <label>
+                        PER PAGE
+                        <select name="per_page">
+                            <option value="10" {% if per_page == 10 %}selected{% endif %}>10 per page</option>
+                            <option value="40" {% if per_page == 40 %}selected{% endif %}>40 per page</option>
+                            <option value="80" {% if per_page == 80 %}selected{% endif %}>80 per page</option>
+                        </select>
+                    </label>
+                    <button type="submit" class="primary-button mgl-fa-apply">APPLY FILTERS</button>
+                </section>
+
+                <section class="mgl-fa-card mgl-fa-toplist">
+                    <h2>TOP POSITIONS</h2>
+                    <p><span>Attackers</span><strong>{{ line_counts.attackers }}</strong></p>
+                    <p><span>Midfielders</span><strong>{{ line_counts.midfielders }}</strong></p>
+                    <p><span>Defenders</span><strong>{{ line_counts.defenders }}</strong></p>
+                    <p><span>Goalkeepers</span><strong>{{ line_counts.keepers }}</strong></p>
+                </section>
+            </aside>
+        </form>
+
+        <div class="mgl-fa-main">
+            {% if players %}
+                <div class="mgl-fa-board">
+                    <div class="mgl-fa-cols" aria-hidden="true">
+                        <span>#</span>
+                        <span>PLAYER</span>
+                        <span>POS</span>
+                        <span>NATION</span>
+                        <span>AGE</span>
+                        <span>OVR</span>
+                        <span>PREF. FOOT</span>
+                        <span>ACTION</span>
+                    </div>
+                    {% for p in players %}
+                        <article class="mgl-fa-row">
+                            <div>
+                                <span class="mgl-fa-mobile-label">#</span>
+                                <span class="mgl-fa-index">{{ page_obj.start_index|add:forloop.counter0 }}</span>
+                            </div>
+                            <div class="mgl-fa-name-cell">
+                                <span class="mgl-fa-mobile-label">PLAYER</span>
+                                {% player_face_url p "small" as face %}
+                                {% if face %}
+                                    <img src="{{ face }}" alt="" class="mgl-fa-face" loading="lazy" onerror="this.style.display='none'">
+                                {% endif %}
+                                <a class="mgl-fa-name" href="{% url 'player_profile' p.id %}">{{ p|card_name }}</a>
+                            </div>
+                            <div>
+                                <span class="mgl-fa-mobile-label">POS</span>
+                                {% if p.position %}
+                                    <span class="mgl-fa-pos" data-pos="{{ p.position }}">{{ p.position }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="mgl-fa-nation">
+                                <span class="mgl-fa-mobile-label">NATION</span>
+                                {% if p.nationality %}
+                                    {% with iso=p.nationality|flag_code %}
+                                        {% if iso %}
+                                            <img class="mgl-fa-flag" src="https://flagcdn.com/w40/{{ iso }}.png" alt="" loading="lazy" onerror="this.style.display='none'">
+                                        {% endif %}
+                                    {% endwith %}
+                                    {{ p.nationality }}
+                                {% endif %}
+                            </div>
+                            <div>
+                                <span class="mgl-fa-mobile-label">AGE</span>
+                                {% if p.age %}{{ p.age }}{% endif %}
+                            </div>
+                            <div>
+                                <span class="mgl-fa-mobile-label">OVR</span>
+                                <span class="mgl-fa-ovr">{{ p.overall }}</span>
+                            </div>
+                            <div>
+                                <span class="mgl-fa-mobile-label">PREF. FOOT</span>
+                                {% if p.preferred_foot %}{{ p.preferred_foot }}{% endif %}
+                            </div>
+                            <div class="mgl-fa-action">
+                                {% if can_sign %}
+                                    <form method="post" action="{% url 'sign_free_agent' p.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="primary-button">SIGN FOR 0 TKN</button>
+                                    </form>
+                                {% else %}
+                                    <a href="{% url 'player_profile' p.id %}" class="secondary-button">VIEW PLAYER</a>
+                                {% endif %}
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                {% include "mgl/includes/empty_state.html" with title="NO PLAYERS FOUND" %}
             {% endif %}
-            <a href="{% url 'transfer_market' %}" class="view-all">MARKET →</a>
+
+            {% if page_obj %}
+                <div class="mgl-pagination mgl-fa-pager">
+                    <p class="mgl-fa-count">
+                        {% if page_obj.start_index %}
+                            Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ result_count }} player{{ result_count|pluralize }}
+                        {% else %}
+                            Showing 0 players
+                        {% endif %}
+                        {% if search or selected_position or min_ovr or max_ovr or nationality or min_age or max_age %}
+                            · {{ result_count }} matching free agent{{ result_count|pluralize }}
+                        {% else %}
+                            · {{ result_count }} free agent{{ result_count|pluralize }}
+                        {% endif %}
+                    </p>
+                    <p class="mgl-fa-page-meta">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</p>
+                    {% if page_obj.has_other_pages %}
+                        {% if page_obj.has_previous %}
+                            <a href="?page={{ page_obj.previous_page_number }}&{{ querystring }}">Previous</a>
+                        {% endif %}
+                        <span class="is-active">{{ page_obj.number }}</span>
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}&{{ querystring }}">Next</a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            {% endif %}
         </div>
     </div>
-
-    <form method="get" class="mgl-fa-controls" role="search">
-        <input type="hidden" name="position" value="{{ selected_position }}">
-        <div class="mgl-fa-search">
-            <input type="search" name="search" value="{{ search }}" placeholder="Search players...">
-            <button type="submit" class="mgl-fa-search-btn" aria-label="SEARCH">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <circle cx="11" cy="11" r="7"></circle>
-                    <path d="m20 20-3.5-3.5"></path>
-                </svg>
-            </button>
-        </div>
-
-        <div class="mgl-fa-sort">
-            <label for="mgl-fa-sort">SORT</label>
-            <select id="mgl-fa-sort" name="sort" onchange="this.form.submit()">
-                <option value="-overall" {% if selected_sort == "-overall" %}selected{% endif %}>OVR (high → low)</option>
-                <option value="overall" {% if selected_sort == "overall" %}selected{% endif %}>OVR (low → high)</option>
-                <option value="name" {% if selected_sort == "name" %}selected{% endif %}>Name A–Z</option>
-                <option value="-name" {% if selected_sort == "-name" %}selected{% endif %}>Name Z–A</option>
-            </select>
-        </div>
-
-        <div class="mgl-fa-tools">
-            <div class="mgl-fa-min">
-                <label for="mgl-fa-min-ovr">MIN OVR</label>
-                <input id="mgl-fa-min-ovr" type="number" name="min_ovr" min="1" max="99" value="{{ min_ovr }}" placeholder="Any">
-            </div>
-            <p class="mgl-fa-count">
-                {% if search or selected_position or min_ovr %}
-                    {{ result_count }} matching free agent{{ result_count|pluralize }}
-                {% else %}
-                    {{ result_count }} free agent{{ result_count|pluralize }}
-                {% endif %}
-            </p>
-            <a href="{% url 'free_agents' %}" class="secondary-button">RESET</a>
-        </div>
-
-        <div class="mgl-fa-filters" role="group" aria-label="Filter free agents by position">
-            <button type="submit" name="position" value="" class="mgl-fa-filter{% if not selected_position %} is-active{% endif %}">ALL</button>
-            <button type="submit" name="position" value="GK" class="mgl-fa-filter{% if selected_position == 'GK' %} is-active{% endif %}">GK</button>
-            <button type="submit" name="position" value="DEFENDERS" class="mgl-fa-filter{% if selected_position == 'DEFENDERS' %} is-active{% endif %}">DEFENDERS</button>
-            <button type="submit" name="position" value="MIDFIELDERS" class="mgl-fa-filter{% if selected_position == 'MIDFIELDERS' %} is-active{% endif %}">MIDFIELDERS</button>
-            <button type="submit" name="position" value="ATTACKERS" class="mgl-fa-filter{% if selected_position == 'ATTACKERS' %} is-active{% endif %}">ATTACKERS</button>
-            <button type="submit" name="position" value="CB" class="mgl-fa-filter{% if selected_position == 'CB' %} is-active{% endif %}">CB</button>
-            <button type="submit" name="position" value="LB" class="mgl-fa-filter{% if selected_position == 'LB' %} is-active{% endif %}">LB</button>
-            <button type="submit" name="position" value="RB" class="mgl-fa-filter{% if selected_position == 'RB' %} is-active{% endif %}">RB</button>
-            <button type="submit" name="position" value="LWB" class="mgl-fa-filter{% if selected_position == 'LWB' %} is-active{% endif %}">LWB</button>
-            <button type="submit" name="position" value="RWB" class="mgl-fa-filter{% if selected_position == 'RWB' %} is-active{% endif %}">RWB</button>
-            <button type="submit" name="position" value="CDM" class="mgl-fa-filter{% if selected_position == 'CDM' %} is-active{% endif %}">CDM</button>
-            <button type="submit" name="position" value="CM" class="mgl-fa-filter{% if selected_position == 'CM' %} is-active{% endif %}">CM</button>
-            <button type="submit" name="position" value="CAM" class="mgl-fa-filter{% if selected_position == 'CAM' %} is-active{% endif %}">CAM</button>
-            <button type="submit" name="position" value="LM" class="mgl-fa-filter{% if selected_position == 'LM' %} is-active{% endif %}">LM</button>
-            <button type="submit" name="position" value="RM" class="mgl-fa-filter{% if selected_position == 'RM' %} is-active{% endif %}">RM</button>
-            <button type="submit" name="position" value="LW" class="mgl-fa-filter{% if selected_position == 'LW' %} is-active{% endif %}">LW</button>
-            <button type="submit" name="position" value="RW" class="mgl-fa-filter{% if selected_position == 'RW' %} is-active{% endif %}">RW</button>
-            <button type="submit" name="position" value="CF" class="mgl-fa-filter{% if selected_position == 'CF' %} is-active{% endif %}">CF</button>
-            <button type="submit" name="position" value="ST" class="mgl-fa-filter{% if selected_position == 'ST' %} is-active{% endif %}">ST</button>
-        </div>
-    </form>
-
-    {% if players %}
-        <div class="mgl-fa-board">
-            <div class="mgl-fa-cols" aria-hidden="true">
-                <span>#</span>
-                <span>PLAYER</span>
-                <span>POS</span>
-                <span>OVR</span>
-                <span>ACTION</span>
-            </div>
-            {% for p in players %}
-                <article class="mgl-fa-row">
-                    <div>
-                        <span class="mgl-fa-mobile-label">#</span>
-                        <span class="mgl-fa-index">{{ page_obj.start_index|add:forloop.counter0 }}</span>
-                    </div>
-                    <div class="mgl-fa-name-cell">
-                        <span class="mgl-fa-mobile-label">PLAYER</span>
-                        <a class="mgl-fa-name" href="{% url 'player_profile' p.id %}">{{ p|card_name }}</a>
-                    </div>
-                    <div>
-                        <span class="mgl-fa-mobile-label">POS</span>
-                        <span class="mgl-fa-pos" data-pos="{{ p.position }}">{{ p.position }}</span>
-                    </div>
-                    <div>
-                        <span class="mgl-fa-mobile-label">OVR</span>
-                        <span class="mgl-fa-ovr">{{ p.overall }}</span>
-                    </div>
-                    <div class="mgl-fa-action">
-                        {% if can_sign %}
-                            <form method="post" action="{% url 'sign_free_agent' p.id %}">
-                                {% csrf_token %}
-                                <button type="submit" class="primary-button">SIGN FOR 0 TKN</button>
-                            </form>
-                        {% else %}
-                            <a href="{% url 'player_profile' p.id %}" class="secondary-button">VIEW PLAYER</a>
-                        {% endif %}
-                    </div>
-                </article>
-            {% endfor %}
-        </div>
-    {% else %}
-        {% include "mgl/includes/empty_state.html" with title="NO PLAYERS FOUND" %}
-    {% endif %}
-
-    {% if page_obj and page_obj.has_other_pages %}
-        <div class="mgl-pagination">
-            {% if page_obj.has_previous %}
-                <a href="?page={{ page_obj.previous_page_number }}&{{ querystring }}">Previous</a>
-            {% endif %}
-            <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
-            {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}&{{ querystring }}">Next</a>
-            {% endif %}
-        </div>
-    {% endif %}
 </section>
 {% endblock %}
