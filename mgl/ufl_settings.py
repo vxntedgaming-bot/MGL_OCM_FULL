@@ -41,7 +41,8 @@ LEGACY_SQUAD_SHAPE = (
     ("RW", 2),
 )
 
-# Written UFL list sums to 22. One extra CB, CM and ST keep the mandatory 25.
+# Official UFL 25-player starting squad. Every slot below is mandatory.
+# This is the complete structure — not a shorter list with silent extras.
 UFL_SQUAD_SHAPE = (
     ("GK", 2),
     ("CB", 5),
@@ -58,6 +59,15 @@ UFL_SQUAD_SHAPE = (
     ("LW", 1),
     ("ST", 3),
 )
+
+OFFICIAL_STARTING_SQUAD_SIZE = sum(count for _position, count in UFL_SQUAD_SHAPE)
+
+
+def official_starting_structure():
+    """Ordered official starting slots: [{"code": "GK", "required": 2}, ...]."""
+    return [{"code": code, "required": count} for code, count in UFL_SQUAD_SHAPE]
+
+
 UFL_MIN_OVR = 64
 UFL_MAX_OVR = 69
 

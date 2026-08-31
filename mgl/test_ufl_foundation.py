@@ -20,7 +20,9 @@ from mgl.services import (
     request_player_release,
 )
 from mgl.ufl_settings import (
+    OFFICIAL_STARTING_SQUAD_SIZE,
     UFL_SQUAD_SHAPE,
+    official_starting_structure,
     max_active_listings,
     max_squad_size,
     scout_can_recruit,
@@ -111,7 +113,28 @@ class UFLFoundationTests(TestCase):
         self.assertEqual(max_squad_size(), 28)
         self.assertEqual(max_active_listings(), 5)
         self.assertEqual(starting_tokens(), Decimal("20"))
+        self.assertEqual(OFFICIAL_STARTING_SQUAD_SIZE, 25)
         self.assertEqual(sum(count for _pos, count in UFL_SQUAD_SHAPE), 25)
+        self.assertEqual(
+            {pos: count for pos, count in UFL_SQUAD_SHAPE},
+            {
+                "GK": 2,
+                "CB": 5,
+                "RB": 1,
+                "LB": 1,
+                "RWB": 1,
+                "LWB": 1,
+                "CM": 3,
+                "CDM": 2,
+                "CAM": 2,
+                "RM": 1,
+                "LM": 1,
+                "RW": 1,
+                "LW": 1,
+                "ST": 3,
+            },
+        )
+        self.assertEqual(official_starting_structure()[-1], {"code": "ST", "required": 3})
 
     def test_listing_frequency_and_active_cap(self):
         list_player_for_sale(self.owned, self.mgr_a, "3")

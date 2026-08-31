@@ -57,6 +57,12 @@ python manage.py apply_starting_squads --apply
 
 That command does not change ratings, FC26 IDs, faces, club treasuries, or manager balances, and does not create auctions. After a successful apply: 364 club players, remaining FC26 players UNASSIGNED, 0 Free Agents, 0 auctions.
 
+The official UFL starting squad is a separate 25-player structure, previewed only from Control → Season → Starting Squads until the Owner approves:
+
+`2 GK, 5 CB, 1 RB, 1 LB, 1 RWB, 1 LWB, 3 CM, 2 CDM, 2 CAM, 1 RM, 1 LM, 1 RW, 1 LW, 3 ST`.
+
+Do not run `apply_starting_squads` to create those UFL squads.
+
 Optional: dry-run a *new* balanced pool (does not write, does not replace the approved allocation):
 
 ```bash

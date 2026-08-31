@@ -1,3 +1,36 @@
+.mgl-ss-structure {
+    list-style: none;
+    margin: 16px 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 8px;
+}
+
+.mgl-ss-structure li {
+    background: #101010;
+    border: 1px solid var(--cp-line);
+    border-radius: 8px;
+    padding: 10px 12px;
+    letter-spacing: 0.06em;
+    font-weight: 800;
+}
+
+.mgl-ss-structure .is-total {
+    background: rgba(208, 175, 55, 0.12);
+    border-color: rgba(208, 175, 55, 0.4);
+    color: var(--cp-gold);
+}
+
+.mgl-ss-club-head p.is-ok {
+    color: #69db7c;
+}
+
+.mgl-ss-club-head p.is-bad,
+.mgl-ss-positions article.is-short h3 {
+    color: #ff6b6b;
+}
+
 .mgl-ss-toolbar {
     display: flex;
     justify-content: space-between;

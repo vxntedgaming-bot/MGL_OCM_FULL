@@ -21,16 +21,19 @@ from mgl.player_state import (
     roster_occupancy,
 )
 from mgl.ufl_settings import (
+    OFFICIAL_STARTING_SQUAD_SIZE,
     UFL_MAX_OVR,
     UFL_MIN_OVR,
     UFL_SQUAD_SHAPE,
     effective_roster_limit,
+    official_starting_structure,
 )
 
 SQUAD_SHAPE = tuple(UFL_SQUAD_SHAPE)
 SHAPE_COUNTS = dict(SQUAD_SHAPE)
 POSITIONS = tuple(pos for pos, _count in SQUAD_SHAPE)
-PLAYERS_PER_CLUB = sum(count for _pos, count in SQUAD_SHAPE)
+PLAYERS_PER_CLUB = OFFICIAL_STARTING_SQUAD_SIZE
+OFFICIAL_STRUCTURE = official_starting_structure()
 MIN_OVR = UFL_MIN_OVR
 MAX_OVR = UFL_MAX_OVR
 DEFAULT_MAX_AVG_DIFF = Decimal("1.500")
@@ -336,18 +339,34 @@ def validate_allocation(squads, include_free_agents=False, max_avg_diff=DEFAULT_
     required = PLAYERS_PER_CLUB * club_count
 
     size_ok = bool(squads) and all(len(squad.players) == PLAYERS_PER_CLUB for squad in squads) and len(selected) == required
-    checks.append(_check("squad_size", "Every club has 25 players", size_ok, f"{len(selected)} selected / {required} required"))
+    checks.append(
+        _check(
+            "squad_size",
+            f"Every club has {PLAYERS_PER_CLUB} players",
+            size_ok,
+            f"{len(selected)} selected / {required} required",
+        )
+    )
     if not size_ok:
-        problems.append("One or more clubs do not have exactly 25 players.")
+        problems.append(f"One or more clubs do not have exactly {PLAYERS_PER_CLUB} players.")
 
     shape_ok = True
     for squad in squads:
         counts = squad.position_counts()
-        for pos, needed in SHAPE_COUNTS.items():
-            if counts.get(pos, 0) != needed:
+        for pos, needed in SQUAD_SHAPE:
+            have = counts.get(pos, 0)
+            if have != needed:
                 shape_ok = False
-                problems.append(f"{squad.short_name} {pos}={counts.get(pos, 0)}, expected {needed}.")
-    checks.append(_check("shape", "Every club has the required positional structure", shape_ok))
+                problems.append(f"{squad.short_name} {pos} {have} / {needed}, expected {needed} / {needed}.")
+    structure_detail = " · ".join(f"{pos} {count} / {count}" for pos, count in SQUAD_SHAPE)
+    checks.append(
+        _check(
+            "shape",
+            "Every club matches the official 25-player starting structure",
+            shape_ok,
+            f"{structure_detail} · TOTAL {PLAYERS_PER_CLUB} / {PLAYERS_PER_CLUB}",
+        )
+    )
 
     ovrs = [player.overall for player in selected]
     ovr_ok = bool(ovrs) and min(ovrs) >= MIN_OVR and max(ovrs) <= MAX_OVR

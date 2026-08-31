@@ -5,10 +5,10 @@
 {% block control_crumb %}CONTROL / SEASON / STARTING SQUADS{% endblock %}
 {% block control_kicker %}CAREER MODE SETUP{% endblock %}
 {% block control_heading %}UFL STARTING SQUAD GENERATOR{% endblock %}
-{% block control_intro %}Preview a balanced 25-man allocation from the FC26 unassigned pool. Live squads stay untouched until the Owner approves.{% endblock %}
+{% block control_intro %}Preview the official 25-player starting squad from the FC26 unassigned pool. Live squads stay untouched until the Owner approves.{% endblock %}
 
 {% block control_extra_css %}
-<link rel="stylesheet" href="{% static 'core/css/mgl-control-starting.css' %}?v=ss-1">
+<link rel="stylesheet" href="{% static 'core/css/mgl-control-starting.css' %}?v=ss-2">
 {% endblock %}
 
 {% block control_body %}
@@ -25,7 +25,7 @@
         <div>
             <p class="mgl-cp-kicker">GENERATOR</p>
             <h2>BUILD A PROPOSAL</h2>
-            <p>Uses UNASSIGNED FC26 players rated 64–69. Does not write club ownership.</p>
+            <p>Uses UNASSIGNED FC26 players rated 64–69 against the official 25-player structure. Does not write club ownership.</p>
         </div>
         {% if is_owner %}
         <form method="post" class="mgl-ss-generate">
@@ -44,6 +44,18 @@
         <p class="mgl-ss-admin-note">Admin can review proposals. Only the Owner can generate or approve.</p>
         {% endif %}
     </div>
+</section>
+
+<section class="dashboard-panel mgl-cp-panel">
+    <p class="mgl-cp-kicker">OFFICIAL STRUCTURE</p>
+    <h2>25-PLAYER STARTING SQUAD</h2>
+    <p>Every proposal is generated and validated against this exact allocation. There are no silent extra players.</p>
+    <ul class="mgl-ss-structure">
+        {% for slot in official_structure %}
+            <li>{{ slot.code }} {{ slot.required }} / {{ slot.required }}</li>
+        {% endfor %}
+        <li class="is-total">TOTAL {{ official_squad_size }} / {{ official_squad_size }}</li>
+    </ul>
 </section>
 
 {% if selected %}
@@ -123,7 +135,7 @@
         <div>
             <p class="mgl-cp-kicker">{{ block.squad.short_name }}</p>
             <h2>{{ block.squad.club_name }}</h2>
-            <p>{{ block.squad.players|length }} Players</p>
+            <p class="{% if block.total_ok %}is-ok{% else %}is-bad{% endif %}">TOTAL {{ block.total_have }} / {{ block.total_required }}</p>
         </div>
         <dl>
             <div><dt>Average OVR</dt><dd>{{ block.squad.average_ovr|floatformat:1 }}</dd></div>
@@ -133,10 +145,10 @@
         </dl>
     </header>
     <div class="mgl-ss-positions">
-        {% for position, players in block.by_position %}
-            <article>
-                <h3>{{ position }}</h3>
-                {% for player in players %}
+        {% for slot in block.by_position %}
+            <article class="{% if slot.ok %}is-ok{% else %}is-short{% endif %}">
+                <h3>{{ slot.code }} {{ slot.have }} / {{ slot.required }}</h3>
+                {% for player in slot.players %}
                     <p>
                         <span class="mgl-ss-ovr">{{ player.overall }}</span>
                         <strong>{{ player.name }}</strong>
@@ -153,7 +165,7 @@
     {% include "mgl/includes/empty_state.html" with title="NO CLUBS IN THIS PROPOSAL" body="Generate a proposal after UFL clubs exist and the unassigned 64–69 pool is large enough." %}
 {% endfor %}
 {% else %}
-    {% include "mgl/includes/empty_state.html" with title="NO STARTING PROPOSAL YET" body="Generate a proposal to preview balanced 25-man squads. Nothing is assigned until the Owner approves." %}
+    {% include "mgl/includes/empty_state.html" with title="NO STARTING PROPOSAL YET" body="Generate a proposal to preview official 25-player squads. Nothing is assigned until the Owner approves." %}
 {% endif %}
 
 <section class="dashboard-panel mgl-cp-panel mgl-cp-table-wrap">

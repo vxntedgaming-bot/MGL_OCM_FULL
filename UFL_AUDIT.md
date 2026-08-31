@@ -141,8 +141,10 @@ Additive only. No table drops.
 5. Enforce listing 5 + 3/24h, squad max 28, auction create = Admin/Owner
 6. Event engine wraps `create_news` → activity + DiscordEvent
 7. Public/manager/control copy → Ultimate Fantasy League / UFL
-8. UFL 25-man / 64–69 generator shipped as **dry-run only**
-   (`propose_ufl_starting_pool`). Live 14×26 allocations stay put.
+8. Official UFL 25-player starting structure (2 GK, 5 CB, 1 RB, 1 LB,
+   1 RWB, 1 LWB, 3 CM, 2 CDM, 2 CAM, 1 RM, 1 LM, 1 RW, 1 LW, 3 ST)
+   is generated as **preview-only** until Owner approval.
+   Live 14×26 allocations stay put.
 
 ## 13. Risks
 

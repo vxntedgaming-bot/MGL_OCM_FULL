@@ -531,20 +531,34 @@ def control_league(request):
 
 
 def _starting_proposal_view(proposal):
-    from mgl.ufl_starting import POSITIONS, squads_from_payload
+    from mgl.ufl_starting import PLAYERS_PER_CLUB, POSITIONS, SHAPE_COUNTS, squads_from_payload
 
     if proposal is None:
         return None
     squads = squads_from_payload(proposal.payload or {})
     clubs = []
     for squad in squads:
+        grouped = squad.by_position()
+        by_position = []
+        for position in POSITIONS:
+            players = grouped.get(position, [])
+            required = SHAPE_COUNTS[position]
+            by_position.append(
+                {
+                    "code": position,
+                    "required": required,
+                    "have": len(players),
+                    "ok": len(players) == required,
+                    "players": players,
+                }
+            )
         clubs.append(
             {
                 "squad": squad,
-                "by_position": [
-                    (position, squad.by_position().get(position, []))
-                    for position in POSITIONS
-                ],
+                "by_position": by_position,
+                "total_have": len(squad.players),
+                "total_required": PLAYERS_PER_CLUB,
+                "total_ok": len(squad.players) == PLAYERS_PER_CLUB,
             }
         )
     return {
@@ -564,7 +578,14 @@ def control_starting_squads(request):
 
     from mgl.models import StartingSquadProposal
     from mgl.permissions import is_owner
-    from mgl.ufl_starting import approve_proposal, create_proposal, reject_proposal, season_lock
+    from mgl.ufl_starting import (
+        OFFICIAL_STRUCTURE,
+        PLAYERS_PER_CLUB,
+        approve_proposal,
+        create_proposal,
+        reject_proposal,
+        season_lock,
+    )
 
     owner = is_owner(request.user)
     if request.method == "POST":
@@ -625,6 +646,8 @@ def control_starting_squads(request):
             "lock": season_lock(),
             "history": StartingSquadProposal.objects.select_related("created_by", "approved_by")[:20],
             "selected": _starting_proposal_view(selected),
+            "official_structure": OFFICIAL_STRUCTURE,
+            "official_squad_size": PLAYERS_PER_CLUB,
         }
     )
     return render(request, "mgl/control_starting_squads.html", context)
