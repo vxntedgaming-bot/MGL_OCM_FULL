@@ -2,9 +2,9 @@
 {% load static mgl_ui %}
 
 {% block title %}UFL – Ultimate Fantasy League{% endblock %}
-{% block body_class %}mgl-home-body{% endblock %}
+{% block body_class %}ufl-home{% endblock %}
 {% block extra_css_late %}
-<link rel="stylesheet" href="{% static 'core/css/mgl-home.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/ufl-public-home.css' %}">
 {% endblock %}
 
 {% block header %}
@@ -27,71 +27,63 @@
 {% site_text "home.hero_title" as hero_title %}
 {% url 'competition_page' 'premier-league' as public_fixtures_url %}
 
-<div class="ufl-ph">
-    <div class="ufl-ph-grid">
-        <div class="ufl-ph-main">
-            <section class="ufl-ph-hero">
-                <div class="ufl-ph-hero-media" aria-hidden="true">
-                    <img src="{% static 'core/img/mgl-home-hero.jpg' %}" alt="">
-                </div>
-                <div class="ufl-ph-hero-copy">
-                    <p class="ufl-ph-badge">● UFL CAREER MODE — SEASON LIVE</p>
-                    {% if hero_title %}
-                        <p class="ufl-ph-cms">{{ hero_title }}</p>
-                    {% endif %}
+<div class="uh">
+    <div class="uh-grid">
+        <div class="uh-col-main">
+            <section class="uh-hero">
+                <img src="{% static 'core/img/mgl-home-hero.jpg' %}" alt="" aria-hidden="true">
+                <div class="uh-hero-copy">
+                    <p class="uh-badge">● UFL CAREER MODE — SEASON LIVE</p>
+                    {% if hero_title %}<p class="uh-cms">{{ hero_title }}</p>{% endif %}
                     <h1>
                         <span>EA FC</span>
                         <span>ONLINE</span>
-                        <span>CAREER MODE</span>
+                        <span class="uh-gold">CAREER MODE</span>
                     </h1>
-                    <p class="ufl-ph-lead">
+                    <p class="uh-lead">
                         Take control of a club. Build your squad. Manage your fixtures. Make the right decisions and build your managerial legacy.
                         {% site_text "home.hero_subtitle" %}
                     </p>
-                    <div class="hero-actions">
-                        <a href="{{ apply_club_url }}" class="primary-button">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 7V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1"/><rect x="4" y="7" width="16" height="13" rx="1.5"/></svg>
+                    <div class="uh-actions">
+                        <a href="{{ apply_club_url }}" class="uh-btn uh-btn-gold">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 7V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1"/><rect x="4" y="7" width="16" height="13" rx="1"/></svg>
                             VIEW JOB OPENINGS
                         </a>
-                        <a href="{% url 'leagues_page' %}" class="secondary-button">VIEW LEAGUE TABLE</a>
+                        <a href="{% url 'leagues_page' %}" class="uh-btn uh-btn-ghost">VIEW LEAGUE TABLE</a>
                     </div>
                 </div>
             </section>
 
-            <section class="mgl-home-stats ufl-ph-stats" aria-label="Live UFL summary">
-                <div class="mgl-home-stats-inner">
-                    <div>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 12a3.5 3.5 0 1 0-3.5-3.5A3.5 3.5 0 0 0 12 12Z"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>
-                        <strong>{{ manager_count }}</strong>
-                        <span>ACTIVE MANAGERS</span>
-                    </div>
-                    <div>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="4" y="5" width="16" height="14" rx="1.5"/><path d="M8 9h8M8 12h5"/></svg>
-                        <strong>{{ matches_played }}</strong>
-                        <span>MATCHES PLAYED</span>
-                    </div>
-                    <div>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 3 19 7v5c0 5-3.2 8.4-7 9.5C8.2 20.4 5 17 5 12V7Z"/></svg>
-                        <strong>{{ club_count }}</strong>
-                        <span>ACTIVE CLUBS</span>
-                    </div>
-                    <div>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M8 20h8M12 16v4M7 4h10v3a5 5 0 0 1-10 0V4Z"/><path d="M7 7H5a3 3 0 0 0 3 3M17 7h2a3 3 0 0 1-3 3"/></svg>
-                        <strong>SEASON {{ current_season_number }}</strong>
-                        <span>CURRENT SEASON</span>
-                    </div>
+            <section class="uh-stats" aria-label="Live UFL summary">
+                <div>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 12a3.5 3.5 0 1 0-3.5-3.5A3.5 3.5 0 0 0 12 12Z"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>
+                    <strong>{{ manager_count }}</strong>
+                    <span>ACTIVE MANAGERS</span>
+                </div>
+                <div>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="4" y="5" width="16" height="14" rx="1"/><path d="M8 9h8M8 12h5"/></svg>
+                    <strong>{{ matches_played }}</strong>
+                    <span>MATCHES PLAYED</span>
+                </div>
+                <div>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 3 19 7v5c0 5-3.2 8.4-7 9.5C8.2 20.4 5 17 5 12V7Z"/></svg>
+                    <strong>{{ club_count }}</strong>
+                    <span>ACTIVE CLUBS</span>
+                </div>
+                <div>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M8 20h8M12 16v4M7 4h10v3a5 5 0 0 1-10 0V4Z"/></svg>
+                    <strong>SEASON {{ current_season_number }}</strong>
+                    <span>CURRENT SEASON</span>
                 </div>
             </section>
 
-            <section class="ufl-ph-how">
-                <p class="mgl-home-kicker">HOW UFL WORKS</p>
+            <section class="uh-how">
+                <p class="uh-kicker">HOW UFL WORKS</p>
                 <h2>YOUR CAREER. YOUR CLUB. YOUR LEGACY.</h2>
-                <p class="ufl-ph-intro">UFL puts you in control. Manage your club, build your squad, play your fixtures and compete against real managers.</p>
-                <ol class="ufl-ph-steps">
+                <p class="uh-copy">UFL puts you in control. Manage your club, build your squad, play your fixtures and compete against real managers.</p>
+                <ol class="uh-steps">
                     <li>
-                        <span class="ufl-ph-step-icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 12a3.5 3.5 0 1 0-3.5-3.5A3.5 3.5 0 0 0 12 12Z"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>
-                        </span>
+                        <span class="uh-step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 12a3.5 3.5 0 1 0-3.5-3.5A3.5 3.5 0 0 0 12 12Z"/><path d="M5 20a7 7 0 0 1 14 0"/></svg></span>
                         <div>
                             <em>STEP 01</em>
                             <h3>BECOME A MANAGER</h3>
@@ -100,9 +92,7 @@
                         <a href="{{ apply_club_url }}">MANAGER CAREER →</a>
                     </li>
                     <li>
-                        <span class="ufl-ph-step-icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/></svg>
-                        </span>
+                        <span class="uh-step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/></svg></span>
                         <div>
                             <em>STEP 02</em>
                             <h3>BUILD YOUR SQUAD</h3>
@@ -111,9 +101,7 @@
                         <span>EA FC →</span>
                     </li>
                     <li>
-                        <span class="ufl-ph-step-icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8.2"/><path d="M12 8v4.2l2.8 1.6"/></svg>
-                        </span>
+                        <span class="uh-step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8.2"/><path d="M12 8v4.2l2.8 1.6"/></svg></span>
                         <div>
                             <em>STEP 03</em>
                             <h3>PLAY YOUR FIXTURES</h3>
@@ -122,9 +110,7 @@
                         <a href="{{ public_fixtures_url }}">FIXTURES →</a>
                     </li>
                     <li>
-                        <span class="ufl-ph-step-icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 8h10M7 16h10"/><path d="M16 5v6M8 13v6"/></svg>
-                        </span>
+                        <span class="uh-step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 8h10M7 16h10"/><path d="M16 5v6M8 13v6"/></svg></span>
                         <div>
                             <em>STEP 04</em>
                             <h3>TRANSFER &amp; RECRUIT</h3>
@@ -133,9 +119,7 @@
                         <a href="{% url 'public_transfers' %}">TRANSFERS →</a>
                     </li>
                     <li>
-                        <span class="ufl-ph-step-icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 4h10v3a5 5 0 0 1-10 0V4Z"/><path d="M8 20h8M12 16v4"/></svg>
-                        </span>
+                        <span class="uh-step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 4h10v3a5 5 0 0 1-10 0V4Z"/><path d="M8 20h8M12 16v4"/></svg></span>
                         <div>
                             <em>STEP 05</em>
                             <h3>BUILD YOUR LEGACY</h3>
@@ -145,39 +129,55 @@
                     </li>
                 </ol>
             </section>
+
+            <div class="uh-cta-row">
+                <article class="uh-cta">
+                    <img src="{% static 'core/img/mgl-stadium-cta.jpg' %}" alt="" aria-hidden="true">
+                    <div>
+                        <h3>READY TO TAKE THE DUGOUT?</h3>
+                        <p>Clubs are waiting for their next manager.</p>
+                        <a href="{{ apply_club_url }}" class="uh-btn uh-btn-gold">VIEW JOB OPENINGS</a>
+                    </div>
+                </article>
+                <article class="uh-cta is-account">
+                    <div>
+                        <h3>CREATE YOUR UFL ACCOUNT</h3>
+                        <p>Create your account and begin your journey towards becoming a UFL manager.</p>
+                        <a href="{{ join_mgl_url }}" class="uh-btn uh-btn-gold">+ CREATE ACCOUNT</a>
+                    </div>
+                </article>
+            </div>
         </div>
 
-        <aside class="ufl-ph-side">
-            <section class="ufl-ph-connect">
-                <p class="mgl-home-kicker">HOW UFL CONNECTS TO EA FC</p>
+        <aside class="uh-col-side">
+            <section>
+                <p class="uh-kicker">HOW UFL CONNECTS TO EA FC</p>
                 <h2>ONE CLUB. TWO EXPERIENCES.</h2>
-                <p class="ufl-ph-intro">YOUR CLUB. Your UFL squad is the blueprint. Build it inside EA FC, play your fixtures, then bring the result back to UFL.</p>
-                <div class="ufl-ph-split-card">
+                <p class="uh-copy">YOUR CLUB. Your UFL squad is the blueprint. Build it inside EA FC, play your fixtures, then bring the result back to UFL.</p>
+                <div class="uh-split">
                     <figure>
-                        <span>UFL / WEBSITE</span>
+                        <b>UFL / WEBSITE</b>
                         <img src="{% static 'core/img/mgl-starting-xi.png' %}" alt="UFL squad on the website">
                         <figcaption>
                             <strong>MY SQUAD</strong>
-                            <div class="ufl-ph-split-metrics">
-                                <span>Squad Value</span>
-                                <span>UFL Tokens</span>
-                                <span>Chemistry</span>
-                            </div>
+                            <span>Squad Value</span>
+                            <span>UFL Tokens</span>
+                            <span>Chemistry</span>
                         </figcaption>
                     </figure>
                     <figure>
-                        <span>EA FC / IN-GAME</span>
+                        <b>EA FC / IN-GAME</b>
                         <img src="{% static 'core/img/mgl-home-hero.jpg' %}" alt="EA FC in-game">
                     </figure>
                 </div>
             </section>
 
-            <section class="ufl-ph-experience">
-                <p class="mgl-home-kicker">THE UFL EXPERIENCE</p>
+            <section>
+                <p class="uh-kicker">THE UFL EXPERIENCE</p>
                 <h2>MANAGE. COMPETE. DOMINATE.</h2>
-                <div class="ufl-ph-pillars">
+                <div class="uh-pillars">
                     <article>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="4" y="5" width="16" height="14" rx="1.5"/><path d="M8 9h8M8 12h5"/></svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 3 19 7v5c0 5-3.2 8.4-7 9.5C8.2 20.4 5 17 5 12V7Z"/></svg>
                         <h3>MANAGE YOUR CLUB</h3>
                         <p>Build your squad, make tactical decisions and take responsibility for every result.</p>
                     </article>
@@ -194,208 +194,135 @@
                 </div>
             </section>
 
-            <section class="ufl-ph-modules">
-                <p class="mgl-home-kicker">THE UFL EXPERIENCE</p>
+            <section>
+                <p class="uh-kicker">THE UFL EXPERIENCE</p>
                 <h2>MORE THAN JUST PLAYING MATCHES.</h2>
-                <p class="ufl-ph-intro">UFL turns EA FC into a complete online managerial competition. Your decisions matter on and off the pitch.</p>
-                <div class="ufl-ph-features" aria-label="UFL modules">
-                    <a href="{{ public_fixtures_url }}">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><path d="M12 8v4.2l2.8 1.6"/></svg>
-                        <span>MATCHDAY</span>
-                    </a>
-                    <a href="{% url 'public_transfers' %}">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M7 8h10M7 16h10"/><path d="M16 5v6M8 13v6"/></svg>
-                        <span>TRANSFERS</span>
-                    </a>
-                    <a href="{{ apply_club_url }}">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 20V8l8-4 8 4v12"/><path d="M9 20v-6h6v6"/></svg>
-                        <span>SQUAD MANAGEMENT</span>
-                    </a>
-                    <a href="{% url 'leagues_page' %}">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M5 6h14M5 12h14M5 18h9"/></svg>
-                        <span>LEAGUE TABLE</span>
-                    </a>
-                    <a href="{{ apply_club_url }}">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 12a3.5 3.5 0 1 0-3.5-3.5A3.5 3.5 0 0 0 12 12Z"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>
-                        <span>MANAGER CAREER</span>
-                    </a>
-                    <a href="{% url 'historical_tables' %}">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M6 4h9l3 3v13H6Z"/><path d="M9 10h6M9 14h4"/></svg>
-                        <span>CLUB HISTORY</span>
-                    </a>
-                    <a href="{% url 'job_centre' %}">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/></svg>
-                        <span>TOKENS SYSTEM</span>
-                    </a>
-                    <a href="{% url 'job_centre' %}">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 4v16M8 8h8M7 16h10"/></svg>
-                        <span>RECRUITMENT DRIVE</span>
-                    </a>
+                <p class="uh-copy">UFL turns EA FC into a complete online managerial competition. Your decisions matter on and off the pitch.</p>
+                <div class="uh-features" aria-label="UFL modules">
+                    <a href="{{ public_fixtures_url }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><path d="M12 8v4.2l2.8 1.6"/></svg><span>MATCHDAY</span></a>
+                    <a href="{% url 'public_transfers' %}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M7 8h10M7 16h10"/><path d="M16 5v6M8 13v6"/></svg><span>TRANSFERS</span></a>
+                    <a href="{{ apply_club_url }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 20V8l8-4 8 4v12"/><path d="M9 20v-6h6v6"/></svg><span>SQUAD MANAGEMENT</span></a>
+                    <a href="{% url 'leagues_page' %}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M5 6h14M5 12h14M5 18h9"/></svg><span>LEAGUE TABLE</span></a>
+                    <a href="{{ apply_club_url }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 12a3.5 3.5 0 1 0-3.5-3.5A3.5 3.5 0 0 0 12 12Z"/><path d="M5 20a7 7 0 0 1 14 0"/></svg><span>MANAGER CAREER</span></a>
+                    <a href="{% url 'historical_tables' %}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M6 4h9l3 3v13H6Z"/><path d="M9 10h6M9 14h4"/></svg><span>CLUB HISTORY</span></a>
+                    <a href="{% url 'job_centre' %}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/></svg><span>TOKENS SYSTEM</span></a>
+                    <a href="{% url 'job_centre' %}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 4v16M8 8h8M7 16h10"/></svg><span>RECRUITMENT DRIVE</span></a>
                 </div>
             </section>
 
-            <section class="ufl-ph-discord">
-                <svg class="ufl-ph-discord-logo" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.7 5.3A16.4 16.4 0 0 0 15.6 4l-.4.8a14.7 14.7 0 0 1 3.5 1.4 13.7 13.7 0 0 0-13.4 0A14.7 14.7 0 0 1 8.8 4.8L8.4 4A16.4 16.4 0 0 0 4.3 5.3C1.6 9.3.9 13.2 1.1 17.1A16.6 16.6 0 0 0 6.3 20l.8-1.1a10.8 10.8 0 0 1-1.4-.7l.3-.3c2.8 1.3 5.8 1.3 8.8 0l.3.3a10.8 10.8 0 0 1-1.4.7l.8 1.1a16.6 16.6 0 0 0 5.2-2.9c.4-4.2-.5-8.1-2.4-11.8ZM9.1 14.7c-.8 0-1.5-.8-1.5-1.7s.7-1.7 1.5-1.7 1.5.8 1.5 1.7-.7 1.7-1.5 1.7Zm5.8 0c-.8 0-1.5-.8-1.5-1.7s.7-1.7 1.5-1.7 1.5.8 1.5 1.7-.6 1.7-1.5 1.7Z"/></svg>
-                <h2>JOIN THE UFL COMMUNITY</h2>
-                <p>Arrange fixtures, discuss transfers, communicate with other managers and stay up to date with everything happening in UFL.</p>
-                {% if discord_invite_url %}
-                    <a href="{{ discord_invite_url }}" class="ufl-ph-discord-btn" target="_blank" rel="noopener">JOIN DISCORD →</a>
-                {% endif %}
+            <section class="uh-discord">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.7 5.3A16.4 16.4 0 0 0 15.6 4l-.4.8a14.7 14.7 0 0 1 3.5 1.4 13.7 13.7 0 0 0-13.4 0A14.7 14.7 0 0 1 8.8 4.8L8.4 4A16.4 16.4 0 0 0 4.3 5.3C1.6 9.3.9 13.2 1.1 17.1A16.6 16.6 0 0 0 6.3 20l.8-1.1a10.8 10.8 0 0 1-1.4-.7l.3-.3c2.8 1.3 5.8 1.3 8.8 0l.3.3a10.8 10.8 0 0 1-1.4.7l.8 1.1a16.6 16.6 0 0 0 5.2-2.9c.4-4.2-.5-8.1-2.4-11.8ZM9.1 14.7c-.8 0-1.5-.8-1.5-1.7s.7-1.7 1.5-1.7 1.5.8 1.5 1.7-.7 1.7-1.5 1.7Zm5.8 0c-.8 0-1.5-.8-1.5-1.7s.7-1.7 1.5-1.7 1.5.8 1.5 1.7-.6 1.7-1.5 1.7Z"/></svg>
+                <div>
+                    <h2>JOIN THE UFL COMMUNITY</h2>
+                    <p>Arrange fixtures, discuss transfers, communicate with other managers and stay up to date with everything happening in UFL.</p>
+                    {% if discord_invite_url %}
+                        <a href="{{ discord_invite_url }}" target="_blank" rel="noopener">JOIN DISCORD →</a>
+                    {% endif %}
+                </div>
             </section>
         </aside>
     </div>
-
-    <div class="ufl-ph-cta-row">
-        <article class="ufl-ph-cta-card">
-            <img src="{% static 'core/img/mgl-stadium-cta.jpg' %}" alt="" aria-hidden="true">
-            <div>
-                <h3>READY TO TAKE<br>THE DUGOUT?</h3>
-                <p>Clubs are waiting for their next manager.</p>
-                <a href="{{ apply_club_url }}" class="primary-button">VIEW JOB OPENINGS</a>
-            </div>
-        </article>
-        <article class="ufl-ph-cta-card is-account">
-            <div>
-                <h3>CREATE YOUR<br>UFL ACCOUNT</h3>
-                <p>Create your account and begin your journey towards becoming a UFL manager.</p>
-                <a href="{{ join_mgl_url }}" class="primary-button">+ CREATE ACCOUNT</a>
-            </div>
-        </article>
-    </div>
 </div>
 
-<section class="mgl-home-board-wrap ufl-ph-pulse" aria-label="Live league data">
-    <div class="mgl-home-board">
-        <article class="mgl-home-card" id="mgl-news">
-            <div class="mgl-home-card-head">
-                <h2>LATEST NEWS</h2>
-                <a href="{% url 'news_centre' %}" class="view-all">VIEW ALL →</a>
-            </div>
-            {% for post in news %}
-                {% include "mgl/includes/home_news_row.html" %}
-            {% empty %}
-                {% include "mgl/includes/empty_state.html" with title="NO PUBLISHED NEWS YET" %}
-            {% endfor %}
-        </article>
-
-        <article class="mgl-home-card">
-            <div class="mgl-home-card-head">
-                <h2>NEXT FIXTURE</h2>
-            </div>
-            {% if next_fixture %}
-                <div class="mgl-home-fixture">
-                    <p class="mgl-home-fixture-comp">
-                        {% if next_fixture.league %}{{ next_fixture.league|league_label|upper }}{% else %}UFL{% endif %}
-                        {% if next_fixture.matchweek %} · GAMEWEEK {{ next_fixture.matchweek }}{% endif %}
-                    </p>
-                    <div class="mgl-home-fixture-clubs">
-                        <div>
-                            {% team_logo next_fixture.home_team "lg" %}
-                            <strong>{{ next_fixture.home_team.name }}</strong>
-                        </div>
-                        <span class="mgl-vs">VS</span>
-                        <div>
-                            {% team_logo next_fixture.away_team "lg" %}
-                            <strong>{{ next_fixture.away_team.name }}</strong>
-                        </div>
-                    </div>
-                    <a href="{% url 'competition_page' 'premier-league' %}" class="secondary-button">VIEW LEAGUE</a>
+<section class="uh-feed" aria-label="Live league data">
+    <article id="mgl-news">
+        <header>
+            <h2>LATEST NEWS</h2>
+            <a href="{% url 'news_centre' %}">VIEW ALL →</a>
+        </header>
+        {% for post in news %}
+            {% include "mgl/includes/home_news_row.html" %}
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with title="NO PUBLISHED NEWS YET" %}
+        {% endfor %}
+    </article>
+    <article>
+        <header><h2>NEXT FIXTURE</h2></header>
+        {% if next_fixture %}
+            <div class="uh-fixture">
+                <p>
+                    {% if next_fixture.league %}{{ next_fixture.league|league_label|upper }}{% else %}UFL{% endif %}
+                    {% if next_fixture.matchweek %} · GAMEWEEK {{ next_fixture.matchweek }}{% endif %}
+                </p>
+                <div>
+                    <span>{% team_logo next_fixture.home_team "sm" %} {{ next_fixture.home_team.name }}</span>
+                    <b>VS</b>
+                    <span>{% team_logo next_fixture.away_team "sm" %} {{ next_fixture.away_team.name }}</span>
                 </div>
-            {% else %}
-                {% include "mgl/includes/empty_state.html" with kicker="UPCOMING FIXTURES" title="NO FIXTURES HAVE BEEN RELEASED YET" body="No upcoming fixtures have been released." %}
-                <p class="mgl-home-card-cta"><a href="{% url 'competition_page' 'premier-league' %}" class="secondary-button">VIEW LEAGUE</a></p>
-            {% endif %}
-        </article>
-
-        <article class="mgl-home-card">
-            <div class="mgl-home-card-head">
-                <h2>LEAGUE TABLE</h2>
-                <a href="{% url 'leagues_page' %}" class="view-all">VIEW FULL TABLE →</a>
+                <a href="{% url 'competition_page' 'premier-league' %}" class="uh-btn uh-btn-ghost">VIEW LEAGUE</a>
             </div>
-            <p class="mgl-home-table-league">{% if active_league %}{{ active_league|league_label|upper }}{% else %}PREMIER LEAGUE{% endif %}</p>
-            {% include "mgl/includes/home_compact_table.html" with table=table|slice:":5" league=active_league %}
-        </article>
-    </div>
-    <div class="mgl-home-board ufl-ph-pulse-row">
-        <article class="mgl-home-card">
-            <div class="mgl-home-card-head">
-                <h2>RECENT RESULTS</h2>
-            </div>
-            {% for fixture in recent_results %}
-                <p>
-                    {% if fixture.home_team %}<a href="{% club_url fixture.home_team %}">{{ fixture.home_team.name }}</a>{% endif %}
-                    {% if fixture.home_goals is not None and fixture.away_goals is not None %}
-                        {{ fixture.home_goals }}–{{ fixture.away_goals }}
-                    {% else %}
-                        vs
-                    {% endif %}
-                    {% if fixture.away_team %}<a href="{% club_url fixture.away_team %}">{{ fixture.away_team.name }}</a>{% endif %}
-                </p>
-            {% empty %}
-                {% include "mgl/includes/empty_state.html" with title="NO RESULTS YET" %}
-            {% endfor %}
-        </article>
-        <article class="mgl-home-card">
-            <div class="mgl-home-card-head">
-                <h2>LATEST TRANSFERS</h2>
-                <a href="{% url 'public_transfers' %}" class="view-all">VIEW ALL →</a>
-            </div>
-            {% for row in recent_transfers %}
-                <p>
-                    {% if row.player %}<a href="{% url 'player_profile' row.player_id %}">{{ row.player.name }}</a>{% endif %}
-                    · {{ row.amount }} TKN
-                </p>
-            {% empty %}
-                {% include "mgl/includes/empty_state.html" with title="NO TRANSFERS YET" %}
-            {% endfor %}
-        </article>
-        <article class="mgl-home-card">
-            <div class="mgl-home-card-head">
-                <h2>LIVE AUCTIONS</h2>
-            </div>
-            {% for auction in live_home_auctions %}
-                <p>
-                    {% if auction.player %}<a href="{% url 'player_profile' auction.player_id %}">{{ auction.player.name }}</a>{% endif %}
-                </p>
-            {% empty %}
-                {% include "mgl/includes/empty_state.html" with title="NO LIVE AUCTIONS" %}
-            {% endfor %}
-        </article>
-        <article class="mgl-home-card">
-            <div class="mgl-home-card-head">
-                <h2>FEATURED PLAYERS</h2>
-            </div>
-            {% for player in featured_players %}
-                <p><a href="{% url 'player_profile' player.pk %}">{{ player.name }}</a> · {{ player.goals }} G</p>
-            {% empty %}
-                {% include "mgl/includes/empty_state.html" with title="NO FEATURED PLAYERS YET" %}
-            {% endfor %}
-        </article>
-        <article class="mgl-home-card">
-            <div class="mgl-home-card-head">
-                <h2>LEAGUE ACTIVITY</h2>
-                <a href="{% url 'live_activity' %}" class="view-all">VIEW ALL →</a>
-            </div>
-            {% for item in activity %}
-                <p>{{ item.kind }} · {{ item.title }} · {{ item.detail }}</p>
-            {% empty %}
-                {% include "mgl/includes/empty_state.html" with title="NO LEAGUE ACTIVITY YET" %}
-            {% endfor %}
-        </article>
-        <article class="mgl-home-card mgl-home-cup">
-            <div class="mgl-home-card-head">
-                <h2>THE UFL CUP</h2>
-            </div>
-            <p>Knockout football. When the competition goes live.</p>
-            <div class="hero-actions">
-                <span class="ufl-coming-soon">Coming soon</span>
-                <a href="{% url 'competition_page' slug='cups' %}" class="secondary-button">CUP DETAILS</a>
-            </div>
-        </article>
-    </div>
+        {% else %}
+            {% include "mgl/includes/empty_state.html" with kicker="UPCOMING FIXTURES" title="NO FIXTURES HAVE BEEN RELEASED YET" body="No upcoming fixtures have been released." %}
+            <p><a href="{% url 'competition_page' 'premier-league' %}" class="uh-btn uh-btn-ghost">VIEW LEAGUE</a></p>
+        {% endif %}
+    </article>
+    <article>
+        <header>
+            <h2>LEAGUE TABLE</h2>
+            <a href="{% url 'leagues_page' %}">VIEW FULL TABLE →</a>
+        </header>
+        <p class="uh-table-league">{% if active_league %}{{ active_league|league_label|upper }}{% else %}PREMIER LEAGUE{% endif %}</p>
+        {% include "mgl/includes/home_compact_table.html" with table=table|slice:":5" league=active_league %}
+    </article>
+    <article>
+        <header><h2>RECENT RESULTS</h2></header>
+        {% for fixture in recent_results %}
+            <p>
+                {% if fixture.home_team %}<a href="{% club_url fixture.home_team %}">{{ fixture.home_team.name }}</a>{% endif %}
+                {% if fixture.home_goals is not None and fixture.away_goals is not None %}{{ fixture.home_goals }}–{{ fixture.away_goals }}{% else %}vs{% endif %}
+                {% if fixture.away_team %}<a href="{% club_url fixture.away_team %}">{{ fixture.away_team.name }}</a>{% endif %}
+            </p>
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with title="NO RESULTS YET" %}
+        {% endfor %}
+    </article>
+    <article>
+        <header>
+            <h2>LATEST TRANSFERS</h2>
+            <a href="{% url 'public_transfers' %}">VIEW ALL →</a>
+        </header>
+        {% for row in recent_transfers %}
+            <p>{% if row.player %}<a href="{% url 'player_profile' row.player_id %}">{{ row.player.name }}</a>{% endif %} · {{ row.amount }} TKN</p>
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with title="NO TRANSFERS YET" %}
+        {% endfor %}
+    </article>
+    <article>
+        <header><h2>LIVE AUCTIONS</h2></header>
+        {% for auction in live_home_auctions %}
+            <p>{% if auction.player %}<a href="{% url 'player_profile' auction.player_id %}">{{ auction.player.name }}</a>{% endif %}</p>
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with title="NO LIVE AUCTIONS" %}
+        {% endfor %}
+    </article>
+    <article>
+        <header><h2>FEATURED PLAYERS</h2></header>
+        {% for player in featured_players %}
+            <p><a href="{% url 'player_profile' player.pk %}">{{ player.name }}</a> · {{ player.goals }} G</p>
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with title="NO FEATURED PLAYERS YET" %}
+        {% endfor %}
+    </article>
+    <article>
+        <header>
+            <h2>LEAGUE ACTIVITY</h2>
+            <a href="{% url 'live_activity' %}">VIEW ALL →</a>
+        </header>
+        {% for item in activity %}
+            <p>{{ item.kind }} · {{ item.title }} · {{ item.detail }}</p>
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with title="NO LEAGUE ACTIVITY YET" %}
+        {% endfor %}
+    </article>
+    <article>
+        <header><h2>THE UFL CUP</h2></header>
+        <p>Knockout football. When the competition goes live.</p>
+        <span class="ufl-coming-soon">Coming soon</span>
+        <a href="{% url 'competition_page' slug='cups' %}" class="uh-btn uh-btn-ghost">CUP DETAILS</a>
+    </article>
 </section>
 
-<section class="mgl-home-support" id="mgl-support">
+<section class="uh-legal" id="mgl-support">
     <article id="mgl-faq">
         <h2>FAQ</h2>
         <h3>How do I join?</h3>
@@ -406,12 +333,8 @@
     <article id="mgl-contact">
         <h2>CONTACT</h2>
         <p>{% if footer_contact_text %}{{ footer_contact_text }}{% else %}Reach the league office through the UFL Discord or the contact address below.{% endif %}</p>
-        {% if site_contact_email %}
-            <p><a href="mailto:{{ site_contact_email }}">{{ site_contact_email }}</a></p>
-        {% endif %}
-        {% if discord_invite_url %}
-            <p><a href="{{ discord_invite_url }}" target="_blank" rel="noopener">Join the UFL Discord</a></p>
-        {% endif %}
+        {% if site_contact_email %}<p><a href="mailto:{{ site_contact_email }}">{{ site_contact_email }}</a></p>{% endif %}
+        {% if discord_invite_url %}<p><a href="{{ discord_invite_url }}" target="_blank" rel="noopener">Join the UFL Discord</a></p>{% endif %}
     </article>
     <article id="mgl-privacy">
         <h2>PRIVACY</h2>

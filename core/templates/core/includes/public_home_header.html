@@ -1,23 +1,23 @@
 {% load static %}
-<header class="mgl-header ufl-header ufl-public-home-header">
-    <div class="mgl-header-inner">
-        <a href="{% url 'home' %}" class="mgl-logo">
-            <img src="{% static 'core/img/mgl-logo.png' %}" alt="Ultimate Fantasy League" class="mgl-logo-img">
-            <span class="mgl-logo-text">
+<header class="uh-header">
+    <div class="uh-header-bar">
+        <a href="{% url 'home' %}" class="uh-logo">
+            <img src="{% static 'core/img/mgl-logo.png' %}" alt="Ultimate Fantasy League">
+            <span>
                 UFL
-                <span>ULTIMATE FANTASY LEAGUE</span>
+                <small>ULTIMATE FANTASY LEAGUE</small>
             </span>
         </a>
 
         <input type="checkbox" id="mgl-nav-toggle" class="mgl-nav-checkbox">
-        <label for="mgl-nav-toggle" class="mgl-nav-burger" aria-label="Open menu">
+        <label for="mgl-nav-toggle" class="mgl-nav-burger uh-burger" aria-label="Open menu">
             <span></span>
             <span></span>
             <span></span>
         </label>
         <label for="mgl-nav-toggle" class="mgl-nav-backdrop" aria-hidden="true"></label>
 
-        <nav class="mgl-nav" id="mgl-site-nav" aria-label="Public">
+        <nav class="mgl-nav uh-nav" id="mgl-site-nav" aria-label="Public">
             <a href="{% url 'home' %}" class="mgl-nav-link is-active">HOME</a>
             <a href="{% url 'leagues_page' %}" class="mgl-nav-link">LEAGUES</a>
             <a href="{% url 'clubs_index' %}" class="mgl-nav-link">CLUBS</a>
@@ -39,11 +39,11 @@
             </div>
         </nav>
 
-        <div class="mgl-header-actions">
+        <div class="uh-header-cta">
             {% if user.is_authenticated %}
-                <a href="{% url 'manager_profile' %}" class="header-button header-button-solid mgl-header-account">PROFILE</a>
+                <a href="{% url 'manager_profile' %}" class="uh-btn uh-btn-gold">PROFILE</a>
             {% else %}
-                <a href="{% url 'manager_login' %}" class="header-button ufl-join-login">JOIN UFL / LOGIN</a>
+                <a href="{% url 'manager_login' %}" class="uh-btn uh-btn-gold">JOIN UFL / LOGIN</a>
             {% endif %}
         </div>
     </div>

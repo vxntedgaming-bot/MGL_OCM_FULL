@@ -1,12 +1,12 @@
 {% load static %}
-<footer class="mgl-footer ufl-public-home-footer">
-    <div class="mgl-footer-inner ufl-ph-footer-inner">
-        <div class="mgl-footer-brand">
-            <img src="{% static 'core/img/mgl-logo.png' %}" alt="UFL" class="mgl-logo-img">
+<footer class="uh-footer">
+    <div class="uh-footer-inner">
+        <div class="uh-footer-brand">
+            <img src="{% static 'core/img/mgl-logo.png' %}" alt="UFL">
             <strong>ULTIMATE FANTASY LEAGUE</strong>
-            <p>Online EA FC Career Mode.<br>Real managers. Real competition.<br>Real football.</p>
+            <p>Online EA FC Career Mode. Real managers. Real competition. Real football.</p>
             <p>{{ footer_description }}</p>
-            <div class="ufl-ph-social" aria-label="Social">
+            <div class="uh-social" aria-label="Social">
                 {% if discord_invite_url %}
                     <a href="{{ discord_invite_url }}" target="_blank" rel="noopener" aria-label="Discord">Discord</a>
                 {% endif %}
@@ -21,7 +21,7 @@
                 {% endif %}
             </div>
         </div>
-        <div class="mgl-footer-col">
+        <div class="uh-footer-col">
             <h3>NAVIGATION</h3>
             <a href="{% url 'leagues_page' %}">Leagues</a>
             <a href="{% url 'competition_page' 'premier-league' %}">Premier League</a>
@@ -33,7 +33,7 @@
             <a href="{% url 'league_stats' 'premier-league' %}">Statistics</a>
             <a href="{% url 'job_centre' %}">Jobs</a>
         </div>
-        <div class="mgl-footer-col">
+        <div class="uh-footer-col">
             <h3>COMMUNITY</h3>
             {% if discord_invite_url %}
                 <a href="{{ discord_invite_url }}" target="_blank" rel="noopener">Discord</a>
@@ -41,21 +41,21 @@
             <a href="{% url 'home' %}#mgl-faq">FAQ</a>
             <a href="{% url 'home' %}#mgl-contact">Contact</a>
         </div>
-        <div class="mgl-footer-col">
+        <div class="uh-footer-col">
             <h3>ACCOUNT</h3>
             <a href="{% url 'manager_login' %}">Login</a>
             <a href="{% url 'manager_register' %}">Create Account</a>
         </div>
     </div>
-    <div class="mgl-footer-copy ufl-ph-footer-copy">
+    <div class="uh-footer-copy">
         <span>© 2026 Ultimate Fantasy League (UFL). All rights reserved.</span>
-        <span class="ufl-ph-legal">
+        <span>
             <a href="{% url 'home' %}#mgl-privacy">Privacy Policy</a>
             <a href="{% url 'home' %}#mgl-terms">Terms of Service</a>
             <a href="{% url 'ufl_rules' %}">Rules</a>
         </span>
     </div>
-    <svg class="ufl-ph-ball" viewBox="0 0 200 200" aria-hidden="true">
+    <svg class="uh-ball" viewBox="0 0 200 200" aria-hidden="true">
         <circle cx="100" cy="100" r="78" fill="none" stroke="currentColor" stroke-width="2"/>
         <path d="M100 22 122 62 100 78 78 62Z M122 62 178 78 148 118 100 78Z M78 62 22 78 52 118 100 78Z M52 118 40 168 88 148 100 78Z M148 118 160 168 112 148 100 78Z M88 148 100 178 112 148" fill="none" stroke="currentColor" stroke-width="2"/>
     </svg>
