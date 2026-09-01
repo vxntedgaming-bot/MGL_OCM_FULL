@@ -2,11 +2,24 @@
 
 Django site and Discord outbox bot for Ultimate Fantasy League (UFL), an EA FC 26 Career Mode league: managers, clubs, FC26 player pool, fixtures, match approval, auctions, tokens, scouting, press, and rewards. The website is the source of truth. Discord only reports official events.
 
-This tree is the existing production Career Mode application. Internal `/mgl/` URLs stay so Railway, Discord links, and tests keep working. See `UFL_AUDIT.md` for the domain map.
+## Documentation (source of truth)
 
-Presentation lives in `core/templates/core/base.html`, `core/static/core/css/mgl.css`, `core/static/core/css/mgl-theme.css`, and the UFL token layer `core/static/core/css/ufl-system.css`. Inner pages inherit one header, LIVE ACTIVITY ticker, page header, footer, cards, badges, tables, and mobile navigation from that base.
+Product behaviour, roles, routes, and locked decisions live in **`/docs/ufl/`**. Start with:
 
-Assigned managers who open `/` are sent to **MY CAREER** (`/mgl/hub/`). Public visitors only see HOME, LEAGUE, and JOB OFFERS in the header. Career Mode pages redirect anonymous users to Job Offers. Cups and Champions League are labelled Coming soon until a live competition exists. Public Newsroom and Pressroom URLs still load for the league record. Club squads are at `/clubs/<club-name-slug>/`. Account registration does not require approval; applying for a club does. Set `DISCORD_INVITE_URL` to show Discord buttons; leave it empty to hide them.
+1. [`docs/ufl/UFL_MASTER_SPEC.md`](docs/ufl/UFL_MASTER_SPEC.md)
+2. The subsystem spec for the area you are changing
+3. [`docs/ufl/UFL_DECISIONS.md`](docs/ufl/UFL_DECISIONS.md)
+4. [`docs/ufl/UFL_PROGRESS.md`](docs/ufl/UFL_PROGRESS.md)
+
+Then inspect the existing implementation. Do not invent rules. Older root files such as `UFL_AUDIT.md` may be stale; if they disagree with `/docs/ufl/` and the code, the code and `/docs/ufl/` win.
+
+This tree is the existing production Career Mode application. Internal `/mgl/` URLs stay so Railway, Discord links, and tests keep working.
+
+Presentation lives in `core/templates/core/base.html`, `core/static/core/css/mgl.css`, `core/static/core/css/mgl-theme.css`, and the UFL token layer `core/static/core/css/ufl-system.css`. Inner pages inherit one header, LIVE ACTIVITY ticker, page header, footer, cards, badges, tables, and mobile navigation from that base. Public Home (`/`) uses its own compact header.
+
+Assigned approved managers who open `/` are sent to the Manager Dashboard (`/mgl/hub/`). Career Mode pages redirect anonymous and non-approved users to Job Offers. Cups and Youth Academy are labelled Coming soon until a live system exists. Public Newsroom and Pressroom URLs still load for the league record. Club squads are at `/clubs/<club-name-slug>/`. Account registration does not require approval; applying for a club does. Set `DISCORD_INVITE_URL` to show Discord buttons; leave it empty to hide them.
+
+Current public and signed-in navigation is documented in `docs/ufl/UFL_ROUTES.md` and `docs/ufl/UFL_DESIGN_SYSTEM.md`.
 
 ## Local development
 
