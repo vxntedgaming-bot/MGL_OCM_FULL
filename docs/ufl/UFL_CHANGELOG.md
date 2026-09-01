@@ -17,6 +17,7 @@ Hardened the existing `DiscordEvent` pipeline. Website/database remains the sour
 - Job Centre invite uses `resolved_discord_invite()` (CMS / `DISCORD_INVITE_URL`). Hardcoded invite removed.
 - Channel keys centralised in `mgl/discord_channels.py`. IDs stay in env. Extra channels are optional.
 - Migration `mgl.0030_phase51_discord_outbox` — local only, not applied to production.
+- Automated tests: **559 OK** (local SQLite).
 - **No Season 1, no 38 clubs, no starting squads, no Discord messages sent, no slash/commands, no Phase 5.2 event catalogue.**
 
 ---
