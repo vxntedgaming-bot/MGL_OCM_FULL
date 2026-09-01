@@ -36,9 +36,11 @@ class PublicHomePageTests(TestCase):
         self.assertContains(page, "CREATE ACCOUNT")
         self.assertContains(page, "THE UFL EXPERIENCE")
         self.assertContains(page, "RECRUITMENT DRIVE")
-        self.assertContains(page, reverse("recruitment_drive"))
-        self.assertContains(page, reverse("manager_rewards"))
+        self.assertContains(page, "TOKENS SYSTEM")
         self.assertContains(page, "YOUR CLUB.")
+        self.assertNotContains(page, reverse("recruitment_drive"))
+        self.assertNotContains(page, reverse("manager_rewards"))
+        self.assertNotContains(page, reverse("team_management"))
         self.assertNotContains(page, "48+")
         self.assertNotContains(page, "128+")
 
@@ -51,7 +53,7 @@ class PublicHomePageTests(TestCase):
         self.assertEqual(page.context["current_season_number"], current_season_number())
         self.assertContains(page, "ACTIVE MANAGERS")
         self.assertContains(page, "MATCHES PLAYED")
-        self.assertContains(page, "CLUBS")
+        self.assertContains(page, "ACTIVE CLUBS")
         self.assertContains(page, f"SEASON {current_season_number()}")
 
     def test_jobs_and_tables_and_register_buttons(self):

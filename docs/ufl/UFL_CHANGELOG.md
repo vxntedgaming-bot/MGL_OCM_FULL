@@ -6,6 +6,19 @@ This file started with the documentation/audit pass. It does **not** claim that 
 
 ---
 
+## 2026-09-01 — Public Home Page Career Mode redesign
+
+Presentation-only rewrite of the public Home (`/`) to the Career Mode / EA FC reference.
+
+- Isolated public header (HOME active), LIVE ACTIVITY bar, two-column Career Mode hero, How UFL Connects to EA FC board, live stats strip, How UFL Works, career/account CTAs, UFL Experience, feature grid, Discord CTA, and public footer.
+- Stats use existing querysets: approved managers, completed matches, configured 38-club total (`UFL_STARTER_CLUB_TOTAL`, no clubs created), current season number.
+- Job / Tables / Register buttons use existing routes. Discord uses `resolved_discord_invite()`.
+- Anonymous Home does not expose manager-only URLs (`team_management`, `recruitment_drive`, `manager_rewards`). Those tiles keep their labels and route through Job Centre / login.
+- Live league feed, FAQ, and legal blocks remain so existing public tests keep their fixtures, news, and Coming soon cup copy.
+- No Season 1, no squad generation, no player/token/Discord/production writes. Business modules untouched.
+
+---
+
 ## 2026-09-01 — Phase 5.1 harden Discord outbox
 
 Hardened the existing `DiscordEvent` pipeline. Website/database remains the source of truth.

@@ -2,7 +2,7 @@
 
 Checklist of the **current** project, not a future roadmap disguised as done work.
 
-Last documentation update: 1 September 2026 — **Phase 5.1 Discord outbox hardened (no Season 1 apply, no Discord sends)**.
+Last documentation update: 1 September 2026 — **Public Home Page Career Mode redesign (presentation only)**.
 
 ---
 
@@ -74,7 +74,7 @@ Implementation of gaps is **not** Phase 1. That is a later, explicit task.
 - Starting-squad **30-player** Control generate / Owner approve / lock (production squads not applied)
 - Season 1 **38-club** bootstrap with dry-run (production apply blocked)
 - Discord event queue + separate bot
-- Public Home isolated compact page
+- Public Home Career Mode redesign (black/gold, live activity, real stats, existing routes)
 - Shared inner UFL header + LIVE ACTIVITY bar + page header
 - Youth Academy Coming Soon route
 - Cup catalogue Coming Soon pages
