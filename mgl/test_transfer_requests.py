@@ -103,10 +103,9 @@ class TransferRequestsPageTests(TestCase):
         self.assertNotContains(page, "OUTGOING REQUESTS")
         self.assertNotContains(page, "AWAITING OPPONENT")
         self.assertNotContains(page, "AWAITING ADMIN")
-        history = page.content.decode().split("<main", 1)[-1].split("</main>", 1)[0]
+        history = page.content.decode().split('id="completed-transfers"', 1)[-1]
         self.assertNotIn("Blue Midfielder", history)
         self.assertNotContains(page, ">APPROVE</button>")
-        self.assertNotIn(">REJECT</button>", history)
         self.assertNotContains(page, 'href="?status=pending"')
 
     def test_outgoing_pending_offers_stay_off_completed_history(self):
@@ -118,10 +117,9 @@ class TransferRequestsPageTests(TestCase):
         self.assertContains(page, "No completed transfers yet.")
         self.assertNotContains(page, "OUTGOING REQUESTS")
         self.assertNotContains(page, "INCOMING REQUESTS")
-        history = page.content.decode().split("<main", 1)[-1].split("</main>", 1)[0]
+        history = page.content.decode().split('id="completed-transfers"', 1)[-1]
         self.assertNotIn("Blue Midfielder", history)
         self.assertNotContains(page, ">APPROVE</button>")
-        self.assertNotIn(">REJECT</button>", history)
 
     def test_pending_offers_for_other_clubs_are_not_shown_as_completed(self):
         create_transfer_offer(self.player_b, self.mgr_a, "8.00")
@@ -130,7 +128,7 @@ class TransferRequestsPageTests(TestCase):
         page = self.client.get(reverse("transfer_requests"))
         self.assertEqual(page.status_code, 200)
         self.assertContains(page, "No completed transfers yet.")
-        history = page.content.decode().split("<main", 1)[-1].split("</main>", 1)[0]
+        history = page.content.decode().split('id="completed-transfers"', 1)[-1]
         self.assertNotIn("Lilywhite Winger", history)
         self.assertNotIn("Blue Midfielder", history)
         self.assertNotContains(page, "INCOMING REQUESTS")

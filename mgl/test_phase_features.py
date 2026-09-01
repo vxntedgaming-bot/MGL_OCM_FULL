@@ -157,12 +157,12 @@ class AuctionWorkflowTests(TestCase):
         self.fa = Player.objects.create(name="Free Agent Z", position="CB", overall=66, is_free_agent=True)
         self.client = Client(HTTP_HOST="127.0.0.1")
 
-    def test_parse_duration_max_12_hours(self):
-        self.assertEqual(parse_auction_duration(720), 720)
+    def test_parse_duration_max_120_minutes(self):
+        self.assertEqual(parse_auction_duration(120), 120)
         with self.assertRaises(ValueError):
-            parse_auction_duration(721)
+            parse_auction_duration(180)
         with self.assertRaises(ValueError):
-            parse_auction_duration(24 * 60)
+            parse_auction_duration(720)
 
     def test_admin_can_auction_unassigned_player(self):
         self.client.login(username="owner", password="test-pass-123")
@@ -267,8 +267,15 @@ class AuctionWorkflowTests(TestCase):
             Player.objects.create(name=f"Extra {i}", position="ST", overall=64, mgl_team=self.team_a, is_free_agent=False)
             for i in range(5)
         ]
+        from auctions.models import PlayerAuction
+        from django.utils import timezone
+        from datetime import timedelta
+
         for extra in extras:
             create_manager_auction(extra, self.mgr_a, 30)
+            PlayerAuction.objects.filter(listed_by_manager=self.mgr_a).update(
+                created_at=timezone.now() - timedelta(hours=25)
+            )
         with self.assertRaises(ValueError):
             create_manager_auction(self.owned, self.mgr_a, 30)
 

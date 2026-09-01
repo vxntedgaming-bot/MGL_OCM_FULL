@@ -85,7 +85,7 @@ class ManagerHubDashboardTests(TestCase):
         self.assertContains(response, "Dash United")
         self.assertContains(response, "@dashmgr")
         self.assertContains(response, "PREMIER LEAGUE")
-        self.assertContains(response, "Squad 2/30")
+        self.assertContains(response, "Squad 2/28")
         self.assertContains(response, "POSITION")
         self.assertContains(response, "POINTS")
         self.assertContains(response, "GOAL DIFF")
@@ -131,7 +131,7 @@ class ManagerHubDashboardTests(TestCase):
         self.assertNotContains(response, "NEW MANAGER? START HERE")
         self.assertNotContains(response, "Take over an official MGL club")
         self.assertNotContains(response, "PLAYER RECRUITMENT")
-        self.assertNotContains(response, "PENDING ACTIONS")
+        self.assertContains(response, "PENDING ACTIONS")
         self.assertNotContains(response, "Propose Transfer")
         self.assertNotContains(response, "Recruitment Drive")
 

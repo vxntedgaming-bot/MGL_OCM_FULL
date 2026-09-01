@@ -248,21 +248,25 @@ class PressTokenRewardTests(TestCase):
         )
         submit_press_answer(press, "We controlled the game.")
         self.manager.refresh_from_db()
-        self.assertEqual(self.manager.tokens, Decimal("20.50"))
+        self.assertEqual(self.manager.tokens, Decimal("20.00"))
         self.assertEqual(
             RewardTransaction.objects.filter(reference=f"press:{press.pk}").count(),
-            1,
+            0,
         )
         with self.assertRaises(ValueError):
             submit_press_answer(press, "Trying again.")
         self.manager.refresh_from_db()
-        self.assertEqual(self.manager.tokens, Decimal("20.50"))
+        self.assertEqual(self.manager.tokens, Decimal("20.00"))
 
         from mgl.press import approve_press_conference
 
         approve_press_conference(press, reviewer=self.owner)
         self.manager.refresh_from_db()
         self.assertEqual(self.manager.tokens, Decimal("20.50"))
+        self.assertEqual(
+            RewardTransaction.objects.filter(reference=f"press:{press.pk}").count(),
+            1,
+        )
 
 
 class DailyPressScheduleTests(TestCase):

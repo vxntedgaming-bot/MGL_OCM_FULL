@@ -14,6 +14,9 @@ DEFAULT_STARTING_SQUAD = 25
 DEFAULT_MAX_LISTINGS = 5
 DEFAULT_LISTINGS_PER_24H = 3
 DEFAULT_AUCTION_DURATIONS = (30, 60, 90, 120)
+DEFAULT_AUCTION_LISTINGS_PER_24H = 3
+DEFAULT_PRESS_REWARD = Decimal("0.50")
+DEFAULT_PRESS_PER_24H = 4
 DEFAULT_SCOUT_DURATIONS = (1, 3, 6, 12, 24, 48, 72)
 DEFAULT_SCOUT_COSTS = {
     1: Decimal("1"),
@@ -78,12 +81,15 @@ class SettingsProxy:
     starting_squad_size = DEFAULT_STARTING_SQUAD
     max_active_listings = DEFAULT_MAX_LISTINGS
     listings_per_24h = DEFAULT_LISTINGS_PER_24H
-    allow_manager_auctions = False
-    scout_can_recruit = False
+    allow_manager_auctions = True
+    scout_can_recruit = True
     scout_requires_tokens = False
     max_scouts_per_club = 1
     auction_durations = "30,60,90,120"
     scout_durations = "1,3,6,12,24,48,72"
+    auction_listings_per_24h = DEFAULT_AUCTION_LISTINGS_PER_24H
+    press_reward = DEFAULT_PRESS_REWARD
+    press_per_24h = DEFAULT_PRESS_PER_24H
 
 
 def _parse_int_list(raw, fallback):
@@ -139,11 +145,32 @@ def listings_per_24h():
 
 
 def allow_manager_auctions():
-    return bool(getattr(get_league_settings(), "allow_manager_auctions", False))
+    return bool(getattr(get_league_settings(), "allow_manager_auctions", True))
 
 
 def scout_can_recruit():
-    return bool(getattr(get_league_settings(), "scout_can_recruit", False))
+    return True
+
+
+def auction_listings_per_24h():
+    return int(
+        getattr(get_league_settings(), "auction_listings_per_24h", DEFAULT_AUCTION_LISTINGS_PER_24H)
+        or DEFAULT_AUCTION_LISTINGS_PER_24H
+    )
+
+
+def press_reward():
+    try:
+        return Decimal(getattr(get_league_settings(), "press_reward", DEFAULT_PRESS_REWARD))
+    except (InvalidOperation, TypeError, AttributeError):
+        return DEFAULT_PRESS_REWARD
+
+
+def press_per_24h():
+    return int(
+        getattr(get_league_settings(), "press_per_24h", DEFAULT_PRESS_PER_24H)
+        or DEFAULT_PRESS_PER_24H
+    )
 
 
 def scout_requires_tokens():

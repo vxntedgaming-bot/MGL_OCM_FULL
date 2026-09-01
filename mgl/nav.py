@@ -152,8 +152,8 @@ SIGNED_IN_NAV_DROPDOWNS = (
             "manager_profile",
         },
         "items": (
-            {"label": "My Team", "url_name": "team_management"},
-            {"label": "Fixtures", "url_name": "fixture_list", "divider": True},
+            {"label": "My Squad", "url_name": "team_management"},
+            {"label": "Match Centre", "url_name": "fixture_list", "divider": True},
         ),
     },
     {
@@ -174,7 +174,7 @@ SIGNED_IN_NAV_DROPDOWNS = (
             "request_player_transfer",
         },
         "items": (
-            {"label": "Transfers", "url_name": "transfer_requests"},
+            {"label": "Negotiations", "url_name": "transfer_requests"},
             {"label": "Transfer Market", "url_name": "transfer_market", "divider": True},
             {"label": "Free Agents", "url_name": "free_agents", "divider": True},
             {"label": "Auctions", "url_name": "live_auctions", "divider": True},

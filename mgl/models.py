@@ -412,12 +412,54 @@ class PlayerListing(models.Model):
         blank=True,
         related_name="listings_offered_in",
     )
+    message = models.TextField(blank=True)
+    request_changes_note = models.TextField(blank=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self):
         return f"{self.player.name} listed for {self.asking_price}"
+
+
+class TransferNegotiationEvent(models.Model):
+    OFFER = "OFFER"
+    COUNTER = "COUNTER"
+    ACCEPT = "ACCEPT"
+    REJECT = "REJECT"
+    WITHDRAW = "WITHDRAW"
+    CHANGES = "CHANGES"
+    APPROVE = "APPROVE"
+    ACTION_CHOICES = [
+        (OFFER, "Offer"),
+        (COUNTER, "Counter"),
+        (ACCEPT, "Accept"),
+        (REJECT, "Reject"),
+        (WITHDRAW, "Withdraw"),
+        (CHANGES, "Request changes"),
+        (APPROVE, "Approve"),
+    ]
+
+    listing = models.ForeignKey(
+        PlayerListing,
+        on_delete=models.CASCADE,
+        related_name="negotiation_events",
+    )
+    actor = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="transfer_negotiation_events",
+    )
+    action = models.CharField(max_length=16, choices=ACTION_CHOICES)
+    token_amount = models.DecimalField(max_digits=8, decimal_places=2, default=0)
+    message = models.TextField(blank=True)
+    swap_summary = models.CharField(max_length=255, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at", "id"]
 
 
 class MarketTransaction(models.Model):
@@ -546,6 +588,11 @@ class ScoutAssignment(models.Model):
     READY = "READY"
     OPENED = "OPENED"
     COMPLETE = "COMPLETE"
+    SQUAD_FULL = "SQUAD_FULL"
+    OUTCOME_RECRUITED = "RECRUITED"
+    OUTCOME_SQUAD_FULL = "SQUAD_FULL"
+    OUTCOME_NO_PLAYER = "NO_PLAYER"
+    OUTCOME_DISCOVERED = "DISCOVERED"
 
     manager = models.ForeignKey(
         "managers.ManagerApplication",
@@ -555,7 +602,9 @@ class ScoutAssignment(models.Model):
     tier = models.CharField(max_length=10, choices=TIER_CHOICES)
     level = models.PositiveSmallIntegerField(default=1)
     region = models.CharField(max_length=100, blank=True)
+    country = models.CharField(max_length=80, blank=True)
     position = models.CharField(max_length=10, blank=True)
+    outcome = models.CharField(max_length=20, blank=True)
     player = models.ForeignKey(
         "players.Player",
         on_delete=models.SET_NULL,
@@ -621,7 +670,9 @@ class ScoutReport(models.Model):
     tier = models.CharField(max_length=10)
     level = models.PositiveSmallIntegerField(default=0)
     region = models.CharField(max_length=100, blank=True)
+    country = models.CharField(max_length=80, blank=True)
     position = models.CharField(max_length=10, blank=True)
+    outcome = models.CharField(max_length=20, blank=True)
     recruited = models.BooleanField(default=False)
     club = models.ForeignKey(
         "teams.Team",
@@ -638,6 +689,52 @@ class ScoutReport(models.Model):
 
     class Meta:
         ordering = ["-discovered_at"]
+
+
+class ScoutSquadException(models.Model):
+    PENDING = "PENDING"
+    ASSIGNED = "ASSIGNED"
+    RELEASED = "RELEASED"
+    STATUS_CHOICES = [
+        (PENDING, "Pending"),
+        (ASSIGNED, "Assigned"),
+        (RELEASED, "Released"),
+    ]
+
+    assignment = models.OneToOneField(
+        ScoutAssignment,
+        on_delete=models.CASCADE,
+        related_name="squad_exception",
+    )
+    manager = models.ForeignKey(
+        "managers.ManagerApplication",
+        on_delete=models.CASCADE,
+        related_name="scout_exceptions",
+    )
+    club = models.ForeignKey(
+        "teams.Team",
+        on_delete=models.CASCADE,
+        related_name="scout_exceptions",
+    )
+    player = models.ForeignKey(
+        "players.Player",
+        on_delete=models.CASCADE,
+        related_name="scout_exceptions",
+    )
+    status = models.CharField(max_length=12, choices=STATUS_CHOICES, default=PENDING)
+    created_at = models.DateTimeField(auto_now_add=True)
+    resolved_at = models.DateTimeField(null=True, blank=True)
+    resolved_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="scout_exceptions_resolved",
+    )
+    note = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
 
 
 class SiteContent(models.Model):
@@ -709,6 +806,7 @@ class ManagerNotification(models.Model):
     )
     source_key = models.CharField(max_length=120)
     notification_type = models.CharField(max_length=40)
+    category = models.CharField(max_length=20, default="Career", db_index=True)
     title = models.CharField(max_length=160)
     message = models.TextField()
     actor = models.CharField(max_length=160, blank=True)
@@ -1004,10 +1102,10 @@ class LeagueSettings(models.Model):
     starting_squad_size = models.PositiveSmallIntegerField(default=25)
     max_active_listings = models.PositiveSmallIntegerField(default=5)
     listings_per_24h = models.PositiveSmallIntegerField(default=3)
-    allow_manager_auctions = models.BooleanField(default=False)
+    allow_manager_auctions = models.BooleanField(default=True)
     scout_can_recruit = models.BooleanField(
-        default=False,
-        help_text="Legacy scout-to-squad claim. Managers cannot use this. Owner/Admin only.",
+        default=True,
+        help_text="UFL scouting recruits into the manager squad when the scout returns.",
     )
     scout_requires_tokens = models.BooleanField(default=False)
     max_scouts_per_club = models.PositiveSmallIntegerField(default=1)
@@ -1019,6 +1117,9 @@ class LeagueSettings(models.Model):
         max_length=80,
         default="1,3,6,12,24,48,72",
     )
+    auction_listings_per_24h = models.PositiveSmallIntegerField(default=3)
+    press_reward = models.DecimalField(max_digits=6, decimal_places=2, default=0.50)
+    press_per_24h = models.PositiveSmallIntegerField(default=4)
     updated_at = models.DateTimeField(auto_now=True)
     updated_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,

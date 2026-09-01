@@ -129,6 +129,12 @@ def create_press_question(
         return None
     if not allow_multiple and _has_pending(manager, trigger=trigger, fixture=fixture):
         return None
+    from mgl.ufl_settings import press_per_24h
+
+    window = timezone.now() - timedelta(hours=24)
+    recent = PressConference.objects.filter(manager=manager, created_at__gte=window).count()
+    if recent >= press_per_24h():
+        return None
     return PressConference.objects.create(
         fixture=fixture,
         team=team,
@@ -333,28 +339,17 @@ def submit_press_answer(press, answer):
     press.status = ApprovalStatus.PENDING
     press.save(update_fields=["answer", "status"])
     from mgl.notifications import mark_action_complete, notify_user
-    from mgl.services import credit_manager, manager_for_user as reward_manager
 
     mark_action_complete(press.manager, f"press-{press.pk}")
-    application = reward_manager(press.manager)
-    if application:
-        credit_manager(
-            application,
-            Decimal("0.50"),
-            "Press Conference Answered",
-            "PRESS",
-            fixture=press.fixture,
-            reference=f"press:{press.pk}",
-        )
-        notify_user(
-            press.manager,
-            source_key=f"press-reward-{press.pk}",
-            notification_type="REWARD",
-            title="PRESS CONFERENCE ANSWERED",
-            message="+0.50 TOKENS have been added to your balance.",
-            actor="UFL Press Room",
-            team=press.team,
-        )
+    notify_user(
+        press.manager,
+        source_key=f"press-submitted-{press.pk}",
+        notification_type="PRESS",
+        title="PRESS CONFERENCE SUBMITTED",
+        message="Your answer is waiting for league-office approval.",
+        actor="UFL Press Room",
+        team=press.team,
+    )
     return press
 
 
@@ -387,6 +382,30 @@ def approve_press_conference(press, reviewer=None):
     press.save(update_fields=["status", "approved_at"])
     title, body = _press_news_copy(press)
     create_news(NewsPost.PRESS, title, body, team=press.team)
+    from mgl.services import credit_manager, manager_for_user as reward_manager
+    from mgl.ufl_settings import press_reward
+
+    application = reward_manager(press.manager)
+    if application:
+        credit_manager(
+            application,
+            press_reward(),
+            "Press Conference Approved",
+            "PRESS",
+            fixture=press.fixture,
+            reference=f"press:{press.pk}",
+        )
+        from mgl.notifications import notify_user
+
+        notify_user(
+            press.manager,
+            source_key=f"press-reward-{press.pk}",
+            notification_type="REWARD",
+            title="PRESS CONFERENCE APPROVED",
+            message=f"+{press_reward()} TOKENS have been added to your balance.",
+            actor="UFL Press Room",
+            team=press.team,
+        )
     return press
 
 

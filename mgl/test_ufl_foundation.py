@@ -187,13 +187,16 @@ class UFLFoundationTests(TestCase):
         self.assertEqual(self.owned.mgl_team_id, self.team_a.id)
         self.assertFalse(self.owned.is_free_agent)
 
-    def test_manager_cannot_create_auction_via_http(self):
+    def test_manager_can_create_auction_via_http(self):
         client = Client()
         client.force_login(self.user_a)
         response = client.post(reverse("list_player_for_auction", args=[self.owned.pk]), {"duration": "30"})
         self.assertEqual(response.status_code, 302)
         self.owned.refresh_from_db()
-        self.assertEqual(self.owned.mgl_team_id, self.team_a.id)
+        self.assertIsNone(self.owned.mgl_team_id)
+        from auctions.models import PlayerAuction
+
+        self.assertTrue(PlayerAuction.objects.filter(player=self.owned, listing_kind="CLUB").exists())
 
     def test_member_and_manager_cannot_open_control(self):
         client = Client()
@@ -235,7 +238,7 @@ class UFLFoundationTests(TestCase):
         self.assertLessEqual(profile.judging_ability, 5)
 
     def test_managers_cannot_recruit_via_scouting_setting(self):
-        self.assertFalse(scout_can_recruit())
+        self.assertTrue(scout_can_recruit())
 
     def test_public_branding(self):
         client = Client()

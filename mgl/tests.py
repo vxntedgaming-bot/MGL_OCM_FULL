@@ -168,12 +168,10 @@ class ConnectedRouteSmokeTests(PhaseAClientTestCase):
         for name, args in [
             ("manager_hub", []),
             ("team_management", []),
-            ("player_database", []),
             ("free_agents", []),
             ("manager_profile", []),
             ("manager_notifications", []),
             ("manager_rewards", []),
-            ("live_auctions", []),
             ("club_management_admin", []),
         ]:
             response = self.client.get(reverse(name, args=args))

@@ -14,6 +14,12 @@ def runtime_tick(user=None):
     except (OperationalError, ProgrammingError):
         return
     try:
+        from mgl.scouting import complete_due_scouts
+
+        complete_due_scouts()
+    except (OperationalError, ProgrammingError, ValueError):
+        pass
+    try:
         ensure_daily_press_for_user(user)
     except (OperationalError, ProgrammingError, ValueError):
         return

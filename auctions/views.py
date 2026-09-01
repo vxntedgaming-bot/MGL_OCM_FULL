@@ -51,7 +51,6 @@ def _attach_bid_meta(auctions):
     return auctions
 
 
-@login_required
 def live_auctions(request):
     close_expired_auctions()
     detach_live_club_auction_players()
@@ -99,7 +98,7 @@ def live_auctions(request):
         .order_by("-ends_at", "-id")[:12]
     )
 
-    manager = manager_for_user(request.user)
+    manager = manager_for_user(request.user) if request.user.is_authenticated else None
     my_won = 0
     if manager:
         my_won = PlayerAuction.objects.filter(

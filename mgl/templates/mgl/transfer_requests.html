@@ -15,9 +15,57 @@
         </svg>
         <div>
             <h1>TRANSFERS</h1>
-            <p>Completed player transfers and auction deals.</p>
+            <p>Negotiate buy, sell and swap deals. Nothing changes ownership until the league office approves.</p>
         </div>
     </header>
+
+    <section class="mgl-xf-panel" id="negotiations">
+        <div class="mgl-xf-panel-head">
+            <div>
+                <h2>NEGOTIATIONS</h2>
+                <p>Accept, reject, counter or withdraw. Counters keep the full timeline.</p>
+            </div>
+        </div>
+        {% for listing in incoming_offers %}
+            <article class="mgl-xf-deal">
+                <div class="mgl-xf-player">
+                    <div>
+                        <a href="{% url 'player_profile' listing.player_id %}">{{ listing.player.name }}</a>
+                        <p>{{ listing.player.position }} · {{ listing.player.overall }} · {{ listing.get_status_display }}</p>
+                        <p>{{ listing.asking_price }} TKN{% if listing.offered_player %} + {{ listing.offered_player.name }}{% endif %}</p>
+                    </div>
+                </div>
+                {% if listing.status == "OFFER" and listing.team_id == club.id %}
+                <form method="post" action="{% url 'respond_transfer_request' listing.pk %}" class="mgl-xf-actions">
+                    {% csrf_token %}
+                    <button name="action" value="accept" type="submit">ACCEPT</button>
+                    <button name="action" value="reject" type="submit">REJECT</button>
+                    <input type="text" name="asking_price" value="{{ listing.asking_price }}" aria-label="Counter tokens">
+                    <input type="text" name="message" placeholder="Counter message">
+                    <button name="action" value="counter" type="submit">COUNTER</button>
+                </form>
+                {% endif %}
+            </article>
+        {% empty %}
+            <p class="mgl-xf-empty">No incoming offers.</p>
+        {% endfor %}
+        {% for listing in outgoing_offers %}
+            <article class="mgl-xf-deal">
+                <div class="mgl-xf-player">
+                    <div>
+                        <a href="{% url 'player_profile' listing.player_id %}">{{ listing.player.name }}</a>
+                        <p>Your offer · {{ listing.asking_price }} TKN · {{ listing.get_status_display }}</p>
+                    </div>
+                </div>
+                {% if listing.status == "OFFER" %}
+                <form method="post" action="{% url 'respond_transfer_request' listing.pk %}">
+                    {% csrf_token %}
+                    <button name="action" value="withdraw" type="submit">WITHDRAW</button>
+                </form>
+                {% endif %}
+            </article>
+        {% endfor %}
+    </section>
 
     <section class="mgl-xf-panel" id="completed-transfers">
         <div class="mgl-xf-panel-head">

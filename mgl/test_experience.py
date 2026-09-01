@@ -580,7 +580,7 @@ class ManagerHubExperienceTests(TestCase):
         self.assertContains(hub, reverse("submit_match", args=[hub.context["outstanding"][0].id]))
         self.assertNotContains(hub, "Recruitment Drive")
         self.assertNotContains(hub, "PLAYER RECRUITMENT")
-        self.assertNotContains(hub, "PENDING ACTIONS")
+        self.assertContains(hub, "PENDING ACTIONS")
         self.assertNotContains(hub, "Propose Transfer")
         self.assertNotContains(hub, reverse("control_centre"))
         self.assertNotContains(hub, "UNASSIGNED PLAYERS")

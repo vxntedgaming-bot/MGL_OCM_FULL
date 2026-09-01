@@ -9,7 +9,7 @@
 
 {% block content %}
 <section class="mgl-section mgl-scout-page">
-    {% include "core/includes/mgl_page_header.html" with header_section="CAREER MODE" header_title="SCOUTING CENTRE" header_description="Send scouts on missions. Discover FC26 players. Watchlist prospects. Scouting never transfers ownership." %}
+    {% include "core/includes/mgl_page_header.html" with header_section="CAREER MODE" header_title="SCOUTING CENTRE" header_description="Send one scout at a time. When the scout returns, the discovered player joins your squad if you have space." %}
 
     {% if pack %}
         <section class="mgl-sc-pack" id="scout-pack">
@@ -164,14 +164,14 @@
                 <p class="mgl-sc-kicker">YOUR SCOUT LEVEL</p>
                 <h3>LEVEL {{ scout_level }} / {{ max_level }}</h3>
                 <div class="mgl-sc-pips" aria-hidden="true">
-                    {% for n in "12345" %}
+                    {% for n in "1234" %}
                         <i class="{% if forloop.counter <= scout_level %}is-on{% endif %}"></i>
                     {% endfor %}
                 </div>
                 {% if hours_saved_label %}
                     <p>Scout missions are {{ hours_saved_label }} faster.</p>
                 {% else %}
-                    <p>Default scouting speed. Next upgrade unlocks 1.5 hours faster scouts.</p>
+                    <p>Bronze 8h · Silver 16h · Gold 32h · Elite 48h. Level 4 halves Gold and Elite.</p>
                 {% endif %}
                 <p class="mgl-sc-muted">You keep your scout level even if you leave a club.</p>
                 {% if club %}

@@ -327,11 +327,32 @@ def notify_user(
     player_id = getattr(player, "pk", player)
     fixture_id = getattr(fixture, "pk", fixture)
     listing_id = getattr(listing, "pk", listing)
+    type_key = (notification_type or "").upper()
+    category_map = {
+        "TRANSFER": "Transfers",
+        "AUCTION": "Auctions",
+        "RESULT": "Matches",
+        "RESULT SUBMISSION": "Matches",
+        "MATCH": "Matches",
+        "PRESS": "Press",
+        "PRESS CONFERENCE": "Press",
+        "SCOUTING": "Scouting",
+        "CLUB": "Club",
+        "ADMIN": "Admin",
+        "REWARD": "Career",
+        "AWARD": "Career",
+    }
+    category = "Career"
+    for key, label in category_map.items():
+        if key in type_key:
+            category = label
+            break
     obj, _created = ManagerNotification.objects.get_or_create(
         recipient=user,
         source_key=source_key,
         defaults={
             "notification_type": notification_type,
+            "category": category,
             "title": title,
             "message": message,
             "actor": actor or "",

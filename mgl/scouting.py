@@ -18,6 +18,7 @@ from .models import (
     ScoutAssignment,
     ScoutProfile,
     ScoutReport,
+    ScoutSquadException,
     ScoutWatchlist,
 )
 from .player_state import market_status, unassigned_players
@@ -38,27 +39,31 @@ GOLD = ScoutAssignment.GOLD
 ELITE = ScoutAssignment.ELITE
 
 TIER_RANGES = {
-    BRONZE: (45, 56),
-    SILVER: (60, 74),
-    GOLD: (70, 81),
-    ELITE: (82, 92),
+    BRONZE: (45, 60),
+    SILVER: (60, 72),
+    GOLD: (73, 81),
+    ELITE: (82, 91),
 }
 BASE_HOURS = {
     BRONZE: Decimal("8"),
-    SILVER: Decimal("10"),
-    GOLD: Decimal("12"),
-    ELITE: Decimal("16"),
+    SILVER: Decimal("16"),
+    GOLD: Decimal("32"),
+    ELITE: Decimal("48"),
 }
-HOURS_REDUCTION_PER_LEVEL = Decimal("1.5")
-MIN_HOURS = Decimal("0.5")
+LEVEL_HOUR_REDUCTION = {
+    1: Decimal("0"),
+    2: Decimal("2"),
+    3: Decimal("4"),
+    4: Decimal("8"),
+}
+MIN_HOURS = Decimal("1")
 UPGRADE_COSTS = {
     2: Decimal("10.00"),
-    3: Decimal("15.00"),
-    4: Decimal("20.00"),
-    5: Decimal("25.00"),
+    3: Decimal("18.00"),
+    4: Decimal("25.00"),
 }
 STARTING_LEVEL = 1
-MAX_LEVEL = 5
+MAX_LEVEL = 4
 SQUAD_LIMIT = 28
 SQUAD_FULL_MESSAGE = "Your squad is full — maximum 28 players."
 
@@ -150,7 +155,9 @@ def cooldown_hours(tier, level):
         level = STARTING_LEVEL
     if level > MAX_LEVEL:
         level = MAX_LEVEL
-    hours = BASE_HOURS[tier] - (HOURS_REDUCTION_PER_LEVEL * (level - 1))
+    if level >= 4 and tier in {GOLD, ELITE}:
+        return BASE_HOURS[tier] / 2
+    hours = BASE_HOURS[tier] - LEVEL_HOUR_REDUCTION.get(level, Decimal("0"))
     if hours < MIN_HOURS:
         hours = MIN_HOURS
     return hours
@@ -160,7 +167,9 @@ def hours_saved(level):
     level = int(level or STARTING_LEVEL)
     if level < STARTING_LEVEL:
         level = STARTING_LEVEL
-    return HOURS_REDUCTION_PER_LEVEL * (level - 1)
+    if level > MAX_LEVEL:
+        level = MAX_LEVEL
+    return LEVEL_HOUR_REDUCTION.get(level, Decimal("0"))
 
 
 def hours_saved_label(level):
@@ -241,6 +250,22 @@ def validate_position(position):
     if position in SCOUT_POSITIONS:
         return position
     raise ValueError("Choose a valid player position.")
+
+
+def scout_countries():
+    return list(
+        Player.objects.exclude(nationality="")
+        .order_by("nationality")
+        .values_list("nationality", flat=True)
+        .distinct()[:400]
+    )
+
+
+def validate_country(country):
+    country = (country or "").strip()
+    if not country or country.lower() == "anywhere":
+        return ""
+    return country
 
 
 def _unavailable_player_ids():
@@ -357,31 +382,136 @@ def upgrade_scout(manager):
     return profile, nxt, cost
 
 
-def _notify_pack_ready(assignment):
+def _notify_scout_result(assignment, title, message, label="VIEW SCOUTING"):
     from mgl.notifications import notify_user
 
     user = getattr(assignment.manager, "user", None)
     if user is None:
         return
-    place = region_label(assignment.region)
     notify_user(
         user,
-        source_key=f"scout-ready-{assignment.id}",
+        source_key=f"scout-result-{assignment.id}",
         notification_type="SCOUTING",
-        title="SCOUT REPORT READY",
-        message=(
-            f"Your {assignment.get_tier_display()} Scout has returned from {place}. "
-            "Your scouting pack is ready to open."
-        ),
-        action_url=f"{reverse('scouting')}?pack={assignment.id}",
-        action_label="OPEN PACK",
+        title=title,
+        message=message,
+        action_url=reverse("scouting"),
+        action_label=label,
         team=_club_for_manager(assignment.manager),
+        player=assignment.player,
     )
+
+
+def _write_scout_report(assignment, recruited, outcome):
+    return ScoutReport.objects.create(
+        manager=assignment.manager,
+        player=assignment.player,
+        assignment=assignment,
+        tier=assignment.tier,
+        level=assignment.level,
+        region=assignment.region,
+        country=assignment.country,
+        position=assignment.position,
+        outcome=outcome,
+        recruited=recruited,
+        club=assignment.club if recruited else None,
+        confidence=assignment.confidence,
+        recommendation="Signed" if recruited else "Pending league office",
+        estimated_potential_low=assignment.estimated_potential_low,
+        estimated_potential_high=assignment.estimated_potential_high,
+    )
+
+
+def _finish_assignment(assignment, now, outcome):
+    assignment.status = ScoutAssignment.COMPLETE
+    assignment.completed_at = now
+    assignment.outcome = outcome
+    assignment.save(update_fields=["status", "completed_at", "outcome", "player"])
+
+
+def _recruit_or_exception(assignment, now):
+    from mgl.player_state import roster_occupancy
+    from mgl.ufl_settings import effective_roster_limit
+
+    team = assignment.club or _club_for_manager(assignment.manager)
+    if team is None:
+        _finish_assignment(assignment, now, ScoutAssignment.OUTCOME_NO_PLAYER)
+        return assignment, "Your club is no longer valid, so the scout could not deliver a player."
+    region = assignment.country or assignment.region
+    if assignment.player_id is None:
+        try:
+            assignment.player = _claim_unreleased_player(
+                assignment.tier, region, assignment.position
+            )
+        except ValueError as exc:
+            _finish_assignment(assignment, now, ScoutAssignment.OUTCOME_NO_PLAYER)
+            return assignment, str(exc)
+    player = Player.objects.select_for_update().get(pk=assignment.player_id)
+    if player.mgl_team_id or player.is_free_agent:
+        try:
+            assignment.player = _claim_unreleased_player(
+                assignment.tier, region, assignment.position
+            )
+            player = assignment.player
+        except ValueError as exc:
+            _finish_assignment(assignment, now, ScoutAssignment.OUTCOME_NO_PLAYER)
+            return assignment, str(exc)
+    limit = effective_roster_limit(team)
+    if roster_occupancy(team) >= limit:
+        assignment.player = player
+        _finish_assignment(assignment, now, ScoutAssignment.OUTCOME_SQUAD_FULL)
+        ScoutSquadException.objects.update_or_create(
+            assignment=assignment,
+            defaults={
+                "manager": assignment.manager,
+                "club": team,
+                "player": player,
+                "status": ScoutSquadException.PENDING,
+            },
+        )
+        _write_scout_report(assignment, False, ScoutAssignment.OUTCOME_SQUAD_FULL)
+        _notify_scout_result(
+            assignment,
+            "SCOUT RETURNED — SQUAD FULL",
+            f"{player.name} is waiting for league-office resolution. Your squad is already at {limit} players.",
+        )
+        return assignment, (
+            f"{player.name} was discovered but your squad is full. "
+            "The league office must resolve this before the player can join."
+        )
+    assign_player(player, team, source="SCOUT", reference=f"scout:{assignment.id}")
+    assignment.player = player
+    assignment.club = team
+    _finish_assignment(assignment, now, ScoutAssignment.OUTCOME_RECRUITED)
+    _write_scout_report(assignment, True, ScoutAssignment.OUTCOME_RECRUITED)
+    create_news(
+        NewsPost.SCOUTING,
+        f"{player.name} joins {team.name}",
+        f"{team.name} signed {player.name} after a {assignment.get_tier_display()} scouting mission.",
+        team=team,
+    )
+    _notify_scout_result(
+        assignment,
+        "SCOUT RECRUITED A PLAYER",
+        f"{player.name} has joined {team.name}.",
+        label="VIEW SQUAD",
+    )
+    from mgl.audit import log_ocm_action
+
+    log_ocm_action(
+        getattr(assignment.manager, "user", None),
+        action="scout.recruited",
+        object_type="ScoutAssignment",
+        object_id=assignment.pk,
+        object_label=player.name,
+        new_value=team.name,
+        summary=f"{player.name} recruited to {team.name} via {assignment.tier} scout.",
+    )
+    return assignment, f"{player.name} has joined {team.name}."
 
 
 @transaction.atomic
 def complete_ready_assignments(manager, now=None):
-    """Mark due missions READY and notify. Does not reveal or assign the player."""
+    """When the timer ends, recruit the discovered player or raise a squad-full exception."""
     now = now or timezone.now()
     due = list(
         ScoutAssignment.objects.select_for_update()
@@ -395,38 +525,28 @@ def complete_ready_assignments(manager, now=None):
     ready = []
     notices = []
     for assignment in due:
-        if assignment.player_id is None:
-            try:
-                assignment.player = _claim_unreleased_player(
-                    assignment.tier, assignment.region, assignment.position
-                )
-            except ValueError as exc:
-                assignment.status = ScoutAssignment.COMPLETE
-                assignment.completed_at = now
-                assignment.save(update_fields=["status", "completed_at"])
-                notices.append(str(exc))
-                continue
-        assignment.status = ScoutAssignment.READY
-        assignment.reveal_stage = "PARTIAL"
-        _apply_progress_estimates(assignment, stage="PARTIAL")
-        assignment.save(
-            update_fields=[
-                "player",
-                "status",
-                "reveal_stage",
-                "estimated_ovr_low",
-                "estimated_ovr_high",
-                "estimated_potential_low",
-                "estimated_potential_high",
-                "confidence",
-            ]
-        )
-        _notify_pack_ready(assignment)
-        ready.append(assignment)
-        notices.append(
-            f"Your {assignment.get_tier_display()} scout report is ready. Open the scouting pack to reveal the player."
-        )
+        completed, notice = _recruit_or_exception(assignment, now)
+        ready.append(completed)
+        notices.append(notice)
     return ready, notices
+
+
+def complete_due_scouts(now=None):
+    now = now or timezone.now()
+    manager_ids = list(
+        ScoutAssignment.objects.filter(
+            status=ScoutAssignment.PENDING,
+            ready_at__lte=now,
+        )
+        .values_list("manager_id", flat=True)
+        .distinct()
+    )
+    from managers.models import ManagerApplication
+
+    results = []
+    for manager in ManagerApplication.objects.filter(pk__in=manager_ids):
+        results.extend(complete_ready_assignments(manager, now=now)[0])
+    return results
 
 
 def _apply_progress_estimates(assignment, stage="HIDDEN"):
@@ -492,16 +612,20 @@ def watchlist_for(manager):
 
 
 @transaction.atomic
-def dispatch_scout(manager, tier, region="", position="", duration_hours=None):
+def dispatch_scout(manager, tier, region="", position="", duration_hours=None, country=""):
     from mgl.ufl_settings import scout_mission_cost, scout_requires_tokens
 
     if tier not in TIER_RANGES:
         raise ValueError("Unknown scout tier.")
-    region = validate_region(region)
+    country = validate_country(country)
+    region = validate_region(region) if not country else ""
     position = validate_position(position)
     team = _club_for_manager(manager)
     if team is None:
         raise ValueError("You must manage a club before sending a scout.")
+    search = country or region
+    if not eligible_players(tier, search, position).exists():
+        raise ValueError("No available FC26 player matches that scout range, country and position.")
 
     profile = get_or_create_scout_profile(manager)
     profile = ScoutProfile.objects.select_for_update().get(pk=profile.pk)
@@ -518,7 +642,6 @@ def dispatch_scout(manager, tier, region="", position="", duration_hours=None):
             "You already have an active scout. Finish that assignment before sending another."
         )
 
-    player = _claim_unreleased_player(tier, region, position)
     level = profile.scout_level or STARTING_LEVEL
     wait = cooldown_hours(tier, level)
     if duration_hours:
@@ -544,8 +667,9 @@ def dispatch_scout(manager, tier, region="", position="", duration_hours=None):
                 tier=tier,
                 level=level,
                 region=region,
+                country=country,
                 position=position,
-                player=player,
+                player=None,
                 ready_at=now + timedelta(hours=float(wait)),
                 status=ScoutAssignment.PENDING,
                 duration_hours=wait,
@@ -602,17 +726,18 @@ def open_scout_pack(manager, assignment):
 
 def _assert_admin_scout_assign(user):
     if not is_owner_or_admin(user):
-        raise ValueError("Scouting discovers players. It does not acquire them.")
+        raise ValueError("Only the league office can resolve a scouting exception.")
 
 
 @transaction.atomic
 def send_scout_to_team(manager, assignment, actor=None):
-    """Owner/Admin correction only. Managers cannot acquire a player through scouting."""
+    """Owner/Admin correction for a squad-full exception or leftover pack."""
     actor = actor or getattr(manager, "user", None)
     _assert_admin_scout_assign(actor)
     assignment = ScoutAssignment.objects.select_for_update().get(pk=_owned_assignment(manager, assignment).pk)
-    if assignment.status != ScoutAssignment.OPENED:
-        raise ValueError("Open the scouting pack before assigning the player.")
+    if assignment.status not in {ScoutAssignment.OPENED, ScoutAssignment.COMPLETE, ScoutAssignment.SQUAD_FULL}:
+        if assignment.outcome != ScoutAssignment.OUTCOME_SQUAD_FULL:
+            raise ValueError("That scouting result is not waiting for a league-office assignment.")
     team = _club_for_manager(manager)
     _assert_roster_space(team)
     player = Player.objects.select_for_update().get(pk=assignment.player_id)
@@ -706,8 +831,32 @@ def release_scout_player(manager, assignment):
 
 @transaction.atomic
 def file_scout_report(manager, assignment, watchlist=False):
-    """Complete a mission as a discovery report. Never transfers ownership."""
+    """Legacy discovery report for leftover pack missions."""
     report = release_scout_player(manager, assignment)
     if watchlist and report.player_id:
         add_to_watchlist(manager, report.player, report=report)
     return report
+
+
+@transaction.atomic
+def resolve_scout_exception(exception, actor, assign=True, note=""):
+    exception = ScoutSquadException.objects.select_for_update().get(pk=exception.pk)
+    if not is_owner_or_admin(actor):
+        raise ValueError("Only the league office can resolve a scouting exception.")
+    if exception.status != ScoutSquadException.PENDING:
+        return exception
+    player = Player.objects.select_for_update().get(pk=exception.player_id)
+    now = timezone.now()
+    if assign:
+        send_scout_to_team(exception.manager, exception.assignment, actor=actor)
+        exception.status = ScoutSquadException.ASSIGNED
+    else:
+        if player.mgl_team_id is None:
+            player.is_free_agent = False
+            player.save(update_fields=["is_free_agent"])
+        exception.status = ScoutSquadException.RELEASED
+    exception.resolved_at = now
+    exception.resolved_by = actor
+    exception.note = note or ""
+    exception.save(update_fields=["status", "resolved_at", "resolved_by", "note"])
+    return exception

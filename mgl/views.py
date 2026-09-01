@@ -480,6 +480,10 @@ def transfer_requests(request):
         return redirect("manager_hub")
 
     close_expired_auctions()
+    from mgl.transfer_requests import incoming_transfer_requests, outgoing_transfer_requests
+
+    incoming = incoming_transfer_requests(club)
+    outgoing = outgoing_transfer_requests(manager)
     completed = completed_transfers_for(None, all_clubs=True)
     return render(
         request,
@@ -487,6 +491,8 @@ def transfer_requests(request):
         {
             "manager": manager,
             "club": club,
+            "incoming_offers": incoming,
+            "outgoing_offers": outgoing,
             "completed_transfers": completed,
         },
     )
@@ -508,10 +514,31 @@ def respond_transfer_request(request, listing_id):
     raw_action = (request.POST.get("action") or "").strip().lower()
     accept = raw_action in ("accept", "approve")
     reject = raw_action == "reject"
-    if not accept and not reject:
-        messages.error(request, "Choose Approve or Reject.")
+    counter = raw_action == "counter"
+    withdraw = raw_action == "withdraw"
+    if not accept and not reject and not counter and not withdraw:
+        messages.error(request, "Choose Accept, Reject, Counter or Withdraw.")
         return redirect("transfer_requests")
     try:
+        if counter:
+            from mgl.market import counter_transfer_offer
+
+            counter_transfer_offer(
+                listing,
+                request.user,
+                request.POST.get("asking_price") or listing.asking_price,
+                message=request.POST.get("message", ""),
+            )
+            messages.success(request, "Counter-offer sent. Negotiation history was preserved.")
+            return redirect("transfer_requests")
+        if withdraw:
+            from mgl.market import withdraw_transfer_offer
+
+            if listing.reserved_buyer_id != manager.id:
+                raise PermissionDenied("You can only withdraw your own offer.")
+            withdraw_transfer_offer(listing, manager)
+            messages.success(request, "Offer withdrawn. Ownership did not change.")
+            return redirect("transfer_requests")
         respond_to_transfer_offer(listing, request.user, accept)
     except ValueError as exc:
         messages.error(request, str(exc))
@@ -672,6 +699,9 @@ def manager_hub(request):
     )
 
     roster_count = len(squad) if team else 0
+    from mgl.ufl_settings import effective_roster_limit
+
+    roster_limit = effective_roster_limit(team) if team else 28
     token_balance = token_balance_for_user(request.user)
     from mgl.transfer_requests import incoming_offer_count
 
@@ -687,6 +717,7 @@ def manager_hub(request):
             "rewards": rewards,
             "transfers": transfers,
             "roster_count": roster_count,
+            "roster_limit": roster_limit,
             "token_balance": token_balance,
             "incoming_transfer_count": incoming_transfer_count,
             "active_league": getattr(team, "league", None) or active_league(),
@@ -1261,7 +1292,6 @@ PLAYER_DATABASE_FACE_FILTERS = (
 )
 
 
-@login_required
 def player_database(request):
     tier = request.GET.get("tier", "").upper()
     search = request.GET.get("search", "").strip()
@@ -2110,7 +2140,7 @@ def list_player_for_auction(request, player_id):
             player,
             manager,
             request.POST.get("duration"),
-            request.POST.get("starting_bid"),
+            request.POST.get("starting_bid") or 1,
         )
         messages.success(request, f"{player.name} is now in auction.")
     except ValueError as exc:

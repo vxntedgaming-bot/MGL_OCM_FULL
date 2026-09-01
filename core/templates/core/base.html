@@ -37,12 +37,23 @@
             <a href="{% url 'home' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'home' %}is-active{% endif %}">HOME</a>
             {% if mgl_signed_in_nav %}
                 {% for menu in mgl_nav_dropdowns %}{% include "core/includes/nav_dropdown.html" %}{% endfor %}
+                <a href="{% url 'transfer_requests' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'transfer_requests' %}is-active{% endif %}">NEGOTIATIONS</a>
+                <a href="{% url 'live_auctions' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'live_auctions' %}is-active{% endif %}">AUCTIONS</a>
+                <a href="{% url 'scouting' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'scouting' %}is-active{% endif %}">SCOUTING</a>
+                <a href="{% url 'pressroom' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'pressroom' %}is-active{% endif %}">PRESS ROOM</a>
+                <a href="{% url 'manager_notifications' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'manager_notifications' %}is-active{% endif %}">NOTIFICATIONS</a>
                 <a href="{% url 'job_centre' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'job_centre' %}is-active{% endif %}">JOBS</a>
             {% else %}
                 {% for menu in mgl_nav_dropdowns %}{% if menu.id == "leagues" %}{% include "core/includes/nav_dropdown.html" %}{% endif %}{% endfor %}
                 {% for menu in mgl_nav_dropdowns %}{% if menu.id == "stats" %}{% include "core/includes/nav_dropdown.html" %}{% endif %}{% endfor %}
+                <a href="{% url 'clubs_index' %}" class="mgl-nav-link">CLUBS</a>
+                <a href="{% url 'player_database' %}" class="mgl-nav-link">PLAYERS</a>
+                <a href="{% url 'transfer_market' %}" class="mgl-nav-link">TRANSFERS</a>
+                <a href="{% url 'live_auctions' %}" class="mgl-nav-link">AUCTIONS</a>
                 {% for menu in mgl_nav_dropdowns %}{% if menu.id == "news" %}{% include "core/includes/nav_dropdown.html" %}{% endif %}{% endfor %}
-                <a href="{% url 'job_centre' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'job_centre' %}is-active{% endif %}">JOBS</a>
+                <a href="{% url 'pressroom' %}" class="mgl-nav-link">PRESS</a>
+                <a href="{% url 'job_centre' %}" class="mgl-nav-link">JOBS</a>
+                <a href="{% url 'ufl_rules' %}" class="mgl-nav-link">RULES</a>
             {% endif %}
             {% if mgl_is_control %}
                 <a href="{% url 'control_centre' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'control_centre' or 'site_management' in request.resolver_match.url_name %}is-active{% endif %}">CONTROL</a>
@@ -103,9 +114,9 @@
     <div class="mgl-footer-inner">
         <div class="mgl-footer-brand">
             <img src="{% static 'core/img/mgl-logo.png' %}" alt="UFL" class="mgl-logo-img">
-            <strong>{{ site_name|default:"Meta Gaming League"|upper }}</strong>
-            <p>{{ site_tagline|default:"Online Career Mode"|upper }}</p>
-            <p>{{ footer_description|default:"Build your club. Manage your squad. Compete against other managers in Meta Gaming League Online Career Mode." }}</p>
+            <strong>{{ site_name|default:"Ultimate Fantasy League"|upper }}</strong>
+            <p>{{ site_tagline|default:"Ultimate Fantasy League"|upper }}</p>
+            <p>{{ footer_description|default:"Build your club. Manage your squad. Compete against other managers in Ultimate Fantasy League." }}</p>
             <div class="mgl-footer-social">
                 <a href="{{ social_x_url|default:'#' }}" aria-label="X / Twitter">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 3h3.1l-6.8 7.8L22 21h-6.2l-4.9-6.4L5.4 21H2.2l7.3-8.4L2 3h6.3l4.4 5.8L17.5 3Zm-1.1 16.2h1.7L7.7 4.7H5.9l10.5 14.5Z"/></svg>

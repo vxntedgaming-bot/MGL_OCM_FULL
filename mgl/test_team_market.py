@@ -182,6 +182,13 @@ class TeamMarketListingTests(TestCase):
             auction = create_manager_auction(player, self.mgr_a, minutes, starting_bid=1)
             self.assertEqual(auction.duration_minutes, minutes)
             cancel_live_auction(auction)
+            from auctions.models import PlayerAuction
+            from datetime import timedelta
+            from django.utils import timezone
+
+            PlayerAuction.objects.filter(listed_by_manager=self.mgr_a).update(
+                created_at=timezone.now() - timedelta(hours=25)
+            )
 
     def test_release_rules(self):
         release_player(self.owned, self.team_a)

@@ -33,7 +33,7 @@
                         <span>{{ active_league|league_label }}</span>
                     {% endif %}
                     {% if team %}
-                        <span>Squad {{ roster_count }}/{{ team.roster_limit }}</span>
+                        <span>Squad {{ roster_count }}/{{ roster_limit }}</span>
                     {% else %}
                         <span>No squad</span>
                     {% endif %}
@@ -81,6 +81,45 @@
         </div>
     </section>
 
+    <section class="mgl-dash-section" id="pending-actions">
+        <div class="mgl-dash-section-head">
+            <h2>PENDING ACTIONS</h2>
+        </div>
+        <div class="mgl-dash-grid mgl-dash-grid-3">
+            <a href="{% url 'transfer_requests' %}" class="mgl-dash-card">
+                {% if incoming_transfer_count %}<span class="mgl-dash-badge">{{ incoming_transfer_count }}</span>{% endif %}
+                <strong>NEGOTIATIONS</strong>
+                <small>{{ incoming_transfer_count }} open offer{{ incoming_transfer_count|pluralize }}</small>
+            </a>
+            <a href="{% url 'fixture_list' %}" class="mgl-dash-card">
+                {% if outstanding_count %}<span class="mgl-dash-badge">{{ outstanding_count }}</span>{% endif %}
+                <strong>MATCH CENTRE</strong>
+                <small>{{ outstanding_count }} outstanding fixture{{ outstanding_count|pluralize }}</small>
+            </a>
+            <a href="{% url 'manager_notifications' %}" class="mgl-dash-card">
+                <strong>NOTIFICATIONS</strong>
+                <small>Transfers, auctions, press and scouting</small>
+            </a>
+        </div>
+    </section>
+
+    {% if squad %}
+    <section class="mgl-dash-section">
+        <div class="mgl-dash-section-head">
+            <h2>SQUAD</h2>
+            <a href="{% url 'team_management' %}">MY SQUAD →</a>
+        </div>
+        <div class="mgl-dash-grid mgl-dash-grid-4">
+            {% for player in squad %}
+                <a href="{% url 'player_profile' player.pk %}" class="mgl-dash-card">
+                    <strong>{{ player.name }}</strong>
+                    <small>{{ player.position }} · {{ player.overall }} OVR</small>
+                </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
     {% if team %}
     <section class="mgl-dash-section">
         <div class="mgl-dash-section-head">
@@ -95,7 +134,7 @@
                 </span>
                 <div>
                     <strong>SQUAD</strong>
-                    <small>{{ roster_count }}/{{ team.roster_limit }} players</small>
+                    <small>{{ roster_count }}/{{ roster_limit }} players</small>
                 </div>
             </a>
             <a href="{% url 'fixture_list' %}" class="mgl-dash-card">

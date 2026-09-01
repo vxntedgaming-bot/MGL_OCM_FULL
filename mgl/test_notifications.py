@@ -114,7 +114,7 @@ class NotificationAndPressroomTests(TestCase):
         self.assertContains(hub, "mgl-notify-count")
         self.assertNotContains(hub, "1 Notification")
         self.assertNotContains(hub, "ACTION REQUIRED")
-        self.assertNotContains(hub, "PENDING ACTIONS")
+        self.assertContains(hub, "PENDING ACTIONS")
         inbox = self.client.get(reverse("manager_notifications"))
         self.assertContains(inbox, "PRESS CONFERENCE")
         self.assertContains(inbox, "PRESS CONFERENCE QUESTION")
@@ -151,11 +151,11 @@ class NotificationAndPressroomTests(TestCase):
         self.assertNotContains(after, "ANSWER NOW")
         self.assertNotContains(after, reverse("answer_press", args=[press.pk]))
         self.mgr_a.refresh_from_db()
-        self.assertEqual(self.mgr_a.tokens, Decimal("20.50"))
+        self.assertEqual(self.mgr_a.tokens, Decimal("20.00"))
         reward_notes = inbox_queryset_for_user(self.user_a).filter(
             source_key=f"press-reward-{press.pk}"
         )
-        self.assertEqual(reward_notes.count(), 1)
+        self.assertEqual(reward_notes.count(), 0)
         self.client.post(reverse("notification_mark_all_read"))
         self.assertEqual(unread_count_for_user(self.user_a), 0)
 

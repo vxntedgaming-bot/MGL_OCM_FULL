@@ -8,6 +8,7 @@ from mgl.site_views import (
     live_activity,
     news_centre,
     pressroom,
+    ufl_rules,
 )
 from mgl.views import (
     compare_players,
@@ -36,6 +37,7 @@ urlpatterns = [
     path("stats/managers/", manager_search, name="manager_search"),
     path("stats/<slug:slug>/", league_stats_page, name="league_stats"),
     path("jobs/", job_centre, name="job_centre"),
+    path("rules/", ufl_rules, name="ufl_rules"),
     path("market/", transfer_market, name="transfer_market"),
     path("market/transfers/", transfer_history, name="transfer_history"),
     path("transfers/", transfer_history, name="public_transfers"),

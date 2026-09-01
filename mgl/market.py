@@ -15,16 +15,20 @@ from .models import MarketTransaction, NewsPost, PlayerListing, PlayerOwnershipH
 from .services import assign_player, create_news, manager_for_user
 
 
+def auction_duration_choice_tuples():
+    from mgl.ufl_settings import auction_duration_choices
+
+    return auction_duration_choices()
+
+
 AUCTION_DURATION_CHOICES = (
     (30, "30 minutes"),
     (60, "60 minutes"),
     (90, "90 minutes"),
     (120, "120 minutes"),
-    (180, "180 minutes"),
-    (720, "12 hours"),
 )
-AUCTION_DURATIONS_MINUTES = tuple(minutes for minutes, _label in AUCTION_DURATION_CHOICES)
-MAX_AUCTION_MINUTES = 720
+AUCTION_DURATIONS_MINUTES = (30, 60, 90, 120)
+MAX_AUCTION_MINUTES = 120
 MAX_ACTIVE_CLUB_LISTINGS = 5
 MIN_AUCTION_STARTING_BID = 0
 MAX_AUCTION_STARTING_BID = 10
@@ -184,12 +188,15 @@ def record_token_transaction(manager, amount, transaction_type, description, auc
 
 
 def parse_auction_duration(value):
+    from mgl.ufl_settings import auction_duration_choices
+
     try:
         minutes = int(value)
     except (TypeError, ValueError) as exc:
         raise ValueError("Choose a valid auction length.") from exc
-    if minutes not in AUCTION_DURATIONS_MINUTES or minutes > MAX_AUCTION_MINUTES:
-        raise ValueError("Auction length must be 30–180 minutes or 12 hours.")
+    allowed = tuple(choice[0] for choice in auction_duration_choices()) or AUCTION_DURATIONS_MINUTES
+    if minutes not in allowed or minutes > MAX_AUCTION_MINUTES:
+        raise ValueError("Auction length must be 30, 60, 90 or 120 minutes.")
     return minutes
 
 
@@ -267,6 +274,22 @@ def assert_listing_frequency(manager):
     created = PlayerListing.objects.filter(seller=manager, created_at__gte=since).count()
     if created >= limit:
         raise ValueError(f"You can list at most {limit} players every 24 hours.")
+
+
+def assert_auction_listing_frequency(manager):
+    from mgl.ufl_settings import auction_listings_per_24h
+
+    limit = auction_listings_per_24h()
+    if not manager or limit <= 0:
+        return
+    since = timezone.now() - timedelta(hours=24)
+    created = PlayerAuction.objects.filter(
+        listed_by_manager=manager,
+        listing_kind=PlayerAuction.CLUB,
+        created_at__gte=since,
+    ).count()
+    if created >= limit:
+        raise ValueError(f"You can submit at most {limit} players to auction every 24 hours.")
 
 
 def transfer_window_is_open():
@@ -495,6 +518,7 @@ def create_manager_auction(player, manager, duration_minutes, starting_bid=1):
         raise ValueError("You can only auction a player who currently belongs to your club.")
     _assert_no_live_auction(player)
     assert_club_listing_capacity(team)
+    assert_auction_listing_frequency(manager)
     bid = parse_auction_starting_bid(starting_bid)
     now = timezone.now()
     auction = PlayerAuction.objects.create(
@@ -511,6 +535,12 @@ def create_manager_auction(player, manager, duration_minutes, starting_bid=1):
         duration_minutes=minutes,
     )
     _detach_player_for_club_auction(player)
+    create_news(
+        NewsPost.AUCTION,
+        f"{player.name} is live at auction",
+        f"{team.name} listed {player.name} ({player.position}, {player.overall} OVR) for auction.",
+        team=team,
+    )
     return auction
 
 
@@ -566,7 +596,9 @@ def transfer_player(player, from_team, to_team, source="TRANSFER", reference="",
     from mgl.player_state import roster_occupancy
 
     if enforce_roster_limit:
-        roster_limit = getattr(to_team, "roster_limit", 30) or 30
+        from mgl.ufl_settings import effective_roster_limit
+
+        roster_limit = effective_roster_limit(to_team)
         current_size = roster_occupancy(to_team)
         if current_size >= roster_limit:
             raise ValueError(
@@ -1409,6 +1441,14 @@ def create_listed_purchase_offer(
         update_fields=["reserved_buyer", "asking_price", "offered_player", "status"]
     )
     listing.offered_players.set(offered)
+    _record_negotiation_event(
+        listing,
+        getattr(buyer, "user", None),
+        "OFFER",
+        listing.asking_price,
+        getattr(listing, "message", ""),
+        offered,
+    )
     listing = PlayerListing.objects.select_related(
         "player",
         "team",
@@ -1479,6 +1519,14 @@ def respond_to_transfer_offer(listing, seller_user, accept):
                 ),
             )
         _notify_control_of_sale_listing(listing)
+        _record_negotiation_event(
+            listing,
+            seller_user,
+            "ACCEPT",
+            listing.asking_price,
+            "",
+            listing_swap_players(listing),
+        )
         return listing
 
     listing.status = PlayerListing.REJECTED
@@ -1504,6 +1552,123 @@ def respond_to_transfer_offer(listing, seller_user, accept):
             player=player,
             listing=listing,
         )
+    _record_negotiation_event(
+        listing,
+        seller_user,
+        "REJECT",
+        listing.asking_price,
+        "",
+        listing_swap_players(listing),
+    )
+    return listing
+
+
+def _swap_summary(players):
+    names = [getattr(player, "name", "") for player in players if player]
+    return ", ".join(name for name in names if name)
+
+
+def _record_negotiation_event(listing, actor, action, amount=None, message="", swaps=None):
+    from mgl.models import TransferNegotiationEvent
+
+    TransferNegotiationEvent.objects.create(
+        listing=listing,
+        actor=actor,
+        action=action,
+        token_amount=amount if amount is not None else listing.asking_price,
+        message=message or "",
+        swap_summary=_swap_summary(swaps if swaps is not None else listing_swap_players(listing)),
+    )
+
+
+@transaction.atomic
+def counter_transfer_offer(listing, actor_user, asking_price, offered_players=None, message=""):
+    listing = _lock_listing(listing)
+    if listing.status != PlayerListing.OFFER:
+        raise ValueError("Only an open offer can be countered.")
+    seller_id = listing.team.manager_id
+    buyer_user = getattr(listing.reserved_buyer, "user", None)
+    buyer_id = getattr(buyer_user, "id", None)
+    if actor_user.id not in {seller_id, buyer_id}:
+        raise ValueError("You can only counter a negotiation you are part of.")
+    buyer_club = club_for_user(listing.reserved_buyer.user) if listing.reserved_buyer_id else None
+    if buyer_club is None:
+        raise ValueError("The buying club is no longer valid.")
+    raw_swaps = list(offered_players or [])
+    offered = assert_swap_players_for_buyer(
+        raw_swaps,
+        buyer_club,
+        target_id=listing.player_id,
+        exclude_listing_id=listing.pk,
+    )
+    price = parse_offer_amount(asking_price, allow_zero=bool(offered))
+    if not offered and price <= 0:
+        raise ValueError("Counter with tokens or include a player from the buying squad.")
+    listing.asking_price = price
+    listing.offered_player = offered[0] if offered else None
+    listing.message = (message or "").strip()
+    listing.status = PlayerListing.OFFER
+    listing.save(update_fields=["asking_price", "offered_player", "message", "status"])
+    listing.offered_players.set(offered)
+    _record_negotiation_event(listing, actor_user, "COUNTER", price, listing.message, offered)
+    from django.urls import reverse
+    from mgl.notifications import notify_user
+
+    counterpart = listing.reserved_buyer.user if actor_user.id == seller_id else listing.team.manager
+    notify_user(
+        counterpart,
+        source_key=f"transfer-counter-{listing.pk}-{timezone.now().timestamp()}",
+        notification_type="TRANSFER",
+        title="TRANSFER COUNTER",
+        message=f"A counter-offer is waiting on {listing.player.name}.",
+        actor=getattr(actor_user, "username", ""),
+        action_url=reverse("transfer_requests"),
+        action_label="OPEN NEGOTIATION",
+        team=listing.team,
+        player=listing.player,
+        listing=listing,
+    )
+    return listing
+
+
+@transaction.atomic
+def withdraw_transfer_offer(listing, buyer):
+    listing = _lock_listing(listing)
+    if listing.reserved_buyer_id != buyer.id:
+        raise ValueError("You can only withdraw your own offer.")
+    if listing.status != PlayerListing.OFFER:
+        raise ValueError("Only an open offer can be withdrawn.")
+    listing.status = PlayerListing.CANCELLED
+    listing.save(update_fields=["status"])
+    _record_negotiation_event(listing, getattr(buyer, "user", None), "WITHDRAW", listing.asking_price)
+    return listing
+
+
+@transaction.atomic
+def request_listing_changes(listing, reviewer, note=""):
+    listing = _lock_listing(listing)
+    if listing.status != PlayerListing.PENDING:
+        raise ValueError("Only an accepted deal can be sent back for changes.")
+    listing.status = PlayerListing.OFFER
+    listing.request_changes_note = (note or "").strip()
+    listing.save(update_fields=["status", "request_changes_note"])
+    _record_negotiation_event(
+        listing,
+        reviewer,
+        "CHANGES",
+        listing.asking_price,
+        listing.request_changes_note,
+    )
+    from mgl.audit import log_ocm_action
+
+    log_ocm_action(
+        reviewer,
+        action="transfer.request_changes",
+        object_type="PlayerListing",
+        object_id=listing.pk,
+        object_label=listing.player.name,
+        summary=f"League office requested changes on {listing.player.name}.",
+    )
     return listing
 
 

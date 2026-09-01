@@ -337,7 +337,22 @@ REGION_LABELS = {
     },
 }
 
-SCOUT_POSITIONS = ("GK", "CB", "LB", "RB", "CDM", "CM", "CAM", "LW", "RW", "ST")
+SCOUT_POSITIONS = (
+    "GK",
+    "CB",
+    "LB",
+    "RB",
+    "LWB",
+    "RWB",
+    "CDM",
+    "CM",
+    "CAM",
+    "LM",
+    "RM",
+    "LW",
+    "RW",
+    "ST",
+)
 
 
 def region_keys():

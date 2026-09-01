@@ -184,3 +184,7 @@ def answer_press(request, press_id):
             "awaiting_approval": awaiting_approval,
         },
     )
+
+
+def ufl_rules(request):
+    return render(request, "mgl/rules.html")
