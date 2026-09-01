@@ -81,6 +81,52 @@
         </div>
     </section>
 
+    <section class="mgl-dash-section" id="what-next">
+        <div class="mgl-dash-section-head">
+            <h2>WHAT DO I NEED TO DO?</h2>
+        </div>
+        <div class="mgl-dash-grid mgl-dash-grid-4">
+            <article class="mgl-dash-card ufl-attention">
+                <strong>NEXT FIXTURE</strong>
+                {% if next_fixture %}
+                    <small>vs {{ next_fixture.opponent.name }} · MD {{ next_fixture.matchweek }}</small>
+                    {% if next_fixture.can_submit %}
+                        <a href="{% url 'submit_match' next_fixture.id %}">Enter result</a>
+                    {% else %}
+                        <a href="{% url 'fixture_list' %}">Open matches</a>
+                    {% endif %}
+                {% else %}
+                    <small>No outstanding fixture. Check the match centre when the office releases games.</small>
+                {% endif %}
+            </article>
+            <article class="mgl-dash-card">
+                <strong>ACTIVE SCOUT</strong>
+                {% if active_scout %}
+                    <small>{{ active_scout.tier }} · {{ active_scout.status }}</small>
+                    <a href="{% url 'scouting' %}">Open scouting</a>
+                {% else %}
+                    <small>No scout currently active.</small>
+                    <a href="{% url 'scouting' %}">Send a scout</a>
+                {% endif %}
+            </article>
+            <article class="mgl-dash-card">
+                <strong>PRESS</strong>
+                <small>{{ press_remaining }} of 4 questions left today · 0.5 TKN each · 2 TKN max</small>
+                <a href="{% url 'pressroom' %}">Open press room</a>
+            </article>
+            <article class="mgl-dash-card">
+                <strong>MY AUCTIONS</strong>
+                {% if my_live_auctions %}
+                    <small>{{ my_live_auctions|length }} live listing{{ my_live_auctions|length|pluralize }} · 3 players / 24 hours</small>
+                    <a href="{% url 'live_auctions' %}">View auctions</a>
+                {% else %}
+                    <small>No live auctions from your squad.</small>
+                    <a href="{% url 'live_auctions' %}">Auction market</a>
+                {% endif %}
+            </article>
+        </div>
+    </section>
+
     <section class="mgl-dash-section" id="pending-actions">
         <div class="mgl-dash-section-head">
             <h2>PENDING ACTIONS</h2>

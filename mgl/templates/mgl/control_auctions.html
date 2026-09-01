@@ -7,19 +7,38 @@
 
 {% block control_body %}
 <section class="dashboard-panel mgl-cp-panel">
-    <div class="panel-heading"><span>LIVE AUCTIONS</span><em>{{ pending_counts.auctions }}</em></div>
-    {% for auction in live_auctions %}
+    <div class="panel-heading"><span>MANAGER AUCTIONS</span><em>{{ manager_auctions|length }}</em></div>
+    <p class="mgl-cp-intro">Club-owned players listed by managers. Close or cancel only when the office needs to intervene.</p>
+    {% for auction in manager_auctions %}
         <div class="table-row mgl-cp-row">
             <strong>{{ auction.player.name }}</strong>
             <span>{{ auction.player.position }} · {{ auction.player.overall }} OVR · {{ auction.winning_bid }} TKN{% if auction.winning_manager %} · {{ auction.winning_manager.display_name }}{% endif %}</span>
-            <small>{{ auction.ends_at|date:"d M Y H:i" }} · {{ auction.status }}</small>
+            <small>{{ auction.ends_at|date:"d M Y H:i" }} · {{ auction.status }} · Manager listing</small>
             <div class="mgl-cp-actions is-row">
                 <form method="post" action="{% url 'control_close_auction' auction.id %}">{% csrf_token %}<input type="hidden" name="next_page" value="control_auctions"><button class="header-button mgl-cp-approve" type="submit">CLOSE</button></form>
                 <form method="post" action="{% url 'control_cancel_auction' auction.id %}">{% csrf_token %}<input type="hidden" name="next_page" value="control_auctions"><button class="header-button mgl-cp-reject" type="submit">CANCEL</button></form>
             </div>
         </div>
     {% empty %}
-        {% include "mgl/includes/empty_state.html" with title="NO LIVE AUCTIONS" %}
+        {% include "mgl/includes/empty_state.html" with title="NO MANAGER AUCTIONS LIVE" %}
+    {% endfor %}
+</section>
+
+<section class="dashboard-panel mgl-cp-panel">
+    <div class="panel-heading"><span>LEAGUE OFFICE AUCTIONS</span><em>{{ office_auctions|length }}</em></div>
+    <p class="mgl-cp-intro">Official unsigned-player auctions released from this desk. Managers cannot create these.</p>
+    {% for auction in office_auctions %}
+        <div class="table-row mgl-cp-row">
+            <strong>{{ auction.player.name }}</strong>
+            <span>{{ auction.player.position }} · {{ auction.player.overall }} OVR · {{ auction.winning_bid }} TKN{% if auction.winning_manager %} · {{ auction.winning_manager.display_name }}{% endif %}</span>
+            <small>{{ auction.ends_at|date:"d M Y H:i" }} · {{ auction.status }} · League office</small>
+            <div class="mgl-cp-actions is-row">
+                <form method="post" action="{% url 'control_close_auction' auction.id %}">{% csrf_token %}<input type="hidden" name="next_page" value="control_auctions"><button class="header-button mgl-cp-approve" type="submit">CLOSE</button></form>
+                <form method="post" action="{% url 'control_cancel_auction' auction.id %}">{% csrf_token %}<input type="hidden" name="next_page" value="control_auctions"><button class="header-button mgl-cp-reject" type="submit">CANCEL</button></form>
+            </div>
+        </div>
+    {% empty %}
+        {% include "mgl/includes/empty_state.html" with title="NO LEAGUE OFFICE AUCTIONS LIVE" %}
     {% endfor %}
 </section>
 

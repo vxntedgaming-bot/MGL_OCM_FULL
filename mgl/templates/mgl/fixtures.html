@@ -55,7 +55,7 @@
                     {% if user.is_authenticated %}<span>@{{ user.username }}</span>{% endif %}
                     {% if team and team.league %}
                         <span>{{ team.league|league_label }}</span>
-                        <span>Squad: {{ roster_count }}/{{ team.roster_limit }}</span>
+                        <span>Squad: {{ roster_count }}/{{ team|ufl_roster_cap }}</span>
                     {% elif active_league %}
                         <span>{{ active_league|league_label }}</span>
                     {% endif %}

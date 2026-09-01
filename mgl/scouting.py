@@ -50,16 +50,25 @@ BASE_HOURS = {
     GOLD: Decimal("32"),
     ELITE: Decimal("48"),
 }
+# Official UFL scout levels. L1 is granted at hire (listed cost 10 TKN).
+# L2/L3 use the published flat reductions. L4 does not add another flat
+# cut — it halves Gold and Elite only. Bronze/Silver keep the L3 reduction.
 LEVEL_HOUR_REDUCTION = {
-    1: Decimal("0"),
-    2: Decimal("2"),
-    3: Decimal("4"),
-    4: Decimal("8"),
+    1: Decimal("2"),
+    2: Decimal("4"),
+    3: Decimal("8"),
+    4: Decimal("0"),
 }
 MIN_HOURS = Decimal("1")
 UPGRADE_COSTS = {
-    2: Decimal("10.00"),
-    3: Decimal("18.00"),
+    2: Decimal("18.00"),
+    3: Decimal("25.00"),
+    4: Decimal("25.00"),
+}
+LEVEL_COSTS = {
+    1: Decimal("10.00"),
+    2: Decimal("18.00"),
+    3: Decimal("25.00"),
     4: Decimal("25.00"),
 }
 STARTING_LEVEL = 1
@@ -157,7 +166,10 @@ def cooldown_hours(tier, level):
         level = MAX_LEVEL
     if level >= 4 and tier in {GOLD, ELITE}:
         return BASE_HOURS[tier] / 2
-    hours = BASE_HOURS[tier] - LEVEL_HOUR_REDUCTION.get(level, Decimal("0"))
+    reduction = LEVEL_HOUR_REDUCTION.get(level, Decimal("0"))
+    if level >= 4:
+        reduction = LEVEL_HOUR_REDUCTION.get(3, Decimal("8"))
+    hours = BASE_HOURS[tier] - reduction
     if hours < MIN_HOURS:
         hours = MIN_HOURS
     return hours

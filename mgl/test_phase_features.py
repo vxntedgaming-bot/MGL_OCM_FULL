@@ -8,6 +8,7 @@ from django.utils import timezone
 
 from accounts.models import User
 from auctions.models import PlayerAuction, TokenTransaction
+from mgl.models import RewardTransaction
 from leagues.models import League
 from leagues.services import ensure_premier_league
 from managers.models import ManagerApplication
@@ -352,6 +353,13 @@ class AuctionWorkflowTests(TestCase):
             1,
         )
         self.assertTrue(
+            RewardTransaction.objects.filter(
+                manager=self.mgr_b,
+                category="MARKET",
+                amount=-Decimal("4"),
+            ).exists()
+        )
+        self.assertFalse(
             TokenTransaction.objects.filter(
                 manager=self.mgr_b,
                 auction=auction,
@@ -600,6 +608,8 @@ class ControlCentreFreeAgentFilterTests(TestCase):
         before = self._snapshot()
         response = self.client.get(reverse("control_auctions"))
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "MANAGER AUCTIONS")
+        self.assertContains(response, "LEAGUE OFFICE AUCTIONS")
         self.assertContains(response, "62–70 OVR")
         self.assertContains(response, self.floor.name)
         self.assertContains(response, self.mid.name)

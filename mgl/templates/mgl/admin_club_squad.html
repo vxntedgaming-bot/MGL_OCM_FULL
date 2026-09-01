@@ -16,7 +16,7 @@
                 ·
                 {{ team.league.name }}
                 ·
-                {{ players|length }}/{{ team.roster_limit }} players
+                {{ players|length }}/{{ team|ufl_roster_cap }} players
             </p>
         </div>
 
@@ -40,7 +40,7 @@
 
         <div class="overview-stat">
             <span>SQUAD SIZE</span>
-            <strong>{{ players|length }}/{{ team.roster_limit }}</strong>
+            <strong>{{ players|length }}/{{ team|ufl_roster_cap }}</strong>
         </div>
 
         <div class="overview-stat">

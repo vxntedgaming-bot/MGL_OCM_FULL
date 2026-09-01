@@ -5,20 +5,20 @@
 ========================================================= */
 
 :root {
-    --mgl-black: #000;
-    --mgl-ink: #0c0c0c;
-    --mgl-card: #0d1118;
-    --mgl-line: rgba(197, 157, 95, 0.28);
-    --mgl-gold: #c59d5f;
-    --mgl-gold-2: #d4b07a;
-    --mgl-gold-border: rgba(197, 157, 95, 0.38);
-    --mgl-orange: #c59d5f;
-    --mgl-orange-2: #d4b07a;
-    --mgl-glow: 0 0 18px rgba(197, 157, 95, 0.28);
-    --status-unassigned: #8e97a4;
-    --status-free-agent: #c59d5f;
-    --status-auction: #ffd166;
-    --status-club: #ffffff;
+    --mgl-black: #0b1220;
+    --mgl-ink: #111827;
+    --mgl-card: #1a2332;
+    --mgl-line: rgba(255, 255, 255, 0.08);
+    --mgl-gold: #c9a36a;
+    --mgl-gold-2: #d8b57e;
+    --mgl-gold-border: rgba(201, 163, 106, 0.22);
+    --mgl-orange: #c9a36a;
+    --mgl-orange-2: #d8b57e;
+    --mgl-glow: 0 0 20px rgba(94, 200, 216, 0.12);
+    --status-unassigned: #8b95a5;
+    --status-free-agent: #c9a36a;
+    --status-auction: #e8a23a;
+    --status-club: #f4f6f8;
 }
 
 html,
@@ -85,7 +85,7 @@ video {
 
 /* ----- Header ----- */
 .mgl-header {
-    background: rgba(0, 0, 0, 0.92);
+    background: rgba(11, 18, 32, 0.92);
     border-bottom: 1px solid var(--mgl-line);
     backdrop-filter: blur(16px);
 }
@@ -114,7 +114,9 @@ video {
 }
 
 .mgl-main {
-    background-image: radial-gradient(ellipse at 80% 0%, rgba(197, 157, 95, 0.08), transparent 42%);
+    background-image:
+        radial-gradient(ellipse at 80% 0%, rgba(94, 200, 216, 0.08), transparent 42%),
+        radial-gradient(ellipse at 12% 18%, rgba(201, 163, 106, 0.05), transparent 36%);
     background-attachment: fixed;
 }
 

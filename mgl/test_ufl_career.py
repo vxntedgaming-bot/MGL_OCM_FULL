@@ -15,7 +15,7 @@ from mgl.market import (
     request_listing_changes,
     respond_to_transfer_offer,
 )
-from mgl.models import DiscordEvent, PlayerListing, PressConference, ScoutSquadException
+from mgl.models import ApprovalStatus, DiscordEvent, PlayerListing, PressConference, ScoutSquadException
 from mgl.press import approve_press_conference, create_press_question, submit_press_answer
 from mgl.scouting import dispatch_scout, resolve_scout_exception
 from mgl.test_scouting import _finish
@@ -97,6 +97,33 @@ class UFLCareerModeTests(TestCase):
         approve_press_conference(press, reviewer=self.owner)
         self.mgr_a.refresh_from_db()
         self.assertEqual(self.mgr_a.tokens, Decimal("20.50"))
+
+    def test_press_daily_token_cap_blocks_fifth_credit(self):
+        from mgl.models import ApprovalStatus
+        from mgl.services import credit_manager
+
+        credit_manager(
+            self.mgr_a,
+            Decimal("2.00"),
+            "Already at daily press cap",
+            "PRESS",
+            reference="press-cap-seed",
+        )
+        extra = PressConference.objects.create(
+            team=self.club_a,
+            manager=self.user_a,
+            question="One more question?",
+            answer="We stay focused.",
+            status=ApprovalStatus.PENDING,
+            question_key="press-over-cap",
+        )
+        self.mgr_a.refresh_from_db()
+        before = self.mgr_a.tokens
+        approve_press_conference(extra, reviewer=self.owner)
+        self.mgr_a.refresh_from_db()
+        self.assertEqual(self.mgr_a.tokens, before)
+        extra.refresh_from_db()
+        self.assertEqual(extra.status, ApprovalStatus.APPROVED)
 
     def test_full_squad_scout_creates_exception(self):
         for index in range(27):

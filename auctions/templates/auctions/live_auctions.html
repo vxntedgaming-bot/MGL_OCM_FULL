@@ -142,12 +142,14 @@
                             <div class="mgl-auc-action">
                                 {% if user.is_authenticated and manager and auction.listed_by_manager_id == manager.id %}
                                     <span class="mgl-card-status">YOUR AUCTION</span>
-                                {% elif user.is_authenticated %}
+                                {% elif manager %}
                                 <a href="?auction={{ auction.id }}{% if querystring %}&{{ querystring }}{% endif %}" class="secondary-button" data-auction-open="{{ auction.id }}">BID</a>
+                                {% elif user.is_authenticated %}
+                                    <span class="mgl-card-status">MANAGERS ONLY</span>
                                 {% else %}
                                     <a href="{% url 'manager_login' %}?next={{ request.get_full_path }}" class="secondary-button">SIGN IN TO BID</a>
                                 {% endif %}
-                                {% if not manager or auction.listed_by_manager_id != manager.id %}
+                                {% if manager and auction.listed_by_manager_id != manager.id %}
                                 <dialog class="mgl-auc-dialog" id="auction-bid-{{ auction.id }}" {% if open_auction and open_auction.id == auction.id %}open{% endif %}>
                                     <div class="mgl-auc-dialog-inner">
                                         <div class="mgl-auc-dialog-head">

@@ -386,9 +386,18 @@ def control_auctions(request):
     if selected_position and selected_position != "all":
         next_query += f"&position={selected_position}"
     context = control_shell_context(request, "auctions", queues)
+    live = list(queues["live_auctions"])
+    manager_auctions = [
+        auction for auction in live if getattr(auction, "listing_kind", "") == PlayerAuction.CLUB
+    ]
+    office_auctions = [
+        auction for auction in live if getattr(auction, "listing_kind", "") != PlayerAuction.CLUB
+    ]
     context.update(
         {
-            "live_auctions": queues["live_auctions"],
+            "live_auctions": live,
+            "manager_auctions": manager_auctions,
+            "office_auctions": office_auctions,
             "ended_auctions": PlayerAuction.objects.filter(
                 status__in=[PlayerAuction.ENDED, PlayerAuction.CANCELLED]
             )

@@ -1,21 +1,21 @@
 /* Control Centre only. Public and manager pages are unchanged. */
 
 body.mgl-control-body {
-    --cp-bg: #000000;
-    --cp-sidebar: #101010;
-    --cp-panel: #161616;
-    --cp-panel-2: #1c1c1c;
+    --cp-bg: #0b1220;
+    --cp-sidebar: #111827;
+    --cp-panel: #1a2332;
+    --cp-panel-2: #212b3c;
     --cp-line: rgba(255, 255, 255, 0.08);
-    --cp-accent: #f07820;
-    --cp-gold: #d4af37;
-    --cp-accent-dim: rgba(240, 120, 32, 0.16);
-    --cp-glow: 0 0 0 1px rgba(240, 120, 32, 0.35), 0 0 28px rgba(240, 120, 32, 0.12);
-    --cp-approve: #2f9e44;
-    --cp-reject: #c92a2a;
-    --cp-muted: #a0a0a0;
-    --cp-radius: 12px;
-    background: #000;
-    color: #fff;
+    --cp-accent: #5ec8d8;
+    --cp-gold: #c9a36a;
+    --cp-accent-dim: rgba(94, 200, 216, 0.16);
+    --cp-glow: 0 0 0 1px rgba(94, 200, 216, 0.28), 0 0 28px rgba(94, 200, 216, 0.08);
+    --cp-approve: #3dbe74;
+    --cp-reject: #e25555;
+    --cp-muted: #8b95a5;
+    --cp-radius: 14px;
+    background: #0b1220;
+    color: #f4f6f8;
 }
 
 body.mgl-control-body .mgl-header,

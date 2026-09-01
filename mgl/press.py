@@ -404,6 +404,28 @@ def _press_news_copy(press):
     )
 
 
+PRESS_DAILY_TOKEN_CAP = Decimal("2.00")
+
+
+def press_tokens_earned_last_24h(manager, now=None):
+    """Approved press credits in the rolling 24-hour window."""
+    from django.db.models import Sum
+
+    from mgl.models import RewardTransaction
+
+    now = now or timezone.now()
+    earned = (
+        RewardTransaction.objects.filter(
+            manager=manager,
+            category="PRESS",
+            created_at__gte=now - timedelta(hours=24),
+            reversed_at__isnull=True,
+        ).aggregate(total=Sum("amount"))["total"]
+        or Decimal("0")
+    )
+    return Decimal(str(earned))
+
+
 def approve_press_conference(press, reviewer=None):
     if press.status == ApprovalStatus.APPROVED and (press.answer or "").strip():
         return press
@@ -421,25 +443,28 @@ def approve_press_conference(press, reviewer=None):
 
     application = reward_manager(press.manager)
     if application:
-        credit_manager(
-            application,
-            press_reward(),
-            "Press Conference Approved",
-            "PRESS",
-            fixture=press.fixture,
-            reference=f"press:{press.pk}",
-        )
-        from mgl.notifications import notify_user
+        reward = press_reward()
+        earned = press_tokens_earned_last_24h(application)
+        if earned + reward <= PRESS_DAILY_TOKEN_CAP:
+            credit_manager(
+                application,
+                reward,
+                "Press Conference Approved",
+                "PRESS",
+                fixture=press.fixture,
+                reference=f"press:{press.pk}",
+            )
+            from mgl.notifications import notify_user
 
-        notify_user(
-            press.manager,
-            source_key=f"press-reward-{press.pk}",
-            notification_type="REWARD",
-            title="PRESS CONFERENCE APPROVED",
-            message=f"+{press_reward()} TOKENS have been added to your balance.",
-            actor="UFL Press Room",
-            team=press.team,
-        )
+            notify_user(
+                press.manager,
+                source_key=f"press-reward-{press.pk}",
+                notification_type="REWARD",
+                title="PRESS CONFERENCE APPROVED",
+                message=f"+{reward} TOKENS have been added to your balance.",
+                actor="UFL Press Room",
+                team=press.team,
+            )
     return press
 
 

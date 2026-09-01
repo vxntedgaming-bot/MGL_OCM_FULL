@@ -1,0 +1,282 @@
+/* =========================================================
+   UFL DESIGN SYSTEM
+   Ultimate Fantasy League — one visual language for public,
+   manager Career Mode, and Control Centre.
+========================================================= */
+
+:root {
+    --ufl-bg: #0b1220;
+    --ufl-bg-mid: #111827;
+    --ufl-surface: #1a2332;
+    --ufl-surface-2: #212b3c;
+    --ufl-graphite: #2a3448;
+    --ufl-gold: #c9a36a;
+    --ufl-gold-2: #d8b57e;
+    --ufl-gold-soft: rgba(201, 163, 106, 0.14);
+    --ufl-gold-line: rgba(201, 163, 106, 0.22);
+    --ufl-cyan: #5ec8d8;
+    --ufl-cyan-soft: rgba(94, 200, 216, 0.14);
+    --ufl-text: #f4f6f8;
+    --ufl-text-soft: #d5dbe4;
+    --ufl-muted: #8b95a5;
+    --ufl-line: rgba(255, 255, 255, 0.08);
+    --ufl-success: #3dbe74;
+    --ufl-danger: #e25555;
+    --ufl-warning: #e8a23a;
+    --ufl-info: #5ec8d8;
+    --ufl-radius: 14px;
+    --ufl-radius-sm: 10px;
+    --ufl-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+    --ufl-space-1: 8px;
+    --ufl-space-2: 12px;
+    --ufl-space-3: 16px;
+    --ufl-space-4: 24px;
+    --ufl-space-5: 32px;
+    --ufl-space-6: 48px;
+    --ufl-hero: clamp(2.4rem, 5vw, 4.4rem);
+    --ufl-page: clamp(1.8rem, 3vw, 2.6rem);
+    --ufl-section: 1.35rem;
+    --ufl-card-title: 1.05rem;
+    --ufl-body: 1rem;
+    --ufl-meta: 0.875rem;
+    --ufl-label: 0.78rem;
+    --font-display: "Barlow Condensed", "Arial Narrow", sans-serif;
+    --font-body: "Manrope", "Segoe UI", sans-serif;
+
+    --mgl-black: var(--ufl-bg);
+    --mgl-ink: var(--ufl-bg-mid);
+    --mgl-card: var(--ufl-surface);
+    --mgl-line: var(--ufl-line);
+    --mgl-gold: var(--ufl-gold);
+    --mgl-gold-2: var(--ufl-gold-2);
+    --mgl-gold-border: var(--ufl-gold-line);
+    --mgl-orange: var(--ufl-gold);
+    --mgl-orange-2: var(--ufl-gold-2);
+    --mgl-glow: 0 0 20px rgba(94, 200, 216, 0.12);
+    --status-unassigned: var(--ufl-muted);
+    --status-free-agent: var(--ufl-gold);
+    --status-auction: var(--ufl-warning);
+    --status-club: var(--ufl-text);
+}
+
+html,
+body {
+    background: var(--ufl-bg);
+    color: var(--ufl-text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.55;
+    overflow-x: hidden;
+    max-width: 100%;
+}
+
+h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    font-weight: 750;
+    letter-spacing: 0.02em;
+    line-height: 1.15;
+    text-transform: none;
+}
+
+h1 { font-size: var(--ufl-page); }
+h2 { font-size: var(--ufl-section); }
+h3 { font-size: var(--ufl-card-title); }
+
+.mgl-main {
+    background:
+        radial-gradient(ellipse at 80% 0%, rgba(94, 200, 216, 0.08), transparent 42%),
+        radial-gradient(ellipse at 10% 20%, rgba(201, 163, 106, 0.05), transparent 36%),
+        var(--ufl-bg);
+    background-attachment: fixed;
+}
+
+/* ----- Buttons ----- */
+.primary-button,
+.header-button-solid {
+    background: var(--ufl-gold);
+    border: 1px solid var(--ufl-gold);
+    color: #121212;
+    box-shadow: none;
+    border-radius: var(--ufl-radius-sm);
+    font-weight: 700;
+}
+
+.primary-button:hover,
+.header-button-solid:hover {
+    background: var(--ufl-gold-2);
+    border-color: var(--ufl-gold-2);
+    color: #121212;
+}
+
+.secondary-button,
+.header-button:not(.header-button-solid) {
+    border: 1px solid var(--ufl-line);
+    color: var(--ufl-text-soft);
+    background: var(--ufl-surface);
+    border-radius: var(--ufl-radius-sm);
+}
+
+.secondary-button:hover,
+.header-button:not(.header-button-solid):hover {
+    border-color: var(--ufl-cyan);
+    color: var(--ufl-cyan);
+    background: var(--ufl-cyan-soft);
+    box-shadow: none;
+}
+
+/* ----- Header / nav ----- */
+.mgl-header {
+    background: rgba(11, 18, 32, 0.92);
+    border-bottom: 1px solid var(--ufl-line);
+    backdrop-filter: blur(18px);
+}
+
+.mgl-logo-img {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+}
+
+.mgl-logo-text {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.mgl-logo-text span {
+    color: var(--ufl-muted);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+}
+
+.mgl-nav > a,
+.mgl-nav-link,
+.mgl-nav-trigger {
+    letter-spacing: 0.08em;
+    font-size: 0.82rem;
+}
+
+.mgl-nav-panel {
+    background: var(--ufl-surface);
+    border: 1px solid var(--ufl-line);
+    box-shadow: var(--ufl-shadow);
+}
+
+/* ----- Cards / panels ----- */
+.dashboard-panel,
+.mgl-home-card,
+.mgl-dash-card,
+.mgl-dash-panel,
+.mgl-auc-board article,
+.mgl-section {
+    border-color: var(--ufl-line);
+    background: var(--ufl-surface);
+}
+
+.mgl-home-card,
+.mgl-dash-card,
+.mgl-dash-panel {
+    border-radius: var(--ufl-radius);
+}
+
+/* Controlled gold — never a gold border on every card */
+.mgl-home-card,
+.mgl-dash-card,
+.dashboard-panel,
+.mgl-dash-panel {
+    border: 1px solid var(--ufl-line);
+    box-shadow: none;
+}
+
+.ufl-status-ok,
+.mgl-wdl-w,
+.is-success { color: var(--ufl-success); }
+.ufl-status-bad,
+.mgl-wdl-l,
+.is-danger { color: var(--ufl-danger); }
+.ufl-status-warn,
+.mgl-wdl-d,
+.is-pending { color: var(--ufl-warning); }
+.ufl-status-info { color: var(--ufl-info); }
+
+/* ----- Empty / error ----- */
+.mgl-empty,
+.mgl-dash-empty {
+    color: var(--ufl-muted);
+    padding: var(--ufl-space-4);
+    text-align: center;
+}
+
+/* ----- Tables on small screens ----- */
+@media (max-width: 768px) {
+    .mgl-squad-table,
+    .mgl-cp-table,
+    .mgl-fa-table,
+    table.mgl-table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .mgl-header-actions .header-button:not(.header-button-solid) {
+        display: none;
+    }
+
+    .mgl-nav > a,
+    .mgl-nav-link,
+    .mgl-nav-trigger {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+    }
+
+    h1 { font-size: 1.7rem; }
+}
+
+@media (max-width: 430px) {
+    .mgl-logo-text { display: none; }
+    .mgl-home-hero h1 { font-size: 2.1rem; }
+}
+
+/* ----- Footer ----- */
+.mgl-footer {
+    background: var(--ufl-bg-mid);
+    border-top: 1px solid var(--ufl-line);
+}
+
+.mgl-footer a[href="#"] {
+    display: none;
+}
+
+/* ----- Coming soon ----- */
+.ufl-coming-soon {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: var(--ufl-cyan-soft);
+    color: var(--ufl-cyan);
+    font-size: var(--ufl-label);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.ufl-attention {
+    border-left: 3px solid var(--ufl-gold);
+    background: var(--ufl-surface-2);
+    border-radius: var(--ufl-radius);
+    padding: var(--ufl-space-4);
+}
+
+.ufl-crumb {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    color: var(--ufl-muted);
+    font-size: var(--ufl-meta);
+    margin-bottom: var(--ufl-space-3);
+}
+
+.ufl-crumb a { color: var(--ufl-text-soft); }

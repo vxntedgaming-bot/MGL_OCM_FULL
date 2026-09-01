@@ -282,6 +282,13 @@ def star_rating(value):
 
 
 @register.filter
+def ufl_roster_cap(team):
+    from mgl.ufl_settings import effective_roster_limit
+
+    return effective_roster_limit(team)
+
+
+@register.filter
 def pos_line(position):
     pos = (position or "").upper()
     if pos == "GK":

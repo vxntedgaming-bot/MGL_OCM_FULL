@@ -176,15 +176,13 @@ def record_completed_auction_transfer(
 
 
 def record_token_transaction(manager, amount, transaction_type, description, auction=None):
-    if not manager:
-        return None
-    return TokenTransaction.objects.create(
-        manager=manager,
-        amount=int(amount),
-        transaction_type=transaction_type,
-        description=description,
-        auction=auction,
-    )
+    """LEGACY compatibility no-op.
+
+    The authoritative UFL ledger is RewardTransaction via credit_manager /
+    debit_manager. auctions.TokenTransaction is retained for old rows only
+    and must never be written or summed by UI.
+    """
+    return None
 
 
 def parse_auction_duration(value):

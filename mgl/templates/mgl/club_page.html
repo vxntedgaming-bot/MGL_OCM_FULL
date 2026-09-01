@@ -15,7 +15,7 @@
                 ·
                 {% if team.manager %}Manager: {{ team.manager.username }}{% else %}VACANT{% endif %}
                 {% if league_position %} · {{ league_position|stringformat:"02d" }}th{% endif %}
-                · {{ players|length }}/{{ team.roster_limit }} players
+                · {{ players|length }}/{{ team|ufl_roster_cap }} players
             </p>
             {% if team.description %}
                 <p>{{ team.description }}</p>

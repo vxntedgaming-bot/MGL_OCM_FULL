@@ -733,6 +733,40 @@ def manager_hub(request):
 
     incoming_transfer_count = incoming_offer_count(team)
 
+    from auctions.models import PlayerAuction
+    from mgl.models import ScoutAssignment
+    from mgl.ufl_settings import press_per_24h
+    from django.utils import timezone
+    from datetime import timedelta
+
+    next_fixture = outstanding[0] if outstanding else None
+    active_scout = (
+        ScoutAssignment.objects.filter(
+            manager=manager,
+            status__in=[
+                ScoutAssignment.PENDING,
+                ScoutAssignment.READY,
+                ScoutAssignment.OPENED,
+            ],
+        )
+            .select_related("player")
+            .order_by("-started_at")
+            .first()
+    )
+    my_live_auctions = list(
+        PlayerAuction.objects.filter(
+            listed_by_manager=manager,
+            status=PlayerAuction.LIVE,
+        )
+        .select_related("player")
+        .order_by("ends_at")[:3]
+    )
+    press_used = PressConference.objects.filter(
+        manager=request.user,
+        created_at__gte=timezone.now() - timedelta(hours=24),
+    ).count()
+    press_remaining = max(0, press_per_24h() - press_used)
+
     return render(
         request,
         "mgl/manager_hub.html",
@@ -759,6 +793,10 @@ def manager_hub(request):
             "form": form,
             "table": table[:8],
             "confirm_resign": bool(team) and request.GET.get("resign") == "1",
+            "next_fixture": next_fixture,
+            "active_scout": active_scout,
+            "my_live_auctions": my_live_auctions,
+            "press_remaining": press_remaining,
         },
     )
 

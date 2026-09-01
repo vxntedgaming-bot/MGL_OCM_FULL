@@ -175,11 +175,14 @@
                         <i class="{% if forloop.counter <= scout_level %}is-on{% endif %}"></i>
                     {% endfor %}
                 </div>
-                {% if hours_saved_label %}
-                    <p>Scout missions are {{ hours_saved_label }} faster.</p>
+                {% if scout_level >= 4 %}
+                    <p>Level 4 halves Gold and Elite. Bronze and Silver keep the Level 3 reduction.</p>
+                {% elif hours_saved_label %}
+                    <p>All scout missions are {{ hours_saved_label }} faster. Level 1 is −2h, Level 2 −4h, Level 3 −8h.</p>
                 {% else %}
                     <p>Bronze 8h · Silver 16h · Gold 32h · Elite 48h. Level 4 halves Gold and Elite.</p>
                 {% endif %}
+                <p class="mgl-sc-muted">One active scout only. A successful discovery joins your squad automatically, subject to the 28-player limit.</p>
                 <p class="mgl-sc-muted">You keep your scout level even if you leave a club.</p>
                 {% if club %}
                     <p class="mgl-sc-muted">Squad {{ roster_count }} / {{ roster_limit }} · {{ club.name }}</p>

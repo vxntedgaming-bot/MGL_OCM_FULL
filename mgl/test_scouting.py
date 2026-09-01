@@ -132,13 +132,13 @@ class ScoutLevelTests(TestCase):
         self.manager.tokens = Decimal("80.00")
         self.manager.save(update_fields=["tokens"])
         club_tokens = self.club.tokens
-        expected = [(2, "10.00"), (3, "18.00"), (4, "25.00")]
+        expected = [(2, "18.00"), (3, "25.00"), (4, "25.00")]
         for level, cost in expected:
             profile, nxt, paid = upgrade_scout(self.manager)
             self.assertEqual(nxt, level)
             self.assertEqual(paid, Decimal(cost))
         self.manager.refresh_from_db()
-        self.assertEqual(self.manager.tokens, Decimal("27.00"))
+        self.assertEqual(self.manager.tokens, Decimal("12.00"))
         self.club.refresh_from_db()
         self.assertEqual(self.club.tokens, club_tokens)
         with self.assertRaises(ValueError):
@@ -173,13 +173,13 @@ class ScoutLevelTests(TestCase):
 class ScoutTimeTests(TestCase):
     def test_final_cooldown_table(self):
         expected = {
-            (1, "BRONZE"): Decimal("8"),
-            (1, "SILVER"): Decimal("16"),
-            (1, "GOLD"): Decimal("32"),
-            (1, "ELITE"): Decimal("48"),
-            (2, "BRONZE"): Decimal("6"),
-            (2, "SILVER"): Decimal("14"),
-            (3, "BRONZE"): Decimal("4"),
+            (1, "BRONZE"): Decimal("6"),
+            (1, "SILVER"): Decimal("14"),
+            (1, "GOLD"): Decimal("30"),
+            (1, "ELITE"): Decimal("46"),
+            (2, "BRONZE"): Decimal("4"),
+            (2, "SILVER"): Decimal("12"),
+            (3, "BRONZE"): Decimal("1"),
             (4, "BRONZE"): Decimal("1"),
             (4, "GOLD"): Decimal("16"),
             (4, "ELITE"): Decimal("24"),
@@ -508,11 +508,11 @@ class ScoutPageTests(TestCase):
         self.assertContains(page, "SEND YOUR SCOUT")
         self.assertContains(page, "ACTIVE SCOUTS")
         self.assertContains(page, "RECENT SCOUT REPORTS")
-        self.assertContains(page, "UPGRADE (10 TOKENS)")
-        self.assertContains(page, "8 Hours")
-        self.assertContains(page, "16 Hours")
-        self.assertContains(page, "32 Hours")
-        self.assertContains(page, "48 Hours")
+        self.assertContains(page, "UPGRADE (18 TOKENS)")
+        self.assertContains(page, "6 Hours")
+        self.assertContains(page, "14 Hours")
+        self.assertContains(page, "30 Hours")
+        self.assertContains(page, "46 Hours")
         self.assertContains(page, "ELITE")
         self.assertContains(page, 'optgroup label="Europe"')
         self.assertContains(page, "British Isles")

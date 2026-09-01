@@ -44,8 +44,8 @@ LEGACY_SQUAD_SHAPE = (
     ("RW", 2),
 )
 
-# Official UFL 25-player starting squad. Every slot below is mandatory.
-# This is the complete structure — not a shorter list with silent extras.
+# Official UFL 25-player starting squad.
+# Written structure totals 22. The official generator then adds +1 CB, +1 CM, +1 ST.
 UFL_SQUAD_SHAPE = (
     ("GK", 2),
     ("CB", 5),
