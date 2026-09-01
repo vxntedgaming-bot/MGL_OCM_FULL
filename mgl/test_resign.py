@@ -260,7 +260,7 @@ class ManagerResignTests(TestCase):
             {
                 "gamertag": "RESIGN1",
                 "discord_username": "resign",
-                "games_per_week": "2",
+                "games_per_week": "1-3",
                 "new_gen_confirmed": "on",
             },
         )

@@ -120,7 +120,7 @@ class OcmEndToEndTests(TestCase):
             {
                 "gamertag": "AlicePSN",
                 "discord_username": "alice",
-                "games_per_week": "3",
+                "games_per_week": "3-5",
                 "new_gen_confirmed": "on",
             },
         )

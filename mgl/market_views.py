@@ -3,6 +3,7 @@ from decimal import Decimal, InvalidOperation
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db import IntegrityError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
@@ -53,7 +54,14 @@ from managers.services import STARTING_TOKENS, approve_manager_application, reje
 from .job_applications import (
     GAMES_PER_WEEK_CHOICES,
     JOBS_DISCORD_INVITE,
+    approve_job_application,
+    can_submit_job_application,
+    games_per_week_options,
+    latest_job_application,
     parse_club_application,
+    pending_job_application,
+    reject_job_application,
+    submit_job_application,
 )
 from .nav import live_competition_choices
 from .permissions import approved_manager, career_required, owner_admin_required
@@ -404,18 +412,12 @@ def job_centre(request):
         .prefetch_related("players")
         .order_by("league__display_order", "league__name", "name")
     )
+    pending_application = pending_job_application(manager)
+    own_application = latest_job_application(manager)
     pending_team_ids = set()
-    if manager:
-        pending_team_ids = set(
-            manager.club_applications.filter(
-                status=ApprovalStatus.PENDING
-            ).values_list("team_id", flat=True)
-        )
-    can_apply = bool(
-        manager
-        and manager.status != ManagerApplication.REJECTED
-        and not club_for_user(request.user)
-    )
+    if pending_application:
+        pending_team_ids.add(pending_application.team_id)
+    can_apply = can_submit_job_application(manager, request.user)
     job_leagues = []
     seen_leagues = set()
     for team in vacant:
@@ -430,9 +432,12 @@ def job_centre(request):
             "job_leagues": job_leagues,
             "manager": manager,
             "pending_team_ids": pending_team_ids,
+            "pending_application": pending_application,
+            "own_application": own_application,
             "has_club": bool(club_for_user(request.user)),
             "can_apply": can_apply,
             "games_per_week_choices": GAMES_PER_WEEK_CHOICES,
+            "games_per_week_options": games_per_week_options(),
             "jobs_discord_invite": JOBS_DISCORD_INVITE,
             "join_discord": request.GET.get("join_discord") == "1",
             "window_open": transfer_window_is_open(),
@@ -448,41 +453,32 @@ def apply_for_club(request, team_id):
     if not manager:
         messages.error(request, "Create an account before applying for a club.")
         return redirect("manager_register")
-    if manager.status == ManagerApplication.REJECTED:
-        messages.error(request, "Your manager application was rejected.")
-        return redirect("job_centre")
-    if club_for_user(request.user):
-        messages.error(request, "You already manage a club.")
-        return redirect("job_centre")
     team = get_object_or_404(Team, pk=team_id, manager__isnull=True)
-    if ClubApplication.objects.filter(
-        manager=manager,
-        team=team,
-        status=ApprovalStatus.PENDING,
-    ).exists():
-        messages.info(request, f"You already have a pending application for {team.name}.")
-        return redirect("job_centre")
     payload = parse_club_application(request.POST)
     if payload["errors"]:
         for error in payload["errors"]:
             messages.error(request, error)
         return redirect("job_centre")
-    if manager.gamertag != payload["gamertag"]:
-        manager.gamertag = payload["gamertag"]
-        manager.save(update_fields=["gamertag"])
-    ClubApplication.objects.create(
-        manager=manager,
-        team=team,
-        gamertag=payload["gamertag"],
-        discord_username=payload["discord_username"],
-        games_per_week=payload["games_per_week"],
-        referred_by=payload["referred_by"],
-        new_gen_confirmed=payload["new_gen_confirmed"],
-        message=request.POST.get("message", "").strip(),
-    )
+    try:
+        submit_job_application(
+            manager,
+            team,
+            payload,
+            message=request.POST.get("message", "").strip(),
+        )
+    except ValueError as exc:
+        text = str(exc)
+        if "pending" in text.lower():
+            messages.info(request, text)
+        else:
+            messages.error(request, text)
+        return redirect("job_centre")
+    except IntegrityError:
+        messages.info(request, "You already have a pending job application.")
+        return redirect("job_centre")
     messages.success(
         request,
-        f"Application sent for {team.name}. An owner or admin will review it. You have not been appointed yet.",
+        f"Job application sent for {team.name}. An owner or admin will review it. You have not been appointed yet.",
     )
     return redirect(f"{reverse('job_centre')}?join_discord=1")
 
@@ -767,70 +763,21 @@ def control_cancel_auction(request, auction_id):
 @owner_admin_required
 @require_POST
 def control_approve_job(request, application_id):
-    from django.utils import timezone
-
     application = get_object_or_404(
         ClubApplication.objects.select_related("manager__user", "team"),
         pk=application_id,
         status=ApprovalStatus.PENDING,
     )
-    team = application.team
-    if team.manager_id:
-        messages.error(request, f"{team.name} already has a manager.")
+    try:
+        approve_job_application(application, request.user)
+    except ValueError as exc:
+        messages.error(request, str(exc))
         return control_centre_redirect(request, default="control_managers")
-    new_manager = application.manager.user
-    if application.manager.status == ManagerApplication.PENDING:
-        try:
-            approve_manager_application(application.manager, request.user)
-        except ValueError:
-            pass
-    if club_for_user(new_manager):
-        messages.error(request, "That manager already has a club.")
-        return control_centre_redirect(request, default="control_managers")
-    team.manager = new_manager
-    team.save(update_fields=["manager"])
-    open_club_spell(application.manager, team)
-    application.status = ApprovalStatus.APPROVED
-    application.reviewed_at = timezone.now()
-    application.reviewed_by = request.user
-    application.save(update_fields=["status", "reviewed_at", "reviewed_by"])
-    from mgl.press import create_appointment_press
-
-    create_news(
-        NewsPost.MANAGER,
-        f"{application.manager.display_name} appointed",
-        f"{application.manager.display_name} has been appointed as manager of {team.name}.",
-        team=team,
-    )
-    create_appointment_press(new_manager, team)
-    from django.urls import reverse
-    from mgl.notifications import notify_user
-
-    notify_user(
-        new_manager,
-        source_key=f"job-approved-{application.pk}",
-        notification_type="ADMIN",
-        title="CLUB APPOINTMENT",
-        message=f"You have been appointed as manager of {team.name}.",
-        actor="UFL Admin",
-        action_url=reverse("manager_hub"),
-        action_label="OPEN HUB",
-        team=team,
-    )
-    from mgl.audit import log_ocm_action
-
-    log_ocm_action(
-        request.user,
-        action="job.approve",
-        object_type="ClubApplication",
-        object_id=application.pk,
-        object_label=team.name,
-        new_value="APPROVED",
-        summary=f"Appointed {application.manager.display_name} to {team.name}.",
-    )
+    application.refresh_from_db()
     messages.success(
         request,
-        f"{new_manager.username} is now manager of {team.name}. Token balance stays with the manager.",
+        f"{application.manager.display_name} is now manager of {application.team.name}. "
+        "Token balance stays with the manager.",
     )
     return control_centre_redirect(request, default="control_managers")
 
@@ -838,34 +785,19 @@ def control_approve_job(request, application_id):
 @owner_admin_required
 @require_POST
 def control_reject_job(request, application_id):
-    from django.utils import timezone
-
     application = get_object_or_404(
         ClubApplication.objects.select_related("manager", "team"),
         pk=application_id,
         status=ApprovalStatus.PENDING,
     )
-    application.status = ApprovalStatus.REJECTED
-    application.reviewed_at = timezone.now()
-    application.reviewed_by = request.user
-    application.save(update_fields=["status", "reviewed_at", "reviewed_by"])
-    from django.urls import reverse
-    from mgl.notifications import notify_user
-
-    notify_user(
-        application.manager.user,
-        source_key=f"job-rejected-{application.pk}",
-        notification_type="ADMIN",
-        title="CLUB APPLICATION REJECTED",
-        message=f"Your application for {application.team.name} was rejected.",
-        actor="UFL Admin",
-        action_url=reverse("job_centre"),
-        action_label="JOB OFFERS",
-        team=application.team,
-    )
+    try:
+        reject_job_application(application, request.user)
+    except ValueError as exc:
+        messages.error(request, str(exc))
+        return control_centre_redirect(request, default="control_managers")
     messages.success(
         request,
-        f"{application.manager.display_name}'s application for {application.team.name} was rejected.",
+        f"{application.manager.display_name}'s job application for {application.team.name} was rejected.",
     )
     return control_centre_redirect(request, default="control_managers")
 

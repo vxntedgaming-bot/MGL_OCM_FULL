@@ -95,17 +95,16 @@ MEMBER → submits Job Application → Admin reviews that application → Admin 
 
 Official fields: EA ID / gamertag; Discord **username**; games per week **1–3 / 3–5 / 6+**; referred by; new-gen console checkbox.
 
-**CURRENT CODE**
+**IMPLEMENTED (Phase 4)**
 
-1. User registers → `User.role=MANAGER`, `ManagerApplication` **PENDING**, tokens granted.
-2. Owner/Admin approve or reject the **manager application** (`control_approve_manager` / `control_reject_manager`).
-3. Only an **approved** manager can POST `apply_for_club` (`ClubApplication`).
-4. Owner/Admin approve the job (`control_approve_job`) → user becomes `Team.manager`.
-5. Capability role becomes MANAGER only when approved **and** assigned.
+1. User registers → `User.role=MANAGER`, `ManagerApplication` **PENDING**, tokens granted. This identity row is **not** a second Admin job-review gate.
+2. Member POSTs Job Application (`apply_for_club` / `ClubApplication`) with EA ID, Discord username, games per week **1–3 / 3–5 / 6+**, referred by, and the required new-gen checkbox.
+3. One PENDING Job Application per manager.
+4. Owner/Admin `control_approve_job` atomically: approve identity if still PENDING, assign `Team.manager`, open `ManagerClubSpell`, mark the Job Application APPROVED.
+5. Reject marks only the Job Application REJECTED. The user stays a Member and may apply again.
+6. Leftover `control_approve_manager` remains for historical identity records and is not required on the official path.
 
-Job form currently: numeric Discord user ID; games per week 1 / 2 / 3 / 4 / 5+.
-
-**GAP TO IMPLEMENT:** Remove the extra manager-application gate from the official path; collect Discord username; use 1–3 / 3–5 / 6+. Do **not** implement in this documentation task. Registration may still create a `ManagerApplication` row for tokens/identity — that is **CURRENT CODE**, not a second Admin review stage in the locked rule.
+Capability MANAGER (Career Mode) is an approved identity. Official club appointment is the Job Application accept.
 
 Hub, market, and scouting expect a club for most actions.
 

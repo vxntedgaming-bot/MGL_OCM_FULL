@@ -7,6 +7,8 @@ Local default: SQLite `db.sqlite3` (gitignored). Production: PostgreSQL via `DAT
 
 Do **not** run `makemigrations` on a fresh checkout unless a real model change is requested. Apply existing migrations only.
 
+Phase 4 added `mgl.0029_phase4_job_release` (unique pending Job Application per manager). **Do not apply to production from this task.**
+
 ---
 
 ## MUST NOT reset or delete in ordinary work
@@ -81,7 +83,7 @@ Commands that assign starting squads or import FC26 must be dry-run first. `popu
 - Identity: `name`, unique `fc27_id`, `fc27_club`, face URLs, biometrics, `nationality`, `position`, card ratings (`overall`, pace…physical)
 - FC26 individual `fc_*` attributes and playstyles
 - UFL: FK `mgl_team`, `is_free_agent`, `released_at`, `card_tier`
-- **DEC-042:** `is_free_agent` is **not** the product status for unused FC26 rows. Unsigned = no `mgl_team` and no `released_at`. Genuine UFL Free Agents have `released_at` set by an explicit UFL process. Do not mass-update the ~18,000 unused flags. The application distinguishes FC26/unsigned availability, genuine UFL Free Agents, club-owned players, and manager-auction holds.
+- **DEC-042 / Phase 4:** `is_free_agent` is **not** the product status. Use `mgl.player_state.ufl_player_status()`: UNSIGNED / CLUB-OWNED / TEMPORARILY LISTED / UFL FREE AGENT. Genuine UFL Free Agents have `released_at` set by an explicit UFL process. Do not mass-update the ~18,000 unused flags.
 - Aggregates: `appearances`, `goals`, `assists`, `average_rating`
 
 ### auctions
@@ -115,7 +117,7 @@ Commands that assign starting squads or import FC26 must be dry-run first. `popu
 | `PlayerListing` | LIVE / OFFER / PENDING / SOLD / CANCELLED / REJECTED |
 | `TransferNegotiationEvent` | Offer/accept/reject audit |
 | `MarketTransaction` | Completed/pending market money movement |
-| `ClubApplication` | Job applications |
+| `ClubApplication` | Official Job Application (DEC-041). Fields: gamertag, discord_username, games_per_week (`1-3` / `3-5` / `6+`), referred_by, new_gen_confirmed. Unique pending row per manager |
 | `FixtureReleaseBatch` | Release batches |
 | `ManagerClubSpell` | Tenure at a club |
 | `ScoutProfile`, `ScoutAssignment`, `ScoutReport`, `ScoutSquadException`, `ScoutWatchlist` | Scouting |
@@ -124,7 +126,7 @@ Commands that assign starting squads or import FC26 must be dry-run first. `popu
 | `HistoricalSeason`, `SeasonTableRow`, `SeasonTotsPick` | History snapshots |
 | `LeagueSettings` | Singleton rules |
 | `DiscordEvent` | Outbox queue PENDING/SENT/FAILED |
-| `PlayerReleaseRequest` | Release approval |
+| `PlayerReleaseRequest` | Release audit. Official manager release is written APPROVED immediately. Leftover PENDING rows remain reviewable |
 | `StartingSquadProposal` | DRAFT/APPROVED/REJECTED/SUPERSEDED |
 | `StartingSquadLock` | Per-season lock |
 

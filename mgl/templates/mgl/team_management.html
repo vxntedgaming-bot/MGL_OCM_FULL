@@ -278,7 +278,7 @@
             {% endif %}
         </section>
         <section class="mgl-squad-board" data-sq-board-panel="released" hidden style="margin-top:24px">
-            {% include "mgl/includes/empty_state.html" with kicker="RELEASED PLAYERS" title="NO RELEASED PLAYERS ON THIS VIEW" body="Released players become Free Agents after office approval. They are not stored as a separate squad list." %}
+            {% include "mgl/includes/empty_state.html" with kicker="RELEASED PLAYERS" title="NO RELEASED PLAYERS ON THIS VIEW" body="Released players become genuine UFL Free Agents immediately. They are not stored as a separate squad list." %}
         </section>
         <section class="mgl-squad-board ufl-recent-board" style="margin-top:24px">
             <div class="mgl-squad-board-head">
@@ -368,7 +368,7 @@
         {% else %}
             <div class="eyebrow">SQUAD</div>
             <h2>RELEASE PLAYER</h2>
-            <p>Releasing this player will remove them from your official squad and make them a Free Agent after approval.</p>
+            <p>This is not an auction. Releasing this player removes them from your squad immediately and makes them a genuine UFL Free Agent. Other managers can SIGN FOR 0 TOKENS. This does not charge a release fee.</p>
             {% player_card listing_player "small" %}
             <form method="post" action="{% url 'release_my_player' listing_player.id %}" class="mgl-modal-form">
                 {% csrf_token %}

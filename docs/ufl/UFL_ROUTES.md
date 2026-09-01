@@ -106,7 +106,7 @@ Competition slugs in `COMPETITIONS`: `premier-league`, `championship`, `league-o
 | `/mgl/market/listings/<id>/buy/` | `buy_player` | Redirect to BUY page | Login POST | Approved | `@login_required` | Live | Transfers |
 | `/mgl/market/listings/<id>/purchase/` | `purchase_listing` | BUY listed player | Login | Approved + club | `@login_required` + `approved_manager` | Live | Transfers |
 | `/mgl/market/listings/<id>/cancel/` | `cancel_player_listing` | Withdraw listing | Login POST | Seller | `@login_required` + `approved_manager` | Live | Transfers |
-| `/mgl/jobs/<team_id>/apply/` | `apply_for_club` | Submit Job Application for a vacant club | Login POST | **LOCKED:** Member. **CODE:** approved manager only | `@login_required` + **CURRENT CODE** `approved_manager` | Live — **GAP TO IMPLEMENT** vs DEC-041 | Jobs |
+| `/mgl/jobs/<team_id>/apply/` | `apply_for_club` | Submit Job Application for a vacant club | Login POST | Member (no club, no pending job) | `@login_required` + server-side validation | Live — DEC-041 official path | Jobs |
 
 ---
 
@@ -177,8 +177,8 @@ All **GET pages** below are `owner_admin_required` unless noted. POST approve/re
 
 | URL | Name | Purpose |
 |---|---|---|
-| `/mgl/control/managers/<id>/approve/` | `control_approve_manager` | Approve **registration** `ManagerApplication`. **LOCKED (DEC-041):** not the official job-review step. **CURRENT CODE / GAP** |
-| `/mgl/control/managers/<id>/reject/` | `control_reject_manager` | Reject registration application. Same GAP vs DEC-041 |
+| `/mgl/control/managers/<id>/approve/` | `control_approve_manager` | Leftover identity approve. **LOCKED (DEC-041):** not the official job-review step |
+| `/mgl/control/managers/<id>/reject/` | `control_reject_manager` | Leftover identity reject. Same — not the official job path |
 | `/mgl/control/listings/<id>/approve/` | `control_approve_listing` | Complete or go-live listing |
 | `/mgl/control/listings/<id>/reject/` | `control_reject_listing` | Reject listing |
 | `/mgl/control/listings/<id>/changes/` | `control_request_listing_changes` | Request changes |
@@ -197,7 +197,7 @@ All **GET pages** below are `owner_admin_required` unless noted. POST approve/re
 | `/mgl/control/jobs/<id>/reject/` | `control_reject_job` | Reject Job Application |
 | `/mgl/control/press/<id>/approve/` | `control_approve_press` | Approve press |
 | `/mgl/control/press/<id>/reject/` | `control_reject_press` | Reject press |
-| `/mgl/control/releases/<id>/approve/` | `control_approve_release` | Approve release |
+| `/mgl/control/releases/<id>/approve/` | `control_approve_release` | Leftover PENDING release only. Official manager release is immediate |
 | `/mgl/control/releases/<id>/reject/` | `control_reject_release` | Reject release |
 
 Starting-squad generate/approve POSTs are handled on `control_starting_squads` (same URL, form posts). Exact extra paths: **confirm in `control_views.control_starting_squads`** if new sub-URLs are added later — none are registered separately in `mgl/urls.py`.

@@ -146,7 +146,7 @@
                                     {% if can_sign %}
                                         <form method="post" action="{% url 'sign_free_agent' p.id %}">
                                             {% csrf_token %}
-                                            <button type="submit" class="secondary-button">BUY</button>
+                                            <button type="submit" class="secondary-button">SIGN FOR 0 TKN</button>
                                         </form>
                                     {% else %}
                                         <a href="{% url 'player_profile' p.id %}" class="secondary-button">VIEW PLAYER</a>

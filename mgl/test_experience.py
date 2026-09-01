@@ -36,7 +36,7 @@ from teams.models import Team
 JOB_APPLY = {
     "gamertag": "EAID1",
     "discord_username": "discorduser",
-    "games_per_week": "3",
+    "games_per_week": "3-5",
     "new_gen_confirmed": "on",
 }
 
@@ -109,7 +109,7 @@ class JobCentreExperienceTests(TestCase):
         response = self.client.get(reverse("job_centre"))
         self.assertContains(response, "APPLY FOR")
         self.assertContains(response, "EA ID / GAMERTAG")
-        self.assertContains(response, "DISCORD USER ID")
+        self.assertContains(response, "DISCORD USERNAME")
         self.assertContains(response, "GAMES PER WEEK")
         self.assertContains(response, "REFERRED BY")
         self.assertContains(response, "new gen console")
@@ -135,7 +135,9 @@ class JobCentreExperienceTests(TestCase):
         self.assertIsNone(self.vacant.manager_id)
         joined = self.client.get(reverse("job_centre") + "?join_discord=1")
         self.assertContains(joined, "https://discord.gg/Jmf29wBafP")
-        self.assertContains(joined, "Application sent")
+        self.assertContains(joined, "Job application sent")
+        self.assertContains(joined, "mgl-job-status")
+        self.assertContains(joined, "YOUR JOB APPLICATION")
         self.assertNotContains(joined, "YOUR APPLICATIONS")
         self.assertNotContains(joined, ">STATUS</h2>")
         self.assertNotContains(joined, 'class="table-row"')
@@ -153,6 +155,9 @@ class JobCentreExperienceTests(TestCase):
         self.assertEqual(app.status, ApprovalStatus.PENDING)
 
         manager_jobs = self.client.get(reverse("job_centre"))
+        self.assertContains(manager_jobs, "mgl-job-status")
+        self.assertContains(manager_jobs, "YOUR JOB APPLICATION")
+        self.assertContains(manager_jobs, "PENDING")
         self.assertNotContains(manager_jobs, "YOUR APPLICATIONS")
         self.assertNotContains(manager_jobs, ">STATUS</h2>")
         self.assertNotContains(manager_jobs, 'class="table-row"')
@@ -447,7 +452,7 @@ class LiveActivityAndPressTests(TestCase):
             status=ApprovalStatus.PENDING,
             gamertag="NEW",
             discord_username="new",
-            games_per_week="3",
+            games_per_week="3-5",
             new_gen_confirmed=True,
         )
         self.client.login(username="owner", password="test-pass-123")

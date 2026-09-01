@@ -249,8 +249,8 @@ class AuctionWorkflowTests(TestCase):
         self.assertNotContains(response, "UNASSIGNED Z")
         self.assertNotContains(response, "LEGACY UNSIGNED")
         self.assertNotContains(response, "RELEASE TO AUCTION")
-        self.assertContains(response, ">BUY</button>")
-        self.assertNotContains(response, "SIGN FOR 0 TKN")
+        self.assertContains(response, "SIGN FOR 0 TKN")
+        self.assertNotContains(response, ">BUY</button>")
         self.client.logout()
         self.client.login(username="owner", password="test-pass-123")
         unassigned = self.client.get(reverse("unassigned_players"))
@@ -354,8 +354,8 @@ class AuctionWorkflowTests(TestCase):
         self.client.login(username="buyer", password="test-pass-123")
         page = self.client.get(reverse("free_agents"))
         self.assertContains(page, "UNASSIGNED Z")
-        self.assertContains(page, ">BUY</button>")
-        self.assertNotContains(page, "SIGN FOR 0 TKN")
+        self.assertContains(page, "SIGN FOR 0 TKN")
+        self.assertNotContains(page, ">BUY</button>")
 
     def test_winning_unassigned_auction_assigns_club_not_free_agent(self):
         auction = create_free_agent_auction(self.unassigned, self.owner, 30)
@@ -398,23 +398,23 @@ class AuctionWorkflowTests(TestCase):
 
     def test_manager_can_release_own_player_to_free_agents(self):
         from mgl.models import PlayerReleaseRequest
-        from mgl.services import approve_player_release
 
         self.client.login(username="seller", password="test-pass-123")
+        tokens_before = self.mgr_a.tokens
         response = self.client.post(reverse("release_my_player", args=[self.owned.id]))
         self.assertEqual(response.status_code, 302)
         self.owned.refresh_from_db()
-        self.assertFalse(self.owned.is_free_agent)
-        self.assertEqual(self.owned.mgl_team_id, self.team_a.id)
-        request_row = PlayerReleaseRequest.objects.get(player=self.owned)
-        approve_player_release(request_row, self.owner)
-        self.owned.refresh_from_db()
         self.assertTrue(self.owned.is_free_agent)
         self.assertIsNone(self.owned.mgl_team_id)
+        self.assertIsNotNone(self.owned.released_at)
+        request_row = PlayerReleaseRequest.objects.get(player=self.owned)
+        self.assertEqual(request_row.status, "APPROVED")
+        self.mgr_a.refresh_from_db()
+        self.assertEqual(self.mgr_a.tokens, tokens_before)
         page = self.client.get(reverse("free_agents"))
         self.assertContains(page, "CLUB PLAYER")
-        self.assertContains(page, ">BUY</button>")
-        self.assertNotContains(page, "SIGN FOR 0 TKN")
+        self.assertContains(page, "SIGN FOR 0 TKN")
+        self.assertNotContains(page, ">BUY</button>")
 
     def test_manager_cannot_release_other_club_or_unassigned_player(self):
         self.client.login(username="seller", password="test-pass-123")

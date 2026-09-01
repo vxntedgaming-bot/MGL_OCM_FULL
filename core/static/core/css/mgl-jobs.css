@@ -588,6 +588,48 @@ body.mgl-jobs-body .mgl-main {
     height: 16px;
 }
 
+.mgl-job-status {
+    margin: 0 0 22px;
+    padding: 16px 18px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.22);
+}
+
+.mgl-job-status h2 {
+    margin: 0 0 8px;
+    color: var(--ufl-gold, #d4af37);
+    font-size: 13px;
+    letter-spacing: 0.08em;
+}
+
+.mgl-job-status-line {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 0 12px;
+    color: #fff;
+    font-weight: 700;
+}
+
+.mgl-job-status-fields {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px 16px;
+    margin: 0 0 12px;
+}
+
+.mgl-job-status-fields dt {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.48);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+}
+
+.mgl-job-status-fields dd {
+    margin: 2px 0 0;
+    color: #fff;
+}
+
 .mgl-job-discord-note,
 .mgl-job-pending {
     margin: 0;

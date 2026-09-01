@@ -171,7 +171,7 @@ def load_queues():
     ).select_related("user")
     pending_jobs = ClubApplication.objects.filter(
         status=ApprovalStatus.PENDING
-    ).select_related("manager", "team")
+    ).select_related("manager", "manager__user", "team")
     live_auctions = PlayerAuction.objects.filter(
         status=PlayerAuction.LIVE
     ).select_related("player", "winning_manager")
@@ -273,7 +273,7 @@ def attention_items(queues, limit=8):
     for job in queues["pending_jobs"]:
         items.append(
             {
-                "kind": "CLUB APPLICATION",
+                "kind": "JOB APPLICATION",
                 "title": job.manager.display_name,
                 "detail": "Pending Review",
                 "meta": job.team.name,

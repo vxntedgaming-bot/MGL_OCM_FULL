@@ -96,13 +96,13 @@ Until step 3, the player remains at the selling club.
 
 **PHASE 1 LOCKED:** no Admin/Owner approval for release listings.
 
-**CURRENT CODE**
+**IMPLEMENTED (Phase 4)**
 
-1. Manager requests release.
-2. Control approve → `release_player` → Free Agent (typical path).
-3. Reject → request REJECTED; player stays.
+1. Manager releases their own club-owned player.
+2. `request_player_release` immediately calls `release_player` → genuine UFL Free Agent (`released_at`).
+3. No Control approval on the official path. Leftover PENDING rows can still be rejected (player stays) or approved.
 
-GAP — Phase 1 says release listings do not need Control. **DEC-042:** a club release that is an explicit UFL FA process may create a Free Agent; unsigned FC26 players must not be bulk-converted to FA.
+**DEC-042:** a club release that is an explicit UFL FA process creates a Free Agent; unsigned FC26 players must not be bulk-converted to FA.
 
 Admin unsigned auctions: no bid may create a Free Agent. Manager club auctions: no bid returns the player home (**CURRENT CODE** already does this).
 
@@ -110,14 +110,12 @@ Admin unsigned auctions: no bid may create a Free Agent. Manager club auctions: 
 
 **LOCKED UFL RULE (DEC-041):** MEMBER → Job Application → Admin reviews → Admin accepts → member gets the job and becomes the manager. **No** extra manager-application approval.
 
-**CURRENT CODE**
+**IMPLEMENTED (Phase 4)**
 
-1. Registration still creates `ManagerApplication` PENDING until Control approve/reject.
-2. Job apply (`ClubApplication`) is only accepted from an already-approved manager.
-3. Control `control_approve_job` sets `Team.manager`.
-4. Reject job: application REJECTED; club stays vacant.
-
-**GAP TO IMPLEMENT:** drop the extra manager-application review from the official path; align fields (Discord username; 1–3 / 3–5 / 6+). See DEC-041. Do not implement in this pass.
+1. Registration still creates `ManagerApplication` PENDING as the identity/token row. That is not the official job review.
+2. Members submit Job Application (`ClubApplication`) without a prior identity approval.
+3. Control `control_approve_job` atomically approves the identity if needed and sets `Team.manager`.
+4. Reject job: Job Application REJECTED; identity stays as it was; club stays vacant; the Member may apply again.
 
 ---
 

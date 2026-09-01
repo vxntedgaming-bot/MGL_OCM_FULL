@@ -23,11 +23,15 @@ from players.models import Player
 
 
 UNASSIGNED = "UNASSIGNED"
+UNSIGNED = "UNSIGNED"
 FREE_AGENT = "FREE AGENT"
+UFL_FREE_AGENT = "UFL FREE AGENT"
 AUCTION = "AUCTION"
 CLUB_PLAYER = "CLUB PLAYER"
+CLUB_OWNED = "CLUB-OWNED"
 ASSIGNED = "ASSIGNED"
 TRANSFER_LISTED = "TRANSFER LISTED"
+TEMPORARILY_LISTED = "TEMPORARILY LISTED"
 IN_NEGOTIATION = "IN NEGOTIATION"
 
 LIVE_AUCTION_STATUSES = (PlayerAuction.PENDING, PlayerAuction.LIVE)
@@ -137,6 +141,17 @@ def player_is_in_live_auction(player):
         player_id=pk,
         status__in=LIVE_AUCTION_STATUSES,
     ).exists()
+
+
+def ufl_player_status(player):
+    """Locked UFL product status. Legacy `is_free_agent` never wins."""
+    if player_is_in_live_auction(player):
+        return TEMPORARILY_LISTED
+    if getattr(player, "mgl_team_id", None):
+        return CLUB_OWNED
+    if is_ufl_free_agent(player):
+        return UFL_FREE_AGENT
+    return UNSIGNED
 
 
 def market_status(player):

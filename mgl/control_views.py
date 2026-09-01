@@ -98,7 +98,7 @@ def control_pending(request):
     for job in queues["pending_jobs"]:
         inbox.append(
             {
-                "kind": "MANAGER APPLICATION",
+                "kind": "JOB APPLICATION",
                 "title": job.manager.display_name,
                 "submitted_by": job.manager.display_name,
                 "club": job.team.name,
@@ -127,8 +127,12 @@ def control_pending(request):
         inbox = [row for row in inbox if row["kind"] == "TRANSFER"]
     elif inbox_type == "press":
         inbox = [row for row in inbox if row["kind"] == "PRESS"]
-    elif inbox_type in {"managers", "applications"}:
-        inbox = [row for row in inbox if row["kind"] == "MANAGER APPLICATION"]
+    elif inbox_type in {"managers", "applications", "jobs"}:
+        inbox = [
+            row
+            for row in inbox
+            if row["kind"] in {"MANAGER APPLICATION", "JOB APPLICATION"}
+        ]
     if search:
         inbox = [
             row

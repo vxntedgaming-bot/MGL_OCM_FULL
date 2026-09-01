@@ -74,7 +74,7 @@ Legend: **Y** = yes, **N** = no, **Own** = only own club / own records, **OA** =
 | View released fixture detail | Y | Y | Y | Y | Y | `is_released=True` |
 | View stats (approved results only) | Y | Y | Y | Y | Y | Public |
 | View jobs / apply form | Y | Y | Y | Y | Y | Public GET |
-| Apply for a vacant club | N | **LOCKED:** signed-in member submits Job Application. **CODE:** only if `approved_manager` | Y | Y | Y | `@login_required` + **CURRENT CODE** `approved_manager` — **GAP TO IMPLEMENT** vs DEC-041 |
+| Apply for a vacant club | N | **Y** — Job Application | N if already appointed | Y | Y | `@login_required` + server-side pending/club checks |
 | View rules | Y | Y | Y | Y | Y | Public |
 | View live activity / pressroom | Y | Y | Y | Y | Y | Public |
 | View public completed transfers | Y | Y | Y | Y | Y | Public |
@@ -104,8 +104,8 @@ Legend: **Y** = yes, **N** = no, **Own** = only own club / own records, **OA** =
 | Approve completed sale | N | N | N | Y | Y | `owner_admin_required` |
 | Reject listing / request changes | N | N | N | Y | Y | `owner_admin_required` |
 | Instant buy without request | N | N | N | N | N | `buy_listed_player` raises; `buy_player` redirects to BUY page |
-| Request player release | N | N | Own | — | — | `career_required` |
-| Approve / reject release | N | N | N | Y (code) | Y (code) | **Phase 1 LOCKED: releases should not need OA.** CURRENT CODE: `owner_admin_required` — GAP |
+| Request player release | N | N | Own — immediate FA | — | — | `career_required` + club ownership. No Control gate |
+| Approve / reject leftover release | N | N | N | Y (leftover PENDING only) | Y (leftover PENDING only) | Official manager release no longer queues |
 | Create club auction | N | N | Own, if `allow_manager_auctions` | Y | Y | Caps in `mgl/market.py` |
 | Bid on auction | N | N | Y (tokens reserved) | Y | Y | `career_required` |
 | Close / cancel auction | N | N | N | Y | Y | `owner_admin_required` |
@@ -135,7 +135,7 @@ Notification view decorators: `manager_notifications` and related views in `mgl/
 
 | Action | Public | Member | Manager | Admin | Owner | Server-side |
 |---|---|---|---|---|---|---|
-| Apply for vacant club | See above | **LOCKED:** yes via Job Application. **CODE:** need approved `ManagerApplication` | Y | Y | Y | POST protected; **GAP TO IMPLEMENT** |
+| Apply for vacant club | See above | **Y** via Job Application | N if already appointed | Y | Y | POST protected; one PENDING per manager |
 | Approve / reject job | N | N | N | Y | Y | `owner_admin_required` — **this is the official DEC-041 accept** |
 | Approve / reject manager application | N | N | N | Y (code) | Y (code) | **CURRENT CODE** extra queue. **LOCKED:** not part of the official job path |
 | Change / remove club manager | N | N | N | Y | Y | `owner_admin_required` on `/mgl/admin/clubs/…` and Control |
@@ -176,8 +176,8 @@ Confirmed in services:
 
 ## What Members cannot do
 
-Members (signed in, not appointed) cannot use Career Mode routes. `career_required` sends them to Job Centre. They can browse public pages and log out. They can apply for a club only if they already have an **approved** `ManagerApplication` — registration leaves status **PENDING**, so a brand-new account **cannot** complete `apply_for_club` until Owner/Admin approve the manager application.
+Members (signed in, not appointed) cannot use Career Mode routes. `career_required` sends them to Job Centre. They can browse public pages and log out. They submit the official Job Application from Job Offers. Registration may create a PENDING `ManagerApplication` identity/token row; that is **not** a second approval gate.
 
 **LOCKED (DEC-041):** A Member submits the Job Application; Admin reviews that one form and accepts; the member becomes the manager. No second manager-application approval.
 
-**CURRENT CODE / GAP TO IMPLEMENT:** `apply_for_club` still requires `approved_manager()` (approved `ManagerApplication`). Members with only a pending application cannot complete a job apply. Do not change that in this documentation task.
+**IMPLEMENTED (Phase 4):** `apply_for_club` accepts a PENDING identity. Admin Job Application accept is the official promotion.

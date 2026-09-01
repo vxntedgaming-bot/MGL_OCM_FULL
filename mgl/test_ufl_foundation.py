@@ -172,17 +172,22 @@ class UFLFoundationTests(TestCase):
         response = client.post(reverse("release_my_player", args=[self.owned.pk]))
         self.assertEqual(response.status_code, 302)
         self.owned.refresh_from_db()
-        self.assertEqual(self.owned.mgl_team_id, self.team_a.id)
-        self.assertFalse(self.owned.is_free_agent)
-        request_row = PlayerReleaseRequest.objects.get(player=self.owned)
-        approve_player_release(request_row, self.admin)
-        self.owned.refresh_from_db()
         self.assertIsNone(self.owned.mgl_team_id)
         self.assertTrue(self.owned.is_free_agent)
+        self.assertIsNotNone(self.owned.released_at)
+        request_row = PlayerReleaseRequest.objects.get(player=self.owned)
+        self.assertEqual(request_row.status, "APPROVED")
 
     def test_release_reject_keeps_player(self):
-        request_row = request_player_release(self.owned, self.team_a, self.mgr_a)
-        reject_player_release(request_row, self.admin)
+        from mgl.models import ApprovalStatus
+
+        leftover = PlayerReleaseRequest.objects.create(
+            player=self.owned,
+            team=self.team_a,
+            manager=self.mgr_a,
+            status=ApprovalStatus.PENDING,
+        )
+        reject_player_release(leftover, self.admin)
         self.owned.refresh_from_db()
         self.assertEqual(self.owned.mgl_team_id, self.team_a.id)
         self.assertFalse(self.owned.is_free_agent)

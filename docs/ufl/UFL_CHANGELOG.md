@@ -6,6 +6,21 @@ This file started with the documentation/audit pass. It does **not** claim that 
 
 ---
 
+## 2026-09-01 — Phase 4 Job Application + player release lifecycle
+
+Implemented DEC-041 and immediate manager release (DEC-025 / Phase 1 lock).
+
+- Job Application (`ClubApplication`) is the only official process that makes a Member a Manager. Accept is atomic: approve identity if still PENDING, assign the club, open the club spell, mark the Job Application APPROVED.
+- Official fields: EA ID / gamertag, Discord username, games per week **1–3 / 3–5 / 6+**, referred by, required new-gen checkbox. Optional numeric Discord ID may be stored on `User.discord_id` without replacing the username.
+- One PENDING Job Application per manager (`unique_pending_club_application`). Reject leaves the user a Member; they may apply again.
+- `ManagerApplication` remains the token/identity row created at registration. It is not a second approval gate on the official path. The leftover Control identity queue is labelled as legacy.
+- Manager release is immediate: CLUB-OWNED → genuine UFL Free Agent (`released_at`). No Control approval, no token charge. `PlayerReleaseRequest` is written APPROVED as an audit row. Leftover PENDING rows can still be approved/rejected.
+- Free Agents page signs with **SIGN FOR 0 TKN**. Recruitment/scout rejects stay UNSIGNED. Manager auction no-bid still returns home. Admin unsigned no-bid may become genuine FA.
+- Central helper: `ufl_player_status()` → UNSIGNED / CLUB-OWNED / TEMPORARILY LISTED / UFL FREE AGENT. Legacy `is_free_agent` never wins.
+- Migration `mgl.0029_phase4_job_release`. No Season 1 bootstrap, no FC26 mass edit, no Discord/YourBot, no production data writes.
+
+---
+
 ## 2026-09-01 — Phase 3 recruitment, scouting, Free Agents and auction economy
 
 Implemented the UFL player recruitment economy on top of locked DEC-042 status.

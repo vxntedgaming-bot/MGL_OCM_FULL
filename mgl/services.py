@@ -232,12 +232,15 @@ def create_news(category, title, body, publish=True, team=None, secondary_team=N
 
 @transaction.atomic
 def request_player_release(player, team, manager, reason=""):
-    """Manager asks to release a player. Ownership does not change until approved."""
-    from mgl.models import ApprovalRequest, ApprovalStatus, PlayerReleaseRequest
+    """Manager release: club-owned → genuine UFL Free Agent. No Control approval."""
+    from mgl.models import ApprovalStatus, PlayerReleaseRequest
+    from mgl.player_state import is_ufl_free_agent, ufl_player_status
 
     player = Player.objects.select_for_update().get(pk=player.pk)
     if player.mgl_team_id != team.id:
         raise ValueError("This player does not belong to this team.")
+    if is_ufl_free_agent(player) or player.released_at:
+        raise ValueError("This player has already been released.")
     if PlayerListing.objects.filter(
         player=player,
         status__in=[PlayerListing.PENDING, PlayerListing.LIVE, PlayerListing.OFFER],
@@ -253,42 +256,33 @@ def request_player_release(player, team, manager, reason=""):
     ).exists():
         raise ValueError("A release request for this player is already pending.")
 
+    reviewer = getattr(manager, "user", None)
+    player = release_player(
+        player,
+        team,
+        source="MANAGER_RELEASE",
+        reviewer=reviewer,
+    )
     request_row = PlayerReleaseRequest.objects.create(
         player=player,
         team=team,
         manager=manager,
         reason=reason or "",
-        status=ApprovalStatus.PENDING,
+        status=ApprovalStatus.APPROVED,
+        reviewed_at=timezone.now(),
+        reviewed_by=reviewer,
     )
-    ApprovalRequest.objects.create(
-        kind="PLAYER_RELEASE",
+    from mgl.audit import log_ocm_action
+
+    log_ocm_action(
+        reviewer,
+        action="player.release",
+        object_type="PlayerReleaseRequest",
         object_id=request_row.pk,
-        submitted_by=getattr(manager, "user", None),
-        status=ApprovalStatus.PENDING,
-        payload={"player_id": player.pk, "team_id": team.pk},
+        object_label=player.name,
+        new_value=ufl_player_status(player),
+        summary=f"{player.name} released to genuine UFL Free Agency.",
     )
-    from django.urls import reverse
-
-    from accounts.models import User
-    from mgl.notifications import notify_user
-
-    for user in User.objects.filter(role__in=[User.OWNER, User.ADMIN], is_active=True):
-        notify_user(
-            user,
-            source_key=f"admin-release-{request_row.pk}",
-            notification_type="RELEASE",
-            title="PLAYER RELEASE REQUEST",
-            message=(
-                f"{team.name} requested to release {player.name}. "
-                "The player stays in the squad until you approve."
-            ),
-            actor=manager.display_name,
-            action_url=reverse("control_pending"),
-            action_label="REVIEW",
-            team=team,
-            player=player,
-            is_action=True,
-        )
     return request_row
 
 
@@ -357,8 +351,8 @@ def reject_player_release(release_request, reviewer, reason=""):
 @transaction.atomic
 def release_player(player, team, source="MANAGER_RELEASE", reviewer=None):
     """
-    Official release. Managers must go through request_player_release.
-    Admin/Owner and the approval engine call this after review.
+    Official release into genuine UFL Free Agency. No token charge.
+    Managers use request_player_release, which calls this immediately.
     """
 
     player = Player.objects.select_for_update().get(pk=player.pk)

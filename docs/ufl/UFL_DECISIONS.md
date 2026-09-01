@@ -52,7 +52,7 @@ Managers may only sell, release, auction, and submit results for their own club.
 
 Official results, **transfer requests**, press rewards, job appointments, and awards require Owner/Admin. Starting squads require Owner. Opponent/seller accept is not official.
 
-**Phase 1 LOCKED:** **player listings** and **release listings** do **not** require Admin/Owner approval. **CURRENT CODE still requires Control for releases** (GAP).
+**Phase 1 LOCKED:** **player listings** and **release listings** do **not** require Admin/Owner approval. **IMPLEMENTED (Phase 4):** manager release is immediate and does not wait for Control. Leftover PENDING `PlayerReleaseRequest` rows can still be reviewed.
 
 ---
 
@@ -279,7 +279,7 @@ Official fields (user-facing):
 
 Do **not** use 1 / 2 / 3 / 4 / 5+ as the official options.
 
-**CURRENT CODE / GAP TO IMPLEMENT:** registration still creates a separate pending `ManagerApplication`; `apply_for_club` requires that application to be APPROVED first; job form still asks for a numeric Discord user ID and games-per-week 1 / 2 / 3 / 4 / 5+. Do not change that in a documentation task.
+**IMPLEMENTED (Phase 4):** registration still creates a `ManagerApplication` identity/token row (not a second job-review gate). A Member with a PENDING identity can submit the Job Application. Admin accept of that Job Application atomically approves the identity if needed and assigns the club. Form fields are Discord username and games-per-week **1–3 / 3–5 / 6+**. Optional numeric Discord ID may be stored on `User.discord_id` without replacing the username.
 
 ### DEC-042 — Unsigned ≠ Free Agent; Season 1 uses the unsigned pool
 

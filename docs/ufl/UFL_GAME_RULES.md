@@ -269,14 +269,12 @@ See `UFL_TRANSFER_RULES.md`.
 
 Fields: EA ID / gamertag, **Discord username**, games per week **1–3 / 3–5 / 6+** only, referred by, new-gen wording “I confirm I am playing on a new-generation console.”
 
-**CURRENT CODE**
+**IMPLEMENTED (Phase 4)**
 
 - Vacant clubs listed on `/jobs/` and `/job-offers/`.
-- Application fields: gamertag, **Discord user id (must be numeric)**, games per week **1, 2, 3, 4, 5+**, referred by, new-gen confirmation.
-- Owner/Admin approve assigns the manager to the club.
-- Account registration does **not** appoint a club. `apply_for_club` also requires an **approved** `ManagerApplication` first.
-
-**GAP TO IMPLEMENT:** extra manager-application gate; Discord username vs ID; games-per-week options. Do not implement in a documentation task.
+- Application fields: gamertag, **Discord username**, games per week **1–3 / 3–5 / 6+**, referred by, required new-gen checkbox.
+- Owner/Admin Job Application accept atomically assigns the manager to the club.
+- Account registration does **not** appoint a club. The registration `ManagerApplication` row is identity/tokens only.
 
 ---
 

@@ -137,7 +137,7 @@ The Job Application is the **single** application process (DEC-041). MEMBER subm
 
 Fields: EA ID / gamertag, Discord **username** (not numeric ID), games per week (**1–3 / 3–5 / 6+** only), referred by, new-gen confirmation (“I confirm I am playing on a new-generation console.”). Do not invent extra mandatory fields.
 
-**CURRENT CODE / GAP TO IMPLEMENT:** separate `ManagerApplication` still exists and must be APPROVED before `apply_for_club`; form still uses numeric Discord ID and 1 / 2 / 3 / 4 / 5+.
+**IMPLEMENTED (Phase 4):** `ManagerApplication` remains the identity/token row. Job Application (`ClubApplication`) is the official gate. Form fields: Discord username; games per week 1–3 / 3–5 / 6+; required new-gen checkbox.
 
 ### Django `/admin/`
 
@@ -158,7 +158,7 @@ Logged-in header scale: CSS pass already shipped. Status: **NEEDS OWNER VISUAL C
 Ultimate Fantasy League (UFL) is the league-management website for an EA FC 26 Career Mode football league. Matches are played on the external/virtual game. The website stores official UFL state (clubs, squads, transfers, scores, statistics, fixtures).
 
 - Managers apply for clubs, receive a personal token balance, run a squad, list and buy players, scout, open recruitment packs, submit match results, and answer press questions.
-- Owner and Admin approve **results**, **transfer requests**, **job applications**, **press answers**, and **awards**. Starting squads remain Owner-gated in code. **Player listings** and **release listings** do **not** require Admin/Owner approval (Phase 1 lock). **CURRENT CODE still requires Control approval for releases** — GAP, do not implement in this pass.
+- Owner and Admin approve **results**, **transfer requests**, **job applications**, **press answers**, and **awards**. Starting squads remain Owner-gated in code. **Player listings** and **release listings** do **not** require Admin/Owner approval (Phase 1 lock). **IMPLEMENTED (Phase 4):** manager player release is immediate.
 - The **website/database is the source of truth**. Discord is an outbox: official events are queued (`DiscordEvent`) and a separate bot process should reflect approved updates.
 - User-facing brand is **UFL / Ultimate Fantasy League**. Internal app labels, Python packages, and many URLs still use `mgl` so existing Railway, Discord, and test links keep working.
 
@@ -346,7 +346,7 @@ See `UFL_DATABASE_RULES.md`. Summary:
 Two admin surfaces:
 
 1. **Django admin** `/admin/` — **Phase 1 LOCKED: retained.** Staff/superuser. Includes match-approval actions that call the same `approve_match_submission` path. Do not remove it.
-2. **UFL Control Centre** `/mgl/control/` — Owner/Admin only (`owner_admin_required`). Queues for scores, transfers, press, managers, jobs, releases (code still queues releases; Phase 1 says release listings should not need this), awards, tokens, scouting exceptions, auctions, clubs, notifications, logs, season, league, starting squads.
+2. **UFL Control Centre** `/mgl/control/` — Owner/Admin only (`owner_admin_required`). Queues for scores, transfers, press, job applications, leftover identity records, leftover pending releases, awards, tokens, scouting exceptions, auctions, clubs, notifications, logs, season, league, starting squads. New manager releases do not enter the Control queue.
 
 ---
 
@@ -369,7 +369,7 @@ See `UFL_APPROVAL_SYSTEM.md`.
 
 **Phase 1 locked:** listings and release listings do **not** need Admin/Owner approval. Transfer requests **do**. Job applications **do**. Match results **do**.
 
-**CURRENT CODE:** listings go LIVE without Control. Transfer requests still need Control after seller accept. **Releases still need Control** (`PlayerReleaseRequest`) — GAP vs Phase 1.
+**CURRENT CODE:** listings go LIVE without Control. Transfer requests still need Control after seller accept. **Manager releases are immediate** (`request_player_release` writes an APPROVED audit row and calls `release_player`). Leftover PENDING release rows can still be reviewed.
 
 Owner/Admin also approve press, awards, and (Owner only) starting-squad apply. Opponent Accept/Reject on a result does **not** make the result official.
 
@@ -503,12 +503,7 @@ League rules that must not be hard-coded in frontend JS live in `LeagueSettings`
 
 - Code starting shape is **25**; `max_squad_size` default **28**; locked roster is **30**
 - Code production clubs: **14 Premier League** test clubs, not 16/14/8
-- Code **releases still require** Control approval
-- `scout_can_recruit()` **hard-codes True**
-- Pack per-opening limits are **not** confirmed as a per-pack configurable field
-- Token 0.5-increment **not** enforced by validation
-- Job form: games-per-week options and Discord **username vs numeric ID** differ from Phase 1
-- Current code also requires an approved `ManagerApplication` before a club job apply — extra step vs **DEC-041** (Job Application is the single process). **GAP TO IMPLEMENT**
+- Production still has **14 Premier League** test clubs; 38-club apply is blocked
 - Weekly period Sunday 10:00 AM and the full weekly/cup reward table are **not confirmed as implemented**
 
 ### UNKNOWN / UNDECIDED / NEEDS OWNER

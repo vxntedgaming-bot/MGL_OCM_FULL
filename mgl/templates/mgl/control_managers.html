@@ -1,53 +1,29 @@
 {% extends "mgl/includes/control_page.html" %}
 {% load mgl_ui %}
 
-{% block control_title %}Manager Applications — UFL Control{% endblock %}
+{% block control_title %}Job Applications — UFL Control{% endblock %}
 {% block control_kicker %}APPROVALS{% endblock %}
-{% block control_heading %}MANAGER APPLICATIONS{% endblock %}
-{% block control_intro %}Review and manage manager applications.{% endblock %}
+{% block control_heading %}JOB APPLICATIONS{% endblock %}
+{% block control_intro %}The Job Application is the only process that makes a Member a Manager. Approve or reject pending applications here.{% endblock %}
 
 {% block control_body %}
-{% for app in pending_managers %}
-    <article class="mgl-cp-review">
-        <div class="mgl-cp-review-grid">
-            <div>
-                <h2 class="mgl-cp-gold">{{ app.display_name }}</h2>
-                <p>Applying for: {{ app.preferred_team|default:"Any available club" }}</p>
-                <p class="mgl-cp-kicker">EXPERIENCE</p>
-                <p>Gamertag {{ app.gamertag }}</p>
-                <p>Account {{ app.user.username }} · {{ app.user.role }}</p>
-                <p>Submitted {{ app.submitted_at|timesince }} ago · {{ app.status }}</p>
-                <p class="mgl-cp-kicker">MESSAGE</p>
-                <p>Preferred club: {{ app.preferred_team|default:"Not specified" }}.</p>
-            </div>
-            <aside>
-                <p class="mgl-cp-kicker">ACTIONS</p>
-                <div class="mgl-cp-actions">
-                    <form method="post" action="{% url 'control_approve_manager' app.id %}">{% csrf_token %}<input type="hidden" name="next_page" value="control_managers"><button class="header-button mgl-cp-approve" type="submit">APPROVE</button></form>
-                    <form method="post" action="{% url 'control_reject_manager' app.id %}">{% csrf_token %}<input type="hidden" name="next_page" value="control_managers"><button class="header-button mgl-cp-reject" type="submit">REJECT</button></form>
-                    <a href="{% url 'control_clubs' %}" class="header-button">VIEW PROFILE</a>
-                </div>
-            </aside>
-        </div>
-    </article>
-{% empty %}
-    {% include "mgl/includes/empty_state.html" with title="NO PENDING APPLICATIONS" %}
-{% endfor %}
-
+<h2 class="mgl-cp-kicker">PENDING JOB APPLICATIONS</h2>
 {% for app in pending_jobs %}
     <article class="mgl-cp-review">
         <div class="mgl-cp-review-grid">
             <div>
                 <h2 class="mgl-cp-gold">{{ app.manager.display_name }}</h2>
-                <p>Applying for: {{ app.team.name }}</p>
+                <p>Applicant {{ app.manager.user.username }} · applying for {{ app.team.name }}</p>
                 {% team_logo app.team "sm" %}
-                <p class="mgl-cp-kicker">EXPERIENCE</p>
+                <p class="mgl-cp-kicker">APPLICATION</p>
+                <p>EA ID / Gamertag {{ app.gamertag|default:"—" }}</p>
+                <p>Discord username {{ app.discord_username|default:"—" }}</p>
                 <p>Games per week {{ app.games_per_week|default:"—" }}</p>
                 <p>Referred by {{ app.referred_by|default:"—" }}</p>
-                <p>Account {{ app.manager.user.username }} · {{ app.manager.status }}</p>
+                <p>New-gen console {% if app.new_gen_confirmed %}CONFIRMED{% else %}NOT CONFIRMED{% endif %}</p>
+                <p>Submitted {{ app.created_at|date:"d M Y H:i" }} · {{ app.status }}</p>
                 <p class="mgl-cp-kicker">MESSAGE</p>
                 <p>{{ app.message|default:"No application message." }}</p>
-                <small>{{ app.created_at|timesince }} ago</small>
             </div>
             <aside>
                 <p class="mgl-cp-kicker">ACTIONS</p>
@@ -59,5 +35,31 @@
             </aside>
         </div>
     </article>
+{% empty %}
+    {% include "mgl/includes/empty_state.html" with title="NO PENDING JOB APPLICATIONS" %}
 {% endfor %}
+
+{% if pending_managers %}
+<h2 class="mgl-cp-kicker">LEGACY MANAGER IDENTITY RECORDS</h2>
+<p>These registration identity rows are not a second job-approval gate. Official appointments use Job Application approve above.</p>
+{% for app in pending_managers %}
+    <article class="mgl-cp-review">
+        <div class="mgl-cp-review-grid">
+            <div>
+                <h2 class="mgl-cp-gold">{{ app.display_name }}</h2>
+                <p>Identity record for {{ app.user.username }} · {{ app.status }}</p>
+                <p>Gamertag {{ app.gamertag }}</p>
+                <p>Submitted {{ app.submitted_at|timesince }} ago</p>
+            </div>
+            <aside>
+                <p class="mgl-cp-kicker">ACTIONS</p>
+                <div class="mgl-cp-actions">
+                    <form method="post" action="{% url 'control_approve_manager' app.id %}">{% csrf_token %}<input type="hidden" name="next_page" value="control_managers"><button class="header-button mgl-cp-approve" type="submit">APPROVE IDENTITY</button></form>
+                    <form method="post" action="{% url 'control_reject_manager' app.id %}">{% csrf_token %}<input type="hidden" name="next_page" value="control_managers"><button class="header-button mgl-cp-reject" type="submit">REJECT IDENTITY</button></form>
+                </div>
+            </aside>
+        </div>
+    </article>
+{% endfor %}
+{% endif %}
 {% endblock %}

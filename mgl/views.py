@@ -1110,7 +1110,7 @@ def release_my_player(request, player_id):
 
     messages.success(
         request,
-        f"Release requested for {player.name}. They stay in your squad until Admin approval.",
+        f"{player.name} has been released and is now a genuine UFL Free Agent. Signing cost: 0 TOKENS.",
     )
     return redirect("team_management")
 

@@ -2,7 +2,7 @@
 
 Checklist of the **current** project, not a future roadmap disguised as done work.
 
-Last documentation update: 1 September 2026 — **Phase 3 recruitment / scouting / FA / auction economy implemented (no Season 1 apply)**.
+Last documentation update: 1 September 2026 — **Phase 4 Job Application + player release lifecycle implemented (no Season 1 apply)**.
 
 ---
 
@@ -36,7 +36,7 @@ Still in Phase 1 as confirmation, not as missing Owner rules:
 - Logged-in header appearance: **NEEDS OWNER VISUAL CONFIRMATION**
 - Time zone for Sunday 10:00 AM: **NEEDS OWNER DECISION**
 
-Job Application implementation (remove extra manager-application gate; Discord username; 1–3 / 3–5 / 6+): **NEEDS IMPLEMENTATION** — documentation only; do not start without an explicit implementation task.
+Job Application implementation (remove extra manager-application gate; Discord username; 1–3 / 3–5 / 6+): **IMPLEMENTED** (Phase 4).
 
 Implementation of gaps is **not** Phase 1. That is a later, explicit task.
 
@@ -102,8 +102,9 @@ Implementation of gaps is **not** Phase 1. That is a later, explicit task.
 - REST API
 - Stored MEMBER role
 - **Apply Season 1 bootstrap + generate/approve 30-player squads on production** — Owner must authorise later
-- Remaining Phase 1 gaps: release without Control, **DEC-041 single Job Application**
+- Remaining Phase 1 gaps: none of the DEC-041 / immediate-release items remain. Discord/YourBot not connected.
 - Recruitment / scouting / FA / auction economy: **IMPLEMENTED** (Phase 3). Discord/YourBot not connected.
+- Job Application + immediate manager release: **IMPLEMENTED** (Phase 4).
 - Genuine UFL FA population stays empty until an approved process (club release, admin unsigned no-bid auction) runs. Unsigned FC26 rows stay unsigned. Pack/scout rejects stay UNSIGNED.
 
 ---
@@ -130,11 +131,10 @@ Unchanged from the audit. See `UFL_TEST_PLAN.md`. Do not run destructive tests a
 - Header crop: CSS aligned; **NEEDS OWNER VISUAL CONFIRMATION**
 - Production still has 14 PL test clubs / mixed squads; 38-club + 30-player apply not executed
 - Code starting shape and roster limit are 30; production data is not yet that structure
-- Releases still require Control vs locked no-approval
+- Releases: manager release is immediate (Phase 4). Leftover PENDING rows can still be reviewed.
 - Recruitment packs, scout choose-1, FA 0 TKN, manager auction 0.1 fee: **implemented**
 - Token 0.5 increments validated for new pack/scout costs; listing fee 0.1 remains the locked exception
-- Job form: games-per-week and Discord ID vs Phase 1 username + 1–3 / 3–5 / 6+
-- Extra manager-application step vs DEC-041 single Job Application — **NEEDS IMPLEMENTATION**
+- Job Application: Discord username + 1–3 / 3–5 / 6+; official accept is atomic — **IMPLEMENTED**
 - Weekly/cup reward table not confirmed as implemented
 - Hardcoded Job Centre Discord invite
 - Default DEBUG + insecure secret if production env is wrong
@@ -151,11 +151,11 @@ Unchanged from the audit. See `UFL_TEST_PLAN.md`. Do not run destructive tests a
 | Global nav / header | COMPLETE; visual check open |
 | Auth | COMPLETE (no reset) |
 | Career Mode core | COMPLETE (data protected) |
-| Transfers | COMPLETE in code; Phase 1 listings match; releases GAP |
+| Transfers | COMPLETE in code; listings live without Control; manager release immediate |
 | Tokens | COMPLETE ledger; 0.5 rule enforced on new pack/scout costs; listing fee 0.1 exception |
 | Fixtures / results | COMPLETE |
 | Stats / tables | COMPLETE |
-| Jobs | Rule **LOCKED** (DEC-041). Code **NEEDS IMPLEMENTATION** |
+| Jobs | Rule **LOCKED** (DEC-041). Code **IMPLEMENTED** (Phase 4) |
 | News / Live Activity / Press | COMPLETE |
 | Admin / Owner Control | COMPLETE; Django admin retained |
 | Starting squads | 30-player generator live; production allocation not applied |

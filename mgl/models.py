@@ -616,6 +616,13 @@ class ClubApplication(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["manager"],
+                condition=models.Q(status="PENDING"),
+                name="unique_pending_club_application",
+            ),
+        ]
 
 class FixtureReleaseBatch(models.Model):
     name=models.CharField(max_length=100)

@@ -128,14 +128,12 @@ This is the **transfer request** path. **Phase 1 LOCKED:** Admin/Owner must appr
 
 **PHASE 1 LOCKED:** release listings do **not** require Admin/Owner approval.
 
-**CURRENT CODE (GAP)**
+**IMPLEMENTED (Phase 4)**
 
-- Manager POST `release_my_player` creates `PlayerReleaseRequest` **PENDING**. It does **not** immediately free the player.
-- Owner/Admin `control_approve_release` / `control_reject_release`.
-- Approve calls `release_player` → player leaves the club, `is_free_agent=True` (unless another path says otherwise).
-- Unique constraint: one PENDING release per player.
-
-Do **not** remove the Control release queue in this documentation pass.
+- Manager POST `release_my_player` immediately releases a club-owned player into genuine UFL Free Agency (`released_at`). Cost: **0 tokens**.
+- `PlayerReleaseRequest` is written **APPROVED** as an audit row. Duplicate pending rows and live listing/auction conflicts are blocked.
+- Owner/Admin `control_approve_release` / `control_reject_release` remain only for leftover historical PENDING rows.
+- Unique constraint: one PENDING release per player (leftover queue only).
 
 **UNDECIDED:** whether a released player can be re-signed immediately by the same club (cool-down). Not found as a dedicated rule.
 
@@ -219,5 +217,5 @@ See `UFL_ROLES_PERMISSIONS.md`. Market POSTs are `@login_required` plus `approve
 - Closed transfer window (and Phase 1 says it must stay open)
 - Direct instant buy of a LIVE listing
 - Manager listing requiring pre-approval before LIVE (and Phase 1 forbids that)
-- Immediate manager release without Control (Phase 1 wants this; **code still requires Control**)
+- Immediate manager release without Control: **IMPLEMENTED** (Phase 4)
 - 0.5-increment validation on asking prices

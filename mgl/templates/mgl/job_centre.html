@@ -58,12 +58,37 @@
             </div>
             <aside class="mgl-jobs-info">
                 <span class="mgl-jobs-info-icon" aria-hidden="true">i</span>
-                <p>All managerial applications are subject to Owner/Admin approval. You will be contacted through Discord once your application has been reviewed. Submitting this form does not make you the manager.</p>
+                <p>The Job Application is the only application to become a UFL Manager. An Owner or Admin reviews it. Accepting it appoints you to the club. Submitting this form does not make you the manager.</p>
             </aside>
         </div>
 
         {% if join_discord and jobs_discord_invite %}
             <p class="mgl-job-pending">Application saved. <a href="{{ jobs_discord_invite }}" target="_blank" rel="noopener">Join the UFL Discord</a>.</p>
+        {% endif %}
+
+        {% if user.is_authenticated and own_application %}
+        <section class="mgl-job-status" aria-label="Your job application status">
+            <h2>YOUR JOB APPLICATION</h2>
+            <p class="mgl-job-status-line">
+                <span>{{ own_application.team.name }}</span>
+                <strong>{{ own_application.status }}</strong>
+            </p>
+            <dl class="mgl-job-status-fields">
+                <div><dt>EA ID / GAMERTAG</dt><dd>{{ own_application.gamertag|default:"—" }}</dd></div>
+                <div><dt>DISCORD USERNAME</dt><dd>{{ own_application.discord_username|default:"—" }}</dd></div>
+                <div><dt>GAMES PER WEEK</dt><dd>{{ own_application.games_per_week }}</dd></div>
+                <div><dt>REFERRED BY</dt><dd>{{ own_application.referred_by|default:"—" }}</dd></div>
+                <div><dt>NEW-GEN CONSOLE</dt><dd>{% if own_application.new_gen_confirmed %}CONFIRMED{% else %}NOT CONFIRMED{% endif %}</dd></div>
+                <div><dt>SUBMITTED</dt><dd>{{ own_application.created_at|date:"d M Y H:i" }}</dd></div>
+            </dl>
+            {% if own_application.status == "PENDING" %}
+                <p class="mgl-job-pending">Your application is pending Owner/Admin review. You cannot submit another while this one is pending.</p>
+            {% elif own_application.status == "REJECTED" %}
+                <p class="mgl-job-pending">This application was rejected. You remain a Member and may apply again.</p>
+            {% elif own_application.status == "APPROVED" %}
+                <p class="mgl-job-pending">This application was accepted. You are the manager of {{ own_application.team.name }}.</p>
+            {% endif %}
+        </section>
         {% endif %}
 
         {% if has_club %}
@@ -176,15 +201,15 @@
                             <input type="text" name="gamertag" value="{{ manager.gamertag }}" required maxlength="64" placeholder="Enter your EA ID / Gamertag">
                         </label>
                         <label>
-                            DISCORD USER ID
-                            <input type="text" name="discord_id" value="{{ user.discord_id|default:'' }}" required maxlength="32" inputmode="numeric" placeholder="Numeric Discord User ID">
+                            DISCORD USERNAME
+                            <input type="text" name="discord_username" required maxlength="64" placeholder="Your Discord username">
                         </label>
                         <label>
                             GAMES PER WEEK
                             <select name="games_per_week" required>
                                 <option value="">Select...</option>
-                                {% for choice in games_per_week_choices %}
-                                    <option value="{{ choice }}">{{ choice }}</option>
+                                {% for value, label in games_per_week_options %}
+                                    <option value="{{ value }}">{{ label }}</option>
                                 {% endfor %}
                             </select>
                         </label>
@@ -194,7 +219,7 @@
                         </label>
                         <label class="mgl-job-check">
                             <input type="checkbox" name="new_gen_confirmed" value="on" required>
-                            <span>I confirm I am playing on a new gen console (PS5, Xbox Series X/S or PC). This league is only compatible with new gen.</span>
+                            <span>I confirm I am playing on a new gen console.</span>
                         </label>
                         <button type="submit" class="primary-button mgl-jobs-submit">
                             <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19.3 5.2A18 18 0 0 0 14.8 4l-.2.4a16.4 16.4 0 0 1 4 1.5 16.2 16.2 0 0 0-12.2 0 16 16 0 0 1 3.9-1.5L10.1 4A18 18 0 0 0 4.7 5.2C2.1 9.1 1.4 12.8 1.7 16.5A18.4 18.4 0 0 0 7.3 19l.7-1.2a11.8 11.8 0 0 1-1.9-.9l.4-.3a13.3 13.3 0 0 0 11 0l.4.3a12 12 0 0 1-1.9.9l.7 1.2a18.4 18.4 0 0 0 5.6-2.5c.5-4.3-.7-8-2-11.3ZM8.7 14.6c-.8 0-1.5-.8-1.5-1.7s.7-1.7 1.5-1.7 1.5.8 1.5 1.7-.6 1.7-1.5 1.7Zm6.6 0c-.8 0-1.5-.8-1.5-1.7s.7-1.7 1.5-1.7 1.5.8 1.5 1.7-.7 1.7-1.5 1.7Z"/></svg>
@@ -210,20 +235,22 @@
                             <input type="text" disabled placeholder="Required after login">
                         </label>
                         <label>
-                            DISCORD USER ID
-                            <input type="text" disabled placeholder="Numeric Discord User ID">
+                            DISCORD USERNAME
+                            <input type="text" disabled placeholder="Your Discord username">
                         </label>
                         <label>
                             GAMES PER WEEK
                             <select disabled>
-                                <option>Select...</option>
+                                <option>1–3</option>
+                                <option>3–5</option>
+                                <option>6+</option>
                             </select>
                         </label>
                         <label>
                             REFERRED BY (optional)
                             <input type="text" disabled placeholder="Optional">
                         </label>
-                        <p class="mgl-job-check mgl-job-check--preview">I confirm I am playing on a new gen console (PS5, Xbox Series X/S or PC). This league is only compatible with new gen.</p>
+                        <p class="mgl-job-check mgl-job-check--preview">I confirm I am playing on a new gen console.</p>
                         <div class="mgl-job-form-foot">
                             {% if not user.is_authenticated %}
                                 <a href="{% url 'manager_login' %}?next={% url 'job_centre' %}" class="primary-button mgl-jobs-submit">LOGIN TO APPLY</a>
@@ -231,8 +258,10 @@
                                 <a href="{% url 'manager_register' %}" class="primary-button mgl-jobs-submit">REGISTER TO APPLY</a>
                             {% elif has_club %}
                                 <p class="mgl-job-pending">You already manage a club.</p>
+                            {% elif pending_application %}
+                                <p class="mgl-job-pending">Your application is pending Owner/Admin review.</p>
                             {% else %}
-                                <p class="mgl-job-pending">Your manager application must be approved before you can apply for a club.</p>
+                                <p class="mgl-job-pending">You cannot submit a Job Application right now.</p>
                             {% endif %}
                         </div>
                     </div>
