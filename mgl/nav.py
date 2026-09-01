@@ -17,7 +17,7 @@ LEAGUE_MENU = {
     },
     "current_slugs": {"premier-league", "championship", "league-one"},
     "items": (
-        {"label": "ALL LEAGUES", "url_name": "leagues_page"},
+        {"label": "All Leagues", "url_name": "leagues_page"},
         {
             "label": "Premier League",
             "url_name": "competition_page",
@@ -124,6 +124,7 @@ STATS_MENU = {
             "label": "Premier League Stats",
             "url_name": "league_stats",
             "url_kwargs": {"slug": "premier-league"},
+            "style": "sub",
         },
         {
             "label": "Championship Stats",

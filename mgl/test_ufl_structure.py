@@ -148,7 +148,7 @@ class UFLSiteStructureTests(TestCase):
             "Auctions",
             "Player Database",
             "LEAGUES",
-            "ALL LEAGUES",
+            "All Leagues",
             "Premier League",
             "Championship",
             "League One",
