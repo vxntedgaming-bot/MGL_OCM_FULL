@@ -41,7 +41,7 @@
                 {% for player in scout_candidates %}
                     <article class="mgl-club-card">
                         {% player_card player "small" %}
-                        <strong>{{ player|card_name }}</strong>
+                        <strong>{{ player.name }}</strong>
                         <span>{{ player.position }} · {{ player.overall }} OVR</span>
                         <span>UNSIGNED</span>
                         <form method="post">

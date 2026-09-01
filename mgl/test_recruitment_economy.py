@@ -357,17 +357,17 @@ class FreeAgentEconomyTests(TestCase):
         self.manager = _manager(self.user, "8.00")
         self.team = _club(self.user, self.league)
         self.unsigned = _unsigned(name="Pool Unsigned", position="ST", overall=71, is_free_agent=True)
-        self.genuine = _unsigned(name="Genuine FA", position="CM", overall=72, is_free_agent=False)
+        self.genuine = _unsigned(name="GENUINE FA", position="CM", overall=72, is_free_agent=False)
         enter_ufl_free_agency(self.genuine)
         self.client = Client(HTTP_HOST="127.0.0.1")
 
     def test_unsigned_and_legacy_flag_do_not_appear(self):
         names = list(free_agents().values_list("name", flat=True))
-        self.assertIn("Genuine FA", names)
+        self.assertIn("GENUINE FA", names)
         self.assertNotIn("Pool Unsigned", names)
         self.client.login(username="fa-mgr", password="test-pass-123")
         page = self.client.get(reverse("free_agents"))
-        self.assertContains(page, "Genuine FA")
+        self.assertContains(page, "GENUINE FA")
         self.assertNotContains(page, "Pool Unsigned")
         self.assertContains(page, "0 TOKENS")
 
