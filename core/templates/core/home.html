@@ -175,6 +175,73 @@
             {% include "mgl/includes/home_compact_table.html" with table=table|slice:":5" league=active_league %}
         </article>
     </div>
+    <div class="mgl-home-board" style="margin-top:22px">
+        <article class="mgl-home-card">
+            <div class="mgl-home-card-head">
+                <h2>RECENT RESULTS</h2>
+            </div>
+            {% for fixture in recent_results %}
+                <p>
+                    {% if fixture.home_team %}<a href="{% club_url fixture.home_team %}">{{ fixture.home_team.name }}</a>{% endif %}
+                    {% if fixture.home_goals is not None and fixture.away_goals is not None %}
+                        {{ fixture.home_goals }}–{{ fixture.away_goals }}
+                    {% else %}
+                        vs
+                    {% endif %}
+                    {% if fixture.away_team %}<a href="{% club_url fixture.away_team %}">{{ fixture.away_team.name }}</a>{% endif %}
+                </p>
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with title="NO RESULTS YET" %}
+            {% endfor %}
+        </article>
+        <article class="mgl-home-card">
+            <div class="mgl-home-card-head">
+                <h2>LATEST TRANSFERS</h2>
+                <a href="{% url 'public_transfers' %}" class="view-all">VIEW ALL →</a>
+            </div>
+            {% for row in recent_transfers %}
+                <p>
+                    {% if row.player %}<a href="{% url 'player_profile' row.player_id %}">{{ row.player.name }}</a>{% endif %}
+                    · {{ row.amount }} TKN
+                </p>
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with title="NO TRANSFERS YET" %}
+            {% endfor %}
+        </article>
+        <article class="mgl-home-card">
+            <div class="mgl-home-card-head">
+                <h2>LIVE AUCTIONS</h2>
+            </div>
+            {% for auction in live_home_auctions %}
+                <p>
+                    {% if auction.player %}<a href="{% url 'player_profile' auction.player_id %}">{{ auction.player.name }}</a>{% endif %}
+                </p>
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with title="NO LIVE AUCTIONS" %}
+            {% endfor %}
+        </article>
+        <article class="mgl-home-card">
+            <div class="mgl-home-card-head">
+                <h2>FEATURED PLAYERS</h2>
+            </div>
+            {% for player in featured_players %}
+                <p><a href="{% url 'player_profile' player.pk %}">{{ player.name }}</a> · {{ player.goals }} G</p>
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with title="NO FEATURED PLAYERS YET" %}
+            {% endfor %}
+        </article>
+        <article class="mgl-home-card">
+            <div class="mgl-home-card-head">
+                <h2>LEAGUE ACTIVITY</h2>
+                <a href="{% url 'live_activity' %}" class="view-all">VIEW ALL →</a>
+            </div>
+            {% for item in activity %}
+                <p>{{ item.kind }} · {{ item.title }} · {{ item.detail }}</p>
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with title="NO LEAGUE ACTIVITY YET" %}
+            {% endfor %}
+        </article>
+    </div>
 </section>
 
 <section class="mgl-home-experience">
@@ -227,7 +294,7 @@
 <section class="ufl-discord">
     <h2>Ready to take the dugout?</h2>
     <p>Arrange fixtures, discuss transfers, and stay up to date with the league.</p>
-    <a href="{{ discord_invite_url }}" class="primary-button" target="_blank" rel="noopener">JOIN OUR DISCORD</a>
+    <a href="{{ discord_invite_url }}" class="primary-button" target="_blank" rel="noopener">JOIN DISCORD</a>
 </section>
 {% endif %}
 

@@ -150,7 +150,7 @@ CAREER_MENU = {
         {"label": "Dashboard", "url_name": "manager_hub"},
         {"label": "My Squad", "url_name": "team_management", "divider": True},
         {"label": "Fixtures", "url_name": "fixture_list", "divider": True},
-        {"label": "CLUBS", "url_name": "clubs_index", "divider": True},
+        {"label": "Clubs", "url_name": "clubs_index", "divider": True},
         {"label": "Club Profiles", "url_name": "clubs_index"},
         {"label": "Career History", "url_name": "manager_profile", "divider": True},
     ),

@@ -291,7 +291,7 @@ class NavigationDropdownTests(TestCase):
             self.assertIn("HOME", nav)
             self.assertIn("MY TEAM", nav)
             self.assertIn("LEAGUE", nav)
-            self.assertIn("CLUBS", nav)
+            self.assertIn("Clubs", nav)
             self.assertIn("MARKET", nav)
             self.assertIn("STATS", nav)
             self.assertIn("JOB CENTRE", nav)
