@@ -64,12 +64,15 @@ class DropdownStyleTests(TestCase):
                     self.assertNotEqual(label, label.upper(), label)
 
     def test_homepage_dropdown_items_share_one_class(self):
-        response = Client(HTTP_HOST="127.0.0.1").get("/")
+        response = Client(HTTP_HOST="127.0.0.1").get(reverse("leagues_page"))
         html = response.content.decode()
         self.assertIn("mgl-nav-item--sub", html)
         self.assertGreater(html.count('class="mgl-nav-item'), 6)
         self.assertNotIn("WAITING ROOM", html)
         self.assertNotIn("/stats/compare/", html)
+        home = Client(HTTP_HOST="127.0.0.1").get("/")
+        self.assertNotIn("WAITING ROOM", home.content.decode())
+        self.assertNotIn("/stats/compare/", home.content.decode())
 
 
 class LeagueStatsPageTests(TestCase):

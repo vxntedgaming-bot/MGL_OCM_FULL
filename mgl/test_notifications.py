@@ -86,7 +86,7 @@ class NotificationAndPressroomTests(TestCase):
         self.assertNotContains(home, reverse("recruitment_drive"))
         self.assertNotContains(home, "MY TEAM")
         self.assertNotContains(home, "MY CLUB")
-        self.assertContains(home, "JOB CENTRE")
+        self.assertContains(home, "JOBS")
         self.assertContains(home, "LOGIN")
         self.assertNotContains(home, "YOUR APPLICATIONS")
         self.assertNotContains(home, ">STATUS</h2>")

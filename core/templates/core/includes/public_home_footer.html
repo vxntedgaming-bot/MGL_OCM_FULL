@@ -1,0 +1,59 @@
+{% load static %}
+<footer class="mgl-footer ufl-public-home-footer">
+    <div class="mgl-footer-inner ufl-ph-footer-inner">
+        <div class="mgl-footer-brand">
+            <img src="{% static 'core/img/mgl-logo.png' %}" alt="UFL" class="mgl-logo-img">
+            <strong>ULTIMATE FANTASY LEAGUE</strong>
+            <p>Online EA FC Career Mode.<br>Real managers. Real competition.<br>Real football.</p>
+            <p>{{ footer_description }}</p>
+            <div class="ufl-ph-social" aria-label="Social">
+                {% if discord_invite_url %}
+                    <a href="{{ discord_invite_url }}" target="_blank" rel="noopener" aria-label="Discord">Discord</a>
+                {% endif %}
+                {% if social_x_url %}
+                    <a href="{{ social_x_url }}" target="_blank" rel="noopener" aria-label="X">X</a>
+                {% endif %}
+                {% if social_youtube_url %}
+                    <a href="{{ social_youtube_url }}" target="_blank" rel="noopener" aria-label="YouTube">YouTube</a>
+                {% endif %}
+                {% if social_instagram_url %}
+                    <a href="{{ social_instagram_url }}" target="_blank" rel="noopener" aria-label="Instagram">Instagram</a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="mgl-footer-col">
+            <h3>NAVIGATION</h3>
+            <a href="{% url 'leagues_page' %}">Leagues</a>
+            <a href="{% url 'competition_page' 'premier-league' %}">Premier League</a>
+            <a href="{% url 'competition_page' 'championship' %}">Championship</a>
+            <a href="{% url 'competition_page' 'league-one' %}">League One</a>
+            <a href="{% url 'clubs_index' %}">Clubs</a>
+            <a href="{% url 'competition_page' 'premier-league' %}">Fixtures</a>
+            <a href="{% url 'leagues_page' %}">Tables</a>
+            <a href="{% url 'league_stats' 'premier-league' %}">Statistics</a>
+            <a href="{% url 'job_centre' %}">Jobs</a>
+        </div>
+        <div class="mgl-footer-col">
+            <h3>COMMUNITY</h3>
+            {% if discord_invite_url %}
+                <a href="{{ discord_invite_url }}" target="_blank" rel="noopener">Discord</a>
+            {% endif %}
+            <a href="{% url 'home' %}#mgl-faq">FAQ</a>
+            <a href="{% url 'home' %}#mgl-contact">Contact</a>
+        </div>
+        <div class="mgl-footer-col">
+            <h3>ACCOUNT</h3>
+            <a href="{% url 'manager_login' %}">Login</a>
+            <a href="{% url 'manager_register' %}">Create Account</a>
+            <a href="{% url 'manager_register' %}">SIGN UP</a>
+        </div>
+    </div>
+    <div class="mgl-footer-copy ufl-ph-footer-copy">
+        <span>© 2026 Ultimate Fantasy League (UFL). All rights reserved.</span>
+        <span class="ufl-ph-legal">
+            <a href="{% url 'home' %}#mgl-privacy">Privacy Policy</a>
+            <a href="{% url 'home' %}#mgl-terms">Terms of Service</a>
+            <a href="{% url 'ufl_rules' %}">Rules</a>
+        </span>
+    </div>
+</footer>

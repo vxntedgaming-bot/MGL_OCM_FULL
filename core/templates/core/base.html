@@ -14,9 +14,11 @@
     <link rel="stylesheet" href="{% static 'core/css/ufl-system.css' %}">
     {% block extra_css %}{% endblock %}
     <link rel="stylesheet" href="{% static 'core/css/ufl-pages.css' %}">
+    {% block extra_css_late %}{% endblock %}
     <link rel="icon" href="{% static 'core/img/mgl-logo.png' %}">
 </head>
 <body class="{% block body_class %}{% endblock %}">
+{% block header %}
 <header class="mgl-header ufl-header">
     <div class="mgl-header-inner">
         <a href="{% url 'home' %}" class="mgl-logo">
@@ -92,6 +94,7 @@
     </div>
     {% include "core/includes/live_activity_bar.html" %}
 </header>
+{% endblock %}
 
 <main class="mgl-main">
     {% if messages %}
@@ -106,6 +109,7 @@
     {% block content %}{% endblock %}
 </main>
 
+{% block footer %}
 <footer class="mgl-footer">
     <div class="mgl-footer-inner">
         <div class="mgl-footer-brand">
@@ -150,6 +154,7 @@
         <span>EA FC 26 | UFL</span>
     </div>
 </footer>
+{% endblock %}
 <script src="{% static 'core/js/mgl-nav.js' %}?v=nb-3"></script>
 {% block extra_js %}{% endblock %}
 </body>
