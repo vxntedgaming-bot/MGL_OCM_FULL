@@ -13,7 +13,7 @@ Opponent or seller “accept” is **not** the same as official league approval.
 | Player listings | **No** |
 | Release listings | **No** |
 | Transfer requests | **Yes** |
-| Job applications | **Yes** (Admin accepts → member gets the job) |
+| Job applications | **Yes** — this is the **only** application Admin reviews (DEC-041). Accept → job/manager appointment |
 | Match results | **Yes** (unchanged; not reversed in Phase 1) |
 | Press answers | **Yes** (unchanged) |
 | Starting squad apply | Owner-gated in code; structure now locked at 30 |
@@ -106,15 +106,16 @@ GAP — do not change the queue in this pass.
 
 ---
 
-**PHASE 1 LOCKED:** MEMBER → job application → Admin accept → gets the job.
+**LOCKED UFL RULE (DEC-041):** MEMBER → Job Application → Admin reviews → Admin accepts → member gets the job and becomes the manager. **No** extra manager-application approval.
 
 **CURRENT CODE**
 
-1. Registration application PENDING until Control approve/reject.
-2. Job apply PENDING until Control approve → `Team.manager` set (and related appointment side effects in `control_approve_job`).
-3. Reject job: application REJECTED; club stays vacant.
+1. Registration still creates `ManagerApplication` PENDING until Control approve/reject.
+2. Job apply (`ClubApplication`) is only accepted from an already-approved manager.
+3. Control `control_approve_job` sets `Team.manager`.
+4. Reject job: application REJECTED; club stays vacant.
 
-**GAP:** extra manager-application step; form field differences. See Game Rules.
+**GAP TO IMPLEMENT:** drop the extra manager-application review from the official path; align fields (Discord username; 1–3 / 3–5 / 6+). See DEC-041. Do not implement in this pass.
 
 ---
 

@@ -115,7 +115,11 @@ No other cup placing is locked unless decided later.
 
 ### Jobs
 
-MEMBER submits a job application → Admin reviews → Admin accepts → member gets the job. Fields: EA ID / gamertag, Discord username, games per week (**1–3 / 3–5 / 6+**), referred by, new-gen confirmation (“I confirm I am playing on a new-generation console.”). Do not invent extra mandatory fields.
+The Job Application is the **single** application process (DEC-041). MEMBER submits a Job Application → Admin reviews that application → Admin accepts → member gets the job and becomes the manager / job holder. **No** extra manager-application approval stage.
+
+Fields: EA ID / gamertag, Discord **username** (not numeric ID), games per week (**1–3 / 3–5 / 6+** only), referred by, new-gen confirmation (“I confirm I am playing on a new-generation console.”). Do not invent extra mandatory fields.
+
+**CURRENT CODE / GAP TO IMPLEMENT:** separate `ManagerApplication` still exists and must be APPROVED before `apply_for_club`; form still uses numeric Discord ID and 1 / 2 / 3 / 4 / 5+.
 
 ### Django `/admin/`
 
@@ -457,6 +461,7 @@ League rules that must not be hard-coded in frontend JS live in `LeagueSettings`
 - Matches on the virtual game; website/DB official; Discord outbox should stay in sync
 - Weekly rewards Sunday 10:00 AM → Sunday 10:00 AM, with the locked token table
 - Job applications require Admin acceptance before appointment
+- Job Application is the **single** application process (DEC-041); no extra manager-application approval
 - Django `/admin/` remains
 - One UFL header + Live Activity + page header (Public Home compact exception)
 
@@ -485,7 +490,7 @@ League rules that must not be hard-coded in frontend JS live in `LeagueSettings`
 - Pack per-opening limits are **not** confirmed as a per-pack configurable field
 - Token 0.5-increment **not** enforced by validation
 - Job form: games-per-week options and Discord **username vs numeric ID** differ from Phase 1
-- Current code also requires an approved `ManagerApplication` before a club job apply — extra step vs the locked MEMBER → job → Admin accept flow
+- Current code also requires an approved `ManagerApplication` before a club job apply — extra step vs **DEC-041** (Job Application is the single process). **GAP TO IMPLEMENT**
 - Weekly period Sunday 10:00 AM and the full weekly/cup reward table are **not confirmed as implemented**
 
 ### UNKNOWN / UNDECIDED / NEEDS OWNER
@@ -497,7 +502,6 @@ League rules that must not be hard-coded in frontend JS live in `LeagueSettings`
 - Public canonical domain if not the Railway default
 - Promotion / relegation
 - Listing/auction frequency caps (5 / 3 / 3) — present in code; not re-stated in Phase 1
-- Whether manager-application approval remains in addition to job-application approval
 - Time zone for “Sunday 10:00 AM” (**NEEDS OWNER DECISION** — not specified)
 - Monthly awards (code exists; not in Phase 1 weekly table)
 

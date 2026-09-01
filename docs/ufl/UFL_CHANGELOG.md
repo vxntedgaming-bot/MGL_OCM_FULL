@@ -6,6 +6,16 @@ This file started with the documentation/audit pass. It does **not** claim that 
 
 ---
 
+## 2026-09-01 — Job Application is the single process (documentation only)
+
+Owner locked DEC-041: Member submits a Job Application → Admin reviews → Admin accepts → job/manager appointment. No extra manager-application approval stage. Official fields: EA ID / gamertag, Discord username, games per week 1–3 / 3–5 / 6+, referred by, new-gen checkbox.
+
+Current code (separate `ManagerApplication` gate, numeric Discord ID, 1 / 2 / 3 / 4 / 5+) is recorded as **GAP TO IMPLEMENT**.
+
+**Documentation updated only. No application, database, or production changes.**
+
+---
+
 ## 2026-09-01 — Phase 1 UFL rules lock (documentation only)
 
 Owner supplied and locked the Phase 1 UFL rules.

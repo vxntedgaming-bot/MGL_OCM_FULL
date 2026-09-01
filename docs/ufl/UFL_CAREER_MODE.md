@@ -14,7 +14,7 @@ Do not modify these systems unless explicitly instructed. This documentation pas
 - Current 14 Premier League clubs are **test data**, not the final structure. Do not reset them here.
 - Tokens use 0.5 increments. Weekly rewards: Sunday 10:00 AM → Sunday 10:00 AM (see Game Rules).
 - Website/database is the source of truth; Discord outbox should reflect approved updates.
-- Job appointment: MEMBER → job application → Admin accept → gets the job.
+- Job appointment (DEC-041): MEMBER → Job Application → Admin reviews → Admin accepts → member gets the job and becomes the manager. **No** extra manager-application approval.
 - Pack/scouting availability is Admin/Owner-controlled.
 
 **CURRENT CODE still uses a 25-player generator and 14 test clubs.** `StartingSquadLock` remains protected even if empty.
@@ -83,17 +83,25 @@ See `UFL_TRANSFER_RULES.md` for market movement.
 
 ## Job Offers and manager assignment
 
-**PHASE 1 LOCKED workflow:** MEMBER submits a job application → Admin reviews → Admin accepts → member gets the job.
+**LOCKED UFL RULE (DEC-041):** The Job Application is the **single** application process.
+
+MEMBER → submits Job Application → Admin reviews that application → Admin accepts → member gets the job → member becomes the manager / job holder (`Team.manager` and existing Career Mode structure).
+
+**No** additional manager-application approval stage between submit and Admin accept.
+
+Official fields: EA ID / gamertag; Discord **username**; games per week **1–3 / 3–5 / 6+**; referred by; new-gen console checkbox.
 
 **CURRENT CODE**
 
 1. User registers → `User.role=MANAGER`, `ManagerApplication` **PENDING**, tokens granted.
 2. Owner/Admin approve or reject the **manager application** (`control_approve_manager` / `control_reject_manager`).
-3. Approved manager applies for a vacant club (`ClubApplication`).
+3. Only an **approved** manager can POST `apply_for_club` (`ClubApplication`).
 4. Owner/Admin approve the job (`control_approve_job`) → user becomes `Team.manager`.
 5. Capability role becomes MANAGER only when approved **and** assigned.
 
-**GAP:** Extra manager-application step vs locked MEMBER → job → accept. Job form fields also differ (see Game Rules). **NEEDS OWNER DECISION** whether step 2 stays.
+Job form currently: numeric Discord user ID; games per week 1 / 2 / 3 / 4 / 5+.
+
+**GAP TO IMPLEMENT:** Remove the extra manager-application gate from the official path; collect Discord username; use 1–3 / 3–5 / 6+. Do **not** implement in this documentation task. Registration may still create a `ManagerApplication` row for tokens/identity — that is **CURRENT CODE**, not a second Admin review stage in the locked rule.
 
 Hub, market, and scouting expect a club for most actions.
 
@@ -207,4 +215,3 @@ Do **not** add Academy / Head To Head / Propose Transfer **cards** on the hub bo
 - Whether any manager still holds tokens only on a legacy `TokenTransaction` path.
 - Whether `core.Club` rows exist in production and if anything still reads them.
 - Time zone for Sunday 10:00 AM weekly rewards.
-- Whether manager-application approval remains in addition to job-application approval.

@@ -13,7 +13,7 @@ Status values: **Live** (implemented page), **Coming soon** (placeholder), **Red
 
 | URL | Name | Purpose | Access | Role | Protection | Status | System |
 |---|---|---|---|---|---|---|---|
-| `/register/` | `manager_register` | Create User + pending application | Public | — | None (form) | Live | Auth |
+| `/register/` | `manager_register` | Create User + pending `ManagerApplication` (tokens/identity). **LOCKED (DEC-041):** this is **not** the Admin job-review step | Public | — | None (form) | Live | Auth |
 | `/login/` | `manager_login` | Session login | Public | — | Django LoginView | Live | Auth |
 | `/logout/` | `manager_logout` | Session logout | Public POST | — | Django LogoutView | Live | Auth |
 
@@ -106,7 +106,7 @@ Competition slugs in `COMPETITIONS`: `premier-league`, `championship`, `league-o
 | `/mgl/market/listings/<id>/buy/` | `buy_player` | Redirect to BUY page | Login POST | Approved | `@login_required` | Live | Transfers |
 | `/mgl/market/listings/<id>/purchase/` | `purchase_listing` | BUY listed player | Login | Approved + club | `@login_required` + `approved_manager` | Live | Transfers |
 | `/mgl/market/listings/<id>/cancel/` | `cancel_player_listing` | Withdraw listing | Login POST | Seller | `@login_required` + `approved_manager` | Live | Transfers |
-| `/mgl/jobs/<team_id>/apply/` | `apply_for_club` | Apply for vacancy | Login POST | Approved manager | `@login_required` + `approved_manager` | Live | Jobs |
+| `/mgl/jobs/<team_id>/apply/` | `apply_for_club` | Submit Job Application for a vacant club | Login POST | **LOCKED:** Member. **CODE:** approved manager only | `@login_required` + **CURRENT CODE** `approved_manager` | Live — **GAP TO IMPLEMENT** vs DEC-041 | Jobs |
 
 ---
 
@@ -177,8 +177,8 @@ All **GET pages** below are `owner_admin_required` unless noted. POST approve/re
 
 | URL | Name | Purpose |
 |---|---|---|
-| `/mgl/control/managers/<id>/approve/` | `control_approve_manager` | Approve application |
-| `/mgl/control/managers/<id>/reject/` | `control_reject_manager` | Reject application |
+| `/mgl/control/managers/<id>/approve/` | `control_approve_manager` | Approve **registration** `ManagerApplication`. **LOCKED (DEC-041):** not the official job-review step. **CURRENT CODE / GAP** |
+| `/mgl/control/managers/<id>/reject/` | `control_reject_manager` | Reject registration application. Same GAP vs DEC-041 |
 | `/mgl/control/listings/<id>/approve/` | `control_approve_listing` | Complete or go-live listing |
 | `/mgl/control/listings/<id>/reject/` | `control_reject_listing` | Reject listing |
 | `/mgl/control/listings/<id>/changes/` | `control_request_listing_changes` | Request changes |
@@ -193,8 +193,8 @@ All **GET pages** below are `owner_admin_required` unless noted. POST approve/re
 | `/mgl/control/tokens/adjust/` | `control_adjust_tokens` | Manual token adjust |
 | `/mgl/control/auctions/<id>/close/` | `control_close_auction` | Close auction |
 | `/mgl/control/auctions/<id>/cancel/` | `control_cancel_auction` | Cancel auction |
-| `/mgl/control/jobs/<id>/approve/` | `control_approve_job` | Appoint manager |
-| `/mgl/control/jobs/<id>/reject/` | `control_reject_job` | Reject job |
+| `/mgl/control/jobs/<id>/approve/` | `control_approve_job` | **Official (DEC-041):** Admin accept of the Job Application → appoint manager |
+| `/mgl/control/jobs/<id>/reject/` | `control_reject_job` | Reject Job Application |
 | `/mgl/control/press/<id>/approve/` | `control_approve_press` | Approve press |
 | `/mgl/control/press/<id>/reject/` | `control_reject_press` | Reject press |
 | `/mgl/control/releases/<id>/approve/` | `control_approve_release` | Approve release |

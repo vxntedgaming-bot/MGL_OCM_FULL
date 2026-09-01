@@ -271,7 +271,9 @@ See `UFL_TRANSFER_RULES.md`.
 
 ## Jobs
 
-**PHASE 1 LOCKED:** MEMBER submits job application → Admin reviews → Admin accepts → member gets the job. Fields: EA ID / gamertag, **Discord username**, games per week **1–3 / 3–5 / 6+**, referred by, new-gen wording “I confirm I am playing on a new-generation console.”
+**LOCKED UFL RULE (DEC-041):** The Job Application is the **single** application. MEMBER → Job Application → Admin reviews → Admin accepts → member gets the job and becomes the manager. **No** extra manager-application approval.
+
+Fields: EA ID / gamertag, **Discord username**, games per week **1–3 / 3–5 / 6+** only, referred by, new-gen wording “I confirm I am playing on a new-generation console.”
 
 **CURRENT CODE**
 
@@ -280,7 +282,7 @@ See `UFL_TRANSFER_RULES.md`.
 - Owner/Admin approve assigns the manager to the club.
 - Account registration does **not** appoint a club. `apply_for_club` also requires an **approved** `ManagerApplication` first.
 
-**GAP:** Dropdown options and Discord username vs ID. Extra manager-application approval step vs locked MEMBER → job → accept flow. **NEEDS OWNER DECISION** whether that extra step stays.
+**GAP TO IMPLEMENT:** extra manager-application gate; Discord username vs ID; games-per-week options. Do not implement in a documentation task.
 
 ---
 

@@ -27,6 +27,7 @@ Locked:
 - Virtual game + website as official record; DB source of truth; Discord sync
 - Weekly rewards Sunday 10:00 AM → Sunday 10:00 AM and the locked token table
 - Job applications require Admin acceptance
+- **Job Application is the single application process (DEC-041) — LOCKED**
 - Django `/admin/` remains
 - Scout setting must enforce (locked as intent; code still hard-codes True)
 
@@ -34,7 +35,8 @@ Still in Phase 1 as confirmation, not as missing Owner rules:
 
 - Logged-in header appearance: **NEEDS OWNER VISUAL CONFIRMATION**
 - Time zone for Sunday 10:00 AM: **NEEDS OWNER DECISION**
-- Whether manager-application approval stays in addition to job-application approval: **NEEDS OWNER DECISION**
+
+Job Application implementation (remove extra manager-application gate; Discord username; 1–3 / 3–5 / 6+): **NEEDS IMPLEMENTATION** — documentation only; do not start without an explicit implementation task.
 
 Implementation of gaps is **not** Phase 1. That is a later, explicit task.
 
@@ -97,7 +99,7 @@ Implementation of gaps is **not** Phase 1. That is a later, explicit task.
 - Password reset / email verification
 - REST API
 - Stored MEMBER role
-- **Implement Phase 1 gaps** (30-player squads, 38-club structure, release without Control, scout setting enforcement, per-pack opening limits, 0.5 validators, job form fields) — **not started; do not start without an explicit implementation task**
+- **Implement Phase 1 gaps** (30-player squads, 38-club structure, release without Control, scout setting enforcement, per-pack opening limits, 0.5 validators, **DEC-041 single Job Application**) — **NEEDS IMPLEMENTATION**; do not start without an explicit implementation task
 
 ---
 
@@ -105,11 +107,10 @@ Implementation of gaps is **not** Phase 1. That is a later, explicit task.
 
 1. Logged-in header vs Public Home: **NEEDS OWNER VISUAL CONFIRMATION**
 2. Time zone for Sunday 10:00 AM weekly rewards
-3. Does manager-application approval remain in addition to job-application approval?
-4. Do code listing/auction caps (5 / 3 / 3) stay?
-5. Production canonical domain and Discord channel map
-6. Whether `Team.tokens` is still a live club treasury
-7. Leftover `core.Club` and `auctions.TokenTransaction`
+3. Do code listing/auction caps (5 / 3 / 3) stay?
+4. Production canonical domain and Discord channel map
+5. Whether `Team.tokens` is still a live club treasury
+6. Leftover `core.Club` and `auctions.TokenTransaction`
 
 ---
 
@@ -129,7 +130,7 @@ Unchanged from the audit. See `UFL_TEST_PLAN.md`. Do not run destructive tests a
 - Pack per-opening limits not confirmed in the Pack model
 - Token 0.5 increments not validated
 - Job form: games-per-week and Discord ID vs Phase 1 username + 1–3 / 3–5 / 6+
-- Extra manager-application step vs MEMBER → job → accept
+- Extra manager-application step vs DEC-041 single Job Application — **NEEDS IMPLEMENTATION**
 - Weekly/cup reward table not confirmed as implemented
 - Hardcoded Job Centre Discord invite
 - Default DEBUG + insecure secret if production env is wrong
@@ -150,7 +151,7 @@ Unchanged from the audit. See `UFL_TEST_PLAN.md`. Do not run destructive tests a
 | Tokens | COMPLETE ledger; 0.5 rule locked, not enforced |
 | Fixtures / results | COMPLETE |
 | Stats / tables | COMPLETE |
-| Jobs | COMPLETE in code; form/flow GAP vs Phase 1 |
+| Jobs | Rule **LOCKED** (DEC-041). Code **NEEDS IMPLEMENTATION** |
 | News / Live Activity / Press | COMPLETE |
 | Admin / Owner Control | COMPLETE; Django admin retained |
 | Starting squads | Mechanism complete; official 30s not applied |

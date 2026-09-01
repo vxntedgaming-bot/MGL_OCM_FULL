@@ -74,7 +74,7 @@ Legend: **Y** = yes, **N** = no, **Own** = only own club / own records, **OA** =
 | View released fixture detail | Y | Y | Y | Y | Y | `is_released=True` |
 | View stats (approved results only) | Y | Y | Y | Y | Y | Public |
 | View jobs / apply form | Y | Y | Y | Y | Y | Public GET |
-| Apply for a vacant club | N | Y if approved manager | Y | Y | Y | `@login_required` + `approved_manager` |
+| Apply for a vacant club | N | **LOCKED:** signed-in member submits Job Application. **CODE:** only if `approved_manager` | Y | Y | Y | `@login_required` + **CURRENT CODE** `approved_manager` — **GAP TO IMPLEMENT** vs DEC-041 |
 | View rules | Y | Y | Y | Y | Y | Public |
 | View live activity / pressroom | Y | Y | Y | Y | Y | Public |
 | View public completed transfers | Y | Y | Y | Y | Y | Public |
@@ -135,9 +135,9 @@ Notification view decorators: `manager_notifications` and related views in `mgl/
 
 | Action | Public | Member | Manager | Admin | Owner | Server-side |
 |---|---|---|---|---|---|---|
-| Apply for vacant club | See above | Need approved application | Y | Y | Y | POST protected |
-| Approve / reject job | N | N | N | Y | Y | `owner_admin_required` |
-| Approve / reject manager application | N | N | N | Y | Y | `owner_admin_required` |
+| Apply for vacant club | See above | **LOCKED:** yes via Job Application. **CODE:** need approved `ManagerApplication` | Y | Y | Y | POST protected; **GAP TO IMPLEMENT** |
+| Approve / reject job | N | N | N | Y | Y | `owner_admin_required` — **this is the official DEC-041 accept** |
+| Approve / reject manager application | N | N | N | Y (code) | Y (code) | **CURRENT CODE** extra queue. **LOCKED:** not part of the official job path |
 | Change / remove club manager | N | N | N | Y | Y | `owner_admin_required` on `/mgl/admin/clubs/…` and Control |
 
 ### Starting squads
@@ -178,4 +178,6 @@ Confirmed in services:
 
 Members (signed in, not appointed) cannot use Career Mode routes. `career_required` sends them to Job Centre. They can browse public pages and log out. They can apply for a club only if they already have an **approved** `ManagerApplication` — registration leaves status **PENDING**, so a brand-new account **cannot** complete `apply_for_club` until Owner/Admin approve the manager application.
 
-**UNKNOWN / NEEDS CONFIRMATION:** product intent for “register then immediately apply” versus the two-step approve (manager application, then club application). Code is two-step. **Phase 1 locked job flow is MEMBER → job application → Admin accept.** Whether the extra manager-application approval remains is **NEEDS OWNER DECISION**.
+**LOCKED (DEC-041):** A Member submits the Job Application; Admin reviews that one form and accepts; the member becomes the manager. No second manager-application approval.
+
+**CURRENT CODE / GAP TO IMPLEMENT:** `apply_for_club` still requires `approved_manager()` (approved `ManagerApplication`). Members with only a pending application cannot complete a job apply. Do not change that in this documentation task.

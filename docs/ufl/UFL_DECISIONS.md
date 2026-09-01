@@ -236,6 +236,8 @@ No other cup placing is locked. Match-approve already pays +1 in code. Other amo
 
 ### DEC-038 — Job applications require Admin acceptance before appointment
 
+**STATUS: LOCKED** (superseded in detail by DEC-041)
+
 MEMBER → submits job application → Admin reviews → Admin accepts → member gets the job.
 
 Required fields: EA ID / gamertag, Discord username, games per week **1–3 / 3–5 / 6+**, referred by, new-gen confirmation (“I confirm I am playing on a new-generation console.”).
@@ -248,6 +250,37 @@ Keep it if it is the appropriate administrative control tool. Do not remove it.
 
 `LeagueSettings.scout_can_recruit` (and related configured restrictions) must actually apply. CURRENT CODE: `scout_can_recruit()` hard-codes True.
 
+### DEC-041 — Job Application is the single application process
+
+**STATUS: LOCKED** (Owner, 2026-09-01)
+
+The UFL Job Application is the **only** application Admin reviews for a club/manager job.
+
+Official workflow:
+
+1. MEMBER
+2. Submits **Job Application**
+3. Admin reviews that Job Application
+4. Admin accepts
+5. Member gets the job
+6. Member becomes the appropriate manager / job holder under existing Career Mode structure (`Team.manager`, etc.)
+
+There is **no** additional manager-application approval stage between submit and Admin accept.
+
+Official fields (user-facing):
+
+| Field | Locked value |
+|---|---|
+| EA ID / Gamertag | Required |
+| Discord | **Username** (not a numeric Discord ID) |
+| Games per week | Dropdown **1–3** / **3–5** / **6+** only |
+| Referred by | Present |
+| New-gen console | Checkbox confirming new-generation console |
+
+Do **not** use 1 / 2 / 3 / 4 / 5+ as the official options.
+
+**CURRENT CODE / GAP TO IMPLEMENT:** registration still creates a separate pending `ManagerApplication`; `apply_for_club` requires that application to be APPROVED first; job form still asks for a numeric Discord user ID and games-per-week 1 / 2 / 3 / 4 / 5+. Do not change that in a documentation task.
+
 ---
 
 ## Not decisions (still open)
@@ -256,7 +289,6 @@ Keep it if it is the appropriate administrative control tool. Do not remove it.
 - Stored MEMBER role
 - Whether `Team.tokens` remains a live economy
 - Listing/auction frequency caps (5 / 3 / 3) — code defaults only
-- Whether manager-application approval remains **in addition to** job-application approval
 - Time zone for Sunday 10:00 AM
 - Monthly awards (code exists; not in Phase 1 weekly table)
 - Logged-in header appearance — **NEEDS OWNER VISUAL CONFIRMATION** (not a rule lock)
