@@ -6,6 +6,18 @@ This file started with the documentation/audit pass. It does **not** claim that 
 
 ---
 
+## 2026-09-01 — Phase 1 UFL rules lock (documentation only)
+
+Owner supplied and locked the Phase 1 UFL rules.
+
+- Recorded in `/docs/ufl/` (master spec, game rules, career, transfers, approvals, decisions, progress, and related specs).
+- Distinguishes **locked product rules**, **current code**, and **current 14-club test production**.
+- **Documentation updated only.**
+- **No application, template, CSS, JavaScript, Python/Django, model, migration, or database changes were made.**
+- **No clubs, players, tokens, starting squads, StartingSquadLock, authentication, or production data were reset or modified.**
+
+---
+
 ## 2026-09-01 — Documentation and audit (no application changes)
 
 - Inspected the live Django UFL / Career Mode codebase (apps, models, views, settings, routes, CSS).

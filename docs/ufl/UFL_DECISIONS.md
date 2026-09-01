@@ -1,8 +1,10 @@
 # UFL Decisions
 
-Only decisions that can be established from **code, comments, configuration, or existing documentation that still matches the code**.
+Decisions come from **code that still matches the product**, **existing documentation that still matches the code**, and **Owner Phase 1 locks (2026-09-01)**.
 
-Assumptions are not listed as decisions.
+Phase 1 items are **STATUS: LOCKED**. Do not reinterpret them.
+
+Where Phase 1 and current code disagree, both are recorded. The locked rule wins as product intent. The code is not changed in a documentation pass.
 
 Format: ID — title — status — evidence.
 
@@ -46,9 +48,11 @@ Managers may only sell, release, auction, and submit results for their own club.
 
 ## DEC-005 — Approval workflow
 
-**CONFIRMED**
+**CONFIRMED (code) + PHASE 1 AMENDMENT**
 
-Official results, completed transfers, releases, press rewards, job appointments, and awards require Owner/Admin. Starting squads require Owner. Opponent/seller accept is not official.
+Official results, **transfer requests**, press rewards, job appointments, and awards require Owner/Admin. Starting squads require Owner. Opponent/seller accept is not official.
+
+**Phase 1 LOCKED:** **player listings** and **release listings** do **not** require Admin/Owner approval. **CURRENT CODE still requires Control for releases** (GAP).
 
 ---
 
@@ -78,9 +82,11 @@ Personal tokens live on `ManagerApplication.tokens`. Ledger is `RewardTransactio
 
 ## DEC-009 — Owner starting-squad approval must be preserved
 
-**CONFIRMED**
+**CONFIRMED (mechanism) + PHASE 1 AMENDMENT**
 
-UFL 25-player proposals are preview-only until Owner confirm. `StartingSquadLock` prevents a second apply in the same season. Legacy 14×26 command is a different path.
+Preview-only until Owner confirm. `StartingSquadLock` prevents a second apply in the same season. Legacy 14×26 command is a different path. **Do not clear StartingSquadLock.**
+
+**Phase 1 LOCKED structure is 30 players**, not 25. CURRENT CODE generator is still 25. GAP — do not apply a new allocation in this pass.
 
 ---
 
@@ -106,9 +112,15 @@ Do not redesign `/mgl/hub/` or add forbidden hub cards (Academy / H2H / Propose 
 
 Market code and README: loans are not implemented and must not be invented in UI copy.
 
-### DEC-015 — Squad cap 28; listings 5; 3 listings / 24h; 3 manager auctions / 24h
+### DEC-015 — Listing/auction frequency caps (code defaults)
 
-`LeagueSettings` defaults and `ufl_settings.py`.
+**CONFIRMED in code; not restated in Phase 1**
+
+`LeagueSettings` defaults: 5 active listings, 3 listings / 24h, 3 manager auctions / 24h.
+
+Roster: **Phase 1 LOCKED 30**. Code `max_squad_size` default is still **28**. GAP.
+
+Whether the 5 / 3 / 3 caps stay is **UNDECIDED** (not in Phase 1).
 
 ### DEC-016 — Free agents sign for 0 TKN; unassigned ≠ free agent
 
@@ -134,6 +146,8 @@ README + management command state. Do not run it.
 
 CSS: `--header-h: 52px`, 44px logo, 11px nav, 34px livebar. No page-body transform scale.
 
+**STATUS: NEEDS OWNER VISUAL CONFIRMATION** — a CSS pass shipped; Owner has not confirmed the current appearance. Not a new functional rule.
+
 ### DEC-022 — Cups and Youth Academy are Coming Soon until a live system exists
 
 `coming_soon.html` / `competition_page` flags. Do not invent scores.
@@ -144,11 +158,105 @@ CSS: `--header-h: 52px`, 44px logo, 11px nav, 34px livebar. No page-body transfo
 
 ---
 
-## Not decisions (do not treat as locked)
+## Phase 1 Owner locks (2026-09-01)
 
-- Transfer window close dates — hook always True
+All items below: **STATUS: LOCKED**.
+
+### DEC-024 — Transfer window never closes
+
+No automatic closing period. Window remains open continuously. Code hook already returns True.
+
+### DEC-025 — Listings and release listings do not require approval
+
+Player listings and release listings go live without Admin/Owner approval.
+
+**Code match:** listings already LIVE immediately.  
+**Code GAP:** releases still use `PlayerReleaseRequest` + Control.
+
+### DEC-026 — Transfer requests require approval before official/live
+
+Seller/manager negotiation is not enough. Admin/Owner must approve the request before the transfer is official. Matches current PENDING → `approve_listing` path.
+
+### DEC-027 — Admin/Owner control pack availability
+
+Packs may be added, removed, released, replaced, changed, made temporarily available, or made unavailable (regular / high / lower rating, random position, drops, future types).
+
+### DEC-028 — Pack opening limits are configurable per pack
+
+Each pack has its own maximum openings (examples: 1, 2, or another configured limit). The system must eventually enforce that limit. **Not confirmed as a Pack model field today.**
+
+### DEC-029 — Pack and token costs use 0.5 increments only
+
+Valid: 0, 0.5, 1, 1.5, 2, … Invalid: 0.25, 0.75, 1.25, 1.75. Applies to UFL tokens generally, including pack/recruitment costs. **Code does not currently validate this.**
+
+### DEC-030 — Official starting squad is 30 players with locked positions
+
+Every new season/reset:
+
+2 GK, 4 CB, 2 RB, 2 LB, 2 RWB, 2 LWB, 2 CDM, 2 CM, 2 CAM, 2 LM, 2 RM, 2 LW, 2 RW, 2 ST.
+
+Roster limit 30. Current production squads are **not** this structure.
+
+### DEC-031 — Starter league is 16 Premier / 14 Championship / 8 League One
+
+38 clubs total. Clubs initially randomly generated as the starter setup.
+
+### DEC-032 — Admin can change club names/logos/branding
+
+At any point, including when a new manager takes over. Site Management already supports display name/logo edits; `badge_code` remains the frozen crest key in code.
+
+### DEC-033 — Current 14 Premier League clubs are test data
+
+Not the final UFL league structure. Mixed player counts/positions. Nothing currently locked. Production is live; only the Owner currently has visibility/access. Do not reset as part of docs or ordinary work.
+
+### DEC-034 — Matches are played on the virtual game; UFL manages official league data
+
+Website is squad, transfers, scores, statistics, fixtures, and Career Mode record-keeping. The virtual game is where the match is played.
+
+### DEC-035 — Website, database, and Discord/outbox stay synchronised
+
+Database is the central source of truth. Approved website updates should be reflected by the Discord bot/outbox.
+
+### DEC-036 — Weekly rewards run Sunday 10:00 AM to Sunday 10:00 AM
+
+Time zone **NEEDS OWNER DECISION** (not specified in Phase 1).
+
+### DEC-037 — Locked weekly and cup token amounts
+
+- Approved league game: **+1 TKN**
+- TOTW: **+0.5 TKN per selected player** from that manager’s team
+- Press conference answer: **+0.5 TKN**
+- Manager of the Week: **+1 TKN**
+- Weekly top goalscorer (manager of #1): **+0.5 TKN**
+- Weekly top assists (manager of #1): **+0.5 TKN**
+- Cup winner: **+10 TKN**
+- Cup runner-up: **+5 TKN**
+
+No other cup placing is locked. Match-approve already pays +1 in code. Other amounts **not confirmed as implemented**.
+
+### DEC-038 — Job applications require Admin acceptance before appointment
+
+MEMBER → submits job application → Admin reviews → Admin accepts → member gets the job.
+
+Required fields: EA ID / gamertag, Discord username, games per week **1–3 / 3–5 / 6+**, referred by, new-gen confirmation (“I confirm I am playing on a new-generation console.”).
+
+### DEC-039 — Django `/admin/` remains
+
+Keep it if it is the appropriate administrative control tool. Do not remove it.
+
+### DEC-040 — Scout/recruitment setting must enforce
+
+`LeagueSettings.scout_can_recruit` (and related configured restrictions) must actually apply. CURRENT CODE: `scout_can_recruit()` hard-codes True.
+
+---
+
+## Not decisions (still open)
+
 - Promotion / relegation
 - Stored MEMBER role
-- Using `LeagueSettings.scout_can_recruit` as a live gate (`scout_can_recruit()` returns True)
 - Whether `Team.tokens` remains a live economy
-- Remaining logged-in crop versus Owner screenshots
+- Listing/auction frequency caps (5 / 3 / 3) — code defaults only
+- Whether manager-application approval remains **in addition to** job-application approval
+- Time zone for Sunday 10:00 AM
+- Monthly awards (code exists; not in Phase 1 weekly table)
+- Logged-in header appearance — **NEEDS OWNER VISUAL CONFIRMATION** (not a rule lock)

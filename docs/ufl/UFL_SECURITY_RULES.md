@@ -79,7 +79,7 @@ There is no DRF/REST API. HTML POSTs + notification panel + face proxy. CSRF app
 - Control URLs check `role in [OWNER, ADMIN]`.
 - Starting-squad **approve** additionally requires Owner.
 - Site Management 403 for managers (does not leak a hub redirect that some clients treat as success).
-- Django admin is a second, staff-based surface that can approve matches.
+- Django admin is a second, staff-based surface that can approve matches. **Phase 1: keep `/admin/`.**
 
 ---
 
@@ -91,11 +91,11 @@ Documented only. **Do not fix in this audit.**
 
 2. **Hardcoded Discord invite** `JOBS_DISCORD_INVITE` in `mgl/job_applications.py`, independent of `DISCORD_INVITE_URL`. Invite rotation requires a code change.
 
-3. **Transfer window always open.** Hook cannot currently close the market.
+3. **Transfer window always open.** **Phase 1 LOCKED: this is correct.** Do not add a close period.
 
 4. **Market POSTs use `@login_required` not `@career_required`.** In-view `approved_manager()` blocks pending members, but an approved manager **without** a club hits service ValueErrors rather than a single gate. Confirm this is intended.
 
-5. **Django `/admin/`** is enabled. Confirm production staff list is minimal and 2FA is handled at host/IdP level (not in this app).
+- Django `/admin/` is enabled. **Phase 1 LOCKED: retain it.** Confirm production staff list is minimal and 2FA is handled at host/IdP level (not in this app).
 
 6. **`DJANGO_SERVE_MEDIA`** can serve user uploads from the app process. Treat uploaded logos as untrusted files.
 
@@ -103,7 +103,7 @@ Documented only. **Do not fix in this audit.**
 
 8. **Two token writers historically** (`RewardTransaction` vs `auctions.TokenTransaction`). Current services say RewardTransaction is authoritative; leftover writers would desync balances.
 
-9. **`Team.roster_limit` default 30 vs league 28** can confuse enforcement if a row is edited.
+9. **`Team.roster_limit` default 30 vs league 28** can confuse enforcement if a row is edited. **Phase 1 locked roster is 30.** Code `max_squad_size` default is still 28. GAP — do not “fix” in a docs pass.
 
 10. **No MEMBER stored role** — easy to mis-check `user.role == MANAGER` and treat pending applicants as appointed managers. Some views correctly use `approved_manager()`.
 
@@ -115,7 +115,7 @@ Documented only. **Do not fix in this audit.**
 
 14. **Gunicorn 2 workers** + SQLite is unsafe if someone runs production on SQLite (README already warns).
 
-15. **`scout_can_recruit()` hard-coded True** — a Control setting that looks like a safety switch does not actually disable recruit.
+15. **`scout_can_recruit()` hard-coded True** — a Control setting that looks like a safety switch does not actually disable recruit. **Phase 1 LOCKED: it must enforce.** GAP — do not change code in this pass.
 
 ---
 

@@ -1,35 +1,50 @@
 # UFL Transfer Rules
 
-**Status:** Transfer, listing, auction, and release behaviour as implemented in `mgl/market.py`, `mgl/market_views.py`, `mgl/services.py`, `auctions/`.
+**Status:** Phase 1 locked market rules plus current `mgl/market.py` behaviour.
 
-Do not invent window, loan, or fee rules.
+Do not implement gaps from this documentation pass.
+
+---
+
+## PHASE 1 LOCKED
+
+- The transfer window **never closes**. No automatic close period.
+- **Player listings** do **not** require Admin/Owner approval.
+- **Release listings** do **not** require Admin/Owner approval.
+- **Transfer requests** **do** require Admin/Owner approval before becoming official/live.
+- Token amounts on the market use **0.5 increments only**.
+
+Do not describe all market activity as requiring approval.
 
 ---
 
 ## Currency
 
-**CONFIRMED**
+**PHASE 1 LOCKED:** 0.5 increments only.
+
+**CURRENT CODE**
 
 - Personal tokens on `ManagerApplication.tokens`.
 - Sale completion debits the buyer and credits the seller through the manager ledger (`credit_manager` / `debit_manager`) plus a `MarketTransaction` row.
 - Free-agent sign: **0 TKN**, `MarketTransaction.SALE` note `"Free agent signing"`.
 - Auction bids **reserve** tokens (`BID_RESERVE`); outbid / cancel **refunds** (`BID_REFUND`).
 - Club `Team.tokens` is not the personal transfer purse.
+- Asking-price parser is Decimal; **0.5-increment validation is not confirmed**.
 
 ---
 
 ## Transfer window
 
-**CONFIRMED**
+**PHASE 1 LOCKED:** never closes. There is no automatic closing period.
+
+**CURRENT CODE**
 
 ```python
 def transfer_window_is_open():
     return True
 ```
 
-`assert_transfer_window()` is called on list/offer paths. Because the hook always returns True, **there is no implemented closed window**.
-
-**UNDECIDED / NOT IMPLEMENTED:** dates, Owner toggle, or blocking behaviour when closed.
+`assert_transfer_window()` is called on list/offer paths. The hook always returns True, which **matches** the Phase 1 lock. Do not add a close period unless the Owner later reverses DEC-024.
 
 ---
 
@@ -63,7 +78,9 @@ Buyer must be an approved manager with a club, enough tokens (unless swaps allow
 
 ## Selling (list for sale)
 
-**CONFIRMED**
+**PHASE 1 LOCKED:** no Admin/Owner gate to list. Creates LIVE immediately — this **matches** Phase 1.
+
+**CURRENT CODE**
 
 `list_player_for_sale`:
 
@@ -76,7 +93,7 @@ Buyer must be an approved manager with a club, enough tokens (unless swaps allow
 - Creates `PlayerListing` with status **LIVE immediately**.
 - Writes a transfer news post.
 
-**There is no Owner/Admin gate to put a player on the market.** Older README text that said sales need approval before going live is **stale**.
+**There is no Owner/Admin gate to put a player on the market.** That is now a **Phase 1 locked rule**, not a gap. Older README text that said sales need approval before going live is stale.
 
 ---
 
@@ -92,7 +109,9 @@ Accept does **not** move the player or tokens.
 
 ---
 
-## Owner / Admin approval (sale)
+## Owner / Admin approval (sale / transfer request)
+
+This is the **transfer request** path. **Phase 1 LOCKED:** Admin/Owner must approve before the move is official. CURRENT CODE matches: seller accept → PENDING → Control `approve_listing` completes the sale.
 
 `approve_listing` requires status **PENDING**.
 
@@ -107,12 +126,16 @@ Accept does **not** move the player or tokens.
 
 ## Releases
 
-**CONFIRMED**
+**PHASE 1 LOCKED:** release listings do **not** require Admin/Owner approval.
+
+**CURRENT CODE (GAP)**
 
 - Manager POST `release_my_player` creates `PlayerReleaseRequest` **PENDING**. It does **not** immediately free the player.
 - Owner/Admin `control_approve_release` / `control_reject_release`.
 - Approve calls `release_player` → player leaves the club, `is_free_agent=True` (unless another path says otherwise).
 - Unique constraint: one PENDING release per player.
+
+Do **not** remove the Control release queue in this documentation pass.
 
 **UNDECIDED:** whether a released player can be re-signed immediately by the same club (cool-down). Not found as a dedicated rule.
 
@@ -178,9 +201,11 @@ See `UFL_ROLES_PERMISSIONS.md`. Market POSTs are `@login_required` plus `approve
 
 ---
 
-## NOT IMPLEMENTED
+## NOT IMPLEMENTED / GAPS
 
 - Loans
-- Closed transfer window
+- Closed transfer window (and Phase 1 says it must stay open)
 - Direct instant buy of a LIVE listing
-- Manager listing requiring pre-approval before LIVE
+- Manager listing requiring pre-approval before LIVE (and Phase 1 forbids that)
+- Immediate manager release without Control (Phase 1 wants this; **code still requires Control**)
+- 0.5-increment validation on asking prices

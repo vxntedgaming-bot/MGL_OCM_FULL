@@ -1,9 +1,10 @@
 # UFL Roles and Permissions
 
-**Status:** Current behaviour as implemented.  
-**Sources:** `accounts.User`, `mgl/permissions.py`, `mgl/ufl_settings.py`, view decorators, in-view checks.
+**Status:** Current behaviour as implemented, plus Phase 1 locked product rules where they differ.
 
-If a cell cannot be proven from code it is marked **UNKNOWN**.
+**Sources:** `accounts.User`, `mgl/permissions.py`, `mgl/ufl_settings.py`, view decorators, in-view checks, Owner Phase 1 (2026-09-01).
+
+If a cell cannot be proven from code it is marked **UNKNOWN**. Phase 1 locks that the code does not yet match are marked **GAP**.
 
 ---
 
@@ -104,7 +105,7 @@ Legend: **Y** = yes, **N** = no, **Own** = only own club / own records, **OA** =
 | Reject listing / request changes | N | N | N | Y | Y | `owner_admin_required` |
 | Instant buy without request | N | N | N | N | N | `buy_listed_player` raises; `buy_player` redirects to BUY page |
 | Request player release | N | N | Own | — | — | `career_required` |
-| Approve / reject release | N | N | N | Y | Y | `owner_admin_required` |
+| Approve / reject release | N | N | N | Y (code) | Y (code) | **Phase 1 LOCKED: releases should not need OA.** CURRENT CODE: `owner_admin_required` — GAP |
 | Create club auction | N | N | Own, if `allow_manager_auctions` | Y | Y | Caps in `mgl/market.py` |
 | Bid on auction | N | N | Y (tokens reserved) | Y | Y | `career_required` |
 | Close / cancel auction | N | N | N | Y | Y | `owner_admin_required` |
@@ -154,9 +155,9 @@ Notification view decorators: `manager_notifications` and related views in `mgl/
 |---|---|---|---|---|---|---|
 | Site Management CMS | N | N | 403 | Y | Y | `site_manage_required` |
 | Edit display names / logos / copy | N | N | N | Y | Y | Display-only paths documented in README |
-| Django `/admin/` | N | N | N unless `is_staff` | Only if staff | Only if staff | Django staff |
+| Django `/admin/` | N | N | N unless `is_staff` | Only if staff | Only if staff | Django staff. **Phase 1 LOCKED: retain `/admin/`.** |
 
-**UNKNOWN:** whether production Owner/Admin users are also Django `is_staff`. Control Centre does not require staff.
+Site Management (owner/admin only) can change club **display** name, logo, and copy. **Phase 1 LOCKED:** Admin must be able to change club name, logo, and branding/identity where supported at any time. CURRENT CODE: display edits; `badge_code` is a frozen crest key and is not rewritten when the short name changes.
 
 ---
 
@@ -177,4 +178,4 @@ Confirmed in services:
 
 Members (signed in, not appointed) cannot use Career Mode routes. `career_required` sends them to Job Centre. They can browse public pages and log out. They can apply for a club only if they already have an **approved** `ManagerApplication` — registration leaves status **PENDING**, so a brand-new account **cannot** complete `apply_for_club` until Owner/Admin approve the manager application.
 
-**UNKNOWN / NEEDS CONFIRMATION:** product intent for “register then immediately apply” versus the two-step approve (manager application, then club application). Code is two-step.
+**UNKNOWN / NEEDS CONFIRMATION:** product intent for “register then immediately apply” versus the two-step approve (manager application, then club application). Code is two-step. **Phase 1 locked job flow is MEMBER → job application → Admin accept.** Whether the extra manager-application approval remains is **NEEDS OWNER DECISION**.

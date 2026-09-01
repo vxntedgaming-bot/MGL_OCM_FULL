@@ -1,8 +1,25 @@
 # UFL Approval System
 
-**Status:** Workflows implemented in Control Centre, notifications, and services.
+**Status:** Phase 1 locked approval distinctions plus current Control Centre workflows.
 
 Opponent or seller “accept” is **not** the same as official league approval.
+
+---
+
+## PHASE 1 LOCKED — what needs approval
+
+| Item | Admin/Owner approval before official/live? |
+|---|---|
+| Player listings | **No** |
+| Release listings | **No** |
+| Transfer requests | **Yes** |
+| Job applications | **Yes** (Admin accepts → member gets the job) |
+| Match results | **Yes** (unchanged; not reversed in Phase 1) |
+| Press answers | **Yes** (unchanged) |
+| Starting squad apply | Owner-gated in code; structure now locked at 30 |
+| Pack availability | Admin/Owner **control** (not a manager submit/approve queue) |
+
+Do not describe all market activity as requiring approval.
 
 ---
 
@@ -15,9 +32,9 @@ Opponent or seller “accept” is **not** the same as official league approval.
 | Match result | Owner or Admin (Owner may override missing opponent accept) |
 | Transfer sale (PENDING listing) | Owner or Admin |
 | Press answer | Owner or Admin |
-| Player release | Owner or Admin |
+| Player release | **Phase 1: no.** CURRENT CODE: Owner or Admin still approve `PlayerReleaseRequest` — GAP |
 | Weekly / monthly awards | Owner or Admin |
-| Starting squads (UFL 25) | **Owner only** (`is_owner` + confirm) |
+| Starting squads | **Owner only** (`is_owner` + confirm). Code generator is still 25; locked structure is 30 |
 | Scout squad-full exception | Owner or Admin |
 | Auction close/cancel | Owner or Admin |
 
@@ -33,7 +50,7 @@ Generic `ApprovalRequest` model exists. Current queues mostly use **domain statu
 | List player for sale | `PlayerListing` **LIVE** | Visible on market (no Control gate) |
 | Transfer offer / BUY | Listing OFFER | Seller notified |
 | Seller accept | Listing PENDING | Control notified; player not moved |
-| Release request | `PlayerReleaseRequest` PENDING | Player stays at club |
+| Release request | `PlayerReleaseRequest` PENDING | **CURRENT CODE:** player stays until Control. **Phase 1:** should not need this gate |
 | Press answer | `PressConference` PENDING | Not published/rewarded until approved |
 | Club application | `ClubApplication` PENDING | Not appointed |
 | Club auction (if allowed) | `PlayerAuction` | Live/pending per auction rules |
@@ -77,17 +94,27 @@ Until step 3, the player remains at the selling club.
 
 ## Releases
 
+**PHASE 1 LOCKED:** no Admin/Owner approval for release listings.
+
+**CURRENT CODE**
+
 1. Manager requests release.
 2. Control approve → `release_player` → Free Agent (typical path).
 3. Reject → request REJECTED; player stays.
 
+GAP — do not change the queue in this pass.
+
 ---
 
-## Jobs and manager applications
+**PHASE 1 LOCKED:** MEMBER → job application → Admin accept → gets the job.
+
+**CURRENT CODE**
 
 1. Registration application PENDING until Control approve/reject.
 2. Job apply PENDING until Control approve → `Team.manager` set (and related appointment side effects in `control_approve_job`).
 3. Reject job: application REJECTED; club stays vacant.
+
+**GAP:** extra manager-application step; form field differences. See Game Rules.
 
 ---
 
@@ -95,7 +122,7 @@ Until step 3, the player remains at the selling club.
 
 1. System creates `PressConference` questions (match, signing, etc.).
 2. Manager answers (`answer_press`).
-3. Control approve: status APPROVED, reward via `credit_manager` (default 0.50, 4/24h cap in settings), published press.
+3. Control approve: status APPROVED, reward via `credit_manager` (Phase 1 locked press reward **+0.5 TKN**; code default 0.50, 4/24h cap in settings), published press.
 4. Reject: REJECTED, no reward.
 
 Exact reward category string: inspect `control_approve_press` at change time.
@@ -106,11 +133,17 @@ Exact reward category string: inspect `control_approve_press` at change time.
 
 See `UFL_CAREER_MODE.md`. Draft generation writes **no** ownership. Owner confirm assigns players (`source=UFL_STARTING`) and creates `StartingSquadLock`. Reject does not assign. Admin cannot approve.
 
+Phase 1 locked **30-player** shape. Current generator is **25**. Do not apply a new allocation from this documentation task.
+
 ---
 
 ## Awards
 
 Weekly/monthly batches: calculate → Control approve → token/news side effects. Reject/recalculate exist for weekly.
+
+**Phase 1 locked weekly amounts** (Sunday 10:00 AM → Sunday 10:00 AM): approved league game +1; TOTW +0.5 per selected player; press +0.5; MOTW +1; weekly #1 goals +0.5; weekly #1 assists +0.5; cup winner +10; cup runner-up +5.
+
+Whether the current award calculator pays those figures is **not confirmed**. Time zone **NEEDS OWNER DECISION**.
 
 ---
 
@@ -144,5 +177,6 @@ Discord outbox (`DiscordEvent`) follows official/published events; it is not a s
 ## UNKNOWN / NEEDS CONFIRMATION
 
 - Whether every Control queue item also writes `ApprovalRequest`
-- Award token amounts per winner
+- Whether the award calculator matches the Phase 1 weekly/cup table
 - Whether Admin can reject starting-squad drafts from the UI (reject function exists; Owner-only is for **approve**)
+- Time zone for Sunday 10:00 AM

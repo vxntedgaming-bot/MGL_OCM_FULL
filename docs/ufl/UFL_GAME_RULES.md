@@ -1,61 +1,148 @@
 # UFL Game Rules
 
-**Status:** Rules that are actually implemented.  
-Anything not found in code is **UNDECIDED / NEEDS CONFIRMATION**.
+**Status:** Official Phase 1 locked rules (Owner, 2026-09-01) plus what the current code actually does.
 
-Do not treat this file as a wishlist.
+Anything not in Phase 1 and not confirmed in code is **UNDECIDED / NEEDS OWNER DECISION**.
+
+Do not implement gaps from this documentation pass.
+
+---
+
+## PHASE 1 LOCKED — official product rules
+
+### Starter league
+
+| Division | Clubs |
+|---|---|
+| Premier League | 16 |
+| Championship | 14 |
+| League One | 8 |
+| **Total** | **38** |
+
+Clubs start randomly generated. Admin can change name, logo, and branding/identity where supported at any time.
+
+### Starting squad (every new season / reset)
+
+Roster limit **30**. Structure:
+
+```
+2 GK
+4 CB
+2 RB
+2 LB
+2 RWB
+2 LWB
+2 CDM
+2 CM
+2 CAM
+2 LM
+2 RM
+2 LW
+2 RW
+2 ST
+```
+
+Total = 30.
+
+### Transfer window
+
+Does **not** close. Remains open continuously. No automatic closing period.
+
+### Market approvals
+
+- Player listings: **no** Admin/Owner approval
+- Release listings: **no** Admin/Owner approval
+- Transfer requests: **yes** — Admin/Owner approval before official/live
+
+### Tokens
+
+0.5 increments only (0, 0.5, 1, 1.5, …). Invalid: 0.25, 0.75, 1.25, 1.75.
+
+### Weekly rewards
+
+Period: **Sunday 10:00 AM → next Sunday 10:00 AM**. Time zone: **NEEDS OWNER DECISION** (not specified).
+
+| Reward | Amount |
+|---|---|
+| Approved league game | +1 TKN |
+| TOTW | +0.5 TKN per selected player from that manager’s team |
+| Press conference answer | +0.5 TKN |
+| Manager of the Week | +1 TKN |
+| Weekly #1 goalscorer (that player’s manager) | +0.5 TKN |
+| Weekly #1 assists (that player’s manager) | +0.5 TKN |
+| Cup winner | +10 TKN |
+| Cup runner-up | +5 TKN |
+
+No other cup placing is locked.
+
+### Packs / scouting / recruitment
+
+Admin/Owner control pack availability (add/remove/release/replace/change/temporary). Each pack has its **own** max opening count. Pack costs use 0.5 increments. Scout/recruitment setting must enforce configured restrictions.
+
+### Jobs
+
+MEMBER → job application → Admin reviews → Admin accepts → member gets the job.
+
+Fields: EA ID / gamertag, Discord username, games per week **1–3 / 3–5 / 6+**, referred by, new-gen checkbox: “I confirm I am playing on a new-generation console.”
+
+### Virtual game
+
+Matches are played on the external/virtual football game. The website stores official UFL state.
+
+---
+
+## CURRENT PRODUCTION / TEST STATE (not the final league)
+
+Owner confirmed:
+
+- 14 clubs currently exist; all Premier League.
+- Test/development data. Mixed player counts/positions. Not the 30-player structure.
+- Nothing currently locked.
+- Production is live; only the Owner currently has visibility/access.
+- **Do not reset this data** in a documentation or ordinary development task.
 
 ---
 
 ## Divisions and clubs
 
-**CONFIRMED**
+**CURRENT CODE**
 
-- Three division slugs are live in navigation: Premier League (`PL`), Championship (`CH`), League One (`L1`).
-- Super League 1 was renamed in place to Premier League so club IDs and fixtures stay attached.
-- Official Premier League club set created by seed/import (14): Real Madrid, Barcelona, Atletico Madrid, Manchester United, Chelsea, Manchester City, Arsenal, Liverpool, Tottenham, Paris Saint-Germain, Lyon, Marseille, Bayer Leverkusen, Bayern Munich.
+- Three division slugs in navigation: Premier League (`PL`), Championship (`CH`), League One (`L1`).
+- Super League 1 was renamed in place to Premier League.
+- Seed/import creates 14 Premier League clubs (Real Madrid, Barcelona, Atletico Madrid, Manchester United, Chelsea, Manchester City, Arsenal, Liverpool, Tottenham, Paris Saint-Germain, Lyon, Marseille, Bayer Leverkusen, Bayern Munich).
 - MLS is not an active competition in code/nav.
-- Cups exist as **Coming soon** catalogue pages only: Phantom Cup, UFL Champions League, UFL Europa League, UFL Europa Conference League. No live cup fixture system was found.
+- Cups exist as **Coming soon** catalogue pages only.
 
-**UNDECIDED / NEEDS CONFIRMATION**
+**GAP:** Phase 1 locked 16/14/8. Current code/data: 14 Premier League test clubs.
 
-- Promotion / relegation between PL, Championship, League One.
-- How many clubs Championship / League One must have before fixtures are generated.
-- Whether a 14-team single round-robin (13 games, 91 fixtures) is the standing league format for every division. `ensure_league_fixtures` implements that shape for a 14-team division; running it on production is forbidden by README.
+**UNDECIDED:** Promotion / relegation. Fixture format per division size (14-team round-robin exists as a command; 16- and 8-club formats are **not** specified beyond club counts).
 
 ---
 
 ## Squad size
 
-**CONFIRMED**
+**PHASE 1 LOCKED:** 30.
 
-- League setting `max_squad_size` default **28**.
-- Official UFL **starting** squad size **25** (`UFL_SQUAD_SHAPE`).
-- Scouting copy and `mgl/scouting.py` `SQUAD_LIMIT = 28` (also reads `max_squad_size()`).
-- `Team.roster_limit` model default is **30**. Effective cap is `effective_roster_limit(team)`: stored team limit if it is smaller than the league max, otherwise the league max.
+**CURRENT CODE:** `LeagueSettings.max_squad_size` default **28**. `UFL_SQUAD_SHAPE` totals **25**. Scouting `SQUAD_LIMIT = 28`. `Team.roster_limit` default **30**. `effective_roster_limit()` uses league max unless the stored team limit is smaller.
 
-**UNDECIDED**
-
-- Whether any live club still has `roster_limit` 30 and is therefore allowed 28 (league) or 30 (if someone raises league max). Do not “fix” stored limits without instruction.
+**GAP:** Do not change code or production squads in this pass.
 
 ---
 
-## Starting squad shape (UFL official)
+## Starting squad shape
 
-**CONFIRMED** (`mgl/ufl_settings.py`)
+**PHASE 1 LOCKED:** 30-player structure above.
+
+**CURRENT CODE** (`mgl/ufl_settings.py` `UFL_SQUAD_SHAPE`) is still:
 
 ```
 2 GK, 5 CB, 1 RB, 1 LB, 1 RWB, 1 LWB,
 3 CM, 2 CDM, 2 CAM, 1 RM, 1 LM, 1 RW, 1 LW, 3 ST
 ```
 
-Comment in code: written structure totals 22; generator then adds +1 CB, +1 CM, +1 ST (already reflected in the tuple above).
+OVR band for the current generator: **64–69**. Preview-only until Owner approves. `StartingSquadLock` is protected.
 
-OVR band for the UFL generator: **64–69**.
-
-Preview-only until Owner approves. See `UFL_APPROVAL_SYSTEM.md`.
-
-Legacy 14×26 `apply_starting_squads` (seed `20260828`, 1,741 OVR per club) is a **different** path. Do not use it to create UFL 25-player squads. `generate_balanced_squads` is disabled.
+Legacy 14×26 `apply_starting_squads` is a different path. `generate_balanced_squads` is disabled. Do not run either to invent the locked 30s unless the Owner asks in a later implementation task.
 
 ---
 
@@ -78,38 +165,41 @@ Unused FC26 pool players must not be flagged Free Agent. `fc27_club` is FC26 ref
 
 ## Tokens (currency)
 
-**CONFIRMED**
+**PHASE 1 LOCKED:** 0.5 increments only.
+
+**CURRENT CODE**
 
 - Personal balance: `ManagerApplication.tokens`.
 - New registration credit: `LeagueSettings.starting_tokens` default **20**.
 - On some approve paths, `managers.services.STARTING_TOKENS = 20` if tokens are 0/None.
 - Authoritative writes: `credit_manager` / `debit_manager` → `RewardTransaction`.
-- Free-agent signing costs **0**.
+- Free-agent signing costs **0** (valid increment).
 - Auction bids reserve personal tokens; being outbid refunds the previous bidder.
-- Press reward default **0.50 TKN**, cap **4** answers / 24h (`press_reward`, `press_per_24h`).
-- Match approval pays **1.00 TKN** per side (`match_official._pay_match_tokens`, category `MATCH`).
+- Press reward default **0.50 TKN**, cap **4** answers / 24h.
+- Match approval pays **1.00 TKN** per side (matches Phase 1 approved-league-game reward).
 - Scout **upgrade** costs: L2 **18**, L3 **25**, L4 **25**. L1 is granted at hire (listed cost 10 in comments; not charged again).
 - Scout **mission** token cost is used only if `scout_requires_tokens` is True (default **False**).
-- Recruitment Drive pack costs: **UNKNOWN** without reading pack open function each time — packs have `Pack.cost`. Do not invent prices here.
+- `Pack.cost` is Decimal; **no 0.5-increment validator found**.
 - Club `Team.tokens` default 50 is **not** the personal balance.
 
-**UNDECIDED**
+**GAP:** Code will accept 0.25 etc. if posted. Weekly TOTW / MOTW / top scorer / assists / cup amounts are locked in Phase 1; whether the award calculator pays those exact figures is **not confirmed as implemented**.
 
-- Full published reward table (weekly/monthly award amounts) — batches exist; exact token figures should be read from award code before stating them.
-- Whether club treasury is spent anywhere on the current market path.
+**UNDECIDED:** Whether club treasury is spent on the current market path. Monthly awards (code exists; not in the Phase 1 weekly table).
 
 ---
 
 ## Transfer rules (summary)
 
-**CONFIRMED**
+**PHASE 1 LOCKED:** window never closes. Listings need no approval. Transfer requests need Admin/Owner approval before official.
+
+**CURRENT CODE**
 
 - No loans.
-- Transfer window function **always returns True**.
-- Max **5** active listings per club; max **3** new listings / 24h.
+- Transfer window function **always returns True** (matches Phase 1).
+- Max **5** active listings per club; max **3** new listings / 24h (code defaults; not restated in Phase 1 — **UNDECIDED** whether they stay).
 - Manager auctions: max **3** club auctions / 24h; durations 30/60/90/120 minutes (configurable).
-- Listing a player for sale creates status **LIVE** immediately (no Owner gate to list).
-- A buy offer goes to the seller; seller accept sets listing **PENDING**; Owner/Admin approve completes the sale and moves the player.
+- Listing a player for sale creates status **LIVE** immediately (matches Phase 1).
+- A buy offer goes to the seller; seller accept sets listing **PENDING**; Owner/Admin approve completes the sale (matches Phase 1 transfer-request approval).
 - Instant purchase without that flow is blocked.
 - Swaps (offered players) are supported on listed purchase offers.
 
@@ -140,7 +230,9 @@ See `UFL_TRANSFER_RULES.md`.
 
 ## Scouting
 
-**CONFIRMED**
+**PHASE 1 LOCKED:** Admin/Owner control packs. Per-pack opening limits. 0.5-increment costs. `scout_can_recruit` must enforce.
+
+**CURRENT CODE**
 
 - One manager-wide scout HQ (not per Bronze/Silver/Gold parallel).
 - One active scout at a time.
@@ -150,18 +242,20 @@ See `UFL_TRANSFER_RULES.md`.
 - Full squad: assignment can raise a Control exception (`ScoutSquadException`).
 - `scout_can_recruit()` in `ufl_settings` **hard-codes True**. `LeagueSettings.scout_can_recruit` exists and a migration once set it False; the live helper ignores the row.
 
-**UNDECIDED**
-
-- Whether Owner wants `LeagueSettings.scout_can_recruit` to actually gate recruitment again.
+**GAP:** Setting does not enforce. Per-pack max openings are not confirmed as a dedicated configurable field.
 
 ---
 
 ## Recruitment Drive and Youth Academy
 
-**CONFIRMED**
+**PHASE 1 LOCKED:** Admin/Owner decide which packs are available (add/remove/release/replace/change/temporary). Each pack has its own opening limit.
 
-- Recruitment Drive: open a pack, choose one player (`RecruitmentOpening`).
+**CURRENT CODE**
+
+- Recruitment Drive: open a pack, choose one player (`RecruitmentOpening`). `Pack.active` and `Pack.cost` exist.
 - Youth Academy: Coming Soon page only. No academy players generated.
+
+**GAP:** Per-pack configurable maximum openings is not confirmed in the current `Pack` model. Do not invent pack catalogue contents.
 
 ---
 
@@ -177,26 +271,30 @@ See `UFL_TRANSFER_RULES.md`.
 
 ## Jobs
 
-**CONFIRMED**
+**PHASE 1 LOCKED:** MEMBER submits job application → Admin reviews → Admin accepts → member gets the job. Fields: EA ID / gamertag, **Discord username**, games per week **1–3 / 3–5 / 6+**, referred by, new-gen wording “I confirm I am playing on a new-generation console.”
+
+**CURRENT CODE**
 
 - Vacant clubs listed on `/jobs/` and `/job-offers/`.
-- Application fields: gamertag, Discord user id, games per week (1–5+), referred by, new-gen confirmation.
+- Application fields: gamertag, **Discord user id (must be numeric)**, games per week **1, 2, 3, 4, 5+**, referred by, new-gen confirmation.
 - Owner/Admin approve assigns the manager to the club.
-- Account registration does **not** appoint a club. Club apply does not appoint until approved.
+- Account registration does **not** appoint a club. `apply_for_club` also requires an **approved** `ManagerApplication` first.
+
+**GAP:** Dropdown options and Discord username vs ID. Extra manager-application approval step vs locked MEMBER → job → accept flow. **NEEDS OWNER DECISION** whether that extra step stays.
 
 ---
 
 ## Awards and history
 
-**CONFIRMED**
+**PHASE 1 LOCKED:** Weekly window Sunday 10:00 AM → Sunday 10:00 AM and the token table in the Phase 1 section.
+
+**CURRENT CODE**
 
 - Weekly and monthly award batches exist and require Control approval.
 - Historical seasons can be finalized and locked.
 - Hall of Fame is `/history/` (`historical_tables` with `is_hall_of_fame=True`).
 
-**UNDECIDED**
-
-- Exact award criteria and token amounts until read from the award calculator at change time.
+**GAP:** Sunday 10:00 AM period and the exact TOTW / MOTW / top scorer / assists / cup amounts are not confirmed as implemented. Time zone **NEEDS OWNER DECISION**.
 
 ---
 
@@ -205,9 +303,10 @@ See `UFL_TRANSFER_RULES.md`.
 Do not invent:
 
 - Loan rules
-- Closed transfer windows
-- Promotion/relegation
-- Live cup competitions
+- A closing transfer window (Phase 1 locked: never closes)
+- Promotion/relegation (**UNDECIDED**)
+- Live cup competitions (pages exist; cup winner/runner-up token amounts are locked for when cups go live)
 - Youth Academy contracts
 - Player compare / head-to-head
 - A stored MEMBER role
+- Token fractions other than 0.5 increments

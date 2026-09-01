@@ -8,8 +8,10 @@ Sources: `core/static/core/css/ufl-system.css`, `ufl-pages.css`, `ufl-public-hom
 
 ## Established decisions (already built)
 
+- **One unified UFL identity.**
+- Global structure: **UFL Header → UFL Live Activity → Page Header → Page Content.**
 - **One global UFL Header** on inner pages (`base.html` → `.mgl-header.ufl-header`).
-- **Public Home exception:** isolated compact header `.uh-header` (intentional, not a second product).
+- **Public Home exception:** isolated compact header `.uh-header` (intentional, not a second product). Do not create duplicate unrelated headers.
 - **One UFL visual identity:** near-black + gold, Barlow Condensed + Manrope.
 - **Global LIVE ACTIVITY bar** on Public Home and inner chrome (`live_activity_bar.html`, `.ufl-livebar`).
 - **Common Page Header** include: `core/includes/mgl_page_header.html`.
@@ -88,9 +90,11 @@ Legacy `--mgl-*` aliases map onto the UFL tokens. Do not introduce a second pale
 
 **CONFIRMED problem that existed:** logged-in inner header used a larger `--header-h` (64px) and larger logo/nav/bell than Public Home, so the logged-in view looked zoomed or cropped compared with the logged-out framing.
 
-**CONFIRMED CSS pass:** inner header scale was aligned to Public Home (52px bar, 44px logo, 11px nav, 34px livebar) **without** `transform: scale` on the page body.
+**CONFIRMED CSS pass:** inner header scale was aligned to Public Home (52px bar, 44px logo, 11px nav, 34px livebar) **without** `transform: scale` on the page body. That pass is already in the application. **Do not change the application as part of a documentation task.**
 
-**NEEDS CONFIRMATION:** whether Owner screenshots still show residual framing/crop after that CSS pass. Do not claim the issue is permanently gone. Do not apply page-wide zoom hacks.
+**STATUS: NEEDS OWNER VISUAL CONFIRMATION**
+
+This remains a visual check, not a new functional rule. Do not claim the issue is permanently gone until the Owner confirms the current appearance.
 
 ---
 
@@ -140,7 +144,7 @@ Public Home: `ufl-public-home.css` + official images `ufl-home-*.jpg`.
 
 - Chrome logo: `core/static/core/img/ufl-logo-chrome.png`
 - Public Home photography: `ufl-home-*.jpg`
-- Club crests: `Team.logo` / `badge_code` (Site Management must not swap crests when renaming)
+- Club crests: `Team.logo` / `badge_code`. **Phase 1:** Admin can change name/logo/branding. CURRENT CODE: Site Management display edits; `badge_code` is not rewritten when the short name changes.
 - Player faces: proxy + silhouette fallback
 
 ---

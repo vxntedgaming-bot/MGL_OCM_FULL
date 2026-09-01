@@ -1,7 +1,23 @@
 # UFL Career Mode
 
-**Status:** Existing Career Mode as implemented.  
-Do not modify these systems unless explicitly instructed.
+**Status:** Existing Career Mode as implemented, plus Phase 1 locked product rules where they affect Career Mode.
+
+Do not modify these systems unless explicitly instructed. This documentation pass does **not** change data or code.
+
+---
+
+## PHASE 1 LOCKED (Career Mode)
+
+- Matches are played on the external/virtual game. The website is official league management and record-keeping.
+- Official starting squad is **30 players** with the locked positional structure (see `UFL_GAME_RULES.md`).
+- Official starter league is **16 Premier / 14 Championship / 8 League One**.
+- Current 14 Premier League clubs are **test data**, not the final structure. Do not reset them here.
+- Tokens use 0.5 increments. Weekly rewards: Sunday 10:00 AM → Sunday 10:00 AM (see Game Rules).
+- Website/database is the source of truth; Discord outbox should reflect approved updates.
+- Job appointment: MEMBER → job application → Admin accept → gets the job.
+- Pack/scouting availability is Admin/Owner-controlled.
+
+**CURRENT CODE still uses a 25-player generator and 14 test clubs.** `StartingSquadLock` remains protected even if empty.
 
 ---
 
@@ -59,6 +75,7 @@ Do not change FC26 identities, names, or source ratings unless the Owner asks fo
 - Resign: tokens stay with the manager; squad stays with the club.
 - `Team.tokens` is club treasury / legacy (default 50). Not the dashboard “personal balance”.
 - `auctions.TokenTransaction` is legacy.
+- **Phase 1 LOCKED:** 0.5 increments only. CURRENT CODE does not validate that.
 
 See `UFL_TRANSFER_RULES.md` for market movement.
 
@@ -66,7 +83,9 @@ See `UFL_TRANSFER_RULES.md` for market movement.
 
 ## Job Offers and manager assignment
 
-**CONFIRMED**
+**PHASE 1 LOCKED workflow:** MEMBER submits a job application → Admin reviews → Admin accepts → member gets the job.
+
+**CURRENT CODE**
 
 1. User registers → `User.role=MANAGER`, `ManagerApplication` **PENDING**, tokens granted.
 2. Owner/Admin approve or reject the **manager application** (`control_approve_manager` / `control_reject_manager`).
@@ -74,9 +93,11 @@ See `UFL_TRANSFER_RULES.md` for market movement.
 4. Owner/Admin approve the job (`control_approve_job`) → user becomes `Team.manager`.
 5. Capability role becomes MANAGER only when approved **and** assigned.
 
+**GAP:** Extra manager-application step vs locked MEMBER → job → accept. Job form fields also differ (see Game Rules). **NEEDS OWNER DECISION** whether step 2 stays.
+
 Hub, market, and scouting expect a club for most actions.
 
-Resign: `resign_from_club` / `resign_manager_from_club`. Control can also change or remove a club manager.
+Resign: `resign_from_club` / `resign_manager_from_club`. Control can also change or remove a club manager. Admin can change club name/logo (Phase 1 locked; Site Management supports display edits).
 
 ---
 
@@ -95,11 +116,13 @@ Legacy `core.Club` exists in the database. Career Mode clubs are `teams.Team`. D
 
 ## Owner starting-squad approval
 
-**CONFIRMED — PROTECTED**
+**CONFIRMED — PROTECTED MECHANISM**
 
-Official UFL starting structure: **25 players** (see `UFL_GAME_RULES.md`).
+`StartingSquadProposal` + `StartingSquadLock` remain protected. Do not clear or rewrite them in this pass.
 
-Flow (`mgl/ufl_starting.py`, Control → Season → Starting Squads):
+**PHASE 1 LOCKED structure:** 30 players (2 GK, 4 CB, 2 RB, 2 LB, 2 RWB, 2 LWB, 2 CDM, 2 CM, 2 CAM, 2 LM, 2 RM, 2 LW, 2 RW, 2 ST).
+
+**CURRENT CODE generator** is still the **25-player** `UFL_SQUAD_SHAPE`. Flow (`mgl/ufl_starting.py`, Control → Season → Starting Squads):
 
 1. Owner/Admin generate a **draft** `StartingSquadProposal` (JSON payload). Generation does **not** write ownership.
 2. Owner **approve** with explicit confirm (`approve_proposal`). Admin cannot approve.
@@ -109,7 +132,9 @@ Flow (`mgl/ufl_starting.py`, Control → Season → Starting Squads):
 
 Manager token snapshot is taken during approve so balances are not silently rewritten.
 
-**Do not** run `apply_starting_squads` to create these UFL 25s. That command is the older 14×26 official allocation (364 club players). `generate_balanced_squads` is disabled.
+**Do not** run `apply_starting_squads` to create UFL squads. That command is the older 14×26 official allocation. `generate_balanced_squads` is disabled. Do not apply a 30-player reset to production from this documentation task.
+
+Current production squads are mixed test data, **not** the locked 30. Owner confirmed nothing is currently locked as the final structure.
 
 ---
 
@@ -170,13 +195,16 @@ Do **not** add Academy / Head To Head / Propose Transfer **cards** on the hub bo
 ## Scouting, recruitment, youth
 
 - Scouting: manager-wide HQ, one active mission, recruit into current club, exceptions to Control if squad full.
-- Recruitment Drive: existing pack open + choose one.
+- Recruitment Drive: existing pack open + choose one. **Phase 1:** Admin/Owner control pack availability and per-pack opening limits (not fully in code yet).
 - Youth Academy: placeholder only.
+- `scout_can_recruit()` currently ignores `LeagueSettings` (**GAP** vs Phase 1).
 
 ---
 
 ## UNKNOWN / NEEDS CONFIRMATION
 
-- Whether production season already has a `StartingSquadLock`.
+- Whether production season already has a `StartingSquadLock` row (Owner: nothing currently locked as the final 30-player structure).
 - Whether any manager still holds tokens only on a legacy `TokenTransaction` path.
 - Whether `core.Club` rows exist in production and if anything still reads them.
+- Time zone for Sunday 10:00 AM weekly rewards.
+- Whether manager-application approval remains in addition to job-application approval.

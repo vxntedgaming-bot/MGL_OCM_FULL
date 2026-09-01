@@ -1,11 +1,19 @@
 # UFL Master Specification
 
-**Status:** Audit snapshot of the live codebase.  
+**Status:** Source of truth. Includes the live-code audit **and** Owner Phase 1 locked rules (1 September 2026).  
 **Audited tree:** production Django application (`MGL_OCM_FULL`, branch `main`).  
-**Date:** 1 September 2026.  
-**Scope:** documentation only. This file describes what exists. It does not change the application.
+**Scope:** documentation only unless a later task explicitly asks to implement a rule.
 
 This document is the project source of truth. Before any future UFL change, follow the development rule at the end of this file.
+
+**How to read this file**
+
+| Layer | Meaning |
+|---|---|
+| **PHASE 1 LOCKED** | Official UFL product rules from the Owner. Do not reinterpret. |
+| **CURRENT CODE** | What the Django application actually does today. |
+| **CURRENT PRODUCTION / TEST STATE** | The live 14-club setup. Test/development data. Not the final league. |
+| **GAP** | Locked rule and current code/data disagree. Do **not** implement the gap in a docs-only task. |
 
 ---
 
@@ -18,29 +26,124 @@ A design or content task must not become a data or logic rewrite. Do not change,
 - Tokens (`ManagerApplication.tokens` and the `RewardTransaction` ledger)
 - Owner starting-squad approval state (`StartingSquadProposal`, `StartingSquadLock`)
 - Authentication (`accounts.User`, login/register/logout, session cookies)
-- Existing database records
+- Existing database records, including current test clubs, mixed squads, fixtures, results, and statistics
 - Existing manager/club relationships (`Team.manager`, `ManagerApplication`, `ManagerClubSpell`)
+- Existing player data
 - Existing working functionality (routes, approval workflows, market, fixtures, Discord outbox)
 
 Internal `/mgl/` URL prefixes and `mgl_*` identifiers may remain. Users must see **UFL**.
+
+Do not reset the current 14-club test production as part of documentation or design work. The live system stays as-is until the Owner explicitly asks to rebuild toward the 38-club / 30-player structure.
+
+---
+
+## PHASE 1 — LOCKED UFL RULES (Owner, 2026-09-01)
+
+These are official product rules. Status: **LOCKED**. Current code may not match yet; see GAP notes and `UFL_DECISIONS.md`.
+
+### Virtual game and website
+
+UFL matches are played on the external/virtual football game. The website is the league-management and record-keeping system around those matches. Managers play the match on the virtual game; they use the website for squad, transfers, scores, statistics, fixtures, and other Career Mode actions. The UFL database is the central source of truth. When an approved website update occurs, the Discord bot/outbox should reflect it. Club website data and related UFL systems should remain synchronised.
+
+### Transfer window
+
+The transfer window **does not close**. It remains open continuously. There is no automatic closing period. **Transfer requests** still require Admin/Owner approval before they become official/live.
+
+### Listings vs transfer requests vs releases
+
+| Action | Admin/Owner approval required to go live/official? |
+|---|---|
+| Player listings (list for sale) | **No** |
+| Release listings | **No** |
+| Transfer requests (buy/offer that completes a move) | **Yes** — must be approved before official/live |
+
+Do not describe all market activity as requiring approval.
+
+### Scouting / packs / recruitment
+
+Admin/Owner control which packs are available. Packs may be added, removed, released, replaced, changed, made temporarily available, or made unavailable (regular rating, high rating, lower rating, random position, drops, future types). Each pack can have its **own** configurable maximum number of openings (example: Pack A = 1, Pack B = 2). The system must eventually enforce that limit. Pack/recruitment **token costs use 0.5 increments only** (0, 0.5, 1, 1.5, …). Invalid: 0.25, 0.75, 1.25, 1.75. The existing scout safety/recruitment setting (`LeagueSettings.scout_can_recruit`) **should actually enforce** configured restrictions.
+
+### Starting squad (official, every new season / reset)
+
+**30 players** per club. Roster limit **30**.
+
+```
+2 GK, 4 CB, 2 RB, 2 LB, 2 RWB, 2 LWB,
+2 CDM, 2 CM, 2 CAM, 2 LM, 2 RM, 2 LW, 2 RW, 2 ST
+```
+
+Current production squads are **not** this structure.
+
+### Starter league structure (official)
+
+| Division | Clubs |
+|---|---|
+| Premier League | 16 |
+| Championship | 14 |
+| League One | 8 |
+| **Total** | **38** |
+
+Clubs are initially randomly generated as the starter setup. Admin must be able to change club name, logo, and branding/identity where supported at any time (including when a new manager takes over).
+
+### Current production / test state (not the final league)
+
+- 14 clubs exist; all are Premier League.
+- They are **test/development data**.
+- They do **not** have the final 30-player starting structure; player counts/positions are mixed.
+- Nothing is currently locked (`StartingSquadLock` / final structure not applied as the official 30s).
+- The production system is live. Only the Owner currently has visibility/access to this live production setup.
+- **Do not reset this data** unless the Owner explicitly asks.
+
+### Tokens
+
+Official UFL currency. Values use **0.5 increments only**.
+
+### Weekly rewards (Sunday 10:00 AM → next Sunday 10:00 AM)
+
+| Reward | Amount |
+|---|---|
+| Approved league game | +1 TKN |
+| Team of the Week | +0.5 TKN per selected player from that manager’s team |
+| Press conference answer | +0.5 TKN |
+| Manager of the Week | +1 TKN |
+| Weekly top goalscorer (manager of #1) | +0.5 TKN |
+| Weekly top assists (manager of #1) | +0.5 TKN |
+| Cup winner | +10 TKN |
+| Cup runner-up | +5 TKN |
+
+No other cup placing is locked unless decided later.
+
+### Jobs
+
+MEMBER submits a job application → Admin reviews → Admin accepts → member gets the job. Fields: EA ID / gamertag, Discord username, games per week (**1–3 / 3–5 / 6+**), referred by, new-gen confirmation (“I confirm I am playing on a new-generation console.”). Do not invent extra mandatory fields.
+
+### Django `/admin/`
+
+Retained. Do not remove it.
+
+### Global design
+
+One UFL identity. Structure: UFL Header → UFL Live Activity → Page Header → Page Content. Public Home may keep its dedicated compact header. Inner pages use the shared header. Do not create duplicate unrelated headers.
+
+Logged-in header scale: CSS pass already shipped. Status: **NEEDS OWNER VISUAL CONFIRMATION**. Not a new functional rule.
 
 ---
 
 ## What UFL is
 
-**LOCKED / CONFIRMED**
+**PHASE 1 LOCKED**
 
-Ultimate Fantasy League (UFL) is a Django website for an EA FC 26 Career Mode football league.
+Ultimate Fantasy League (UFL) is the league-management website for an EA FC 26 Career Mode football league. Matches are played on the external/virtual game. The website stores official UFL state (clubs, squads, transfers, scores, statistics, fixtures).
 
 - Managers apply for clubs, receive a personal token balance, run a squad, list and buy players, scout, open recruitment packs, submit match results, and answer press questions.
-- Owner and Admin approve results, transfers, job applications, releases, press answers, awards, and (Owner only) official starting squads.
-- The **website is the source of truth**. Discord is an outbox only: official events are queued (`DiscordEvent`) and a separate bot process reports them.
+- Owner and Admin approve **results**, **transfer requests**, **job applications**, **press answers**, and **awards**. Starting squads remain Owner-gated in code. **Player listings** and **release listings** do **not** require Admin/Owner approval (Phase 1 lock). **CURRENT CODE still requires Control approval for releases** — GAP, do not implement in this pass.
+- The **website/database is the source of truth**. Discord is an outbox: official events are queued (`DiscordEvent`) and a separate bot process should reflect approved updates.
 - User-facing brand is **UFL / Ultimate Fantasy League**. Internal app labels, Python packages, and many URLs still use `mgl` so existing Railway, Discord, and test links keep working.
 
 **UNKNOWN / UNDECIDED**
 
 - Whether the public product name will ever drop the internal `mgl` URL prefix.
-- Whether Championship and League One currently have live clubs/fixtures in production. Code supports those divisions; live row counts were not queried in this audit.
+- Public canonical hostname if not the Railway default.
 
 ---
 
@@ -106,11 +209,11 @@ There is **no custom Django middleware**. Stack is Security → WhiteNoise → S
 | Notifications | Complete | `/mgl/notifications/` |
 | Control Centre | Complete | `/mgl/control/` |
 | Site Management | Complete | `/mgl/control/site/` |
-| Starting squads (UFL 25) | Complete (Owner approve) | `mgl/ufl_starting.py` |
-| Legacy 14×26 apply command | Exists; do not use for UFL 25 | `apply_starting_squads` |
+| Starting squads | Code: 25-player UFL generator + Owner lock. **Phase 1 locked structure is 30.** | `mgl/ufl_starting.py` |
+| Legacy 14×26 apply command | Exists; do not use for the locked 30s | `apply_starting_squads` |
 | Discord outbox | Complete | `DiscordEvent` + bot |
 | Loans | **Not implemented** | — |
-| Transfer window close | Hook exists; always open | `transfer_window_is_open()` |
+| Transfer window | **Phase 1 locked: never closes.** Code hook always returns True | `transfer_window_is_open()` |
 | Player compare / Waiting Room | Removed (404) | `/stats/compare/` |
 
 ---
@@ -160,9 +263,10 @@ One product. Public website and Career Mode share the same Django site, database
 - Authoritative ledger: `credit_manager` / `debit_manager` → `RewardTransaction` (idempotent on category + reference).
 - `auctions.TokenTransaction` still exists as a **legacy** table.
 - Squads stay with the club on resign; tokens stay with the manager (`resign_manager_from_club` / `ManagerClubSpell`).
-- Squad cap: `LeagueSettings.max_squad_size` default **28**. `Team.roster_limit` model default is still **30**. `effective_roster_limit()` uses the configured max unless the stored team limit is smaller.
+- Squad cap: **Phase 1 locked roster is 30.** CURRENT CODE: `LeagueSettings.max_squad_size` default **28**; `Team.roster_limit` model default **30**; `effective_roster_limit()` uses the configured max unless the stored team limit is smaller. GAP.
+- Token values: **Phase 1 locked 0.5 increments only.** CURRENT CODE stores `Decimal` with two places and does not reject 0.25 / 0.75. GAP.
 - Player identity master is FC26 (`Player.fc27_id`). Do not change IDs, names, or source ratings in ordinary work.
-- Starting squads: official UFL structure is **25 players** (see Career Mode / Approval docs). Preview-only until Owner approves.
+- Starting squads: **Phase 1 locked structure is 30 players** (see Game Rules). CURRENT CODE generator/shape is still **25**. Preview-only until Owner approves. `StartingSquadLock` remains protected. GAP — do not apply a new 30-player allocation in this pass.
 
 See `UFL_CAREER_MODE.md`.
 
@@ -219,8 +323,8 @@ See `UFL_DATABASE_RULES.md`. Summary:
 
 Two admin surfaces:
 
-1. **Django admin** `/admin/` — staff/superuser. Includes match-approval actions that call the same `approve_match_submission` path.
-2. **UFL Control Centre** `/mgl/control/` — Owner/Admin only (`owner_admin_required`). Queues for scores, transfers, press, managers, jobs, releases, awards, tokens, scouting exceptions, auctions, clubs, notifications, logs, season, league, starting squads.
+1. **Django admin** `/admin/` — **Phase 1 LOCKED: retained.** Staff/superuser. Includes match-approval actions that call the same `approve_match_submission` path. Do not remove it.
+2. **UFL Control Centre** `/mgl/control/` — Owner/Admin only (`owner_admin_required`). Queues for scores, transfers, press, managers, jobs, releases (code still queues releases; Phase 1 says release listings should not need this), awards, tokens, scouting exceptions, auctions, clubs, notifications, logs, season, league, starting squads.
 
 ---
 
@@ -241,9 +345,11 @@ Owner and Admin both use `User.role`. Superuser flags on Django admin are separa
 
 See `UFL_APPROVAL_SYSTEM.md`.
 
-Managers can submit: match results, transfer listings/offers, release requests, press answers, club job applications, auction listings (when allowed).
+**Phase 1 locked:** listings and release listings do **not** need Admin/Owner approval. Transfer requests **do**. Job applications **do**. Match results **do**.
 
-Owner/Admin make those official (except starting squads: Owner only). Opponent Accept/Reject on a result does **not** make the result official.
+**CURRENT CODE:** listings go LIVE without Control. Transfer requests still need Control after seller accept. **Releases still need Control** (`PlayerReleaseRequest`) — GAP vs Phase 1.
+
+Owner/Admin also approve press, awards, and (Owner only) starting-squad apply. Opponent Accept/Reject on a result does **not** make the result official.
 
 ---
 
@@ -274,11 +380,12 @@ Youth Academy appears under MARKET as Coming Soon.
 **LOCKED / CONFIRMED**
 
 - One UFL visual identity: near-black + gold `#e4c77a`, Barlow Condensed + Manrope
+- Global structure: UFL Header → UFL Live Activity → Page Header → Page Content
 - Global LIVE ACTIVITY bar (`live_activity_bar.html`)
 - Common page header include `core/includes/mgl_page_header.html`
-- Public Home isolated; inner pages share `base.html`
+- Public Home isolated compact header (intentional); inner pages share `base.html`
 
-See `UFL_DESIGN_SYSTEM.md` for tokens and the known logged-in header scale/crop issue.
+See `UFL_DESIGN_SYSTEM.md`. Logged-in header scale: **NEEDS OWNER VISUAL CONFIRMATION**.
 
 ---
 
@@ -336,31 +443,63 @@ League rules that must not be hard-coded in frontend JS live in `LeagueSettings`
 
 ## LOCKED / CONFIRMED versus UNKNOWN / UNDECIDED
 
-### LOCKED / CONFIRMED
+### PHASE 1 LOCKED (Owner)
+
+- Transfer window never closes
+- Listings and release listings do not require Admin/Owner approval
+- Transfer requests require Admin/Owner approval before official/live
+- Admin/Owner control pack availability; per-pack opening limits; 0.5-increment pack costs
+- `LeagueSettings.scout_can_recruit` must actually enforce
+- Official starting squad is **30** with the locked positional structure
+- Starter league is **16 / 14 / 8** (38 clubs); Admin can change club name/logo/branding
+- Current 14 Premier League clubs are **test data**, not the final structure
+- Tokens use 0.5 increments only
+- Matches on the virtual game; website/DB official; Discord outbox should stay in sync
+- Weekly rewards Sunday 10:00 AM → Sunday 10:00 AM, with the locked token table
+- Job applications require Admin acceptance before appointment
+- Django `/admin/` remains
+- One UFL header + Live Activity + page header (Public Home compact exception)
+
+### LOCKED / CONFIRMED in current code (may lag Phase 1)
 
 - Django monolith, UFL brand, website-as-truth
 - Role enum OWNER / ADMIN / MANAGER; capability MEMBER
 - Career Mode + public site in one product
 - Token ledger on `RewardTransaction`
 - FC26 identity field `fc27_id`
-- Squad cap 28 via settings; listings 5 / 3-per-24h; manager auctions 3-per-24h
+- Listings 5 / 3-per-24h; manager auctions 3-per-24h (code defaults — **UNDECIDED** whether Phase 1 changes these caps)
 - No loans in code
-- Transfer window hook always returns True
-- Owner starting-squad 25-player approve/lock
+- Transfer window hook already always returns True (matches Phase 1)
+- Listings already go LIVE without Control (matches Phase 1)
 - Result official only after Owner/Admin approve
 - Public Home isolated; one shared inner header
 - Youth Academy and cups are coming-soon structure, not live competitions
+- Django `/admin/` enabled
 
-### UNKNOWN / UNDECIDED / NEEDS CONFIRMATION
+### GAP (Phase 1 locked vs current code — do not implement here)
 
-- Live production row counts (how many Championship / League One clubs, whether UFL 25 squads are locked this season)
-- Whether a transfer window will ever close
+- Code starting shape is **25**; `max_squad_size` default **28**; locked roster is **30**
+- Code production clubs: **14 Premier League** test clubs, not 16/14/8
+- Code **releases still require** Control approval
+- `scout_can_recruit()` **hard-codes True**
+- Pack per-opening limits are **not** confirmed as a per-pack configurable field
+- Token 0.5-increment **not** enforced by validation
+- Job form: games-per-week options and Discord **username vs numeric ID** differ from Phase 1
+- Current code also requires an approved `ManagerApplication` before a club job apply — extra step vs the locked MEMBER → job → Admin accept flow
+- Weekly period Sunday 10:00 AM and the full weekly/cup reward table are **not confirmed as implemented**
+
+### UNKNOWN / UNDECIDED / NEEDS OWNER
+
+- Logged-in header appearance: **NEEDS OWNER VISUAL CONFIRMATION**
 - Whether `Team.tokens` is still used for any live payment path
 - Whether `core.Club` has any remaining runtime use
 - Password reset / email verification
-- Remaining logged-in header crop versus Owner screenshots
 - Public canonical domain if not the Railway default
-- Whether `LeagueSettings.scout_can_recruit` is intended to gate recruit (function `scout_can_recruit()` currently **hard-codes True**)
+- Promotion / relegation
+- Listing/auction frequency caps (5 / 3 / 3) — present in code; not re-stated in Phase 1
+- Whether manager-application approval remains in addition to job-application approval
+- Time zone for “Sunday 10:00 AM” (**NEEDS OWNER DECISION** — not specified)
+- Monthly awards (code exists; not in Phase 1 weekly table)
 
 ---
 
