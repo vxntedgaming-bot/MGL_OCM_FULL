@@ -32,6 +32,7 @@
                     <small>AVAILABLE FOR MANAGEMENT</small>
                 {% endif %}
             </div>
+            {% if is_own_profile %}
             <div class="overview-stat">
                 <span>TOKEN BALANCE</span>
                 <strong>{{ token_balance }}</strong>
@@ -42,7 +43,9 @@
                 <strong>No data yet</strong>
                 <small>NOT RECORDED IN UFL</small>
             </div>
+            {% endif %}
         </div>
+        {% if is_own_profile %}
         <div class="mgl-profile-actions">
             <form method="post" class="mgl-profile-discord">
                 {% csrf_token %}
@@ -55,6 +58,7 @@
                 <a href="{% url 'manager_profile' %}?resign=1" class="mgl-danger-button">RESIGN FROM CLUB</a>
             {% endif %}
         </div>
+        {% endif %}
     </div>
 </section>
 

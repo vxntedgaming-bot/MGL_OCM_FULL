@@ -161,7 +161,7 @@ class ConnectedRouteSmokeTests(PhaseAClientTestCase):
             self.assertNotEqual(response.status_code, 500, url)
 
     def test_removed_academy_and_head_to_head_routes_are_gone(self):
-        self.assertEqual(self.client.get("/market/youth-academy/").status_code, 404)
+        self.assertEqual(self.client.get("/market/youth-academy/").status_code, 302)
         self.assertEqual(self.client.get("/stats/head-to-head/").status_code, 404)
 
     def test_protected_routes_redirect_instead_of_500(self):

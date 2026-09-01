@@ -155,6 +155,11 @@ urlpatterns = [
     ),
 
     path(
+        "fixtures/<int:fixture_id>/",
+        views.fixture_detail,
+        name="fixture_detail",
+    ),
+    path(
         "fixtures/<int:fixture_id>/submit/",
         views.submit_match,
         name="submit_match",

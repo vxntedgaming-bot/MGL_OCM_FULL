@@ -1,0 +1,55 @@
+{% load mgl_ui %}
+<article class="dashboard-panel ufl-match-side">
+    <h2>{{ team.name|upper }}</h2>
+    {% if stats %}
+        <p class="ufl-match-side-goals">{{ stats.goals }} GOALS · {{ stats.shots }} SHOTS · {{ stats.possession }}% POSSESSION</p>
+        <h3>GOALSCORERS</h3>
+        <ul>
+            {% for event in stats.goal_events.all %}
+                <li>
+                    <a href="{% url 'player_profile' event.player.id %}">{{ event.player.name }}</a>
+                    {% if event.minute %}<span>{{ event.minute }}'</span>{% endif %}
+                </li>
+            {% empty %}
+                <li>No data yet</li>
+            {% endfor %}
+        </ul>
+        <h3>ASSISTS</h3>
+        <ul>
+            {% for event in stats.assist_events.all %}
+                <li>
+                    <a href="{% url 'player_profile' event.player.id %}">{{ event.player.name }}</a>
+                    {% if event.minute %}<span>{{ event.minute }}'</span>{% endif %}
+                </li>
+            {% empty %}
+                <li>No data yet</li>
+            {% endfor %}
+        </ul>
+        <h3>PLAYER STATISTICS</h3>
+        <ul>
+            {% for row in stats.player_ratings.all %}
+                <li>
+                    <a href="{% url 'player_profile' row.player.id %}">{{ row.player.name }}</a>
+                    <span>{{ row.rating }}</span>
+                </li>
+            {% endfor %}
+            {% for row in stats.defender_ratings.all %}
+                <li>
+                    <a href="{% url 'player_profile' row.player.id %}">{{ row.player.name }}</a>
+                    <span>{{ row.rating }} · {{ row.tackles }} TKL</span>
+                </li>
+            {% endfor %}
+            {% for row in stats.gk_saves.all %}
+                <li>
+                    <a href="{% url 'player_profile' row.player.id %}">{{ row.player.name }}</a>
+                    <span>{{ row.saves }} SV{% if row.rating %} · {{ row.rating }}{% endif %}</span>
+                </li>
+            {% endfor %}
+            {% if not stats.player_ratings.all and not stats.defender_ratings.all and not stats.gk_saves.all %}
+                <li>No data yet</li>
+            {% endif %}
+        </ul>
+    {% else %}
+        {% include "mgl/includes/empty_state.html" with title="NO DATA YET" %}
+    {% endif %}
+</article>

@@ -27,6 +27,7 @@ class InformationArchitectureTests(TestCase):
             "transfer_history",
             "transfer_requests",
             "recruitment_drive",
+            "youth_academy",
             "fixture_list",
             "manager_hub",
             "team_management",
@@ -48,6 +49,12 @@ class InformationArchitectureTests(TestCase):
             ("live_activity", None),
             ("pressroom", None),
             ("league_stats", {"slug": "premier-league"}),
+            ("hall_of_fame", None),
+            ("manager_search", None),
+            ("competition_page", {"slug": "phantom-cup"}),
+            ("competition_page", {"slug": "champions-league"}),
+            ("competition_page", {"slug": "europa-league"}),
+            ("competition_page", {"slug": "conference-league"}),
         ):
             response = self.client.get(reverse(name, kwargs=kwargs))
             self.assertEqual(response.status_code, 200, name)
@@ -87,7 +94,7 @@ class InformationArchitectureTests(TestCase):
     def test_page_header_on_league(self):
         page = self.client.get(reverse("leagues_page"))
         self.assertContains(page, "ufl-page-head")
-        self.assertContains(page, "COMPETITIONS")
+        self.assertContains(page, "ALL LEAGUES")
         self.assertContains(page, "LIVE ACTIVITY")
 
 

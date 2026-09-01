@@ -1,0 +1,19 @@
+{% extends "core/base.html" %}
+
+{% block title %}{{ page_title|default:"Coming Soon — UFL" }}{% endblock %}
+{% block body_class %}ufl-structure-page{% endblock %}
+
+{% block content %}
+<section class="mgl-section ufl-coming-soon">
+    {% if section_url_name %}
+        {% url section_url_name as section_url %}
+    {% endif %}
+    {% include "core/includes/mgl_page_header.html" with header_section=section header_section_url=section_url header_title=heading header_icon="pack" header_description=body %}
+    <div class="ufl-coming-soon-panel dashboard-panel">
+        <p class="eyebrow">{{ section|default:"UFL" }}</p>
+        <h2>{{ heading }}</h2>
+        <p class="ufl-coming-soon-kicker">COMING SOON</p>
+        {% if body %}<p>{{ body }}</p>{% endif %}
+    </div>
+</section>
+{% endblock %}

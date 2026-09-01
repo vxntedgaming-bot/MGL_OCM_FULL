@@ -1344,6 +1344,7 @@ def manager_profile(request):
             "goals_for": goals_for,
             "goals_against": goals_against,
             "confirm_resign": confirm_resign,
+            "is_own_profile": True,
         },
     )
 
@@ -1932,15 +1933,21 @@ def competition_page(request, slug):
         if league:
             table = build_live_league_table(league)
             name = league.public_name or name
-    coming_soon = slug in {"cups", "champions-league"}
+    coming_soon = slug in {
+        "cups",
+        "phantom-cup",
+        "champions-league",
+        "europa-league",
+        "conference-league",
+    }
     cup_tab = (request.GET.get("tab") or "overview").strip().lower()
-    if cup_tab not in {"overview", "fixtures", "bracket", "stats", "history"}:
+    if cup_tab not in {"overview", "groups", "fixtures", "bracket", "stats", "history"}:
         cup_tab = "overview"
     cup_catalog = (
         {
-            "slug": "cups",
-            "name": COMPETITIONS["cups"],
-            "description": "Knockout cup competitions, including the UFL Phantom Cup.",
+            "slug": "phantom-cup",
+            "name": COMPETITIONS["phantom-cup"],
+            "description": "Knockout stages. Draws and results appear when the office starts the cup.",
             "status": "upcoming",
             "status_label": "UPCOMING",
             "format": "Knockout",
@@ -1952,16 +1959,54 @@ def competition_page(request, slug):
         {
             "slug": "champions-league",
             "name": COMPETITIONS["champions-league"],
-            "description": "16 teams. Two groups of eight. Top four from each group advance.",
+            "description": "16 teams. 4 groups of 4. 8 teams qualify for the knockout stages.",
             "status": "upcoming",
             "status_label": "UPCOMING",
-            "format": "Knockout",
+            "format": "Groups + knockout",
             "team_count": 16,
             "winner": None,
             "season": None,
             "action_label": "VIEW DETAILS →",
         },
+        {
+            "slug": "europa-league",
+            "name": COMPETITIONS["europa-league"],
+            "description": "8 teams. 2 groups of 4. 4 teams qualify for the knockout stages.",
+            "status": "upcoming",
+            "status_label": "UPCOMING",
+            "format": "Groups + knockout",
+            "team_count": 8,
+            "winner": None,
+            "season": None,
+            "action_label": "VIEW DETAILS →",
+        },
+        {
+            "slug": "conference-league",
+            "name": COMPETITIONS["conference-league"],
+            "description": "8 teams. 2 groups of 4. 4 teams qualify for the knockout stages.",
+            "status": "upcoming",
+            "status_label": "UPCOMING",
+            "format": "Groups + knockout",
+            "team_count": 8,
+            "winner": None,
+            "season": None,
+            "action_label": "VIEW DETAILS →",
+        },
     )
+    league_fixtures = []
+    if league:
+        from mgl.fixture_display import fixture_score
+
+        league_fixtures = list(
+            Fixture.objects.filter(league=league, is_released=True)
+            .select_related("home_team", "away_team", "league")
+            .prefetch_related("submission__team_stats")
+            .order_by("matchweek", "scheduled_at", "id")
+        )
+        for row in league_fixtures:
+            home_goals, away_goals = fixture_score(row)
+            row.public_home_goals = home_goals
+            row.public_away_goals = away_goals
     return render(
         request,
         "mgl/competition.html",
@@ -1976,6 +2021,29 @@ def competition_page(request, slug):
             "selector_label": "League tables",
             "coming_soon": coming_soon,
             "cup_tab": cup_tab,
+            "cup_copy": {
+                "phantom-cup": {
+                    "description": "Knockout stages. Draws, fixtures and results appear when the office starts the cup.",
+                    "meta": ["KNOCKOUT"],
+                    "has_groups": False,
+                },
+                "champions-league": {
+                    "description": "16 teams. 4 groups of 4. 8 teams qualify for the knockout stages.",
+                    "meta": ["16 TEAMS", "4 GROUPS", "KNOCKOUT"],
+                    "has_groups": True,
+                },
+                "europa-league": {
+                    "description": "8 teams. 2 groups of 4. 4 teams qualify for the knockout stages.",
+                    "meta": ["8 TEAMS", "2 GROUPS", "KNOCKOUT"],
+                    "has_groups": True,
+                },
+                "conference-league": {
+                    "description": "8 teams. 2 groups of 4. 4 teams qualify for the knockout stages.",
+                    "meta": ["8 TEAMS", "2 GROUPS", "KNOCKOUT"],
+                    "has_groups": True,
+                },
+            }.get(slug, {}),
+            "league_fixtures": league_fixtures,
             "live_cups": [cup for cup in cup_catalog if cup["status"] == "live"],
             "won_cups": [cup for cup in cup_catalog if cup["status"] == "complete"],
             "upcoming_cups": [cup for cup in cup_catalog if cup["status"] == "upcoming"],
@@ -1991,7 +2059,137 @@ def historical_tables(request):
     show_full = request.GET.get("table") == "full"
     context = page_context(selected, show_full_table=show_full)
     context["can_manage_seasons"] = is_owner_or_admin(request.user)
+    context["is_hall_of_fame"] = True
     return render(request, "mgl/historical_tables.html", context)
+
+
+def hall_of_fame(request):
+    return historical_tables(request)
+
+
+@career_required
+def youth_academy(request):
+    return render(
+        request,
+        "mgl/coming_soon.html",
+        {
+            "page_title": "Youth Academy — UFL",
+            "section": "MARKET",
+            "section_url_name": "transfer_market",
+            "heading": "YOUTH ACADEMY",
+            "kicker": "COMING SOON",
+            "body": "The UFL Youth Academy is not open yet. No academy players or results are generated here. Use Scouting and Recruitment Drive for the current player pipeline.",
+        },
+    )
+
+
+def fixture_detail(request, fixture_id):
+    fixture = get_object_or_404(
+        Fixture.objects.select_related(
+            "home_team",
+            "away_team",
+            "home_team__manager",
+            "away_team__manager",
+            "league",
+        ),
+        pk=fixture_id,
+        is_released=True,
+    )
+    submission = (
+        MatchSubmission.objects.filter(fixture=fixture)
+        .prefetch_related(
+            "team_stats__goal_events__player",
+            "team_stats__assist_events__player",
+            "team_stats__defender_ratings__player",
+            "team_stats__gk_saves__player",
+            "team_stats__player_ratings__player",
+        )
+        .first()
+    )
+    home_stats = None
+    away_stats = None
+    official = False
+    if submission:
+        official = submission.status == ApprovalStatus.APPROVED
+        by_team = {row.team_id: row for row in submission.team_stats.all()}
+        home_stats = by_team.get(fixture.home_team_id)
+        away_stats = by_team.get(fixture.away_team_id)
+    can_submit = False
+    if request.user.is_authenticated and approved_manager(request.user):
+        involved = request.user.id in {
+            fixture.home_team.manager_id,
+            fixture.away_team.manager_id,
+        }
+        can_submit = involved and fixture.status == "SCHEDULED" and (
+            submission is None or submission.status != ApprovalStatus.APPROVED
+        )
+    return render(
+        request,
+        "mgl/fixture_detail.html",
+        {
+            "fixture": fixture,
+            "submission": submission,
+            "home_stats": home_stats,
+            "away_stats": away_stats,
+            "official": official,
+            "can_submit": can_submit,
+        },
+    )
+
+
+def manager_public_profile(request, username):
+    from django.contrib.auth import get_user_model
+
+    UserModel = get_user_model()
+    profile_user = get_object_or_404(UserModel, username=username)
+    manager = manager_for_user(profile_user)
+    if not manager or manager.status != ManagerApplication.APPROVED:
+        raise Http404("Manager not found.")
+    if request.user.is_authenticated and request.user.username == username:
+        return redirect("manager_profile")
+    career = getattr(manager, "career", None)
+    trophies = manager.trophies.all() if manager else []
+    team = Team.objects.filter(manager=profile_user).select_related("league").first()
+    played = 0
+    win_rate = None
+    if career:
+        played = career.wins + career.draws + career.losses
+        if played:
+            win_rate = round(100 * career.wins / played, 1)
+    goals_for = 0
+    goals_against = 0
+    if team:
+        own_stats = TeamMatchStats.objects.filter(
+            team=team,
+            submission__status=ApprovalStatus.APPROVED,
+        )
+        for row in own_stats:
+            goals_for += row.goals
+        conceded = TeamMatchStats.objects.filter(
+            submission__status=ApprovalStatus.APPROVED,
+        ).filter(
+            Q(submission__fixture__home_team=team) | Q(submission__fixture__away_team=team)
+        ).exclude(team=team)
+        for row in conceded:
+            goals_against += row.goals
+    return render(
+        request,
+        "mgl/profile.html",
+        {
+            "manager": manager,
+            "career": career,
+            "trophies": trophies,
+            "rewards": [],
+            "team": team,
+            "token_balance": None,
+            "played": played,
+            "win_rate": win_rate,
+            "goals_for": goals_for,
+            "goals_against": goals_against,
+            "confirm_resign": False,
+            "is_own_profile": False,
+        },
+    )
 
 
 def compare_players(request):

@@ -16,13 +16,16 @@ from mgl.views import (
     compare_players,
     competition_page,
     historical_tables,
+    hall_of_fame,
     home,
     manager_search,
+    manager_public_profile,
     open_recruitment_pack,
     public_completed_transfers,
     recruitment_drive,
     scouting,
     transfer_history,
+    youth_academy,
 )
 
 
@@ -38,6 +41,8 @@ urlpatterns = [
     path("news/pressroom/<int:press_id>/answer/", answer_press, name="answer_press"),
     path("stats/", stats_page, name="stats_page"),
     path("stats/history/", historical_tables, name="historical_tables"),
+    path("history/", hall_of_fame, name="hall_of_fame"),
+    path("managers/<str:username>/", manager_public_profile, name="manager_public_profile"),
     path("stats/compare/", compare_players, name="compare_players"),
     path("stats/managers/", manager_search, name="manager_search"),
     path("stats/<slug:slug>/", league_stats_page, name="league_stats"),
@@ -49,6 +54,7 @@ urlpatterns = [
     path("market/transfers/", transfer_history, name="transfer_history"),
     path("transfers/", public_completed_transfers, name="public_transfers"),
     path("market/scouting/", scouting, name="scouting"),
+    path("market/youth-academy/", youth_academy, name="youth_academy"),
     path("market/recruitment/", recruitment_drive, name="recruitment_drive"),
     path("market/recruitment/open/", open_recruitment_pack, name="open_recruitment_pack"),
     path(

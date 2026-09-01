@@ -57,22 +57,23 @@
 </section>
 {% elif coming_soon or not is_live %}
 <section class="mgl-section ufl-cup-detail">
-    {% if competition_slug == "champions-league" %}
-        {% include "core/includes/mgl_page_header.html" with header_section="CUPS" header_section_url=cups_index header_title="CHAMPIONS LEAGUE" header_icon="trophy" header_description="Europe’s elite. Only the best compete here. Live fixtures and a bracket will appear when the league office starts this competition." header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
-    {% else %}
-        {% include "core/includes/mgl_page_header.html" with header_section="CUPS" header_section_url=cups_index header_title=competition_name header_icon="trophy" header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
-    {% endif %}
+    {% include "core/includes/mgl_page_header.html" with header_section="CUPS" header_section_url=cups_index header_title=competition_name header_icon="trophy" header_description=cup_copy.description header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
     <div class="ufl-cup-hero">
         <div>
             <p class="mgl-home-kicker">{{ competition_name|upper }}</p>
             <h2>{{ competition_name|upper }}</h2>
-            {% if competition_slug == "champions-league" %}
-                <p>16 teams. Two groups of eight. Top four from each group advance. Semi-finals are two legs. The final is one leg.</p>
-                <p class="ufl-cup-meta"><span>16 TEAMS</span><span>KNOCKOUT</span></p>
+            {% if cup_copy.description %}
+                <p>{{ cup_copy.description }}</p>
             {% else %}
-                <p>Knockout cup competitions, including the UFL Phantom Cup.</p>
-                <p class="ufl-cup-meta"><span>KNOCKOUT</span></p>
+                <p>Cup structure is published. Live fixtures, groups and results appear here when the office starts this competition.</p>
             {% endif %}
+            <p class="ufl-cup-meta">
+                {% for item in cup_copy.meta %}
+                    <span>{{ item }}</span>
+                {% empty %}
+                    <span>KNOCKOUT</span>
+                {% endfor %}
+            </p>
         </div>
         <div class="ufl-cup-hero-art" aria-hidden="true">
             <img src="{% static 'core/img/mgl-cup-trophy.png' %}" alt="">
@@ -80,10 +81,13 @@
     </div>
     <nav class="ufl-subtabs" aria-label="Competition sections">
         <a href="?tab=overview" class="{% if cup_tab == 'overview' %}is-active{% endif %}">OVERVIEW</a>
+        {% if cup_copy.has_groups %}
+            <a href="?tab=groups" class="{% if cup_tab == 'groups' %}is-active{% endif %}">GROUPS</a>
+        {% endif %}
         <a href="?tab=fixtures" class="{% if cup_tab == 'fixtures' %}is-active{% endif %}">FIXTURES</a>
-        <a href="?tab=bracket" class="{% if cup_tab == 'bracket' %}is-active{% endif %}">BRACKET</a>
-        <a href="?tab=stats" class="{% if cup_tab == 'stats' %}is-active{% endif %}">STATS</a>
-        <a href="?tab=history" class="{% if cup_tab == 'history' %}is-active{% endif %}">HISTORY</a>
+        <a href="?tab=bracket" class="{% if cup_tab == 'bracket' %}is-active{% endif %}">KNOCKOUTS</a>
+        <a href="?tab=stats" class="{% if cup_tab == 'stats' %}is-active{% endif %}">RESULTS</a>
+        <a href="?tab=history" class="{% if cup_tab == 'history' %}is-active{% endif %}">FINAL</a>
     </nav>
     {% include "mgl/includes/empty_state.html" with kicker="COMING SOON" title="NO LIVE COMPETITION DATA" body="This competition structure is published. Live fixtures, brackets and results will appear here when the league office starts it. Nothing on this page is a fake score." %}
     <p><a href="{% url 'competition_page' 'cups' %}" class="secondary-button">← BACK TO CUPS</a></p>
@@ -106,9 +110,34 @@
         {% endif %}
     </div>
     {% include "mgl/includes/competition_selector.html" %}
-    <div class="dashboard-panel ufl-table-panel">
+    <nav class="ufl-subtabs" aria-label="League sections">
+        <a href="#table" class="is-active">TABLE</a>
+        <a href="#fixtures">FIXTURES</a>
+        <a href="{% url 'league_stats' competition_slug %}">STATISTICS</a>
+        <a href="{% url 'clubs_index' %}">CLUBS</a>
+    </nav>
+    <div id="table" class="dashboard-panel ufl-table-panel">
         {% include "mgl/includes/league_table.html" with table=table league=league %}
     </div>
+    <section id="fixtures" class="ufl-league-fixtures">
+        <h3>FIXTURES &amp; RESULTS</h3>
+        {% for f in league_fixtures %}
+            <article class="ufl-league-fx">
+                <span>MD {{ f.matchweek }}</span>
+                <a href="{% club_url f.home_team %}">{{ f.home_team.name }}</a>
+                <a class="ufl-league-fx-score" href="{% url 'fixture_detail' f.id %}">
+                    {% if f.public_home_goals is not None and f.public_away_goals is not None %}
+                        {{ f.public_home_goals }}–{{ f.public_away_goals }}
+                    {% else %}
+                        vs
+                    {% endif %}
+                </a>
+                <a href="{% club_url f.away_team %}">{{ f.away_team.name }}</a>
+            </article>
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with kicker="FIXTURES" title="NO RELEASED FIXTURES YET" body="When the office releases fixtures for this league, they will appear here from the live fixture list." %}
+        {% endfor %}
+    </section>
 </section>
 {% endif %}
 {% endblock %}

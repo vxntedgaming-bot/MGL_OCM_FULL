@@ -36,7 +36,11 @@
         <span>{% if f.scheduled_at %}{{ f.scheduled_at|date:"D, d M Y" }}{% else %}Date TBC{% endif %}</span>
         <b class="mgl-fx-badge is-{{ f.display_status }}">{{ f.display_status_label }}</b>
     </div>
-    <a class="mgl-fx-arrow" href="{% url 'fixture_stats' f.id %}" aria-label="Open match statistics for {{ f.home_team.name }} vs {{ f.away_team.name }}">
+    {% if f.is_official or f.display_status == 'approved' or f.display_status == 'completed' %}
+        <a class="mgl-fx-arrow" href="{% url 'fixture_detail' f.id %}" aria-label="Open match view for {{ f.home_team.name }} vs {{ f.away_team.name }}">
+    {% else %}
+        <a class="mgl-fx-arrow" href="{% url 'fixture_stats' f.id %}" aria-label="Open match statistics for {{ f.home_team.name }} vs {{ f.away_team.name }}">
+    {% endif %}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
     </a>
 </article>

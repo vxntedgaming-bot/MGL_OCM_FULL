@@ -159,9 +159,70 @@
     color: var(--ufl-gold);
 }
 
+.ufl-league-index {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin: 8px 0 4px;
+}
+
+.ufl-league-index-card {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    align-items: center;
+    padding: 14px 16px;
+    border: 1px solid var(--ufl-gold-line, rgba(212, 175, 55, 0.35));
+    background: rgba(0, 0, 0, 0.35);
+}
+
+.ufl-league-index-card strong {
+    width: 100%;
+    font-family: var(--font-display);
+    letter-spacing: 0.08em;
+}
+
+.ufl-league-index-card a {
+    color: var(--ufl-gold);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 800;
+}
+
+.ufl-league-fixtures {
+    margin-top: 28px;
+}
+
+.ufl-league-fixtures h3 {
+    margin: 0 0 12px;
+    font-family: var(--font-display);
+    letter-spacing: 0.12em;
+}
+
+.ufl-league-fx {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr) 72px minmax(0, 1fr);
+    gap: 10px;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.ufl-league-fx-score {
+    text-align: center;
+    color: var(--ufl-gold);
+    font-weight: 800;
+}
+
 @media (max-width: 900px) {
     .ufl-cup-grid,
     .ufl-cup-hero {
+        grid-template-columns: 1fr;
+    }
+
+    .ufl-league-index,
+    .ufl-league-fx {
         grid-template-columns: 1fr;
     }
 }

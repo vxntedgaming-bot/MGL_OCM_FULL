@@ -381,7 +381,7 @@
                         </strong>
                         <small>{% if fixture.league %}{{ fixture.league|league_label }} · {% endif %}MD {{ fixture.matchweek }}</small>
                     </div>
-                    <a class="ud-action" href="{% url 'fixture_list' %}">MATCH</a>
+                    <a class="ud-action" href="{% url 'fixture_detail' fixture.id %}">MATCH</a>
                 </div>
             {% empty %}
                 <p class="ud-empty">No approved results yet</p>

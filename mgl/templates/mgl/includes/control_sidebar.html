@@ -2,7 +2,7 @@
 <button type="button" class="mgl-cp-menu" id="cp-menu" aria-controls="cp-sidebar" aria-expanded="false">CONTROL MENU</button>
 <aside class="mgl-cp-sidebar" id="cp-sidebar">
     <div class="mgl-cp-brand">
-        <img src="{% static 'core/img/mgl-logo.png' %}" alt="UFL">
+        <img src="{% static 'core/img/ufl-logo-chrome.png' %}" alt="UFL">
         <p class="mgl-cp-sidebar-title">UFL<small>CONTROL CENTRE</small></p>
     </div>
     <nav aria-label="Control panel">
@@ -21,5 +21,5 @@
         <p>TRANSFER WINDOW <strong>{% if window_open %}OPEN{% else %}CLOSED{% endif %}</strong></p>
     </div>
     <a href="{% url 'home' %}" class="mgl-cp-view-site">VIEW SITE</a>
-    <a href="{% url 'home' %}" class="mgl-cp-sidebar-logo"><img src="{% static 'core/img/mgl-logo.png' %}" alt="UFL"></a>
+    <a href="{% url 'home' %}" class="mgl-cp-sidebar-logo"><img src="{% static 'core/img/ufl-logo-chrome.png' %}" alt="UFL"></a>
 </aside>

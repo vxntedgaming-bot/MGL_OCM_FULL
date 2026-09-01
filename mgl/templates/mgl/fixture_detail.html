@@ -1,0 +1,77 @@
+{% extends "core/base.html" %}
+{% load mgl_ui %}
+
+{% block title %}{{ fixture.home_team.name }} vs {{ fixture.away_team.name }} — UFL{% endblock %}
+{% block body_class %}ufl-structure-page{% endblock %}
+
+{% block content %}
+<section class="mgl-section ufl-match">
+    {% url 'fixture_list' as fixtures_url %}
+    {% include "core/includes/mgl_page_header.html" with header_section="MY TEAM" header_section_url=fixtures_url header_title="MATCH" header_icon="football" header_description="Official match view for this stored fixture. Scores and statistics appear only from submitted and approved results." %}
+
+    <article class="ufl-match-card dashboard-panel">
+        <p class="eyebrow">
+            {% if fixture.league %}{{ fixture.league|league_label|upper }}{% else %}UFL{% endif %}
+            · MD {{ fixture.matchweek }}
+        </p>
+        <div class="ufl-match-scoreline">
+            <div class="ufl-match-club">
+                {% team_logo fixture.home_team "md" %}
+                <a href="{% club_url fixture.home_team %}">{{ fixture.home_team.name|upper }}</a>
+                {% if fixture.home_team.manager %}
+                    <a class="ufl-match-manager" href="{% url 'manager_public_profile' fixture.home_team.manager.username %}">{{ fixture.home_team.manager.username }}</a>
+                {% endif %}
+            </div>
+            <div class="ufl-match-score">
+                {% if official and home_stats and away_stats %}
+                    <strong>{{ home_stats.goals }}–{{ away_stats.goals }}</strong>
+                    <span>OFFICIAL</span>
+                {% elif home_stats and away_stats %}
+                    <strong class="is-pending">{{ home_stats.goals }}–{{ away_stats.goals }}</strong>
+                    <span>{{ submission.get_status_display|upper }}</span>
+                {% else %}
+                    <strong>vs</strong>
+                    <span>{{ fixture.status }}</span>
+                {% endif %}
+            </div>
+            <div class="ufl-match-club">
+                {% team_logo fixture.away_team "md" %}
+                <a href="{% club_url fixture.away_team %}">{{ fixture.away_team.name|upper }}</a>
+                {% if fixture.away_team.manager %}
+                    <a class="ufl-match-manager" href="{% url 'manager_public_profile' fixture.away_team.manager.username %}">{{ fixture.away_team.manager.username }}</a>
+                {% endif %}
+            </div>
+        </div>
+        <dl class="ufl-match-meta">
+            <div>
+                <dt>DATE</dt>
+                <dd>{% if fixture.scheduled_at %}{{ fixture.scheduled_at|date:"D, d M Y · H:i" }}{% else %}TBC{% endif %}</dd>
+            </div>
+            <div>
+                <dt>COMPETITION</dt>
+                <dd>{% if fixture.league %}{{ fixture.league|league_label }}{% else %}UFL{% endif %}</dd>
+            </div>
+            <div>
+                <dt>RESULT STATUS</dt>
+                <dd>{% if official %}Approved{% elif submission %}{{ submission.get_status_display }}{% else %}Not submitted{% endif %}</dd>
+            </div>
+        </dl>
+        <div class="ufl-match-actions">
+            {% if can_submit %}
+                <a class="primary-button" href="{% url 'submit_match' fixture.id %}">ENTER RESULT</a>
+                <a class="secondary-button" href="{% url 'fixture_stats' fixture.id %}">MATCH STATISTICS</a>
+            {% endif %}
+            <a class="secondary-button" href="{% url 'fixture_list' %}">← FIXTURES</a>
+        </div>
+    </article>
+
+    {% if home_stats or away_stats %}
+    <div class="ufl-match-grid">
+        {% include "mgl/includes/match_side_stats.html" with team=fixture.home_team stats=home_stats %}
+        {% include "mgl/includes/match_side_stats.html" with team=fixture.away_team stats=away_stats %}
+    </div>
+    {% else %}
+        {% include "mgl/includes/empty_state.html" with kicker="MATCH" title="NO MATCH STATISTICS YET" body="Goalscorers, assists and ratings appear here after a manager submits the result and Owner/Admin approval is complete." %}
+    {% endif %}
+</section>
+{% endblock %}

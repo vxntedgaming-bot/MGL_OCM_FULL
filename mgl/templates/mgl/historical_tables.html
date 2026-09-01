@@ -1,7 +1,7 @@
 {% extends "core/base.html" %}
 {% load static mgl_ui %}
 
-{% block title %}History — UFL{% endblock %}
+{% block title %}{% if is_hall_of_fame %}Hall of Fame — UFL{% else %}History — UFL{% endif %}{% endblock %}
 {% block body_class %}mgl-hist-page{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'core/css/mgl-history.css' %}?v=hist-1">
@@ -10,17 +10,17 @@
 {% block content %}
 <section class="mgl-section mgl-hist">
     <nav class="mgl-hist-crumbs" aria-label="History location">
-        <span>COMMUNITY</span>
+        <span>HISTORY</span>
         <span aria-hidden="true">›</span>
-        <span class="mgl-hist-crumb-current">HISTORY</span>
+        <span class="mgl-hist-crumb-current">{% if is_hall_of_fame %}HALL OF FAME{% else %}HISTORY{% endif %}</span>
     </nav>
 
     <header class="mgl-hist-hero">
-        <img src="{% static 'core/img/mgl-logo.png' %}" alt="" class="mgl-hist-watermark">
+        <img src="{% static 'core/img/ufl-logo-chrome.png' %}" alt="" class="mgl-hist-watermark">
         <div>
-            <div class="eyebrow">COMMUNITY</div>
-            <h1>HISTORY</h1>
-            <p>A record of every season in Ultimate Fantasy League.</p>
+            <div class="eyebrow">HISTORY</div>
+            <h1>{% if is_hall_of_fame %}HALL OF FAME{% else %}HISTORY{% endif %}</h1>
+            <p>The central Ultimate Fantasy League archive. Season winners and awards appear when they are recorded. Nothing here is invented.</p>
         </div>
         <a href="{% url 'leagues_page' %}" class="secondary-button mgl-hist-cta">CURRENT TABLE →</a>
     </header>
@@ -168,6 +168,19 @@
             {% include "mgl/includes/empty_state.html" with title="NO COMPLETED SEASONS YET" body="The active season appears here after Owner/Admin finalises it." %}
         {% endif %}
     </section>
+
+    {% if is_hall_of_fame %}
+    <section class="mgl-hist-past ufl-hof-archive">
+        <h2>UFL ARCHIVE CATEGORIES</h2>
+        <p>These records will fill from official season data. Until then they stay empty.</p>
+        <div class="ufl-hof-grid">
+            <article><strong>Puskás Award</strong><span>To be recorded</span></article>
+            <article><strong>Player of the Season</strong><span>To be recorded</span></article>
+            <article><strong>Club records</strong><span>To be recorded</span></article>
+            <article><strong>Manager records</strong><span>To be recorded</span></article>
+        </div>
+    </section>
+    {% endif %}
 
     {% if can_manage_seasons %}
         <p class="mgl-hist-manage"><a href="{% url 'season_management' %}" class="secondary-button">MANAGE SEASONS →</a></p>

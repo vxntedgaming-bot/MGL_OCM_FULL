@@ -6,7 +6,7 @@
 <section class="mgl-section">
     <div class="section-heading">
         <div>
-            <div class="eyebrow">STATS &amp; HISTORY</div>
+            <div class="eyebrow">HISTORY</div>
             <h1>MANAGER SEARCH</h1>
         </div>
         <span class="section-line"></span>
@@ -20,9 +20,9 @@
     <div class="dashboard-panel">
         {% for manager in managers %}
             <div class="table-row">
-                <strong>{{ manager.display_name }}</strong>
+                <strong><a href="{% url 'manager_public_profile' manager.user.username %}">{{ manager.display_name }}</a></strong>
                 <span>{{ manager.gamertag }}</span>
-                <b>{{ manager.user.username }}</b>
+                <b><a href="{% url 'manager_public_profile' manager.user.username %}">{{ manager.user.username }}</a></b>
             </div>
         {% empty %}
             {% include "mgl/includes/empty_state.html" with title="NO MANAGERS FOUND" %}

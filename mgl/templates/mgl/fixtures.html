@@ -167,7 +167,7 @@
                                 {% if day %}
                                     <span>{{ day.day }}</span>
                                     {% for f in day.fixtures %}
-                                        <a href="{% url 'fixture_stats' f.id %}">
+                                        <a href="{% if f.is_official or f.display_status == 'approved' or f.display_status == 'completed' %}{% url 'fixture_detail' f.id %}{% else %}{% url 'fixture_stats' f.id %}{% endif %}">
                                             {{ f.home_team.short_name }} v {{ f.away_team.short_name }}
                                             {% if f.scheduled_at %}{{ f.scheduled_at|date:"H:i" }}{% endif %}
                                         </a>

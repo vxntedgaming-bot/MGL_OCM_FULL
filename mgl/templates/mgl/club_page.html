@@ -56,7 +56,7 @@
                 <div class="match-row">
                     <span class="match-date">MD {{ fixture.matchweek }}</span>
                     <strong class="mgl-standings-club">{% team_logo fixture.home_team "xs" %} <a href="{% club_url fixture.home_team %}">{{ fixture.home_team.name }}</a></strong>
-                    <span class="vs">VS</span>
+                    <span class="vs"><a href="{% url 'fixture_detail' fixture.id %}">VS</a></span>
                     <strong class="mgl-standings-club">{% team_logo fixture.away_team "xs" %} <a href="{% club_url fixture.away_team %}">{{ fixture.away_team.name }}</a></strong>
                 </div>
             {% empty %}
@@ -69,7 +69,7 @@
                 <div class="result-row">
                     <span class="result-win">FT</span>
                     <strong>{{ fixture.home_team.short_name }}</strong>
-                    <b>{% if fixture.home_goals != None %}{{ fixture.home_goals }}–{{ fixture.away_goals }}{% else %}—{% endif %}</b>
+                    <b><a href="{% url 'fixture_detail' fixture.id %}">{% if fixture.home_goals != None %}{{ fixture.home_goals }}–{{ fixture.away_goals }}{% else %}—{% endif %}</a></b>
                     <strong>{{ fixture.away_team.short_name }}</strong>
                 </div>
             {% empty %}

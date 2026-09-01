@@ -12,14 +12,17 @@ LEAGUE_MENU = {
     "current": {
         "leagues_page",
         "competition_page",
-        "stats_page",
-        "league_stats",
+        "clubs_index",
+        "club_page",
     },
+    "current_slugs": {"premier-league", "championship", "league-one"},
     "items": (
+        {"label": "ALL LEAGUES", "url_name": "leagues_page"},
         {
             "label": "Premier League",
             "url_name": "competition_page",
             "url_kwargs": {"slug": "premier-league"},
+            "divider": True,
         },
         {
             "label": "Championship",
@@ -33,46 +36,44 @@ LEAGUE_MENU = {
             "url_kwargs": {"slug": "league-one"},
             "style": "sub",
         },
-        {"label": "Stats", "heading": True, "divider": True},
-        {
-            "label": "Premier League Stats",
-            "url_name": "league_stats",
-            "url_kwargs": {"slug": "premier-league"},
-            "style": "sub",
-        },
-        {
-            "label": "Championship Stats",
-            "url_name": "league_stats",
-            "url_kwargs": {"slug": "championship"},
-            "style": "sub",
-        },
-        {
-            "label": "League One Stats",
-            "url_name": "league_stats",
-            "url_kwargs": {"slug": "league-one"},
-            "style": "sub",
-        },
-        {
-            "label": "UFL Cups (Coming soon)",
-            "url_name": "competition_page",
-            "url_kwargs": {"slug": "cups"},
-            "divider": True,
-        },
-        {
-            "label": "UFL Champions League (Coming soon)",
-            "url_name": "competition_page",
-            "url_kwargs": {"slug": "champions-league"},
-        },
+        {"label": "Clubs", "url_name": "clubs_index", "divider": True},
+        {"label": "Club Profiles", "url_name": "clubs_index"},
     ),
 }
 
-CLUBS_MENU = {
-    "id": "clubs",
-    "label": "CLUBS",
-    "current": {"clubs_index", "club_page"},
+CUPS_MENU = {
+    "id": "cups",
+    "label": "CUPS",
+    "current": {"competition_page"},
+    "current_slugs": {
+        "cups",
+        "phantom-cup",
+        "champions-league",
+        "europa-league",
+        "conference-league",
+    },
     "items": (
-        {"label": "Clubs", "url_name": "clubs_index"},
-        {"label": "Club Profiles", "url_name": "clubs_index", "divider": True},
+        {
+            "label": "Phantom Cup",
+            "url_name": "competition_page",
+            "url_kwargs": {"slug": "phantom-cup"},
+        },
+        {
+            "label": "UFL Champions League",
+            "url_name": "competition_page",
+            "url_kwargs": {"slug": "champions-league"},
+            "divider": True,
+        },
+        {
+            "label": "UFL Europa League",
+            "url_name": "competition_page",
+            "url_kwargs": {"slug": "europa-league"},
+        },
+        {
+            "label": "UFL Europa Conference League",
+            "url_name": "competition_page",
+            "url_kwargs": {"slug": "conference-league"},
+        },
     ),
 }
 
@@ -96,40 +97,67 @@ MARKET_MENU = {
         "live_auctions",
         "place_bid",
         "scouting",
+        "youth_academy",
     },
     "items": (
-        {"label": "Transfer History", "url_name": "transfer_history"},
+        {"label": "Transfers", "url_name": "public_transfers"},
         {"label": "Transfer Market", "url_name": "transfer_market", "divider": True},
-        {"label": "Auctions", "url_name": "live_auctions", "divider": True},
+        {"label": "Transfer Requests", "url_name": "transfer_requests"},
+        {"label": "Free Agents", "url_name": "free_agents", "divider": True},
         {"label": "Recruitment Drive", "url_name": "recruitment_drive", "divider": True},
         {"label": "Scouting", "url_name": "scouting", "divider": True},
-        {"label": "Negotiations", "url_name": "transfer_requests", "divider": True},
-        {"label": "Completed Transfers", "url_name": "public_transfers", "divider": True},
-        {"label": "Free Agents", "url_name": "free_agents", "divider": True},
+        {"label": "Youth Academy", "url_name": "youth_academy", "divider": True},
+        {"label": "Auctions", "url_name": "live_auctions", "divider": True},
         {"label": "Player Database", "url_name": "player_database", "divider": True},
     ),
 }
 
 STATS_MENU = {
-    "id": "news",
-    "label": "STATS & HISTORY",
+    "id": "stats",
+    "label": "STATS",
     "current": {
+        "stats_page",
+        "league_stats",
+    },
+    "items": (
+        {
+            "label": "Premier League Stats",
+            "url_name": "league_stats",
+            "url_kwargs": {"slug": "premier-league"},
+        },
+        {
+            "label": "Championship Stats",
+            "url_name": "league_stats",
+            "url_kwargs": {"slug": "championship"},
+            "style": "sub",
+        },
+        {
+            "label": "League One Stats",
+            "url_name": "league_stats",
+            "url_kwargs": {"slug": "league-one"},
+            "style": "sub",
+        },
+    ),
+}
+
+HISTORY_MENU = {
+    "id": "history",
+    "label": "HISTORY",
+    "current": {
+        "historical_tables",
+        "hall_of_fame",
+        "manager_search",
+        "manager_public_profile",
         "news_centre",
         "live_activity",
         "pressroom",
         "answer_press",
-        "stats_page",
-        "league_stats",
-        "historical_tables",
-        "manager_search",
     },
     "items": (
-        {"label": "UFL Newsroom", "url_name": "live_activity"},
-        {"label": "UFL Press Conference", "url_name": "pressroom", "divider": True},
-        {"label": "Premier League Stats", "url_name": "league_stats", "url_kwargs": {"slug": "premier-league"}, "divider": True},
-        {"label": "Championship Stats", "url_name": "league_stats", "url_kwargs": {"slug": "championship"}, "style": "sub"},
-        {"label": "League One Stats", "url_name": "league_stats", "url_kwargs": {"slug": "league-one"}, "style": "sub"},
-        {"label": "Career History", "url_name": "historical_tables", "divider": True},
+        {"label": "Hall of Fame", "url_name": "hall_of_fame"},
+        {"label": "Manager Search", "url_name": "manager_search", "divider": True},
+        {"label": "UFL Newsroom", "url_name": "live_activity", "divider": True},
+        {"label": "UFL Press Conference", "url_name": "pressroom"},
     ),
 }
 
@@ -142,17 +170,12 @@ CAREER_MENU = {
         "fixture_list",
         "submit_match",
         "fixture_stats",
-        "historical_tables",
-        "clubs_index",
-        "club_page",
+        "fixture_detail",
     },
     "items": (
         {"label": "Dashboard", "url_name": "manager_hub"},
-        {"label": "My Squad", "url_name": "team_management", "divider": True},
+        {"label": "Team Management", "url_name": "team_management", "divider": True},
         {"label": "Fixtures", "url_name": "fixture_list", "divider": True},
-        {"label": "Clubs", "url_name": "clubs_index", "divider": True},
-        {"label": "Club Profiles", "url_name": "clubs_index"},
-        {"label": "Career History", "url_name": "manager_profile", "divider": True},
     ),
 }
 
@@ -203,15 +226,22 @@ CONTROL_MENU = {
     ),
 }
 
-# Public visitors: league information only.
-NAV_DROPDOWNS = (LEAGUE_MENU,)
+# Public visitors: the shared UFL sections that do not require a club.
+NAV_DROPDOWNS = (
+    LEAGUE_MENU,
+    CUPS_MENU,
+    STATS_MENU,
+    HISTORY_MENU,
+)
 
 # Approved managers / Control.
 SIGNED_IN_NAV_DROPDOWNS = (
     CAREER_MENU,
     MARKET_MENU,
     LEAGUE_MENU,
+    CUPS_MENU,
     STATS_MENU,
+    HISTORY_MENU,
     CONTROL_MENU,
 )
 
@@ -220,7 +250,10 @@ COMPETITIONS = {
     "championship": "Championship",
     "league-one": "League One",
     "cups": "UFL Cups",
+    "phantom-cup": "Phantom Cup",
     "champions-league": "UFL Champions League",
+    "europa-league": "UFL Europa League",
+    "conference-league": "UFL Europa Conference League",
 }
 
 LIVE_COMPETITION_SLUGS = {
@@ -289,11 +322,15 @@ def _build_menus(source, url_name, kwargs, is_control, extra_by_id=None):
             )
         for extra in extra_by_id.get(menu["id"], ()):
             items.append(extra)
+        slugs = menu.get("current_slugs")
+        menu_current = url_name in menu["current"]
+        if menu_current and slugs and kwargs.get("slug"):
+            menu_current = kwargs.get("slug") in slugs
         menus.append(
             {
                 "id": menu["id"],
                 "label": menu["label"],
-                "is_current": url_name in menu["current"],
+                "is_current": menu_current,
                 "badge": "",
                 "items": items,
             }

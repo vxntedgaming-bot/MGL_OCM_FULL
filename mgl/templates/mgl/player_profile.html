@@ -127,7 +127,7 @@
                 {% if club_manager %}
                 <div class="mgl-info-box">
                     <span>MANAGER</span>
-                    <strong>{{ club_manager.display_name }}</strong>
+                    <strong>{% if club_manager.user %}<a href="{% url 'manager_public_profile' club_manager.user.username %}">{{ club_manager.display_name }}</a>{% else %}{{ club_manager.display_name }}{% endif %}</strong>
                 </div>
                 {% endif %}
                 <div class="mgl-info-box">

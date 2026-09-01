@@ -898,6 +898,124 @@ input[type="checkbox"]:checked {
     color: var(--ufl-muted);
 }
 
+.ufl-coming-soon-panel,
+.ufl-match-card,
+.ufl-hof-archive article {
+    padding: 22px 22px 24px;
+    border: 1px solid var(--ufl-gold-line, rgba(212, 175, 55, 0.35));
+}
+
+.ufl-coming-soon-kicker {
+    margin: 8px 0 12px;
+    color: var(--ufl-gold);
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+}
+
+.ufl-match-scoreline {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    gap: 16px;
+    align-items: center;
+    margin: 16px 0 20px;
+}
+
+.ufl-match-club {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.ufl-match-club a {
+    color: inherit;
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: 0.06em;
+}
+
+.ufl-match-manager {
+    color: var(--ufl-muted);
+    font-size: 12px;
+}
+
+.ufl-match-score {
+    text-align: center;
+}
+
+.ufl-match-score strong {
+    display: block;
+    font-size: 2rem;
+    color: var(--ufl-gold);
+}
+
+.ufl-match-meta {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.ufl-match-meta dt {
+    color: var(--ufl-muted);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+}
+
+.ufl-match-actions,
+.ufl-match-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.ufl-match-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.ufl-match-side ul {
+    list-style: none;
+    margin: 0 0 16px;
+    padding: 0;
+}
+
+.ufl-match-side li {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.ufl-hof-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.ufl-hof-grid article {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 16px;
+    border: 1px solid var(--ufl-gold-line, rgba(212, 175, 55, 0.35));
+}
+
+.ufl-hof-grid span {
+    color: var(--ufl-muted);
+}
+
+@media (max-width: 800px) {
+    .ufl-match-scoreline,
+    .ufl-match-meta,
+    .ufl-match-grid,
+    .ufl-hof-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 @media (min-width: 1440px) {
     .mgl-section,
     .mgl-dash,
