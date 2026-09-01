@@ -5,28 +5,31 @@ from mgl.starting_squads import apply_starting_squads, format_validation_report
 
 class Command(BaseCommand):
     help = (
-        "Assign the approved 14×26 starting squads from the verified dry-run "
-        "allocation. Default is a dry-run. Does not change ratings, IDs, faces, "
-        "treasuries, or manager balances, and does not create auctions."
+        "LEGACY / FENCED. The official UFL starting-squad path is Control Centre "
+        "generate → Owner approve. This command cannot assign players."
     )
 
     def add_arguments(self, parser):
         parser.add_argument(
             "--apply",
             action="store_true",
-            help="Write the 364 club assignments. Default is dry-run only.",
+            help="Rejected. Legacy 14×26 apply cannot bypass Control Centre.",
         )
 
     def handle(self, *args, **options):
-        dry_run = not options["apply"]
+        if options["apply"]:
+            raise CommandError(
+                "apply_starting_squads --apply is disabled. Official starting "
+                "squads are generated and approved in Control Centre."
+            )
         try:
-            report = apply_starting_squads(dry_run=dry_run)
+            report = apply_starting_squads(dry_run=True)
         except ValueError as exc:
             raise CommandError(str(exc)) from exc
         self.stdout.write(format_validation_report(report))
-        if not report.get("ok"):
-            raise CommandError("Validation failed. No production assignment was applied.")
-        if dry_run:
-            self.stdout.write(self.style.WARNING("DRY RUN ONLY — no players were assigned."))
-            return
-        self.stdout.write(self.style.SUCCESS(report.get("message") or "Starting squads applied."))
+        self.stdout.write(
+            self.style.WARNING(
+                "LEGACY DRY RUN ONLY — no players were assigned. "
+                "Use Control → Season → Starting Squads."
+            )
+        )

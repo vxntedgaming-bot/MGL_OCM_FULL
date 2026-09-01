@@ -63,7 +63,7 @@ QUESTION_BANK = {
         ("tr_add", "What does this player add to your squad?"),
         ("tr_finished", "Are you finished in the transfer market?"),
         ("tr_qualities", "What qualities attracted you to this player?"),
-        ("tr_limit", "How are you balancing the squad with the 28-player limit?"),
+        ("tr_limit", "How are you balancing the squad with the 30-player limit?"),
         ("tr_happy", "Are you happy with the latest signing?"),
         ("tr_fit", "How quickly do you expect the new signing to fit the system?"),
         ("tr_horizon", "Are you building for immediate success or the long term?"),

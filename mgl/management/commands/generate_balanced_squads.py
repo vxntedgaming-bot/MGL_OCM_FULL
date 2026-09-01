@@ -40,8 +40,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         raise CommandError(
-            "generate_balanced_squads is disabled. Starting squads are a dry-run "
-            "auction pool (propose_starting_auction_pool). Do not auto-assign players."
+            "generate_balanced_squads is disabled. Official UFL starting squads "
+            "are generated and approved in Control Centre. This command cannot assign players."
         )
         teams = Team.objects.order_by("id")
         if options["team_id"]:

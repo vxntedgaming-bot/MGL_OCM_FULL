@@ -67,7 +67,7 @@
                     {% if pack.player.mgl_team %}
                         <p class="mgl-sc-muted">{{ pack.player|card_name }} has been assigned to {{ pack.player.mgl_team.name }}.</p>
                     {% else %}
-                        <p class="mgl-sc-muted">Scout report filed. If your squad is already at 28, the league office must resolve the exception.</p>
+                        <p class="mgl-sc-muted">Scout report filed. If your squad is already at 30, the league office must resolve the exception.</p>
                     {% endif %}
                 </div>
                 <div class="mgl-sc-pack-actions">
@@ -200,7 +200,7 @@
                 {% else %}
                     <p>Bronze 8h · Silver 16h · Gold 32h · Elite 48h. Level 4 halves Gold and Elite.</p>
                 {% endif %}
-                <p class="mgl-sc-muted">One active scout only. A successful discovery joins your squad automatically, subject to the 28-player limit.</p>
+                <p class="mgl-sc-muted">One active scout only. A successful discovery joins your squad automatically, subject to the 30-player limit.</p>
                 <p class="mgl-sc-muted">You keep your scout level even if you leave a club.</p>
                 {% if club %}
                     <p class="mgl-sc-muted">Squad {{ roster_count }} / {{ roster_limit }} · {{ club.name }}</p>

@@ -412,8 +412,8 @@ class ClubAuctionSquadLifecycleTests(TestCase):
         squad = self.client.get(reverse("team_management"))
         self.assertNotContains(squad, "CLUB STRIKER")
         self.assertContains(squad, "HOME KEEPER")
-        self.assertContains(squad, "2/28")
-        self.assertEqual(squad.context["available_spaces"], 26)
+        self.assertContains(squad, "2/30")
+        self.assertEqual(squad.context["available_spaces"], 28)
         steal = self.client.get(
             reverse("team_management"),
             {"list": "auction", "player": self.owned.id},

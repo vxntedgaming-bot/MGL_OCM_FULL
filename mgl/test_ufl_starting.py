@@ -29,19 +29,19 @@ from mgl.ufl_starting import (
 
 OFFICIAL_COUNTS = {
     "GK": 2,
-    "CB": 5,
-    "RB": 1,
-    "LB": 1,
-    "RWB": 1,
-    "LWB": 1,
-    "CM": 3,
+    "CB": 4,
+    "RB": 2,
+    "LB": 2,
+    "RWB": 2,
+    "LWB": 2,
     "CDM": 2,
+    "CM": 2,
     "CAM": 2,
-    "RM": 1,
-    "LM": 1,
-    "RW": 1,
-    "LW": 1,
-    "ST": 3,
+    "LM": 2,
+    "RM": 2,
+    "LW": 2,
+    "RW": 2,
+    "ST": 2,
 }
 from players.models import Player
 from teams.models import Team
@@ -118,11 +118,11 @@ class StartingGeneratorTests(TestCase):
         self.pool = _fill_pool()
         self.client = Client(HTTP_HOST="127.0.0.1")
 
-    def test_shape_is_exactly_25(self):
-        self.assertEqual(PLAYERS_PER_CLUB, 25)
-        self.assertEqual(OFFICIAL_STARTING_SQUAD_SIZE, 25)
-        self.assertEqual(sum(count for _pos, count in UFL_SQUAD_SHAPE), 25)
-        self.assertEqual(sum(SHAPE_COUNTS.values()), 25)
+    def test_shape_is_exactly_30(self):
+        self.assertEqual(PLAYERS_PER_CLUB, 30)
+        self.assertEqual(OFFICIAL_STARTING_SQUAD_SIZE, 30)
+        self.assertEqual(sum(count for _pos, count in UFL_SQUAD_SHAPE), 30)
+        self.assertEqual(sum(SHAPE_COUNTS.values()), 30)
         self.assertEqual(SHAPE_COUNTS, OFFICIAL_COUNTS)
         self.assertEqual(OFFICIAL_STRUCTURE, official_starting_structure())
         self.assertEqual(
@@ -130,19 +130,21 @@ class StartingGeneratorTests(TestCase):
             list(OFFICIAL_COUNTS.items()),
         )
         self.assertEqual(SHAPE_COUNTS["GK"], 2)
-        self.assertEqual(SHAPE_COUNTS["CB"], 5)
-        self.assertEqual(SHAPE_COUNTS["RB"], 1)
-        self.assertEqual(SHAPE_COUNTS["LB"], 1)
-        self.assertEqual(SHAPE_COUNTS["RWB"], 1)
-        self.assertEqual(SHAPE_COUNTS["LWB"], 1)
-        self.assertEqual(SHAPE_COUNTS["CM"], 3)
+        self.assertEqual(SHAPE_COUNTS["CB"], 4)
+        self.assertEqual(SHAPE_COUNTS["RB"], 2)
+        self.assertEqual(SHAPE_COUNTS["LB"], 2)
+        self.assertEqual(SHAPE_COUNTS["RWB"], 2)
+        self.assertEqual(SHAPE_COUNTS["LWB"], 2)
         self.assertEqual(SHAPE_COUNTS["CDM"], 2)
+        self.assertEqual(SHAPE_COUNTS["CM"], 2)
         self.assertEqual(SHAPE_COUNTS["CAM"], 2)
-        self.assertEqual(SHAPE_COUNTS["RM"], 1)
-        self.assertEqual(SHAPE_COUNTS["LM"], 1)
-        self.assertEqual(SHAPE_COUNTS["RW"], 1)
-        self.assertEqual(SHAPE_COUNTS["LW"], 1)
-        self.assertEqual(SHAPE_COUNTS["ST"], 3)
+        self.assertEqual(SHAPE_COUNTS["LM"], 2)
+        self.assertEqual(SHAPE_COUNTS["RM"], 2)
+        self.assertEqual(SHAPE_COUNTS["LW"], 2)
+        self.assertEqual(SHAPE_COUNTS["RW"], 2)
+        self.assertEqual(SHAPE_COUNTS["ST"], 2)
+        self.assertNotEqual(SHAPE_COUNTS.get("CB"), 5)
+        self.assertNotEqual(PLAYERS_PER_CLUB, 25)
 
     def test_generate_does_not_assign_or_touch_fc26(self):
         before = list(Player.objects.order_by("id").values_list("id", "fc27_id", "overall", "name", "mgl_team_id"))
@@ -164,22 +166,8 @@ class StartingGeneratorTests(TestCase):
         self.assertEqual(len(clubs), 2)
         ids = []
         for club in clubs:
-            self.assertEqual(len(club["players"]), 25)
+            self.assertEqual(len(club["players"]), 30)
             self.assertEqual(club["position_counts"], OFFICIAL_COUNTS)
-            self.assertEqual(club["position_counts"]["GK"], 2)
-            self.assertEqual(club["position_counts"]["CB"], 5)
-            self.assertEqual(club["position_counts"]["RB"], 1)
-            self.assertEqual(club["position_counts"]["LB"], 1)
-            self.assertEqual(club["position_counts"]["RWB"], 1)
-            self.assertEqual(club["position_counts"]["LWB"], 1)
-            self.assertEqual(club["position_counts"]["CM"], 3)
-            self.assertEqual(club["position_counts"]["CDM"], 2)
-            self.assertEqual(club["position_counts"]["CAM"], 2)
-            self.assertEqual(club["position_counts"]["RM"], 1)
-            self.assertEqual(club["position_counts"]["LM"], 1)
-            self.assertEqual(club["position_counts"]["RW"], 1)
-            self.assertEqual(club["position_counts"]["LW"], 1)
-            self.assertEqual(club["position_counts"]["ST"], 3)
             ovrs = [row["overall"] for row in club["players"]]
             self.assertGreaterEqual(min(ovrs), 64)
             self.assertLessEqual(max(ovrs), 69)
@@ -202,9 +190,9 @@ class StartingGeneratorTests(TestCase):
         self.assertFalse(result["ok"])
         shape = next(check for check in result["checks"] if check["key"] == "shape")
         self.assertFalse(shape["ok"])
-        self.assertIn("CB 5 / 5", shape["detail"])
-        self.assertTrue(any("CB 4 / 5" in problem for problem in result["problems"]))
-        self.assertTrue(any("ST 4 / 3" in problem for problem in result["problems"]))
+        self.assertIn("CB 4 / 4", shape["detail"])
+        self.assertTrue(any("CB 3 / 4" in problem for problem in result["problems"]))
+        self.assertTrue(any("ST 3 / 2" in problem for problem in result["problems"]))
 
         payload = proposal.payload
         payload["clubs"][0]["players"] = [player.as_dict() for player in squads[0].players]
@@ -268,8 +256,8 @@ class StartingGeneratorTests(TestCase):
         snapshot = list(Player.objects.values_list("fc27_id", "overall", "name"))
         approved = approve_proposal(proposal, self.owner, confirm=True)
         self.assertEqual(approved.status, StartingSquadProposal.APPROVED)
-        self.assertEqual(Player.objects.filter(mgl_team=self.club_a).count(), 25)
-        self.assertEqual(Player.objects.filter(mgl_team=self.club_b).count(), 25)
+        self.assertEqual(Player.objects.filter(mgl_team=self.club_a).count(), 30)
+        self.assertEqual(Player.objects.filter(mgl_team=self.club_b).count(), 30)
         self.manager.refresh_from_db()
         self.assertEqual(self.manager.tokens, tokens)
         self.assertEqual(
@@ -354,23 +342,22 @@ class StartingGeneratorTests(TestCase):
         self.assertContains(view, "Only the Owner can generate or approve")
         self.assertContains(view, "OFFICIAL STRUCTURE")
         self.assertContains(view, "GK 2 / 2")
-        self.assertContains(view, "CB 5 / 5")
-        self.assertContains(view, "RB 1 / 1")
-        self.assertContains(view, "LB 1 / 1")
-        self.assertContains(view, "RWB 1 / 1")
-        self.assertContains(view, "LWB 1 / 1")
-        self.assertContains(view, "CM 3 / 3")
+        self.assertContains(view, "CB 4 / 4")
+        self.assertContains(view, "RB 2 / 2")
+        self.assertContains(view, "LB 2 / 2")
+        self.assertContains(view, "RWB 2 / 2")
+        self.assertContains(view, "LWB 2 / 2")
+        self.assertContains(view, "CM 2 / 2")
         self.assertContains(view, "CDM 2 / 2")
         self.assertContains(view, "CAM 2 / 2")
-        self.assertContains(view, "RM 1 / 1")
-        self.assertContains(view, "LM 1 / 1")
-        self.assertContains(view, "RW 1 / 1")
-        self.assertContains(view, "LW 1 / 1")
-        self.assertContains(view, "ST 3 / 3")
-        self.assertContains(view, "TOTAL 25 / 25")
-        self.assertContains(view, "+1 CB")
-        self.assertContains(view, "+1 CM")
-        self.assertContains(view, "+1 ST")
+        self.assertContains(view, "RM 2 / 2")
+        self.assertContains(view, "LM 2 / 2")
+        self.assertContains(view, "RW 2 / 2")
+        self.assertContains(view, "LW 2 / 2")
+        self.assertContains(view, "ST 2 / 2")
+        self.assertContains(view, "TOTAL 30 / 30")
+        self.assertNotContains(view, "+1 CB")
+        self.assertNotContains(view, "25-PLAYER")
         self.client.post(reverse("control_starting_squads"), {"action": "generate", "seed": "12"})
         self.assertFalse(StartingSquadProposal.objects.exists())
         self.client.logout()
@@ -387,10 +374,10 @@ class StartingGeneratorTests(TestCase):
         preview = self.client.get(reverse("control_starting_squads"))
         self.assertContains(preview, "NOT YET LIVE")
         self.assertContains(preview, "Alpha FC")
-        self.assertContains(preview, "TOTAL 25 / 25")
+        self.assertContains(preview, "TOTAL 30 / 30")
         self.assertContains(preview, "GK 2 / 2")
-        self.assertContains(preview, "CB 5 / 5")
-        self.assertContains(preview, "ST 3 / 3")
+        self.assertContains(preview, "CB 4 / 4")
+        self.assertContains(preview, "ST 2 / 2")
         self.assertNotContains(preview, "22 Players")
         self.assertEqual(Player.objects.filter(mgl_team__isnull=False).count(), 0)
         denied = self.client.post(
@@ -409,7 +396,35 @@ class StartingGeneratorTests(TestCase):
         self.assertEqual(proposal.status, StartingSquadProposal.APPROVED)
         self.assertEqual(
             Player.objects.filter(mgl_team__isnull=False).count(),
-            25 * Team.objects.count(),
+            30 * Team.objects.count(),
         )
         live = self.client.get(reverse("control_starting_squads"))
         self.assertContains(live, "STARTING SQUADS ALREADY ALLOCATED")
+
+    def test_approval_rejects_stacking_on_existing_squad(self):
+        occupied = _player(
+            name="Already There",
+            position="ST",
+            overall=66,
+            fc27_id="fc-stack",
+            mgl_team=self.club_a,
+        )
+        proposal = create_proposal(self.owner, seed=13, clubs=[self.club_a, self.club_b])
+        self.assertFalse(proposal.validation["ok"])
+        self.assertTrue(any("cannot be stacked" in problem for problem in proposal.validation["problems"]))
+        with self.assertRaisesMessage(ValueError, "stale"):
+            approve_proposal(proposal, self.owner, confirm=True)
+        self.club_a.refresh_from_db()
+        self.assertEqual(Player.objects.filter(mgl_team=self.club_a).count(), 1)
+        self.assertEqual(Player.objects.filter(mgl_team=self.club_b).count(), 0)
+        occupied.refresh_from_db()
+        self.assertEqual(occupied.mgl_team_id, self.club_a.id)
+        self.assertFalse(StartingSquadLock.objects.exists())
+
+    def test_runtime_roster_limit_is_30_not_28(self):
+        from mgl.ufl_settings import UFL_ROSTER_LIMIT, effective_roster_limit, max_squad_size
+
+        self.assertEqual(UFL_ROSTER_LIMIT, 30)
+        self.assertEqual(max_squad_size(), 30)
+        self.club_a.roster_limit = 28
+        self.assertEqual(effective_roster_limit(self.club_a), 30)

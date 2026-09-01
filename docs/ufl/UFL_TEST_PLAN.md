@@ -2,7 +2,7 @@
 
 Framework for testing the **existing** product. This is not a claim that every case already has an automated test.
 
-Existing automated coverage lives under `mgl/test_*.py` and other app tests. Last noted full suite: **467 tests OK** (re-run locally with production env vars unset):
+Existing automated coverage lives under `mgl/test_*.py` and other app tests. Last noted full suite: **478 tests OK** (re-run locally with production env vars unset):
 
 ```bash
 env -u DATABASE_URL -u PGHOST -u PGPORT -u PGUSER -u PGPASSWORD -u PGDATABASE -u RAILWAY_ENVIRONMENT python3 manage.py test
@@ -56,7 +56,7 @@ Mark results: PASS / FAIL / BLOCKED / N/A.
 - [ ] Listing caps 5 and 3/24h enforced.
 - [ ] Buy own player rejected.
 - [ ] Sign free agent 0 TKN; cannot sign unassigned as FA.
-- [ ] Scout: one active; recruit respects 28 cap.
+- [ ] Scout: one active; recruit respects 30 cap.
 - [ ] Youth Academy shows COMING SOON.
 - [ ] Control URLs redirect to hub.
 - [ ] Site Management → 403.
@@ -193,6 +193,20 @@ When changing nav/header/hub/home, run at least:
 - `mgl.test_nav`
 - `mgl.test_hub_dashboard`
 - `mgl.test_ia`
+- `mgl.test_ufl_starting`
+- `mgl.test_season1`
 - relevant `mgl.test_scouting` / market tests if those modules change
+
+Season 1 / starting-squad checks:
+
+- [ ] Generator produces exactly 30 players in the locked shape; no 25-player path.
+- [ ] Roster helpers return 30, not 28.
+- [ ] Approve refuses a club that already has players (no stacking).
+- [ ] Approve creates `StartingSquadLock`; second approve is blocked.
+- [ ] Failed approve assigns nobody.
+- [ ] `apply_starting_squads --apply` and `generate_balanced_squads` cannot write.
+- [ ] `ufl_season1_bootstrap` default/dry-run writes nothing.
+- [ ] Isolated test apply creates 16 / 14 / 8 and preserves player identity + manager tokens.
+- [ ] Production apply remains blocked until Owner authorisation.
 
 Do not “fix” tests by removing required copy needles (`PENDING ACTIONS`, `COMING SOON`, `'<nav class="mgl-nav"'`, etc.) unless the Owner changes the product.

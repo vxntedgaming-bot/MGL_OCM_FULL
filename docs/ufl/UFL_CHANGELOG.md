@@ -6,6 +6,20 @@ This file started with the documentation/audit pass. It does **not** claim that 
 
 ---
 
+## 2026-09-01 — Phase 2.1 starting squads + Season 1 bootstrap
+
+Implemented the locked 30-player starting-squad generator and a controlled 38-club Season 1 bootstrap.
+
+- Active `UFL_SQUAD_SHAPE` is the locked 30-player table. Runtime roster helpers never cap below 30.
+- Canonical path: Control generate → Owner review → Owner approve → lock. No stacking. Atomic rollback.
+- Path B write (`apply_starting_squads --apply`) is fenced. Path C remains disabled.
+- Season 1 preview creates a 16 / 14 / 8 plan with random fictional club identities. Production apply is blocked.
+- Migrations: `mgl.0027_ufl_roster_30`, `teams.0007_team_is_ufl_starter`.
+- Automated tests: **478 OK** (local SQLite, production env unset).
+- **Production clubs were not deleted. Production squads were not generated. StartingSquadLock was not written on production.**
+
+---
+
 ## 2026-09-01 — Job Application is the single process (documentation only)
 
 Owner locked DEC-041: Member submits a Job Application → Admin reviews → Admin accepts → job/manager appointment. No extra manager-application approval stage. Official fields: EA ID / gamertag, Discord username, games per week 1–3 / 3–5 / 6+, referred by, new-gen checkbox.

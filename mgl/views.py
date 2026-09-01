@@ -720,7 +720,7 @@ def manager_hub(request):
     from mgl.ufl_settings import effective_roster_limit
 
     roster_count = roster_occupancy(team) if team else 0
-    roster_limit = effective_roster_limit(team) if team else 28
+    roster_limit = effective_roster_limit(team) if team else 30
     if team and squad:
         listed_ids = set(
             PlayerListing.objects.filter(
@@ -1893,6 +1893,7 @@ def change_club_manager(request, team_id):
 @owner_admin_required
 def club_squad_admin(request, team_id):
     from mgl.player_state import roster_occupancy
+    from mgl.ufl_settings import effective_roster_limit
 
     team = get_object_or_404(
         Team.objects.select_related("manager", "league"),
@@ -1911,7 +1912,7 @@ def club_squad_admin(request, team_id):
         {
             "team": team,
             "players": players,
-            "available_spaces": max(0, team.roster_limit - roster_occupancy(team)),
+            "available_spaces": max(0, effective_roster_limit(team) - roster_occupancy(team)),
         },
     )
 

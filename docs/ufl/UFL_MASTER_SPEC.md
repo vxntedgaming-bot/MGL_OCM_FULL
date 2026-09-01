@@ -267,10 +267,10 @@ One product. Public website and Career Mode share the same Django site, database
 - Authoritative ledger: `credit_manager` / `debit_manager` → `RewardTransaction` (idempotent on category + reference).
 - `auctions.TokenTransaction` still exists as a **legacy** table.
 - Squads stay with the club on resign; tokens stay with the manager (`resign_manager_from_club` / `ManagerClubSpell`).
-- Squad cap: **Phase 1 locked roster is 30.** CURRENT CODE: `LeagueSettings.max_squad_size` default **28**; `Team.roster_limit` model default **30**; `effective_roster_limit()` uses the configured max unless the stored team limit is smaller. GAP.
+- Squad cap: **30.** `UFL_ROSTER_LIMIT`, `DEFAULT_MAX_SQUAD`, `LeagueSettings.max_squad_size` default, and `effective_roster_limit()` all resolve to at least 30. Legacy stored 28 cannot silently cap a squad.
 - Token values: **Phase 1 locked 0.5 increments only.** CURRENT CODE stores `Decimal` with two places and does not reject 0.25 / 0.75. GAP.
 - Player identity master is FC26 (`Player.fc27_id`). Do not change IDs, names, or source ratings in ordinary work.
-- Starting squads: **Phase 1 locked structure is 30 players** (see Game Rules). CURRENT CODE generator/shape is still **25**. Preview-only until Owner approves. `StartingSquadLock` remains protected. GAP — do not apply a new 30-player allocation in this pass.
+- Starting squads: official **30-player** `UFL_SQUAD_SHAPE`. Control generate is preview-only. Owner approve assigns and creates `StartingSquadLock`. Stacking is rejected. Production 30-player allocation has **not** been applied. Season 1 38-club bootstrap is implemented with apply **blocked** until Owner authorisation.
 
 See `UFL_CAREER_MODE.md`.
 

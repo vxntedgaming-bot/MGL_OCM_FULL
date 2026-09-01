@@ -73,8 +73,8 @@ LEVEL_COSTS = {
 }
 STARTING_LEVEL = 1
 MAX_LEVEL = 4
-SQUAD_LIMIT = 28
-SQUAD_FULL_MESSAGE = "Your squad is full — maximum 28 players."
+SQUAD_LIMIT = 30
+SQUAD_FULL_MESSAGE = "Your squad is full — maximum 30 players."
 
 
 def _squad_limit():

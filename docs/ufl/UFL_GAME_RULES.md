@@ -113,7 +113,7 @@ Owner confirmed:
 - MLS is not an active competition in code/nav.
 - Cups exist as **Coming soon** catalogue pages only.
 
-**GAP:** Phase 1 locked 16/14/8. Current code/data: 14 Premier League test clubs.
+**CURRENT CODE:** Season 1 bootstrap (`mgl/season1.py`) creates 16 / 14 / 8 with random fictional identities. Production apply is **blocked**. Live data remains the 14 Premier League test clubs until the Owner authorises bootstrap.
 
 **UNDECIDED:** Promotion / relegation. Fixture format per division size (14-team round-robin exists as a command; 16- and 8-club formats are **not** specified beyond club counts).
 
@@ -123,9 +123,7 @@ Owner confirmed:
 
 **PHASE 1 LOCKED:** 30.
 
-**CURRENT CODE:** `LeagueSettings.max_squad_size` default **28**. `UFL_SQUAD_SHAPE` totals **25**. Scouting `SQUAD_LIMIT = 28`. `Team.roster_limit` default **30**. `effective_roster_limit()` uses league max unless the stored team limit is smaller.
-
-**GAP:** Do not change code or production squads in this pass.
+**CURRENT CODE:** Official roster is **30**. `max_squad_size()` / `effective_roster_limit()` never return below 30. Production squads are still mixed test data until Season 1 apply + starting-squad approve.
 
 ---
 
@@ -133,16 +131,9 @@ Owner confirmed:
 
 **PHASE 1 LOCKED:** 30-player structure above.
 
-**CURRENT CODE** (`mgl/ufl_settings.py` `UFL_SQUAD_SHAPE`) is still:
+**CURRENT CODE** (`mgl/ufl_settings.py` `UFL_SQUAD_SHAPE`) is the locked 30-player table. OVR band **64–69**. Selection is balanced-random (seeded shuffle + snake-deal + equalize). Preview-only until Owner approves. `StartingSquadLock` is protected. Approval refuses a club that already has players.
 
-```
-2 GK, 5 CB, 1 RB, 1 LB, 1 RWB, 1 LWB,
-3 CM, 2 CDM, 2 CAM, 1 RM, 1 LM, 1 RW, 1 LW, 3 ST
-```
-
-OVR band for the current generator: **64–69**. Preview-only until Owner approves. `StartingSquadLock` is protected.
-
-Legacy 14×26 `apply_starting_squads` is a different path. `generate_balanced_squads` is disabled. Do not run either to invent the locked 30s unless the Owner asks in a later implementation task.
+Legacy Path B `apply_starting_squads --apply` is fenced. Path C `generate_balanced_squads` remains disabled.
 
 ---
 

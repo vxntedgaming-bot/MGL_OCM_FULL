@@ -9,8 +9,9 @@ from mgl.permissions import approved_manager
 
 
 DEFAULT_STARTING_TOKENS = Decimal("20")
-DEFAULT_MAX_SQUAD = 28
-DEFAULT_STARTING_SQUAD = 25
+UFL_ROSTER_LIMIT = 30
+DEFAULT_MAX_SQUAD = UFL_ROSTER_LIMIT
+DEFAULT_STARTING_SQUAD = UFL_ROSTER_LIMIT
 DEFAULT_MAX_LISTINGS = 5
 DEFAULT_LISTINGS_PER_24H = 3
 DEFAULT_AUCTION_DURATIONS = (30, 60, 90, 120)
@@ -44,23 +45,22 @@ LEGACY_SQUAD_SHAPE = (
     ("RW", 2),
 )
 
-# Official UFL 25-player starting squad.
-# Written structure totals 22. The official generator then adds +1 CB, +1 CM, +1 ST.
+# Official locked UFL 30-player starting squad (DEC-030).
 UFL_SQUAD_SHAPE = (
     ("GK", 2),
-    ("CB", 5),
-    ("RB", 1),
-    ("LB", 1),
-    ("RWB", 1),
-    ("LWB", 1),
-    ("CM", 3),
+    ("CB", 4),
+    ("RB", 2),
+    ("LB", 2),
+    ("RWB", 2),
+    ("LWB", 2),
     ("CDM", 2),
+    ("CM", 2),
     ("CAM", 2),
-    ("RM", 1),
-    ("LM", 1),
-    ("RW", 1),
-    ("LW", 1),
-    ("ST", 3),
+    ("LM", 2),
+    ("RM", 2),
+    ("LW", 2),
+    ("RW", 2),
+    ("ST", 2),
 )
 
 OFFICIAL_STARTING_SQUAD_SIZE = sum(count for _position, count in UFL_SQUAD_SHAPE)
@@ -127,7 +127,9 @@ def starting_tokens():
 
 
 def max_squad_size():
-    return int(getattr(get_league_settings(), "max_squad_size", DEFAULT_MAX_SQUAD) or DEFAULT_MAX_SQUAD)
+    configured = int(getattr(get_league_settings(), "max_squad_size", DEFAULT_MAX_SQUAD) or DEFAULT_MAX_SQUAD)
+    # Legacy LeagueSettings rows stored 28. Never silently cap below the locked UFL roster.
+    return max(configured, UFL_ROSTER_LIMIT)
 
 
 def max_active_listings():
@@ -200,9 +202,7 @@ def scout_mission_cost(hours):
 def effective_roster_limit(team):
     stored = int(getattr(team, "roster_limit", 0) or 0)
     configured = max_squad_size()
-    if stored and stored < configured:
-        return stored
-    return configured
+    return max(stored, configured, UFL_ROSTER_LIMIT)
 
 
 def ufl_access_role(user):

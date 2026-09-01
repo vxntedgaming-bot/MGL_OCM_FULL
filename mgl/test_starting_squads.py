@@ -80,44 +80,14 @@ class StartingSquadAssignmentTests(TestCase):
         self.assertIsNone(self.spare.mgl_team_id)
         self.assertFalse(self.spare.is_free_agent)
 
-    def test_apply_assigns_14_balanced_squads(self):
-        out = StringIO()
-        call_command("apply_starting_squads", apply=True, stdout=out)
-        after = validate_applied_squads()
-        self.assertTrue(after["ok"], after.get("problems"))
-        counts = market_counts()
-        self.assertEqual(counts["club_players"], EXPECTED_ASSIGNED)
-        self.assertEqual(counts["free_agents"], 0)
-        self.assertEqual(counts["auctions"], 0)
-        self.assertEqual(counts["unassigned"], 1)
-        assigned_ids = list(
-            Player.objects.filter(mgl_team__isnull=False).values_list("fc27_id", flat=True)
-        )
-        self.assertEqual(len(assigned_ids), EXPECTED_ASSIGNED)
-        self.assertEqual(len(set(assigned_ids)), EXPECTED_ASSIGNED)
-        self.assertEqual(PlayerAuction.objects.count(), 0)
-        self.assertEqual(
-            PlayerOwnershipHistory.objects.filter(source="INITIAL_SQUAD").count(),
-            EXPECTED_ASSIGNED,
-        )
-        self.spare.refresh_from_db()
-        self.assertIsNone(self.spare.mgl_team_id)
-        self.assertFalse(self.spare.is_free_agent)
-        for fc27_id, overall in self.ovr_before.items():
-            self.assertEqual(Player.objects.get(fc27_id=fc27_id).overall, overall)
+    def test_apply_write_path_is_fenced(self):
+        from django.core.management import CommandError
 
-        for short in OFFICIAL_SL1_SHORT_NAMES:
-            club = Team.objects.get(short_name=short)
-            players = list(club.players.all())
-            self.assertEqual(len(players), PLAYERS_PER_CLUB)
-            total = sum(player.overall for player in players)
-            self.assertEqual(total, TARGET_TOTAL_OVR)
-            self.assertEqual(round(total / PLAYERS_PER_CLUB, 4), TARGET_AVERAGE_OVR)
-            self.assertEqual(str(club.tokens), "50.00")
-            shape = {}
-            for player in players:
-                shape[player.position] = shape.get(player.position, 0) + 1
-            self.assertEqual(shape, SHAPE)
-        repeat = apply_starting_squads(self.allocation, dry_run=True)
-        self.assertFalse(repeat["ok"])
-        self.assertTrue(any("already has players" in item for item in repeat["problems"]))
+        with self.assertRaisesMessage(ValueError, "retired"):
+            apply_starting_squads(self.allocation, dry_run=False)
+        self.assertEqual(Player.objects.filter(mgl_team__isnull=False).count(), 0)
+        self.assertEqual(PlayerOwnershipHistory.objects.count(), 0)
+        out = StringIO()
+        with self.assertRaises(CommandError):
+            call_command("apply_starting_squads", apply=True, stdout=out)
+        self.assertEqual(Player.objects.filter(mgl_team__isnull=False).count(), 0)

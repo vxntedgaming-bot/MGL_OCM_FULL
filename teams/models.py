@@ -46,6 +46,10 @@ class Team(models.Model):
     )
 
     roster_limit = models.PositiveSmallIntegerField(default=30)
+    is_ufl_starter = models.BooleanField(
+        default=False,
+        help_text="True for official UFL Season 1 starter clubs (16 Premier League / 14 Championship / 8 League One).",
+    )
 
     tokens = models.DecimalField(
         max_digits=8,

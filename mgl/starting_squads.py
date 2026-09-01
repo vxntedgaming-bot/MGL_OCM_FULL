@@ -210,6 +210,11 @@ def projected_club_totals(allocation=None):
 
 @transaction.atomic
 def apply_starting_squads(allocation=None, dry_run=True):
+    if not dry_run:
+        raise ValueError(
+            "apply_starting_squads write path is retired. Official UFL starting "
+            "squads must be generated and approved in Control Centre."
+        )
     allocation = allocation if allocation is not None else load_allocation()
     report = validate_against_database(allocation)
     if not report["ok"]:

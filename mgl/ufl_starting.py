@@ -109,7 +109,9 @@ def _blocked_listing_ids():
 def target_clubs():
     from teams.models import Team
 
-    return list(Team.objects.select_related("league", "manager").order_by("league_id", "name", "id"))
+    starters = Team.objects.filter(is_ufl_starter=True).select_related("league", "manager")
+    qs = starters if starters.exists() else Team.objects.select_related("league", "manager")
+    return list(qs.order_by("league_id", "name", "id"))
 
 
 def eligible_queryset(include_free_agents=False):
@@ -362,7 +364,7 @@ def validate_allocation(squads, include_free_agents=False, max_avg_diff=DEFAULT_
     checks.append(
         _check(
             "shape",
-            "Every club matches the official 25-player starting structure",
+            "Every club matches the official 30-player starting structure",
             shape_ok,
             f"{structure_detail} · TOTAL {PLAYERS_PER_CLUB} / {PLAYERS_PER_CLUB}",
         )
@@ -444,21 +446,30 @@ def validate_allocation(squads, include_free_agents=False, max_avg_diff=DEFAULT_
     checks.append(_check("auctions", "No active auction is affected", auction_ok))
 
     roster_ok = True
+    empty_ok = True
     club_ids = [squad.team_id for squad in squads]
     clubs = {club.id: club for club in Team.objects.filter(pk__in=club_ids)}
     for squad in squads:
         club = clubs.get(squad.team_id)
         if club is None:
             roster_ok = False
+            empty_ok = False
             problems.append(f"Club {squad.short_name} no longer exists.")
             continue
         occupied = roster_occupancy(club)
         limit = effective_roster_limit(club)
-        if occupied + PLAYERS_PER_CLUB > limit:
+        if occupied:
+            empty_ok = False
             roster_ok = False
             problems.append(
-                f"{club.name} already has {occupied} players and cannot accept {PLAYERS_PER_CLUB} more."
+                f"{club.name} already has {occupied} players. Starting squads cannot be stacked on a live squad."
             )
+        if PLAYERS_PER_CLUB > limit:
+            roster_ok = False
+            problems.append(
+                f"{club.name} roster limit is {limit} and cannot accept {PLAYERS_PER_CLUB} starting players."
+            )
+    checks.append(_check("empty_squads", "Every target club currently has an empty squad", empty_ok))
     checks.append(_check("roster", "No squad-limit conflict exists", roster_ok))
 
     return {

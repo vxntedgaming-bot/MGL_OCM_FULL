@@ -85,7 +85,7 @@ class ManagerHubDashboardTests(TestCase):
         self.assertContains(response, "Dash United")
         self.assertContains(response, "@dashmgr")
         self.assertContains(response, "PREMIER LEAGUE")
-        self.assertContains(response, "Squad 2/28")
+        self.assertContains(response, "Squad 2/30")
         self.assertContains(response, "POSITION")
         self.assertContains(response, "POINTS")
         self.assertContains(response, "GOAL DIFF")

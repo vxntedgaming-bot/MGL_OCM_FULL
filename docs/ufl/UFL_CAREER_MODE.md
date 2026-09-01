@@ -130,19 +130,20 @@ Legacy `core.Club` exists in the database. Career Mode clubs are `teams.Team`. D
 
 **PHASE 1 LOCKED structure:** 30 players (2 GK, 4 CB, 2 RB, 2 LB, 2 RWB, 2 LWB, 2 CDM, 2 CM, 2 CAM, 2 LM, 2 RM, 2 LW, 2 RW, 2 ST).
 
-**CURRENT CODE generator** is still the **25-player** `UFL_SQUAD_SHAPE`. Flow (`mgl/ufl_starting.py`, Control → Season → Starting Squads):
+**CURRENT CODE generator** uses the locked **30-player** `UFL_SQUAD_SHAPE`. Flow (`mgl/ufl_starting.py`, Control → Season → Starting Squads):
 
-1. Owner/Admin generate a **draft** `StartingSquadProposal` (JSON payload). Generation does **not** write ownership.
+1. Owner generates a **draft** `StartingSquadProposal` (JSON payload). Generation does **not** write ownership.
 2. Owner **approve** with explicit confirm (`approve_proposal`). Admin cannot approve.
-3. Players are assigned with source `UFL_STARTING`. FC26 id and overall are checked so identities cannot change mid-apply.
-4. `StartingSquadLock` records the season. A second approve in the same season is rejected until a new season.
-5. Reject leaves draft rejected; does not assign.
+3. Target clubs must be **empty**. Stacking is rejected. The transaction is atomic.
+4. Players are assigned with source `UFL_STARTING`. FC26 id and overall are checked so identities cannot change mid-apply.
+5. `StartingSquadLock` records the season. A second approve in the same season is rejected.
+6. Reject leaves draft rejected; does not assign.
 
 Manager token snapshot is taken during approve so balances are not silently rewritten.
 
-**Do not** run `apply_starting_squads` to create UFL squads. That command is the older 14×26 official allocation. `generate_balanced_squads` is disabled. Do not apply a 30-player reset to production from this documentation task.
+Path B `apply_starting_squads --apply` cannot write. Path C `generate_balanced_squads` is disabled.
 
-Current production squads are mixed test data, **not** the locked 30. Owner confirmed nothing is currently locked as the final structure.
+Season 1 38-club bootstrap (`mgl/season1.py`) is implemented with production apply **blocked**. Current production squads remain mixed 14-club test data until the Owner authorises bootstrap and then starting-squad approve.
 
 ---
 

@@ -530,32 +530,34 @@ def control_season_controls(request):
     from mgl.season_history import ensure_active_season
 
     if request.method == "POST" and request.POST.get("action") == "ensure_clubs":
-        if not is_owner(request.user):
-            messages.error(request, "Only the Owner can ensure the 42-club structure.")
-            return redirect("control_season_controls")
-        if (request.POST.get("confirm_text") or "").strip().upper() != "ENSURE CLUBS":
-            messages.error(request, "Type ENSURE CLUBS to confirm. No clubs were changed.")
-            return redirect("control_season_controls")
-        from teams.official_ufl_clubs import ensure_official_ufl_clubs
-
-        result = ensure_official_ufl_clubs()
-        messages.success(
+        messages.error(
             request,
-            (
-                f"Official club structure checked. Created {len(result['created'])} missing clubs. "
-                f"PL {result['counts']['PL']}, CH {result['counts']['CH']}, L1 {result['counts']['L1']}. "
-                "Starting squads were not applied."
-            ),
+            "The 42-club ENSURE CLUBS helper is retired. Use the Season 1 preview. "
+            "No clubs were changed.",
         )
+        return redirect("control_season_controls")
+    if request.method == "POST" and request.POST.get("action") == "season1_bootstrap":
+        if not is_owner(request.user):
+            messages.error(request, "Only the Owner can apply the Season 1 club bootstrap.")
+            return redirect("control_season_controls")
+        from mgl.season1 import APPLY_BLOCKED_REASON, CONFIRM_PHRASE
+
+        if (request.POST.get("confirm_text") or "").strip().upper() != CONFIRM_PHRASE:
+            messages.error(request, f"Type {CONFIRM_PHRASE} to confirm. No clubs were changed.")
+            return redirect("control_season_controls")
+        messages.error(request, APPLY_BLOCKED_REASON + " No clubs were changed.")
         return redirect("control_season_controls")
 
     ensure_active_season()
+    from mgl.season1 import preview_season1_bootstrap
+
     queues = load_queues()
     context = control_shell_context(request, "season_controls", queues)
     context["active_season"] = (
         HistoricalSeason.objects.filter(status=HistoricalSeason.ACTIVE).order_by("-number").first()
     )
     context["is_owner"] = is_owner(request.user)
+    context["season1_preview"] = preview_season1_bootstrap()
     return render(request, "mgl/control_season_controls.html", context)
 
 

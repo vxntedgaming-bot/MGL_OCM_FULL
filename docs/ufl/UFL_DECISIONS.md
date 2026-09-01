@@ -86,7 +86,7 @@ Personal tokens live on `ManagerApplication.tokens`. Ledger is `RewardTransactio
 
 Preview-only until Owner confirm. `StartingSquadLock` prevents a second apply in the same season. Legacy 14×26 command is a different path. **Do not clear StartingSquadLock.**
 
-**Phase 1 LOCKED structure is 30 players**, not 25. CURRENT CODE generator is still 25. GAP — do not apply a new allocation in this pass.
+**Phase 1 LOCKED structure is 30 players.** CURRENT CODE generator is the locked 30-player shape. Production allocation has not been applied. Season 1 bootstrap apply is blocked.
 
 ---
 
@@ -118,7 +118,7 @@ Market code and README: loans are not implemented and must not be invented in UI
 
 `LeagueSettings` defaults: 5 active listings, 3 listings / 24h, 3 manager auctions / 24h.
 
-Roster: **Phase 1 LOCKED 30**. Code `max_squad_size` default is still **28**. GAP.
+Roster: **Phase 1 LOCKED 30**. Code `max_squad_size` / `effective_roster_limit` now resolve to at least 30.
 
 Whether the 5 / 3 / 3 caps stay is **UNDECIDED** (not in Phase 1).
 

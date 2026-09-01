@@ -2,7 +2,7 @@
 
 Checklist of the **current** project, not a future roadmap disguised as done work.
 
-Last documentation update: 1 September 2026 — **Phase 1 rules lock** (documentation only).
+Last documentation update: 1 September 2026 — **Phase 2.1 starting squad + Season 1 bootstrap implemented; production apply blocked**.
 
 ---
 
@@ -71,7 +71,8 @@ Implementation of gaps is **not** Phase 1. That is a later, explicit task.
 - Control Centre queues
 - Site Management CMS (display; club name/logo)
 - LeagueSettings singleton
-- Starting-squad **proposal/lock mechanism** (generator still 25; locked product shape is 30)
+- Starting-squad **30-player** Control generate / Owner approve / lock (production squads not applied)
+- Season 1 **38-club** bootstrap with dry-run (production apply blocked)
 - Discord event queue + separate bot
 - Public Home isolated compact page
 - Shared inner UFL header + LIVE ACTIVITY bar + page header
@@ -86,7 +87,7 @@ Implementation of gaps is **not** Phase 1. That is a later, explicit task.
 
 ## IN PROGRESS
 
-- None as application work. Phase 1 documentation lock is done.
+- Season 1 production bootstrap: **WAITING ON OWNER APPROVAL**. Mechanism implemented; apply blocked.
 
 ---
 
@@ -99,7 +100,8 @@ Implementation of gaps is **not** Phase 1. That is a later, explicit task.
 - Password reset / email verification
 - REST API
 - Stored MEMBER role
-- **Implement Phase 1 gaps** (30-player squads, 38-club structure, release without Control, scout setting enforcement, per-pack opening limits, 0.5 validators, **DEC-041 single Job Application**) — **NEEDS IMPLEMENTATION**; do not start without an explicit implementation task
+- **Apply Season 1 bootstrap + generate/approve 30-player squads on production** — Owner must authorise later
+- Remaining Phase 1 gaps: release without Control, scout setting enforcement, per-pack opening limits, 0.5 validators, **DEC-041 single Job Application**
 
 ---
 
@@ -123,8 +125,8 @@ Unchanged from the audit. See `UFL_TEST_PLAN.md`. Do not run destructive tests a
 ## KNOWN ISSUE / GAP vs Phase 1
 
 - Header crop: CSS aligned; **NEEDS OWNER VISUAL CONFIRMATION**
-- Code starting shape 25 / max_squad 28 vs locked 30
-- Code/data 14 PL test clubs vs locked 16/14/8
+- Production still has 14 PL test clubs / mixed squads; 38-club + 30-player apply not executed
+- Code starting shape and roster limit are 30; production data is not yet that structure
 - Releases still require Control vs locked no-approval
 - `scout_can_recruit()` ignores LeagueSettings
 - Pack per-opening limits not confirmed in the Pack model
@@ -154,8 +156,8 @@ Unchanged from the audit. See `UFL_TEST_PLAN.md`. Do not run destructive tests a
 | Jobs | Rule **LOCKED** (DEC-041). Code **NEEDS IMPLEMENTATION** |
 | News / Live Activity / Press | COMPLETE |
 | Admin / Owner Control | COMPLETE; Django admin retained |
-| Starting squads | Mechanism complete; official 30s not applied |
-| League structure | Test 14 PL; official 38 not applied |
+| Starting squads | 30-player generator live; production allocation not applied |
+| League structure | 38-club bootstrap implemented; production still 14 PL test clubs |
 | Youth Academy | NOT STARTED (page only) |
 | Cups | NOT STARTED (pages only; winner/runner-up amounts locked) |
 | Loans | NOT STARTED |

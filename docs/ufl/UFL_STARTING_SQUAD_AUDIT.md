@@ -1,12 +1,67 @@
 # UFL Starting Squad Audit (Phase 2.1)
 
-**Status:** INSPECTION ONLY. No application, database, migration, production, squad-generation, or lock changes were made for this document.
+**Status:** Phase 2.1 **code implemented**. Production Season 1 bootstrap **not executed**. Production squads **not generated**.
 
 **Inspected tree:** live Career Mode source (`MGL_OCM_FULL` / `mgl/` Django app).  
-**Date of inspection:** 1 September 2026.  
-**Method:** source read only. Management commands that write data were **not** executed. No database was queried or written.
+**Inspection date:** 1 September 2026.  
+**Implementation date:** 1 September 2026.
 
-**Official locked product rule (DEC-030, not implemented in code):** every UFL club official starting squad = **exactly 30 players**:
+---
+
+## Phase 2.1 implementation (current code)
+
+Canonical UFL starting-squad workflow:
+
+1. Owner bootstraps Season 1 clubs via a **preview-only** process (`mgl/season1.py`, Control → Season Controls, `ufl_season1_bootstrap`).
+2. Production apply remains **blocked** (`allow_apply=False`) until the Owner authorises it later.
+3. Owner generates a proposal in Control → Starting Squads (`create_proposal` / `generate_allocation`).
+4. Owner reviews the 30-player balanced-random allocation.
+5. Owner approves with `confirm_approval=1` (`approve_proposal`).
+6. Players are assigned atomically (`source=UFL_STARTING`).
+7. `StartingSquadLock` is created. A second approve for that season is rejected.
+
+### Locked 30-player shape (now the active generator)
+
+| Position | Count |
+|---|---|
+| GK | 2 |
+| CB | 4 |
+| RB | 2 |
+| LB | 2 |
+| RWB | 2 |
+| LWB | 2 |
+| CDM | 2 |
+| CM | 2 |
+| CAM | 2 |
+| LM | 2 |
+| RM | 2 |
+| LW | 2 |
+| RW | 2 |
+| ST | 2 |
+| **Total** | **30** |
+
+Runtime roster: `UFL_ROSTER_LIMIT = 30`. `max_squad_size()` and `effective_roster_limit()` never silently cap below 30 (legacy stored 28 is treated as 30).
+
+### Season 1 club structure (implemented, not applied on production)
+
+16 Premier League / 14 Championship / 8 League One = **38** clubs. Identities are randomly generated from a fictional name pool. Managers are not assigned. The 42-club `ENSURE CLUBS` helper is retired from Control. `mgl_reset` is not used.
+
+### Safety
+
+- Approval **refuses stacking** if a target club already has players.
+- Failed approve rolls back the transaction.
+- Path B `apply_starting_squads --apply` is fenced (write path raises).
+- Path C `generate_balanced_squads` remains disabled.
+- Tokens, FC26 identities, and user accounts are not rewritten by generate or Season 1 preview.
+- Local dry-run of `ufl_season1_bootstrap` (SQLite, production env unset) previewed retiring 14 test clubs and creating 38. **No apply.**
+
+The sections below retain the original inspection narrative. Where they describe the old 25-player generator or active Path B apply, treat **Phase 2.1 implementation** above as current code.
+
+---
+
+## Official locked product rule (DEC-030)
+
+Every UFL club official starting squad = **exactly 30 players**:
 
 | Position | Count |
 |---|---|
@@ -28,7 +83,7 @@
 
 Roster limit (locked product rule) = **30**.
 
-**This document describes what the code does today.** It does not implement the locked 30-player rule.
+The locked 30-player rule is now the active Control Centre generator. Production clubs and squads have **not** been rebuilt.
 
 ---
 

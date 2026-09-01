@@ -446,7 +446,7 @@ class ScoutRosterLimitTests(TestCase):
             )
 
     def test_full_squad_can_still_scout(self):
-        self._fill(28)
+        self._fill(30)
         assignment = dispatch_scout(self.manager, "BRONZE", "europe", "ST")
         ready, _notices = _finish(assignment)
         self.assertEqual(len(ready), 1)
@@ -455,23 +455,23 @@ class ScoutRosterLimitTests(TestCase):
         self.assertEqual(assignment.outcome, ScoutAssignment.OUTCOME_SQUAD_FULL)
         self.assertIsNone(self.target.mgl_team_id)
         self.assertTrue(ScoutSquadException.objects.filter(assignment=assignment, status="PENDING").exists())
-        self.assertEqual(Player.objects.filter(mgl_team=self.club).count(), 28)
+        self.assertEqual(Player.objects.filter(mgl_team=self.club).count(), 30)
         self.assertEqual(Player.objects.filter(name="Last Recruit").count(), 1)
 
     def test_manager_recruits_when_squad_has_space(self):
-        self._fill(27)
+        self._fill(29)
         assignment = dispatch_scout(self.manager, "BRONZE", "europe", "ST")
         _finish(assignment)
         self.target.refresh_from_db()
         self.assertEqual(self.target.mgl_team_id, self.club.id)
-        self.assertEqual(Player.objects.filter(mgl_team=self.club).count(), 28)
+        self.assertEqual(Player.objects.filter(mgl_team=self.club).count(), 30)
 
     def test_admin_assign_still_respects_roster_limit(self):
         admin_user = _user("scout-admin", role=User.ADMIN)
         admin_mgr = _manager(admin_user, tokens="50.00")
         admin_club = _club(admin_user, self.league, name="Admin FC", short="ADM")
         open_club_spell(admin_mgr, admin_club)
-        for i in range(28):
+        for i in range(30):
             _player(
                 name=f"Admin Squad {i}",
                 position="CM",

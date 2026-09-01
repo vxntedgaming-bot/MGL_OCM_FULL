@@ -56,7 +56,8 @@ Commands that assign starting squads or import FC26 must be dry-run first. `popu
 - `logo`, `badge_code` (frozen crest key)
 - `description`
 - `budget` (legacy)
-- `roster_limit` default **30** (matches Phase 1 roster limit). League setting `max_squad_size` default in code is still **28** — GAP vs locked 30.
+- `roster_limit` default **30**
+- `is_ufl_starter` — official Season 1 38-club marker (false until bootstrap apply)
 - `tokens` default **50** (club treasury / legacy)
 
 ### core
@@ -187,9 +188,9 @@ Singleton-style: `order_by("id").first()` or create. Fields: starting_tokens, ma
 
 `scout_can_recruit` column exists; live helper `scout_can_recruit()` currently ignores it (returns True). **Phase 1 LOCKED:** that setting must actually enforce. GAP.
 
-**Phase 1 locked official squad is 30** with a fixed positional structure. Current `starting_squad_size` default is **25**. Do not migrate or rewrite production squads in this pass.
+**Official squad is 30** with the locked positional structure. `starting_squad_size` and `max_squad_size` defaults are **30**. Runtime helpers never cap below 30.
 
-Current production/test data: 14 Premier League clubs, mixed squads, not the final 38-club / 30-player structure. **Do not delete or reset those rows.**
+Current production/test data: 14 Premier League clubs, mixed squads. Season 1 bootstrap can retire those UFL-division clubs and create 38, but **production apply is blocked** until the Owner authorises it. Do not run `mgl_reset`.
 
 ---
 

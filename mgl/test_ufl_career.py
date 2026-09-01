@@ -130,7 +130,7 @@ class UFLCareerModeTests(TestCase):
         self.assertEqual(extra.status, ApprovalStatus.APPROVED)
 
     def test_full_squad_scout_creates_exception(self):
-        for index in range(27):
+        for index in range(29):
             Player.objects.create(
                 name=f"Filled {index}",
                 position="CM",
@@ -151,7 +151,7 @@ class UFLCareerModeTests(TestCase):
         target.refresh_from_db()
         self.assertIsNone(target.mgl_team_id)
         self.assertTrue(ScoutSquadException.objects.filter(player=target, status="PENDING").exists())
-        self.assertEqual(Player.objects.filter(mgl_team=self.club_a).count(), 28)
+        self.assertEqual(Player.objects.filter(mgl_team=self.club_a).count(), 30)
 
     def test_request_changes_returns_deal_without_ownership_change(self):
         listing = list_player_for_sale(self.player, self.mgr_a, "8")
@@ -235,7 +235,7 @@ class UFLCareerModeTests(TestCase):
         self.assertEqual(list(press.context["notifications"]), [])
 
     def test_owner_can_resolve_scout_exception(self):
-        for index in range(27):
+        for index in range(29):
             Player.objects.create(
                 name=f"Cap {index}",
                 position="CM",
@@ -259,7 +259,7 @@ class UFLCareerModeTests(TestCase):
         target.refresh_from_db()
         self.assertEqual(exception.status, ScoutSquadException.RELEASED)
         self.assertIsNone(target.mgl_team_id)
-        self.assertEqual(Player.objects.filter(mgl_team=self.club_a).count(), 28)
+        self.assertEqual(Player.objects.filter(mgl_team=self.club_a).count(), 30)
 
     def test_public_cannot_access_control_or_bid(self):
         from mgl.market import create_manager_auction

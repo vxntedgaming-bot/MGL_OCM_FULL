@@ -110,31 +110,31 @@ class UFLFoundationTests(TestCase):
         self.assertNotIn("MEMBER", [choice[0] for choice in User.ROLE_CHOICES])
 
     def test_league_settings_defaults(self):
-        self.assertEqual(max_squad_size(), 28)
+        self.assertEqual(max_squad_size(), 30)
         self.assertEqual(max_active_listings(), 5)
         self.assertEqual(starting_tokens(), Decimal("20"))
-        self.assertEqual(OFFICIAL_STARTING_SQUAD_SIZE, 25)
-        self.assertEqual(sum(count for _pos, count in UFL_SQUAD_SHAPE), 25)
+        self.assertEqual(OFFICIAL_STARTING_SQUAD_SIZE, 30)
+        self.assertEqual(sum(count for _pos, count in UFL_SQUAD_SHAPE), 30)
         self.assertEqual(
             {pos: count for pos, count in UFL_SQUAD_SHAPE},
             {
                 "GK": 2,
-                "CB": 5,
-                "RB": 1,
-                "LB": 1,
-                "RWB": 1,
-                "LWB": 1,
-                "CM": 3,
+                "CB": 4,
+                "RB": 2,
+                "LB": 2,
+                "RWB": 2,
+                "LWB": 2,
                 "CDM": 2,
+                "CM": 2,
                 "CAM": 2,
-                "RM": 1,
-                "LM": 1,
-                "RW": 1,
-                "LW": 1,
-                "ST": 3,
+                "LM": 2,
+                "RM": 2,
+                "LW": 2,
+                "RW": 2,
+                "ST": 2,
             },
         )
-        self.assertEqual(official_starting_structure()[-1], {"code": "ST", "required": 3})
+        self.assertEqual(official_starting_structure()[-1], {"code": "ST", "required": 2})
 
     def test_listing_frequency_and_active_cap(self):
         list_player_for_sale(self.owned, self.mgr_a, "3")

@@ -13,7 +13,7 @@
             <p class="mgl-cp-kicker">SCOUT RETURN · SQUAD FULL</p>
             <h2>{{ exception.player.name }}</h2>
             <p>{{ exception.player.position }} · {{ exception.player.overall }} OVR · {{ exception.club.name }}</p>
-            <p>Manager {{ exception.manager.display_name }} already has a 28-player squad. The discovered player was not discarded.</p>
+            <p>Manager {{ exception.manager.display_name }} already has a 30-player squad. The discovered player was not discarded.</p>
             <div class="mgl-cp-actions">
                 <form method="post" action="{% url 'control_resolve_scout_exception' exception.id %}">
                     {% csrf_token %}

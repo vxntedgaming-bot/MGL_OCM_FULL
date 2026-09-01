@@ -1141,8 +1141,8 @@ class LeagueSettings(models.Model):
     """Singleton Owner/Admin UFL rules. Never hard-code these in frontend JS."""
 
     starting_tokens = models.DecimalField(max_digits=8, decimal_places=2, default=20)
-    max_squad_size = models.PositiveSmallIntegerField(default=28)
-    starting_squad_size = models.PositiveSmallIntegerField(default=25)
+    max_squad_size = models.PositiveSmallIntegerField(default=30)
+    starting_squad_size = models.PositiveSmallIntegerField(default=30)
     max_active_listings = models.PositiveSmallIntegerField(default=5)
     listings_per_24h = models.PositiveSmallIntegerField(default=3)
     allow_manager_auctions = models.BooleanField(default=True)
@@ -1316,7 +1316,7 @@ class StartingSquadProposal(models.Model):
     players_available = models.PositiveIntegerField(default=0)
     rating_min = models.PositiveSmallIntegerField(default=64)
     rating_max = models.PositiveSmallIntegerField(default=69)
-    squad_size = models.PositiveSmallIntegerField(default=25)
+    squad_size = models.PositiveSmallIntegerField(default=30)
     average_league_ovr = models.DecimalField(max_digits=6, decimal_places=3, default=0)
     largest_avg_diff = models.DecimalField(max_digits=6, decimal_places=3, default=0)
     max_allowed_avg_diff = models.DecimalField(max_digits=6, decimal_places=3, default=1.500)

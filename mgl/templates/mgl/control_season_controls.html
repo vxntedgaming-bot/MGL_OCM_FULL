@@ -53,19 +53,35 @@
             <a href="{% url 'season_management' %}?season={{ active_season.number }}" class="header-button mgl-cp-approve">OPEN SEASON SETTINGS</a>
         </article>
         {% if is_owner %}
-        <article class="mgl-cp-action-card">
-            <h2>42-club structure</h2>
-            <p>Create missing official Premier League, Championship and League One clubs. Does not delete clubs, reset tokens, or apply starting squads.</p>
-            <form method="post" data-confirm-phrase="ENSURE CLUBS" data-confirm="Type ENSURE CLUBS. Missing real clubs will be created. Existing clubs stay in place." data-confirm-title="ENSURE 42 CLUBS" data-confirm-ok="CONFIRM">
+        <article class="mgl-cp-action-card mgl-cp-danger">
+            <h2>Season 1 club bootstrap</h2>
+            <p>Preview only. Production apply is blocked until the Owner authorises it. This does not use mgl_reset or the retired 42-club helper.</p>
+            <form method="post" data-confirm-phrase="SEASON 1 BOOTSTRAP" data-confirm="Apply is currently blocked. Typing the phrase still will not change production." data-confirm-title="SEASON 1 BOOTSTRAP" data-confirm-ok="CONFIRM">
                 {% csrf_token %}
-                <input type="hidden" name="action" value="ensure_clubs">
-                <input type="text" name="confirm_text" placeholder="Type ENSURE CLUBS" required>
-                <button class="header-button mgl-cp-review-btn" type="submit">ENSURE 42 CLUBS</button>
+                <input type="hidden" name="action" value="season1_bootstrap">
+                <input type="text" name="confirm_text" placeholder="Type SEASON 1 BOOTSTRAP" required>
+                <button class="header-button mgl-cp-reject" type="submit">APPLY BLOCKED — PREVIEW ONLY</button>
             </form>
         </article>
         {% endif %}
     </div>
     <p class="mgl-cp-warn">These actions are permanent and cannot be undone!</p>
+    {% if season1_preview %}
+    <section class="dashboard-panel mgl-cp-panel">
+        <p class="mgl-cp-kicker">SEASON 1 PREVIEW</p>
+        <h2>38-CLUB STARTER STRUCTURE</h2>
+        <p>Would retire {{ season1_preview.clubs_to_retire|length }} UFL-division clubs and unassign {{ season1_preview.players_to_unassign }} players. Identities, user accounts, and manager tokens stay. Starting squads are not assigned.</p>
+        <p>Would create {{ season1_preview.planned_total }} clubs: PL {{ season1_preview.planned_counts.PL }} / CH {{ season1_preview.planned_counts.CH }} / L1 {{ season1_preview.planned_counts.L1 }}.</p>
+        <p>{{ season1_preview.apply_blocked_reason }}</p>
+        <ul>
+            {% for club in season1_preview.clubs_to_retire %}
+                <li>RETIRE {{ club.short_name }} {{ club.name }} ({{ club.league }}, squad {{ club.squad_size }})</li>
+            {% empty %}
+                <li>No current UFL-division clubs would be retired.</li>
+            {% endfor %}
+        </ul>
+    </section>
+    {% endif %}
 {% else %}
     {% include "mgl/includes/empty_state.html" with title="NO ACTIVE SEASON" %}
 {% endif %}

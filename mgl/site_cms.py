@@ -174,7 +174,7 @@ CONTENT_FIELDS = (
         "rules",
         "League Rules",
         "long",
-        "Clubs start with 26 players and cannot exceed 30. Squads stay with the club.",
+        "Clubs start with 30 players and cannot exceed 30. Squads stay with the club.",
     ),
     ContentField(
         "rules.transfer_rules",
