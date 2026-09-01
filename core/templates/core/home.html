@@ -35,21 +35,24 @@
                     <img src="{% static 'core/img/mgl-home-hero.jpg' %}" alt="">
                 </div>
                 <div class="ufl-ph-hero-copy">
-                    <p class="ufl-ph-badge">UFL CAREER MODE — SEASON LIVE</p>
+                    <p class="ufl-ph-badge">● UFL CAREER MODE — SEASON LIVE</p>
                     {% if hero_title %}
                         <p class="ufl-ph-cms">{{ hero_title }}</p>
                     {% endif %}
                     <h1>
                         <span>EA FC</span>
                         <span>ONLINE</span>
-                        <span class="is-gold">CAREER MODE</span>
+                        <span>CAREER MODE</span>
                     </h1>
                     <p class="ufl-ph-lead">
                         Take control of a club. Build your squad. Manage your fixtures. Make the right decisions and build your managerial legacy.
                         {% site_text "home.hero_subtitle" %}
                     </p>
                     <div class="hero-actions">
-                        <a href="{{ apply_club_url }}" class="primary-button">VIEW JOB OPENINGS</a>
+                        <a href="{{ apply_club_url }}" class="primary-button">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 7V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1"/><rect x="4" y="7" width="16" height="13" rx="1.5"/></svg>
+                            VIEW JOB OPENINGS
+                        </a>
                         <a href="{% url 'leagues_page' %}" class="secondary-button">VIEW LEAGUE TABLE</a>
                     </div>
                 </div>
@@ -141,24 +144,6 @@
                         <a href="{{ apply_club_url }}">CAREER MODE →</a>
                     </li>
                 </ol>
-
-                <div class="ufl-ph-cta-row">
-                    <article class="ufl-ph-cta-card">
-                        <img src="{% static 'core/img/mgl-stadium-cta.jpg' %}" alt="" aria-hidden="true">
-                        <div>
-                            <h3>READY TO TAKE<br>THE DUGOUT?</h3>
-                            <p>Clubs are waiting for their next manager.</p>
-                            <a href="{{ apply_club_url }}" class="primary-button">VIEW JOB OPENINGS</a>
-                        </div>
-                    </article>
-                    <article class="ufl-ph-cta-card is-account">
-                        <div>
-                            <h3>CREATE YOUR<br>UFL ACCOUNT</h3>
-                            <p>Create your account and begin your journey towards becoming a UFL manager.</p>
-                            <a href="{{ join_mgl_url }}" class="primary-button">CREATE ACCOUNT</a>
-                        </div>
-                    </article>
-                </div>
             </section>
         </div>
 
@@ -173,7 +158,11 @@
                         <img src="{% static 'core/img/mgl-starting-xi.png' %}" alt="UFL squad on the website">
                         <figcaption>
                             <strong>MY SQUAD</strong>
-                            <small>Squad Value · UFL Tokens · Chemistry</small>
+                            <div class="ufl-ph-split-metrics">
+                                <span>Squad Value</span>
+                                <span>UFL Tokens</span>
+                                <span>Chemistry</span>
+                            </div>
                         </figcaption>
                     </figure>
                     <figure>
@@ -246,6 +235,7 @@
             </section>
 
             <section class="ufl-ph-discord">
+                <svg class="ufl-ph-discord-logo" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.7 5.3A16.4 16.4 0 0 0 15.6 4l-.4.8a14.7 14.7 0 0 1 3.5 1.4 13.7 13.7 0 0 0-13.4 0A14.7 14.7 0 0 1 8.8 4.8L8.4 4A16.4 16.4 0 0 0 4.3 5.3C1.6 9.3.9 13.2 1.1 17.1A16.6 16.6 0 0 0 6.3 20l.8-1.1a10.8 10.8 0 0 1-1.4-.7l.3-.3c2.8 1.3 5.8 1.3 8.8 0l.3.3a10.8 10.8 0 0 1-1.4.7l.8 1.1a16.6 16.6 0 0 0 5.2-2.9c.4-4.2-.5-8.1-2.4-11.8ZM9.1 14.7c-.8 0-1.5-.8-1.5-1.7s.7-1.7 1.5-1.7 1.5.8 1.5 1.7-.7 1.7-1.5 1.7Zm5.8 0c-.8 0-1.5-.8-1.5-1.7s.7-1.7 1.5-1.7 1.5.8 1.5 1.7-.6 1.7-1.5 1.7Z"/></svg>
                 <h2>JOIN THE UFL COMMUNITY</h2>
                 <p>Arrange fixtures, discuss transfers, communicate with other managers and stay up to date with everything happening in UFL.</p>
                 {% if discord_invite_url %}
@@ -253,6 +243,24 @@
                 {% endif %}
             </section>
         </aside>
+    </div>
+
+    <div class="ufl-ph-cta-row">
+        <article class="ufl-ph-cta-card">
+            <img src="{% static 'core/img/mgl-stadium-cta.jpg' %}" alt="" aria-hidden="true">
+            <div>
+                <h3>READY TO TAKE<br>THE DUGOUT?</h3>
+                <p>Clubs are waiting for their next manager.</p>
+                <a href="{{ apply_club_url }}" class="primary-button">VIEW JOB OPENINGS</a>
+            </div>
+        </article>
+        <article class="ufl-ph-cta-card is-account">
+            <div>
+                <h3>CREATE YOUR<br>UFL ACCOUNT</h3>
+                <p>Create your account and begin your journey towards becoming a UFL manager.</p>
+                <a href="{{ join_mgl_url }}" class="primary-button">+ CREATE ACCOUNT</a>
+            </div>
+        </article>
     </div>
 </div>
 

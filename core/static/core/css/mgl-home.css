@@ -69,11 +69,20 @@
     color: #e4c77a;
 }
 
-.ufl-public-home-header .ufl-join-login {
+.ufl-public-home-header .ufl-join-login.header-button {
     min-width: 0;
     white-space: nowrap;
     padding: 0 16px;
     border-radius: 6px;
+    background: transparent;
+    color: #e4c77a;
+    border: 1px solid #e4c77a;
+    box-shadow: 0 0 16px rgba(228, 199, 122, 0.16);
+}
+
+.ufl-public-home-header .ufl-join-login.header-button:hover {
+    background: rgba(228, 199, 122, 0.12);
+    color: #f0d89a;
 }
 
 .ufl-ph {
@@ -108,6 +117,21 @@
     overflow: hidden;
     background: #050505;
     border: 1px solid rgba(228, 199, 122, 0.22);
+}
+
+.ufl-ph-hero::before {
+    content: "UFL";
+    position: absolute;
+    right: 4%;
+    top: 8%;
+    z-index: 1;
+    font-family: var(--font-display);
+    font-size: clamp(80px, 14vw, 180px);
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(228, 199, 122, 0.18);
+    pointer-events: none;
 }
 
 .ufl-ph-hero-media {
@@ -163,15 +187,23 @@
     margin: 0;
     font-size: clamp(42px, 5.6vw, 78px);
     line-height: 0.86;
-    color: #fff;
+    color: #e4c77a;
+    font-style: italic;
+    text-shadow: 0 0 28px rgba(228, 199, 122, 0.28);
 }
 
 .ufl-ph-hero h1 span {
     display: block;
 }
 
-.ufl-ph-hero h1 .is-gold {
-    color: #e4c77a;
+.ufl-ph-hero .primary-button {
+    gap: 8px;
+    box-shadow: 0 0 18px rgba(228, 199, 122, 0.28);
+}
+
+.ufl-ph-hero .primary-button svg {
+    width: 16px;
+    height: 16px;
 }
 
 .ufl-ph-lead {
@@ -240,7 +272,7 @@
 }
 
 .mgl-home-body .mgl-home-stats-inner span {
-    color: #cfcfcf;
+    color: #e4c77a;
     font-size: 10px;
     font-weight: 800;
     letter-spacing: 0.16em;
@@ -277,7 +309,7 @@
     margin: 22px 0 0;
     padding: 0;
     display: grid;
-    gap: 10px;
+    gap: 0;
 }
 
 .ufl-ph-steps li {
@@ -285,15 +317,19 @@
     grid-template-columns: 48px minmax(0, 1fr) auto;
     gap: 16px;
     align-items: center;
-    padding: 16px 18px;
-    background: #0d1118;
-    border: 1px solid rgba(228, 199, 122, 0.22);
-    transition: border-color 0.2s ease, background 0.2s ease;
+    padding: 18px 0;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid rgba(228, 199, 122, 0.28);
+    transition: background 0.2s ease;
+}
+
+.ufl-ph-steps li:first-child {
+    border-top: 1px solid rgba(228, 199, 122, 0.28);
 }
 
 .ufl-ph-steps li:hover {
-    border-color: #e4c77a;
-    background: #12161d;
+    background: rgba(228, 199, 122, 0.04);
 }
 
 .ufl-ph-step-icon {
@@ -345,16 +381,17 @@
 .ufl-ph-cta-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    margin-top: 18px;
+    gap: 18px;
+    margin-top: 28px;
 }
 
 .ufl-ph-cta-card {
     position: relative;
     min-height: 210px;
     overflow: hidden;
-    border: 1px solid rgba(228, 199, 122, 0.28);
+    border: 1px solid rgba(228, 199, 122, 0.38);
     background: #10141b;
+    box-shadow: 0 0 24px rgba(228, 199, 122, 0.08);
 }
 
 .ufl-ph-cta-card img {
@@ -424,7 +461,7 @@
     object-fit: cover;
 }
 
-.ufl-ph-split-card span {
+.ufl-ph-split-card figure > span {
     position: absolute;
     top: 10px;
     left: 10px;
@@ -454,6 +491,23 @@
     color: #9aa3ad;
     font-size: 11px;
     letter-spacing: 0.04em;
+}
+
+.ufl-ph-split-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.ufl-ph-split-metrics span {
+    position: static;
+    padding: 0;
+    background: none;
+    border: 0;
+    color: #e4c77a;
+    font-size: 10px;
+    letter-spacing: 0.08em;
 }
 
 .ufl-ph-pillars {
@@ -541,6 +595,13 @@
     color: #fff;
 }
 
+.ufl-ph-discord-logo {
+    width: 42px;
+    height: 42px;
+    margin-bottom: 12px;
+    color: #fff;
+}
+
 .ufl-ph-discord .mgl-home-kicker,
 .ufl-ph-discord h2,
 .ufl-ph-discord p {
@@ -557,8 +618,9 @@
     display: inline-flex;
     margin-top: 18px;
     padding: 10px 16px;
-    background: #fff;
-    color: #2c2f7a;
+    background: #404eed;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.28);
     font-family: var(--font-display);
     font-size: 13px;
     font-weight: 800;
@@ -566,8 +628,8 @@
 }
 
 .ufl-ph-discord-btn:hover {
-    background: #e4c77a;
-    color: #12100a;
+    background: #fff;
+    color: #2c2f7a;
 }
 
 .mgl-home-board-wrap {
@@ -780,6 +842,21 @@
     display: flex;
     flex-wrap: wrap;
     gap: 16px;
+}
+
+.ufl-public-home-footer {
+    position: relative;
+    overflow: hidden;
+}
+
+.ufl-ph-ball {
+    position: absolute;
+    right: -40px;
+    bottom: -50px;
+    width: 260px;
+    height: 260px;
+    color: rgba(228, 199, 122, 0.12);
+    pointer-events: none;
 }
 
 .mgl-home-body .mgl-home-experience article::before {
