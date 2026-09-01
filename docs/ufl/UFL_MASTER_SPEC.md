@@ -59,9 +59,15 @@ The transfer window **does not close**. It remains open continuously. There is n
 
 Do not describe all market activity as requiring approval.
 
+### Player status (DEC-042 LOCKED)
+
+An FC26 player with no UFL club is **UNSIGNED**, not a UFL Free Agent. Do not mass-edit `is_free_agent` on the FC26 master set. The Free Agents page lists only players who entered FA through an explicit UFL process (pack/scout reject-release, no-bid **admin** auction, other approved FA paths). Unsigned players are the recruitment pool (packs, scouting, admin auctions). Manager club auctions: sold → new club; no sale → **return to the original club**.
+
+**Season 1 starting squads only:** unsigned players are eligible regardless of the stored `is_free_agent` flag; `RB` may fill RB/RWB; `LB` may fill LB/LWB; OVR 64–69. That does not publish them as public Free Agents.
+
 ### Scouting / packs / recruitment
 
-Admin/Owner control which packs are available. Packs may be added, removed, released, replaced, changed, made temporarily available, or made unavailable (regular rating, high rating, lower rating, random position, drops, future types). Each pack can have its **own** configurable maximum number of openings (example: Pack A = 1, Pack B = 2). The system must eventually enforce that limit. Pack/recruitment **token costs use 0.5 increments only** (0, 0.5, 1, 1.5, …). Invalid: 0.25, 0.75, 1.25, 1.75. The existing scout safety/recruitment setting (`LeagueSettings.scout_can_recruit`) **should actually enforce** configured restrictions.
+Admin/Owner control which packs are available. Packs may be added, removed, released, replaced, changed, made temporarily available, or made unavailable (regular rating, high rating, lower rating, random position, drops, future types). Each pack can have its **own** configurable maximum number of openings (example: Pack A = 1, Pack B = 2). The system must eventually enforce that limit. Pack/recruitment **token costs use 0.5 increments only** (0, 0.5, 1, 1.5, …). Invalid: 0.25, 0.75, 1.25, 1.75. The existing scout safety/recruitment setting (`LeagueSettings.scout_can_recruit`) **should actually enforce** configured restrictions. Managers may spend tokens to upgrade scouting (shorter hours). Catalogue remains Owner/Admin-controlled.
 
 ### Starting squad (official, every new season / reset)
 

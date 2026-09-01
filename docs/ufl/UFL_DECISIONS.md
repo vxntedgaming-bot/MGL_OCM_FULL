@@ -124,7 +124,7 @@ Whether the 5 / 3 / 3 caps stay is **UNDECIDED** (not in Phase 1).
 
 ### DEC-016 — Free agents sign for 0 TKN; unassigned ≠ free agent
 
-`sign_free_agent` and `Player.is_free_agent` help_text.
+`sign_free_agent` and `Player.is_free_agent` help_text. **Superseded in detail by DEC-042** (unsigned ≠ FA; do not trust the stored flag as product status).
 
 ### DEC-017 — Official stats only after Owner/Admin approve
 
@@ -280,6 +280,41 @@ Official fields (user-facing):
 Do **not** use 1 / 2 / 3 / 4 / 5+ as the official options.
 
 **CURRENT CODE / GAP TO IMPLEMENT:** registration still creates a separate pending `ManagerApplication`; `apply_for_club` requires that application to be APPROVED first; job form still asks for a numeric Discord user ID and games-per-week 1 / 2 / 3 / 4 / 5+. Do not change that in a documentation task.
+
+### DEC-042 — Unsigned ≠ Free Agent; Season 1 uses the unsigned pool
+
+**STATUS: LOCKED** (Owner, 2026-09-01)
+
+An FC26 player with no current UFL club is **UNSIGNED**, not automatically a UFL Free Agent.
+
+Do **not** treat `Player.is_free_agent=True` as the product status. The current database flags many unused FC26 rows as Free Agents. Do **not** mass-edit those ~18,000 flags to make generators or pages work.
+
+UFL statuses the application must distinguish:
+
+| Product status | Meaning |
+|---|---|
+| FC26 master / unsigned | In the FC26 database, no UFL club. Recruitment pool. |
+| UFL Free Agent | Entered FA through an explicit UFL process only |
+| Club-owned | `mgl_team` set |
+| Temporarily in a manager auction | Leaves available squad selection; unsold **returns to the original club** |
+
+Unsigned players become available through Recruitment Packs, Scouting, and Admin-released auctions. Managers can win them there.
+
+The public Free Agents page must **not** list every unassigned FC26 player. FA examples: rejected/released from a pack, rejected/released after scouting, admin-released auction with no bids, other explicit FA processes.
+
+Admin/Owner may auction an unsigned player. No bid → that player **may** become a UFL Free Agent.
+
+Manager club auction: if sold, original club → new club. If no sale, player **returns to the original club**. Do not make an unsold manager-auction player a Free Agent. **CURRENT CODE** already restores `listing_kind=CLUB` auctions to `origin_team` (`_restore_unsold_player`). Keep that path; do not invent a second auction system.
+
+**Season 1 starting-squad eligibility (bootstrap only):**
+
+- UNSIGNED FC26 players are eligible **regardless of** the stored `is_free_agent` flag.
+- That does **not** publish them as public UFL Free Agents.
+- `RB` may fill **RB or RWB**. `LB` may fill **LB or LWB**.
+- OVR band remains 64–69.
+- After Season 1 squads are established, the normal status system applies.
+
+Scout upgrades (tokens reducing hours by a percentage) and pack catalogue remain Owner/Admin-controlled. `scout_can_recruit` must still enforce (DEC-040). Pack/scouting/auction product work is **not** implemented in this documentation pass.
 
 ---
 

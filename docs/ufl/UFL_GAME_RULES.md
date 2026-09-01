@@ -143,14 +143,17 @@ Legacy Path B `apply_starting_squads --apply` is fenced. Path C `generate_balanc
 
 | State | Meaning |
 |---|---|
-| UNASSIGNED | FC26 pool player, no UFL club, not a Free Agent |
+| UNSIGNED | FC26 player, no UFL club. Recruitment pool. **Not** a public Free Agent (**DEC-042**) |
 | ASSIGNED | `mgl_team` set |
 | TRANSFER LISTED | Club still owns the player; listing LIVE / OFFER / PENDING |
 | IN NEGOTIATION | Accepted or open offer waiting |
-| AUCTION | Live or pending auction; occupies a roster slot until settlement |
-| FREE AGENT | Approved release, or unsold league-office auction. Sign for **0 TKN** |
+| MANAGER AUCTION | Temporarily off available squad; unsold **returns to original club** |
+| ADMIN / UNSIGNED AUCTION | Owner/Admin released an unsigned player; no bid **may** become FA |
+| FREE AGENT | Explicit UFL FA process only (pack/scout reject-release, no-bid admin auction, other approved paths). Sign for **0 TKN** |
 
-Unused FC26 pool players must not be flagged Free Agent. `fc27_club` is FC26 reference data only.
+Do not mass-edit `is_free_agent` on the FC26 master set. `fc27_club` is FC26 reference data only.
+
+**Season 1 starting squads only:** unsigned + OVR 64–69; ignore stored FA flag; `RB` may fill RB/RWB; `LB` may fill LB/LWB.
 
 ---
 

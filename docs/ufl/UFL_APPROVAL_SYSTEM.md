@@ -102,7 +102,9 @@ Until step 3, the player remains at the selling club.
 2. Control approve → `release_player` → Free Agent (typical path).
 3. Reject → request REJECTED; player stays.
 
-GAP — do not change the queue in this pass.
+GAP — Phase 1 says release listings do not need Control. **DEC-042:** a club release that is an explicit UFL FA process may create a Free Agent; unsigned FC26 players must not be bulk-converted to FA.
+
+Admin unsigned auctions: no bid may create a Free Agent. Manager club auctions: no bid returns the player home (**CURRENT CODE** already does this).
 
 ---
 

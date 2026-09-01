@@ -171,8 +171,9 @@ Exact debit/credit category strings: inspect `_complete_listing_sale` at change 
 - Manager club auctions allowed if `LeagueSettings.allow_manager_auctions` (default True).
 - Durations 30/60/90/120 minutes (configurable).
 - Max **3** club auctions / 24h.
-- Only Owner/Admin can move **UNASSIGNED** → auction. Managers receive 403 on the unassigned-release POST.
-- No-bid league auction can become a Free Agent.
+- Only Owner/Admin can move **UNSIGNED** FC26 players → auction. Managers receive 403 on the unassigned-release POST.
+- **DEC-042 LOCKED:** no-bid **admin/unsigned** auction **may** become a UFL Free Agent. No-bid **manager club** auction **returns the player to the original club** and must not create a Free Agent.
+- **CURRENT CODE** already restores `listing_kind=CLUB` auctions to `origin_team` (`mgl/market.py` `_restore_unsold_player`). Keep that path; do not add a second auction system.
 - Control can close or cancel auctions.
 - `close_expired_auctions` management command / settlement.
 
@@ -182,8 +183,10 @@ Exact debit/credit category strings: inspect `_complete_listing_sale` at change 
 
 **CONFIRMED**
 
-- Sign for 0 TKN onto current club if not in a live auction, no club, `is_free_agent=True`, roster space.
-- Unassigned pool players are **not** signable as free agents.
+- Sign for 0 TKN onto current club if not in a live auction, no club, genuine UFL Free Agent, roster space.
+- **DEC-042:** the Free Agents page must not list every unsigned FC26 player. FA examples: pack reject/release, scout reject/release, no-bid admin auction, other explicit FA processes.
+- Unsigned FC26 players are the recruitment/scouting/admin-auction pool, not public Free Agents.
+- **CURRENT CODE** still uses `is_free_agent=True` for the FA page. Many unused FC26 rows are flagged true in the database. GAP — do not mass-edit those flags in a docs pass.
 
 ---
 

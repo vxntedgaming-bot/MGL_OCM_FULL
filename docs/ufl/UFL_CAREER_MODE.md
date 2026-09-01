@@ -59,7 +59,11 @@ Career Mode is **not a separate app**. It is the signed-in league product on the
 - Import commands: `import_fc27`, `sync_fc26_details`, `sync_fc26_names`, `populate_super_league_1`.
 - Faces: Sofifa URLs stored on the player; served via `/mgl/players/<id>/face/` and cached under `media/player_faces/`.
 - `fc27_club` is **reference only**. It does not mean the player is at that UFL club.
-- Unassigned imported players are **not** Free Agents.
+- Unassigned imported players are **UNSIGNED**, not UFL Free Agents (**DEC-042**).
+- Do not treat `Player.is_free_agent` as the product status. Do not mass-edit that flag on the FC26 master set.
+- Public Free Agents are only players who entered FA through an explicit UFL process.
+- Season 1 starting-squad eligibility (bootstrap only): unsigned, ignore stored FA flag, `RB`→RB/RWB, `LB`→LB/LWB, OVR 64–69. Does not publish those players as public Free Agents.
+- **CURRENT CODE generator** still excludes `is_free_agent=True` and matches positions exactly (no RB→RWB). GAP TO IMPLEMENT.
 
 Do not change FC26 identities, names, or source ratings unless the Owner asks for a specific import/sync.
 

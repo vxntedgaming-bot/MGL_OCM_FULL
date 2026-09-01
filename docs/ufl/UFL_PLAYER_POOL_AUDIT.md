@@ -1,95 +1,72 @@
-# UFL Player Pool Audit (Phase 2.2)
+# UFL — Player pool audit
 
-**Status:** INSPECTION ONLY.  
-**Date:** 1 September 2026.  
-**Method:** Read-only SQLite (`mode=ro`) against the project FC26 player database. In-memory calculation only. No Django writes. No generate/approve. No Season 1 apply.
+**Date:** 2026-09-01  
+**Scope:** read-only inspection of the local imported FC26 dataset.  
+**Database used:** `/tmp/MGL_LIVE/db.sqlite3` in SQLite read-only mode.  
+**Production Railway:** not opened.  
+**Writes:** none.  
+**Owner lock:** **DEC-042**.
 
-**Database inspected:** local project SQLite used by this Career Mode tree (`db.sqlite3`).  
-Player count matches the documented FC26 import size (~18,405 identities) plus two test rows without `fc27_id`. Production Railway was **not** opened. No production credentials were used.
+This file has two sections:
 
-**Rules used (unchanged):**
-
-- Unassigned (`mgl_team` is null)
-- Default generator excludes Free Agents (`is_free_agent=False`)
-- OVR 64–69
-- Exact `Player.position` match to the locked 30-player shape
-- Exclude live/pending auction (`PENDING`, `LIVE`)
-- Exclude pending/live listing (`PENDING`, `LIVE`)
-- 38 clubs × 30 = **1,140** required
+1. **Season 1 feasibility under DEC-042** — the current locked interpretation.
+2. **Historical default-filter STOP** — what the *current generator code* still sees if it keeps excluding `is_free_agent=True` and matching exact positions.
 
 ---
 
-## STOP — shortages exist
+## 1. Season 1 feasibility under DEC-042 (current lock)
 
-The current default generator **cannot** build Season 1 starting squads.
+### Locked interpretation
 
-Two independent blockers:
-
-1. **Default eligible pool is 0.** Every unassigned FC26 player is flagged `is_free_agent=True`, so the canonical default filter excludes the entire unused pool.
-2. **RWB and LWB do not exist in this FC26 dataset.** Required 76 + 76. Available **0 + 0** at every OVR, assigned or unassigned.
-
-No players were invented. OVR was not loosened. Positions were not remapped. Owner decision is required.
-
----
-
-## 1. Total player count
-
-| Item | Count |
+| Product status | Meaning |
 |---|---|
-| `players.Player` rows | **18,407** |
-| Clubs in this database | 14 (current test clubs) |
-| `StartingSquadLock` rows | 0 |
+| **UNSIGNED** | FC26 player with no UFL club. Recruitment pool. **Not** automatically a UFL Free Agent. |
+| **UFL Free Agent** | Only via explicit UFL processes (pack/scout reject, admin unsigned auction with no bid, other approved FA paths). |
+| **Club-owned** | Assigned to a UFL club. |
+| **Temporarily listed** | Manager-released auction. Unsold → **returns to original club**. |
+| Stored `is_free_agent` | **Not** product status. Do **not** mass-edit the 18k+ rows. |
 
----
+**Season 1 starting-squad eligibility (bootstrap only):**
 
-## 2. Eligible player count
+- UNSIGNED players are eligible **regardless of** the stored `is_free_agent` flag.
+- RB may fill **RB or RWB**.
+- LB may fill **LB or LWB**.
+- OVR **64–69**.
+- This does **not** publish those players as public UFL Free Agents.
 
-| Pool | Count | Can supply 1,140? |
-|---|---|---|
-| Canonical default (`include_free_agents=False`) | **0** | **No** |
-| Same filters but including Free Agents (Control checkbox, not used here) | **6,225** | Numerically yes, except RWB/LWB are still 0 |
-| All players OVR 64–69 | 6,470 | Includes 245 currently assigned |
+### Dataset size (unchanged)
 
-OVR distribution below is for the **canonical default eligible pool (0)**. The Free-Agent-included 64–69 unassigned distribution is given in section 4 for visibility only. **This audit did not enable that checkbox and did not change the rule.**
+| Metric | Count |
+|---|---|
+| Total `mgl_player` rows | 18,407 |
+| Rows with `fc27_id` | 18,405 |
+| Duplicate `fc27_id` | **0** |
+| Rows without `fc27_id` | 2 (test leftovers) |
+| Assigned (`mgl_team_id` set) | 364 |
+| Unassigned | 18,043 |
 
----
+### Eligible UNSIGNED pool (OVR 64–69, no club)
 
-## 3. Position availability (38 clubs)
+| Filter | Count |
+|---|---|
+| Unassigned, OVR 64–69 | **6,225** |
+| of which stored `is_free_agent=True` | 6,225 |
+| of which stored `is_free_agent=False` | 0 |
 
-Required = per-club count × 38.
+DEC-042 treats all **6,225** as Season 1 eligible. The flag is ignored for this bootstrap only.
 
-### Canonical default (unassigned, not FA, 64–69, official positions, not auction/listing)
+### Position availability after RB→RWB / LB→LWB mapping
 
-| Position | Required | Available | Surplus / Shortfall |
-|---|---|---|---|
-| GK | 76 | 0 | **−76** |
-| CB | 152 | 0 | **−152** |
-| RB | 76 | 0 | **−76** |
-| LB | 76 | 0 | **−76** |
-| RWB | 76 | 0 | **−76** |
-| LWB | 76 | 0 | **−76** |
-| CDM | 76 | 0 | **−76** |
-| CM | 76 | 0 | **−76** |
-| CAM | 76 | 0 | **−76** |
-| LM | 76 | 0 | **−76** |
-| RM | 76 | 0 | **−76** |
-| LW | 76 | 0 | **−76** |
-| RW | 76 | 0 | **−76** |
-| ST | 76 | 0 | **−76** |
-| **Total** | **1,140** | **0** | **−1,140** |
+Demand = 38 clubs × locked 30-player shape.
 
-### If Free Agents were included (current checkbox — not enabled; report only)
-
-Unassigned, OVR 64–69, official positions, not in live auction/listing:
-
-| Position | Required | Available | Surplus / Shortfall |
+| Slot | Demand (38 clubs) | Eligible UNSIGNED 64–69 | Surplus after mapping |
 |---|---|---|---|
 | GK | 76 | 577 | +501 |
 | CB | 152 | 1,230 | +1,078 |
-| RB | 76 | 501 | +425 |
-| LB | 76 | 498 | +422 |
-| **RWB** | **76** | **0** | **−76** |
-| **LWB** | **76** | **0** | **−76** |
+| RB | 76 | 501 native RB | +425 leftover after filling RB |
+| LB | 76 | 498 native LB | +422 leftover after filling LB |
+| RWB | 76 | 0 native RWB; **425 leftover RB** | +349 |
+| LWB | 76 | 0 native LWB; **422 leftover LB** | +346 |
 | CDM | 76 | 511 | +435 |
 | CM | 76 | 746 | +670 |
 | CAM | 76 | 315 | +239 |
@@ -98,174 +75,98 @@ Unassigned, OVR 64–69, official positions, not in live auction/listing:
 | LW | 76 | 101 | +25 |
 | RW | 76 | 135 | +59 |
 | ST | 76 | 836 | +760 |
-| **Total** | **1,140** | **6,225** | still missing 152 wing-backs |
+| **Total** | **1,140** | **6,225** | every slot covered |
 
-**Entire FC26 table, any OVR:** `RWB = 0`, `LWB = 0`. No player in this database has those position codes. Current 14-club test squads also have 0 RWB and 0 LWB.
+Tightest slot after mapping: **LW** (+25). **RWB / LWB are fully coverable from leftover RB / LB.**
 
----
+### In-memory allocation simulation
 
-## 4. OVR distribution
+- Dummy clubs: 38 in-memory objects. **No clubs created in the database.**
+- Algorithm: same greedy as `mgl/ufl_starting.py` (`build_balanced_proposal`) with DEC-042 eligibility and RB/LB mapping.
+- Seeds: `20260901`, `1`, `42`, `99`, `20260831`.
+- Database connection: `mode=ro`.
 
-### Canonical default eligible (64–69)
+| Seed | Allocated | Unique players | Unique fc27_id | OVR 64–69 | RWB filled by leftover RB | LWB filled by leftover LB | Max club avg − min club avg | Total-OVR spread |
+|---|---|---|---|---|---|---|---|---|
+| 20260901 | 1,140 | 1,140 | 1,140 | yes | yes | yes | 0.000 | 0 |
+| 1 | 1,140 | 1,140 | 1,140 | yes | yes | yes | 0.000 | 0 |
+| 42 | 1,140 | 1,140 | 1,140 | yes | yes | yes | 0.033 | 1 |
+| 99 | 1,140 | 1,140 | 1,140 | yes | yes | yes | 0.000 | 0 |
+| 20260831 | 1,140 | 1,140 | 1,140 | yes | yes | yes | 0.000 | 0 |
 
-| OVR | Count |
-|---|---|
-| 64 | 0 |
-| 65 | 0 |
-| 66 | 0 |
-| 67 | 0 |
-| 68 | 0 |
-| 69 | 0 |
-| **TOTAL eligible** | **0** |
+Average-OVR gap limit is **1.500**. All seeds are well inside.
 
-### Unassigned 64–69 (all flagged Free Agent today)
+**1140 players can be allocated** under DEC-042.
 
-| OVR | Count |
-|---|---|
-| 64 | 1,018 |
-| 65 | 1,073 |
-| 66 | 1,077 |
-| 67 | 1,049 |
-| 68 | 1,081 |
-| 69 | 927 |
-| **Total** | **6,225** |
+### What this simulation did **not** do
 
-### All players 64–69 (includes 245 assigned)
-
-| OVR | Count |
-|---|---|
-| 64 | 1,066 |
-| 65 | 1,120 |
-| 66 | 1,117 |
-| 67 | 1,080 |
-| 68 | 1,131 |
-| 69 | 956 |
-| **Total** | **6,470** |
+- create clubs
+- delete clubs
+- assign players
+- generate production squads
+- run Season 1 bootstrap
+- edit `is_free_agent`
+- change tokens or locks
 
 ---
 
-## 5. Exclusion counts
+## 2. Historical STOP (current generator code — not DEC-042)
 
-Independent counts (a player can appear in more than one row):
+The shipped generator (`mgl/ufl_starting.py`) still:
 
-| Filter | Players |
+- excludes `is_free_agent=True` unless the Control checkbox is ticked
+- matches **exact** `Player.position` (no RB→RWB / LB→LWB)
+
+Under those **old** filters:
+
+| Filter | Count |
 |---|---|
-| Already assigned to a club (`mgl_team` set) | **364** |
-| Unassigned | 18,043 |
-| `is_free_agent=True` | **18,043** (exactly the unassigned set) |
-| `is_free_agent=True` and unassigned | 18,043 |
-| Assigned and not Free Agent | 364 |
-| OVR outside 64–69 | 11,937 |
-| OVR inside 64–69 | 6,470 |
-| Position not in official 14-role shape | **0** (no CF rows; no other codes) |
-| Live or pending auction | **0** (2 auctions exist, both `ENDED`) |
-| Pending or live listing | **0** (8 listings exist, all `CANCELLED`) |
-| Offer listing (`OFFER`) | 0 |
+| Default eligible (unassigned + `is_free_agent=False` + OVR 64–69) | **0** |
+| Native RWB / LWB in entire DB | **0 / 0** |
 
-Sequential funnel matching `eligible_queryset(include_free_agents=False)`:
+That is why the earlier audit stopped. **DEC-042 replaces that interpretation for Season 1.** The generator code has **not** been updated yet. Do **not** mass-flip `is_free_agent` to paper over the old filter.
 
-| Step | Remaining |
-|---|---|
-| All players | 18,407 |
-| OVR 64–69 | 6,470 |
-| + official position | 6,470 |
-| + unassigned | 6,225 |
-| + not Free Agent | **0** |
-| + not live/pending auction | 0 |
-| + not pending/live listing | **0** |
+### Native positions in the full 18,407-row table (historical)
 
-**Primary exclusion of the unused FC26 pool:** `is_free_agent=True` on every unassigned row. Product copy says unused FC26 players are unassigned, not Free Agents. The stored flags do not match that rule. **This audit did not correct them.**
-
-If Season 1 later unassigns the current 364 club players and leaves `is_free_agent=False`, only those 364 would enter the default eligible pool. Of those, **245** are OVR 64–69, and **0** are RWB/LWB. That is still far below 1,140 and still fails wing-backs.
-
----
-
-## 6. FC26 identity integrity
-
-| Check | Result |
-|---|---|
-| Player rows | 18,407 |
-| With `fc27_id` (non-blank) | **18,405** |
-| Without `fc27_id` | **2** |
-| Duplicate `fc27_id` values | **0** |
-| Blank names | 0 |
-
-Rows without `fc27_id` (test leftovers, OVR outside the starting band):
-
-| id | name | position | overall | assigned |
+| `position` | Count | Assigned | Unassigned | Unassigned 64–69 |
 |---|---|---|---|---|
-| 18406 | History Test Winger | LW | 74 | no |
-| 18407 | Live Auction Midfielder | CM | 81 | no |
-
-Both are Free Agents. They are not in the 64–69 eligible window.
-
----
-
-## 7. Duplicate analysis
-
-- **No duplicate FC26 IDs.** `fc27_id` is unique where present.
-- **178** display-name groups share a name (198 extra rows). Examples: Pedrinho ×4, Juan Pérez ×4. These are different FC26 identities (different `fc27_id`), not duplicate records.
-- No blank-name duplicates.
-- Two rows without `fc27_id` are unique test names, not clones of FC26 players.
-
-The generator keys uniqueness on player id and `fc27_id`. Name collisions are not a uniqueness failure.
-
----
-
-## 8. Balanced-random feasibility
-
-The live algorithm (`generate_allocation` → `_attempt` → `_snake_deal` → `_equalize`, max 80 attempts, max average-OVR gap 1.500) **returns immediately** if any position’s `have < need`.
-
-An in-memory simulation of that algorithm was prepared for 38 dummy clubs. It was **not** run against a successful pool because:
-
-- Default eligible count = 0
-- Even the Free-Agent-included 64–69 unassigned pool has **RWB 0** and **LWB 0**
-
-Therefore:
-
-- Exact 30-player shape for 38 clubs: **not feasible** with current filters and current position codes
-- No-duplicate 1,140 allocation: **not feasible** (cannot fill 152 wing-back slots)
-- Average-OVR gap ≤ 1.500: **not reached** — the allocator never builds teams
-
-No proposal was written. No players were assigned.
+| GK | 1,979 | 26 | 1,953 | 577 |
+| CB | 3,211 | 52 | 3,159 | 1,230 |
+| LB | 1,349 | 26 | 1,323 | 498 |
+| RB | 1,352 | 26 | 1,326 | 501 |
+| LWB | 0 | 0 | 0 | 0 |
+| RWB | 0 | 0 | 0 | 0 |
+| CDM | 1,511 | 26 | 1,485 | 511 |
+| CM | 2,147 | 52 | 2,095 | 746 |
+| CAM | 1,067 | 26 | 1,041 | 315 |
+| LM | 1,020 | 26 | 994 | 409 |
+| RM | 1,022 | 26 | 996 | 366 |
+| LW | 335 | 26 | 309 | 101 |
+| RW | 369 | 26 | 343 | 135 |
+| ST | 2,045 | 26 | 2,019 | 836 |
 
 ---
 
-## 9. Shortages (Owner decision required)
+## 3. Remaining blockers (code / process — not pool size)
 
-| Shortage | Detail |
+| Blocker | Status |
 |---|---|
-| Default eligible pool | **0 / 1,140** because unassigned FC26 rows are all Free Agents |
-| RWB | **0 available in the entire database** (need 76) |
-| LWB | **0 available in the entire database** (need 76) |
-
-All other official positions have surplus in the unused 64–69 Free-Agent-flagged pool (LW is the tightest surplus: 101 vs 76). That surplus cannot be used under the current default FA filter, and it cannot replace missing wing-backs without a new Owner rule.
-
-**Stopped.** Did not invent players, loosen OVR, change positions, or alter records.
-
----
-
-## 10. Recommended next step
-
-Wait for Owner decisions. Do **not** generate or approve starting squads. Do **not** run Season 1 apply.
-
-Decisions needed (not implemented):
-
-1. **Wing-backs.** FC26 in this database never uses `RWB` / `LWB`. Options only the Owner can choose later: change the locked shape, map from `RB`/`LB`, or import a different identity source. Mapping would be a new product rule.
-2. **Free Agent flags.** The unused FC26 pool is stored as Free Agents, so the default generator sees nobody. Options later: include Free Agents for Season 1 only, or correct flags so unused players are unassigned (that would be a data change — not done here).
-3. After those rules are decided, re-run this audit, then consider Season 1 bootstrap + Control generate.
+| Eligible UNSIGNED 64–69 pool under DEC-042 | **Resolved** — 6,225 |
+| RWB / LWB under DEC-042 mapping | **Resolved** — leftover RB / LB cover demand |
+| Generator still uses old FA exclude + exact position | **GAP** — do not generate production squads until updated |
+| Free Agents page still lists `is_free_agent=True` | **GAP** — product page must use genuine UFL FA status later |
+| Production Season 1 apply | **Blocked** until Owner authorises |
+| Production squad generate / approve | **Blocked** until generator implements DEC-042 and Owner authorises |
 
 ---
 
 ## Confirmations
 
-- NO APPLICATION CHANGES
-- NO DATABASE CHANGES
-- NO MIGRATIONS
 - NO PRODUCTION CHANGES
+- NO CLUBS CREATED
+- NO CLUBS DELETED
 - NO PLAYERS ASSIGNED
-- NO CLUBS CREATED OR DELETED
 - NO SQUADS GENERATED
-- NO SEASON 1 BOOTSTRAP
 - NO TOKENS CHANGED
 - NO LOCKS CHANGED
+- NO mass-edit of `is_free_agent`

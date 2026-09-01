@@ -6,6 +6,16 @@ This file started with the documentation/audit pass. It does **not** claim that 
 
 ---
 
+## 2026-09-01 — DEC-042 player status + Season 1 pool re-check (docs + read-only)
+
+Owner locked: unsigned ≠ Free Agent; do not mass-edit `is_free_agent`; FA page is explicit FA only; manager no-bid auctions return home; Season 1 eligibility uses unsigned players, ignores the stored FA flag, and maps RB→RB/RWB and LB→LB/LWB.
+
+Read-only in-memory simulation with those Season 1 rules: **6,225** unsigned 64–69 players; every position has surplus; five seeds each allocated **1,140** unique players with average-OVR gap **0.000–0.033** (limit 1.500). No clubs, squads, tokens, or locks were written.
+
+**Documentation updated. Generator code not changed in this pass.**
+
+---
+
 ## 2026-09-01 — Phase 2.1 starting squads + Season 1 bootstrap
 
 Implemented the locked 30-player starting-squad generator and a controlled 38-club Season 1 bootstrap.
