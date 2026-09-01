@@ -1041,3 +1041,154 @@ input[type="checkbox"]:checked {
         grid-template-columns: 32px minmax(140px, 1fr) repeat(4, 36px) 48px minmax(90px, 0.7fr);
     }
 }
+
+/* ----- Shared UFL header scale (public Home is the source of truth) ----- */
+.mgl-header.ufl-header,
+.mgl-header {
+    --header-h: 52px;
+    min-height: 52px;
+    background: #000;
+}
+
+.mgl-header .mgl-header-inner {
+    height: 52px;
+    min-height: 52px;
+    max-width: 1180px;
+    padding: 0 18px;
+    gap: 12px;
+}
+
+.mgl-header .mgl-logo {
+    gap: 8px;
+}
+
+.mgl-header .mgl-logo-img {
+    width: 44px;
+    height: 44px;
+}
+
+.mgl-header .mgl-logo-text {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    line-height: 1.05;
+}
+
+.mgl-header .mgl-logo-text span {
+    font-size: 8px;
+    letter-spacing: 0.16em;
+    margin-top: 2px;
+}
+
+.mgl-header .mgl-nav {
+    gap: 2px;
+}
+
+.mgl-header .mgl-header-actions {
+    gap: 8px;
+}
+
+.mgl-header .mgl-header-actions .header-button,
+.mgl-header .mgl-header-actions .header-button-solid {
+    min-width: 0;
+    min-height: 30px;
+    height: 30px;
+    padding: 0 12px;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    border-radius: 0;
+}
+
+.mgl-header .mgl-notify-toggle {
+    width: 30px;
+    height: 30px;
+}
+
+.mgl-header .mgl-notify-bell {
+    width: 14px;
+    height: 14px;
+}
+
+.mgl-header .mgl-notify-count {
+    min-width: 14px;
+    height: 14px;
+    top: -3px;
+    right: -3px;
+    padding: 0 4px;
+    font-size: 9px;
+}
+
+.mgl-header .ufl-header-user {
+    gap: 8px;
+}
+
+.mgl-header .ufl-header-user-copy strong {
+    font-size: 11px;
+    line-height: 1.1;
+}
+
+.mgl-header .ufl-header-user-copy em {
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.mgl-header .ufl-avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 11px;
+}
+
+.mgl-header .ufl-livebar {
+    min-height: 34px;
+    padding: 4px 18px;
+}
+
+@media (min-width: 1101px) {
+    .mgl-header .mgl-nav-link,
+    .mgl-header .mgl-nav-trigger {
+        padding: 0 8px;
+        min-height: 52px;
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        gap: 4px;
+        border-radius: 0;
+        background: transparent;
+    }
+
+    .mgl-header .mgl-nav-chevron,
+    .mgl-header .mgl-nav-chevron svg {
+        width: 8px;
+        height: 6px;
+    }
+}
+
+@media (max-width: 1440px) {
+    .mgl-header .mgl-header-inner {
+        padding: 0 16px;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 1280px) {
+    .mgl-header .ufl-header-user-copy {
+        display: none;
+    }
+
+    .mgl-header .mgl-logo-text {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 1100px) {
+    .mgl-header,
+    .mgl-header.ufl-header {
+        min-height: 52px;
+    }
+
+    .mgl-header .mgl-header-inner {
+        height: auto;
+        min-height: 52px;
+        padding: 0 16px;
+    }
+}
