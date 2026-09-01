@@ -215,6 +215,15 @@ class SyncFc26AttributesCommandTests(TestCase):
 class PlayerAttributeProfileTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="attruser", password="test-pass-123")
+        from managers.models import ManagerApplication
+        from decimal import Decimal
+        ManagerApplication.objects.create(
+            user=self.user,
+            display_name="Attr User",
+            gamertag="ATTR1",
+            status=ManagerApplication.APPROVED,
+            tokens=Decimal("20.00"),
+        )
         self.salah = Player.objects.create(
             name="Mohamed Salah",
             fc27_id="209331",

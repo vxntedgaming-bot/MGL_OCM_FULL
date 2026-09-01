@@ -375,6 +375,15 @@ class PlayerDisplayNameSearchTests(TestCase):
         from accounts.models import User
 
         self.user = User.objects.create_user(username="namesearch", password="test-pass-123")
+        from managers.models import ManagerApplication
+        from decimal import Decimal
+        ManagerApplication.objects.create(
+            user=self.user,
+            display_name="Name Search",
+            gamertag="NAME1",
+            status=ManagerApplication.APPROVED,
+            tokens=Decimal("20.00"),
+        )
         self.salah = Player.objects.create(
             name="Mohamed Salah",
             fc27_id="209331",

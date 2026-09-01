@@ -10,6 +10,7 @@ from accounts.models import User
 from auctions.models import PlayerAuction
 from leagues.models import League
 from managers.models import ManagerApplication
+from mgl.activity import extract_page_main
 from mgl.market import (
     AUCTION_DURATIONS_MINUTES,
     MARKET_SLOT_MESSAGE,
@@ -427,8 +428,9 @@ class ClubAuctionSquadLifecycleTests(TestCase):
         auctions = self.client.get(reverse("live_auctions"))
         self.assertContains(auctions, "CLUB STRIKER")
         fa_page = self.client.get(reverse("free_agents"))
-        self.assertNotContains(fa_page, "Club Striker")
-        self.assertNotContains(fa_page, "CLUB STRIKER")
+        fa_main = extract_page_main(fa_page.content.decode())
+        self.assertNotIn("Club Striker", fa_main)
+        self.assertNotIn("CLUB STRIKER", fa_main)
 
     def test_active_auction_player_stays_off_squad_after_refresh_and_backfill(self):
         auction = create_manager_auction(self.owned, self.mgr_a, 30, starting_bid=1)
@@ -519,7 +521,7 @@ class ClubAuctionSquadLifecycleTests(TestCase):
         self.client.logout()
         self.client.login(username="buyer", password="test-pass-123")
         auctions = self.client.get(reverse("live_auctions"))
-        self.assertNotContains(auctions, "Club Striker")
+        self.assertNotIn("Club Striker", extract_page_main(auctions.content.decode()))
 
     def test_player_cannot_be_in_two_active_auctions(self):
         first = create_manager_auction(self.owned, self.mgr_a, 30, starting_bid=1)

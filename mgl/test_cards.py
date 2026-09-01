@@ -108,7 +108,7 @@ class PlayerCardAndBadgeTests(TestCase):
         self.assertContains(silver_face, "onerror=")
 
     def test_player_database_filters_and_cards(self):
-        self.assertEqual(self.client.get(reverse("player_database")).status_code, 200)
+        self.assertEqual(self.client.get(reverse("player_database")).status_code, 302)
         self.client.login(username="carduser", password="test-pass-123")
         response = self.client.get(reverse("player_database"), {"tier": "GOLD"})
         self.assertEqual(response.status_code, 200)
@@ -130,6 +130,8 @@ class PlayerCardAndBadgeTests(TestCase):
             asking_price=Decimal("12.00"),
             status=PlayerListing.LIVE,
         )
+        self.assertEqual(self.client.get(reverse("transfer_market")).status_code, 302)
+        self.client.login(username="carduser", password="test-pass-123")
         market = self.client.get(reverse("transfer_market"))
         self.assertEqual(market.status_code, 200)
         self.assertContains(market, "Gold Striker")

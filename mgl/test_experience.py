@@ -646,7 +646,7 @@ class PublicHomepageRedesignTests(TestCase):
             home, reverse("manager_login") + "?next=" + reverse("job_centre")
         )
         self.assertContains(home, reverse("leagues_page"))
-        self.assertContains(home, reverse("fixture_list"))
+        self.assertContains(home, reverse("competition_page", kwargs={"slug": "premier-league"}))
         self.assertContains(home, reverse("competition_page", kwargs={"slug": "cups"}))
         self.assertContains(home, reverse("manager_register"))
         self.assertContains(home, "Coming soon")

@@ -8,6 +8,7 @@ from django.utils import timezone
 from accounts.models import User
 from leagues.models import League
 from managers.models import ManagerApplication
+from mgl.activity import extract_page_main
 from mgl.scouting import (
     SQUAD_FULL_MESSAGE,
     TIER_RANGES,
@@ -547,7 +548,7 @@ class ScoutPageTests(TestCase):
         self.assertContains(page, "RECRUITED")
         self.client.login(username="other", password="test-pass-123")
         other_page = self.client.get(reverse("scouting"))
-        self.assertNotContains(other_page, "Silver Scout Target")
+        self.assertNotIn("Silver Scout Target", extract_page_main(other_page.content.decode()))
         self.assertEqual(ScoutReport.objects.filter(manager=self.other).count(), 0)
 
     def test_page_disables_all_dispatch_while_one_scout_is_active(self):

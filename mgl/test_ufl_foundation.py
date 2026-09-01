@@ -244,6 +244,6 @@ class UFLFoundationTests(TestCase):
         client = Client()
         home = client.get(reverse("home"))
         self.assertContains(home, "YOUR CLUB.")
-        self.assertContains(home, "YOUR DECISIONS.")
+        self.assertContains(home, "BUILD YOUR LEGACY")
         self.assertNotContains(home, "META GAMING LEAGUE")
         self.assertNotContains(home, "loan and manage")

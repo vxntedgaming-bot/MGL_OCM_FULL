@@ -59,15 +59,14 @@ class ManagerFixturesPageTests(TestCase):
             status="SCHEDULED",
         )
 
-    def test_anonymous_fixtures_page_is_public(self):
+    def test_anonymous_fixtures_page_redirects_to_job_offers(self):
         response = self.client.get(reverse("fixture_list"))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "mgl-fixtures.css")
-        self.assertContains(response, "Fixture Home")
-        self.assertContains(response, "Fixture Other")
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], reverse("job_centre"))
 
     def test_empty_released_copy_stays(self):
         Fixture.objects.all().delete()
+        self.client.login(username="fxhome", password="test-pass-123")
         response = self.client.get(reverse("fixture_list"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "NO FIXTURES HAVE BEEN RELEASED YET")

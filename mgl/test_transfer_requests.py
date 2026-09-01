@@ -19,6 +19,7 @@ from mgl.market import (
 )
 from mgl.models import ManagerNotification, MarketTransaction, PlayerListing
 from mgl.services import sign_free_agent
+from mgl.activity import extract_page_main
 from mgl.transfer_requests import completed_transfers_for
 from players.models import Player
 from teams.models import Team
@@ -237,6 +238,10 @@ class TransferRequestsPageTests(TestCase):
         )
         for url_name in ("transfer_history", "public_transfers"):
             page = self.client.get(reverse(url_name))
+            if url_name == "transfer_history":
+                self.assertEqual(page.status_code, 302)
+                self.assertEqual(page["Location"], reverse("job_centre"))
+                continue
             self.assertEqual(page.status_code, 200)
             self.assertContains(page, "UFL TRANSFERS")
             self.assertContains(page, "Completed Striker")
@@ -344,8 +349,8 @@ class AuctionTransferHistoryTests(TestCase):
         values.update(kwargs)
         return PlayerAuction.objects.create(**values)
 
-    def _history_page(self):
-        self.client.login(username="buyer", password="test-pass-123")
+    def _history_page(self, username="seller"):
+        self.client.login(username=username, password="test-pass-123")
         return self.client.get(reverse("transfer_requests"))
 
     def test_live_auction_with_bids_is_not_completed_history(self):
@@ -360,7 +365,7 @@ class AuctionTransferHistoryTests(TestCase):
             ).exists()
         )
         page = self._history_page()
-        self.assertNotContains(page, "Pool Striker")
+        self.assertNotIn("Pool Striker", extract_page_main(page.content.decode()))
         self.assertEqual(
             [row.player_id for row in completed_transfers_for(None, all_clubs=True)],
             [],
@@ -376,7 +381,7 @@ class AuctionTransferHistoryTests(TestCase):
         self.assertContains(page, "Winning FC")
         self.assertContains(page, "7 TOKENS")
         self.assertContains(page, "mgl-fa-mark")
-        self.assertEqual(page.content.decode().count("Pool Striker"), 1)
+        self.assertEqual(extract_page_main(page.content.decode()).count("Pool Striker"), 1)
         self.assertEqual(
             MarketTransaction.objects.filter(
                 auction=auction,
@@ -396,7 +401,7 @@ class AuctionTransferHistoryTests(TestCase):
             amount=7,
         )
         page = self._history_page()
-        self.assertEqual(page.content.decode().count("Pool Striker"), 1)
+        self.assertEqual(extract_page_main(page.content.decode()).count("Pool Striker"), 1)
         self.assertEqual(
             MarketTransaction.objects.filter(
                 auction=auction,
@@ -431,7 +436,7 @@ class AuctionTransferHistoryTests(TestCase):
         place_auction_bid(auction, self.mgr_a, 4)
         cancel_live_auction(auction)
         page = self._history_page()
-        self.assertNotContains(page, "Pool Striker")
+        self.assertNotIn("Pool Striker", extract_page_main(page.content.decode()))
         self.assertFalse(
             MarketTransaction.objects.filter(
                 auction=auction,
@@ -444,7 +449,7 @@ class AuctionTransferHistoryTests(TestCase):
         auction = self._live_auction(self.fa)
         settle_auction(auction)
         page = self._history_page()
-        self.assertNotContains(page, "Pool Striker")
+        self.assertNotIn("Pool Striker", extract_page_main(page.content.decode()))
         self.assertFalse(
             MarketTransaction.objects.filter(
                 player=self.fa,
@@ -472,7 +477,7 @@ class AuctionTransferHistoryTests(TestCase):
             is_free_agent=True,
         )
         sign_free_agent(signed, self.mgr_a)
-        page = self._history_page()
+        page = self._history_page("buyer")
         self.assertContains(page, "Walk On Winger")
         self.assertContains(page, "FREE AGENT")
         self.assertContains(page, "Origin FC")

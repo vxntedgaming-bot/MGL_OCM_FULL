@@ -53,9 +53,13 @@ class UFLCareerModeTests(TestCase):
         self.client = Client(HTTP_HOST="127.0.0.1")
 
     def test_public_pages_are_visible(self):
-        for name in ("home", "leagues_page", "clubs_index", "player_database", "transfer_market", "live_auctions", "pressroom", "ufl_rules"):
+        for name in ("home", "leagues_page", "clubs_index", "pressroom", "ufl_rules"):
             response = self.client.get(reverse(name))
             self.assertEqual(response.status_code, 200, name)
+        for name in ("player_database", "transfer_market", "live_auctions"):
+            response = self.client.get(reverse(name))
+            self.assertEqual(response.status_code, 302, name)
+            self.assertEqual(response["Location"], reverse("job_centre"), name)
 
     def test_negotiation_counter_then_accept_stays_owned_until_admin(self):
         listing = list_player_for_sale(self.player, self.mgr_a, "8")
@@ -272,5 +276,5 @@ class UFLCareerModeTests(TestCase):
         )
         create_manager_auction(extra, self.mgr_b, 30, 1)
         auction = self.client.get(reverse("live_auctions"))
-        self.assertEqual(auction.status_code, 200)
-        self.assertContains(auction, "SIGN IN TO BID")
+        self.assertEqual(auction.status_code, 302)
+        self.assertEqual(auction["Location"], reverse("job_centre"))
