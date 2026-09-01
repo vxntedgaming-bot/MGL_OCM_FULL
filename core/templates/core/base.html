@@ -24,7 +24,9 @@
 <header class="mgl-header ufl-header">
     <div class="mgl-header-inner">
         <a href="{% url 'home' %}" class="mgl-logo">
+            {% block header_logo %}
             <img src="{% static 'core/img/mgl-logo.png' %}" alt="Ultimate Fantasy League" class="mgl-logo-img">
+            {% endblock %}
             <span class="mgl-logo-text">
                 ULTIMATE FANTASY LEAGUE
                 <span>CAREER MODE</span>

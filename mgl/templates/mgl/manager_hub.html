@@ -1,74 +1,145 @@
 {% extends "core/base.html" %}
 {% load static mgl_ui %}
 
-{% block title %}Manager Hub — UFL{% endblock %}
+{% block title %}Dashboard — UFL{% endblock %}
 {% block body_class %}mgl-hub-page{% endblock %}
-{% block extra_css %}
+{% block extra_css_late %}
 <link rel="stylesheet" href="{% static 'core/css/mgl-hub.css' %}">
+{% endblock %}
+{% block favicon %}
+<link rel="icon" href="{% static 'core/img/ufl-logo-chrome.png' %}">
+{% endblock %}
+{% block header_logo %}
+<img src="{% static 'core/img/ufl-logo-chrome.png' %}" alt="Ultimate Fantasy League" class="mgl-logo-img">
+{% endblock %}
+
+{% block footer %}
+<footer class="ud-footer">
+    <div class="ud-footer-inner">
+        <div class="ud-footer-brand">
+            <img src="{% static 'core/img/ufl-logo-chrome.png' %}" alt="UFL">
+            <strong>ULTIMATE FANTASY LEAGUE</strong>
+            <p>Online EA FC Career Mode. Real managers. Real competition. Real football.</p>
+            <div class="ud-social" aria-label="Social">
+                {% if discord_invite_url %}
+                    <a href="{{ discord_invite_url }}" target="_blank" rel="noopener">Discord</a>
+                {% endif %}
+                {% if social_x_url %}<a href="{{ social_x_url }}" target="_blank" rel="noopener">X</a>{% endif %}
+                {% if social_youtube_url %}<a href="{{ social_youtube_url }}" target="_blank" rel="noopener">YouTube</a>{% endif %}
+                {% if social_instagram_url %}<a href="{{ social_instagram_url }}" target="_blank" rel="noopener">Instagram</a>{% endif %}
+            </div>
+        </div>
+        <div class="ud-footer-col">
+            <h3>NAVIGATION</h3>
+            <a href="{% url 'manager_hub' %}">Dashboard</a>
+            <a href="{% url 'team_management' %}">Squad</a>
+            <a href="{% url 'fixture_list' %}">Fixtures</a>
+            <a href="{% url 'leagues_page' %}">Table</a>
+            <a href="{% url 'transfer_market' %}">Transfers</a>
+            <a href="{% url 'scouting' %}">Recruitment</a>
+            <a href="{% url 'stats_page' %}">Stats</a>
+        </div>
+        <div class="ud-footer-col">
+            <h3>COMMUNITY</h3>
+            {% if discord_invite_url %}
+                <a href="{{ discord_invite_url }}" target="_blank" rel="noopener">Discord</a>
+            {% endif %}
+            <a href="{% url 'pressroom' %}">Pressroom</a>
+            <a href="{% url 'live_activity' %}">Live Activity</a>
+            <a href="{% url 'historical_tables' %}">History</a>
+        </div>
+        <div class="ud-footer-col">
+            <h3>ACCOUNT</h3>
+            <a href="{% url 'manager_profile' %}">Profile</a>
+            <a href="{% url 'manager_notifications' %}">Notifications</a>
+            <a href="{% url 'manager_rewards' %}">Token History</a>
+            <form method="post" action="{% url 'manager_logout' %}">
+                {% csrf_token %}
+                <button type="submit">Logout</button>
+            </form>
+        </div>
+    </div>
+    <div class="ud-footer-copy">
+        <span>© 2026 Ultimate Fantasy League (UFL). All rights reserved.</span>
+        <span>
+            <a href="{% url 'home' %}#mgl-privacy">Privacy Policy</a>
+            <a href="{% url 'home' %}#mgl-terms">Terms of Service</a>
+            <a href="{% url 'ufl_rules' %}">Rules</a>
+        </span>
+    </div>
+    <svg class="ud-ball" viewBox="0 0 200 200" aria-hidden="true">
+        <circle cx="100" cy="100" r="78" fill="none" stroke="currentColor" stroke-width="2"/>
+        <path d="M100 22 122 62 100 78 78 62Z M122 62 178 78 148 118 100 78Z M78 62 22 78 52 118 100 78Z M52 118 40 168 88 148 100 78Z M148 118 160 168 112 148 100 78Z M88 148 100 178 112 148" fill="none" stroke="currentColor" stroke-width="2"/>
+    </svg>
+</footer>
 {% endblock %}
 
 {% block content %}
-<div class="mgl-dash">
-    <section class="mgl-dash-hero">
-        <div class="mgl-dash-hero-main">
-            <div class="mgl-dash-hero-badge">
+<div class="ud">
+    <section class="ud-hero">
+        <img class="ud-hero-bg" src="{% static 'core/img/ufl-home-match.jpg' %}" alt="" aria-hidden="true">
+        <div class="ud-hero-main">
+            <div class="ud-crest">
                 {% if team %}
                     {% team_logo team "xl" %}
                 {% else %}
-                    <span class="mgl-dash-hero-badge-empty" aria-hidden="true">UFL</span>
+                    <span class="ud-crest-empty" aria-hidden="true">UFL</span>
                 {% endif %}
             </div>
-            <div class="mgl-dash-hero-copy">
-                <p class="mgl-dash-eyebrow">
+            <div class="ud-hero-copy">
+                <p class="ud-kicker">
+                    MANAGER
                     UFL CAREER MODE
-                    {% if team and team.league %} • {{ team.league|league_label|upper }}{% elif active_league %} • {{ active_league|league_label|upper }}{% endif %}
-                    {% if team and team.league.season %} • SEASON {{ team.league.season }}{% elif active_league.season %} • SEASON {{ active_league.season }}{% endif %}
+                    {% if team and team.league %} — {{ team.league|league_label|upper }}{% elif active_league %} — {{ active_league|league_label|upper }}{% endif %}
+                    {% if team and team.league.season %} — SEASON {{ team.league.season }}{% elif active_league.season %} — SEASON {{ active_league.season }}{% endif %}
                 </p>
                 <h1>{% if team %}{{ team.name }}{% else %}NO CLUB ASSIGNED{% endif %}</h1>
-                <p class="mgl-dash-meta">
+                <p class="ud-meta">
                     <span>@{{ user.username }}</span>
                     {% if team and team.league %}
                         <span>{{ team.league|league_label }}</span>
                     {% elif active_league %}
                         <span>{{ active_league|league_label }}</span>
                     {% endif %}
+                    <span>{{ manager.display_name }}</span>
+                </p>
+                <p class="ud-meta ud-meta-icons">
                     {% if team %}
-                        <span>Squad {{ roster_count }}/{{ roster_limit }}</span>
+                        <span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 12a3.5 3.5 0 1 0-3.5-3.5A3.5 3.5 0 0 0 12 12Z"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>
+                            Squad {{ roster_count }}/{{ roster_limit }}
+                        </span>
                     {% else %}
                         <span>No squad</span>
                     {% endif %}
-                    <span>{{ manager.display_name }}</span>
-                    <span class="mgl-dash-verified">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="m8.5 12.2 2.3 2.3 4.7-5"/></svg>
-                        Verified
+                    <span class="mgl-dash-balance">
+                        <span>PERSONAL BALANCE</span> {{ token_balance }} TKN
                     </span>
                 </p>
-                <div class="mgl-dash-pills">
+                <div class="ud-pills">
                     {% if team and not outstanding_count %}
-                        <span class="mgl-dash-pill mgl-dash-pill-gold">ALL CAUGHT UP</span>
+                        <span class="ud-pill is-gold">✓ ALL CAUGHT UP</span>
                     {% endif %}
                     {% if team %}
-                        <a class="mgl-dash-pill mgl-dash-pill-ghost" href="{% url 'manager_hub' %}?resign=1">RESIGN</a>
+                        <a class="ud-pill is-ghost" href="{% url 'manager_hub' %}?resign=1">RESIGN CLUB</a>
                     {% endif %}
                 </div>
-                <p class="mgl-dash-balance"><span>PERSONAL BALANCE</span> {{ token_balance }} TKN</p>
             </div>
         </div>
-        <div class="mgl-dash-stats" aria-label="Club statistics">
-            <div class="mgl-dash-stat">
+        <div class="ud-stats" aria-label="Club statistics">
+            <div>
+                <strong>{% if standings_row %}{{ standings_row.position }}{% else %}—{% endif %}{% if standings_row %}<em>/{{ league_size }}</em>{% endif %}</strong>
                 <span>POSITION</span>
-                <strong>{% if standings_row %}{{ standings_row.position }} / {{ league_size }}{% else %}—{% endif %}</strong>
             </div>
-            <div class="mgl-dash-stat">
-                <span>POINTS</span>
-                <strong class="{% if standings_row %}is-accent{% endif %}">{% if standings_row %}{{ standings_row.points }}{% else %}—{% endif %}</strong>
-                <small>{% if standings_row %}{{ standings_row.played }} PLAYED{% else %}NO MATCHES{% endif %}</small>
+            <div>
+                <strong class="is-gold">{% if standings_row %}{{ standings_row.points }}{% else %}—{% endif %}</strong>
+                <span>POINTS{% if standings_row %} • {{ standings_row.played }} PLAYED{% else %} • NO MATCHES{% endif %}</span>
             </div>
-            <div class="mgl-dash-stat">
+            <div>
+                <strong class="is-gold">{% if standings_row %}{% if standings_row.gd > 0 %}+{% endif %}{{ standings_row.gd }}{% else %}—{% endif %}</strong>
                 <span>GOAL DIFF</span>
-                <strong>{% if standings_row %}{% if standings_row.gd > 0 %}+{% endif %}{{ standings_row.gd }}{% else %}—{% endif %}</strong>
             </div>
-            <div class="mgl-dash-stat">
+            <div>
                 <span>FORM</span>
                 {% if form %}
                     <div class="mgl-dash-form">
@@ -84,291 +155,189 @@
         </div>
     </section>
 
-    <section class="mgl-dash-section" id="what-next">
-        <div class="mgl-dash-section-head">
-            <h2>WHAT DO I NEED TO DO?</h2>
-        </div>
-        <div class="mgl-dash-grid mgl-dash-grid-4">
-            <article class="mgl-dash-card ufl-attention">
-                <strong>NEXT FIXTURE</strong>
-                {% if next_fixture %}
-                    <small>vs {{ next_fixture.opponent.name }} · MD {{ next_fixture.matchweek }}</small>
-                    {% if next_fixture.can_submit %}
-                        <a href="{% url 'submit_match' next_fixture.id %}">Enter result</a>
-                    {% else %}
-                        <a href="{% url 'fixture_list' %}">Open matches</a>
-                    {% endif %}
-                {% else %}
-                    <small>No outstanding fixture. Check the match centre when the office releases games.</small>
-                {% endif %}
-            </article>
-            <article class="mgl-dash-card">
-                <strong>ACTIVE SCOUT</strong>
-                {% if active_scout %}
-                    <small>{{ active_scout.tier }} · {{ active_scout.status }}</small>
-                    <a href="{% url 'scouting' %}">Open scouting</a>
-                {% else %}
-                    <small>No scout currently active.</small>
-                    <a href="{% url 'scouting' %}">Send a scout</a>
-                {% endif %}
-            </article>
-            <article class="mgl-dash-card">
-                <strong>PRESS</strong>
-                <small>{{ press_remaining }} of 4 questions left today · 0.5 TKN each · 2 TKN max</small>
-                <a href="{% url 'pressroom' %}">Open press room</a>
-            </article>
-            <article class="mgl-dash-card">
-                <strong>MY AUCTIONS</strong>
-                {% if my_live_auctions %}
-                    <small>{{ my_live_auctions|length }} live listing{{ my_live_auctions|length|pluralize }} · 3 players / 24 hours</small>
-                    <a href="{% url 'live_auctions' %}">View auctions</a>
-                {% else %}
-                    <small>No live auctions from your squad.</small>
-                    <a href="{% url 'live_auctions' %}">Auction market</a>
-                {% endif %}
-            </article>
-        </div>
-    </section>
-
-    <section class="mgl-dash-section" id="pending-actions">
-        <div class="mgl-dash-section-head">
-            <h2>PENDING ACTIONS</h2>
-        </div>
-        <div class="mgl-dash-grid mgl-dash-grid-3">
-            <a href="{% url 'transfer_requests' %}" class="mgl-dash-card">
-                {% if incoming_transfer_count %}<span class="mgl-dash-badge">{{ incoming_transfer_count }}</span>{% endif %}
-                <strong>NEGOTIATIONS</strong>
-                <small>{{ incoming_transfer_count }} open offer{{ incoming_transfer_count|pluralize }}</small>
-            </a>
-            <a href="{% url 'fixture_list' %}" class="mgl-dash-card">
-                {% if outstanding_count %}<span class="mgl-dash-badge">{{ outstanding_count }}</span>{% endif %}
-                <strong>MATCH CENTRE</strong>
-                <small>{{ outstanding_count }} outstanding fixture{{ outstanding_count|pluralize }}</small>
-            </a>
-            <a href="{% url 'manager_notifications' %}" class="mgl-dash-card">
-                <strong>NOTIFICATIONS</strong>
-                <small>Transfers, auctions, press and scouting</small>
-            </a>
-        </div>
-    </section>
-
-    {% if transfers or rewards %}
-    <section class="mgl-dash-section">
-        <div class="mgl-dash-section-head">
-            <h2>CAREER MOVEMENT</h2>
-        </div>
-        <div class="mgl-dash-grid mgl-dash-grid-2">
-            <article class="mgl-dash-card">
-                <strong>TRANSFER ACTIVITY</strong>
-                {% for row in transfers %}
-                    <small>{{ row.player.name }} · {{ row.amount }} TKN</small>
-                {% empty %}
-                    <small>No completed transfers yet</small>
-                {% endfor %}
-            </article>
-            <article class="mgl-dash-card">
-                <strong>TOKEN HISTORY</strong>
-                {% for row in rewards %}
-                    <small>{{ row.reason }} · {{ row.amount }} TKN</small>
-                {% empty %}
-                    <small>No token movements yet</small>
-                {% endfor %}
-            </article>
-        </div>
-    </section>
-    {% endif %}
-
-    {% if squad %}
-    <section class="mgl-dash-section">
-        <div class="mgl-dash-section-head">
-            <h2>SQUAD</h2>
-            <a href="{% url 'team_management' %}">MY SQUAD →</a>
-        </div>
-        <div class="mgl-dash-grid mgl-dash-grid-4">
-            {% for player in squad %}
-                <a href="{% url 'player_profile' player.pk %}" class="mgl-dash-card">
-                    <strong>{{ player.name }}</strong>
-                    <small>{{ player.position }} · {{ player.overall }} OVR</small>
+    <div class="ud-body">
+        <div class="ud-main">
+            {% if team %}
+            <section class="ud-band">
+                <header class="ud-band-head">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.5 8.5 8 9 4.5-.5 8-4 8-9V6l-8-3Z"/></svg>
+                    <h2>CLUB</h2>
+                </header>
+                <div class="ud-band-grid">
+                    <a href="{% url 'team_management' %}" class="ud-feature">
+                        <img src="{% static 'core/img/ufl-dash-squad.jpg' %}" alt="" aria-hidden="true">
+                        <div>
+                            <strong>SQUAD</strong>
+                            <small>{{ roster_count }}/{{ roster_limit }} players</small>
+                        </div>
+                    </a>
+                    <div class="ud-tiles">
+                        <a href="{% url 'fixture_list' %}" class="ud-tile">
+                            {% if outstanding_count %}<span class="mgl-dash-badge">{{ outstanding_count }}</span>{% endif %}
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="1"/><path d="M4 10h16M8 3v4M16 3v4"/></svg>
+                            <strong>FIXTURES</strong>
+                        </a>
+                        <a href="{% url 'leagues_page' %}" class="ud-tile">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 20V10M12 20V5M16 20v-6"/><path d="M6 20h12"/></svg>
+                            <strong>LEAGUE TABLE</strong>
+                        </a>
+                        <a href="{% url 'manager_profile' %}" class="ud-tile">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5 19a7 7 0 0 1 14 0"/></svg>
+                            <strong>PROFILE</strong>
+                        </a>
+                        <a href="{% url 'manager_rewards' %}" class="ud-tile">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M8 12h8M12 8v8"/></svg>
+                            <strong>COMMERCIAL</strong>
+                            <small>{{ token_balance }} TKN</small>
+                        </a>
+                    </div>
+                </div>
+            </section>
+            {% else %}
+            <section class="ud-band">
+                <header class="ud-band-head">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.5 8.5 8 9 4.5-.5 8-4 8-9V6l-8-3Z"/></svg>
+                    <h2>CLUB</h2>
+                </header>
+                <a href="{% url 'job_centre' %}" class="ud-feature is-jobs">
+                    <img src="{% static 'core/img/ufl-home-dugout.jpg' %}" alt="" aria-hidden="true">
+                    <div>
+                        <small>JOB OFFERS</small>
+                        <strong>APPLY FOR A CLUB</strong>
+                    </div>
                 </a>
-            {% endfor %}
-        </div>
-    </section>
-    {% endif %}
+            </section>
+            {% endif %}
 
-    {% if team %}
-    <section class="mgl-dash-section">
-        <div class="mgl-dash-section-head">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.5 8.5 8 9 4.5-.5 8-4 8-9V6l-8-3Z"/></svg>
-            <h2>CLUB</h2>
-            <span></span>
-        </div>
-        <div class="mgl-dash-grid mgl-dash-grid-4">
-            <a href="{% url 'team_management' %}" class="mgl-dash-card mgl-dash-card-feature">
-                <span class="mgl-dash-card-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3"/><circle cx="16" cy="9" r="2.4"/><path d="M3.8 18a5.2 5.2 0 0 1 10.4 0"/><path d="M14 18a4.4 4.4 0 0 1 6.4 0"/></svg>
-                </span>
-                <div>
-                    <strong>SQUAD</strong>
-                    <small>{{ roster_count }}/{{ roster_limit }} players</small>
+            <section class="ud-band">
+                <header class="ud-band-head">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M7 7h13l-2 7H8L6 4H3"/><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/></svg>
+                    <h2>TRANSFERS</h2>
+                </header>
+                <div class="ud-band-grid">
+                    <a href="{% url 'transfer_market' %}" class="ud-feature">
+                        <img src="{% static 'core/img/ufl-dash-transfer.jpg' %}" alt="" aria-hidden="true">
+                        <div>
+                            <strong>TRANSFER MARKET</strong>
+                            <small>Start a deal with another manager.</small>
+                        </div>
+                    </a>
+                    <div class="ud-tiles">
+                        <a href="{% url 'transfer_requests' %}" class="ud-tile">
+                            {% if incoming_transfer_count %}<span class="mgl-dash-badge">{{ incoming_transfer_count }}</span>{% endif %}
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M7 7h11l-3-3M17 17H6l3 3"/></svg>
+                            <strong>TRANSFER REQUESTS</strong>
+                            <small>My offers</small>
+                        </a>
+                        <a href="{% url 'transfer_market' %}" class="ud-tile">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M7 7h13l-2 7H8L6 4H3"/></svg>
+                            <strong>TRANSFER MARKET</strong>
+                        </a>
+                        <a href="{% url 'free_agents' %}" class="ud-tile">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="7" y="11" width="10" height="8" rx="1"/><path d="M9 11V8a3 3 0 0 1 6 0v3"/></svg>
+                            <strong>FREE AGENTS</strong>
+                        </a>
+                    </div>
                 </div>
-            </a>
-            <a href="{% url 'fixture_list' %}" class="mgl-dash-card">
-                {% if outstanding_count %}
-                    <span class="mgl-dash-badge">{{ outstanding_count }}</span>
-                {% endif %}
-                <span class="mgl-dash-card-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M8 3v4M16 3v4"/></svg>
-                </span>
-                <strong>FIXTURES</strong>
-            </a>
-            <a href="{% url 'leagues_page' %}" class="mgl-dash-card">
-                <span class="mgl-dash-card-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 20V10M12 20V5M16 20v-6"/><path d="M6 20h12"/></svg>
-                </span>
-                <strong>LEAGUE TABLE</strong>
-            </a>
-            <a href="{% url 'manager_profile' %}" class="mgl-dash-card">
-                <span class="mgl-dash-card-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.2"/><path d="M5 19a7 7 0 0 1 14 0"/></svg>
-                </span>
-                <strong>PROFILE</strong>
-            </a>
-        </div>
-    </section>
-    {% else %}
-    <section class="mgl-dash-section">
-        <div class="mgl-dash-section-head">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.5 8.5 8 9 4.5-.5 8-4 8-9V6l-8-3Z"/></svg>
-            <h2>CLUB</h2>
-            <span></span>
-        </div>
-        <div class="mgl-dash-grid">
-            <a href="{% url 'job_centre' %}" class="mgl-dash-card mgl-dash-card-feature">
-                <div>
-                    <small>JOB OFFERS</small>
-                    <strong>APPLY FOR A CLUB</strong>
+            </section>
+
+            <section class="ud-band">
+                <header class="ud-band-head">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="10" r="3"/><circle cx="16" cy="10" r="3"/><path d="M5 13.2 3 18h5.2M19 13.2 21 18h-5.2"/></svg>
+                    <h2>PLAYER RECRUITMENT</h2>
+                </header>
+                <div class="ud-band-grid">
+                    <a href="{% url 'scouting' %}" class="ud-feature">
+                        <img src="{% static 'core/img/ufl-dash-scout.jpg' %}" alt="" aria-hidden="true">
+                        <div>
+                            <strong>SCOUTING</strong>
+                            <small>{% if active_scout %}Scout is out{% else %}No scout currently active.{% endif %}</small>
+                        </div>
+                    </a>
+                    <div class="ud-tiles">
+                        <a href="{% url 'recruitment_drive' %}" class="ud-tile">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 8h16v11H4z"/><path d="M9 8V6h6v2"/></svg>
+                            <strong>Recruitment Drive</strong>
+                        </a>
+                        <a href="{% url 'live_auctions' %}" class="ud-tile">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m8 14 8-8M6 16l2-2 8-8 2 2-8 8-2 2H6v-2Z"/></svg>
+                            <strong>AUCTIONS</strong>
+                        </a>
+                        <a href="{% url 'player_database' %}" class="ud-tile">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><ellipse cx="12" cy="6.5" rx="7" ry="2.5"/><path d="M5 6.5v11c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-11"/></svg>
+                            <strong>PLAYER DATABASE</strong>
+                        </a>
+                    </div>
                 </div>
-            </a>
-        </div>
-    </section>
-    {% endif %}
+            </section>
 
-    <section class="mgl-dash-section">
-        <div class="mgl-dash-section-head">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M7 7h13l-2 7H8L6 4H3"/><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/></svg>
-            <h2>TRANSFERS</h2>
-            <span></span>
-        </div>
-        <div class="mgl-dash-grid mgl-dash-grid-3">
-            <a href="{% url 'transfer_market' %}" class="mgl-dash-card mgl-dash-card-feature">
-                <span class="mgl-dash-card-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 7h13l-2 7H8L6 4H3"/><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/></svg>
-                </span>
-                <div>
-                    <strong>TRANSFER MARKET</strong>
+            <section class="ud-band">
+                <header class="ud-band-head">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 19h16"/><path d="M7 16v-5M12 16V7M17 16v-8"/></svg>
+                    <h2>STATS &amp; COMMUNITY</h2>
+                </header>
+                <div class="ud-band-grid">
+                    <a href="{% url 'stats_page' %}" class="ud-feature">
+                        <img src="{% static 'core/img/ufl-dash-stats.jpg' %}" alt="" aria-hidden="true">
+                        <div>
+                            <strong>STATS HUB</strong>
+                            <small>League &amp; cup records</small>
+                        </div>
+                    </a>
+                    <div class="ud-tiles">
+                        <a href="{% url 'pressroom' %}" class="ud-tile">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 10v4l10-2V8L4 10Z"/><path d="M14 9.2A6 6 0 0 1 18 14"/></svg>
+                            <strong>PRESSROOM</strong>
+                            <small>{{ press_remaining }} of 4 left today</small>
+                        </a>
+                        <a href="{% url 'historical_tables' %}" class="ud-tile">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v4.4l2.6 1.6"/></svg>
+                            <strong>HISTORY</strong>
+                        </a>
+                        <a href="{% url 'clubs_index' %}" class="ud-tile">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 20V8l8-4 8 4v12"/><path d="M9 20v-6h6v6"/></svg>
+                            <strong>Club Profiles</strong>
+                        </a>
+                    </div>
                 </div>
-            </a>
-            <a href="{% url 'transfer_requests' %}" class="mgl-dash-card">
-                {% if incoming_transfer_count %}
-                    <span class="mgl-dash-badge">{{ incoming_transfer_count }}</span>
-                {% endif %}
-                <span class="mgl-dash-card-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 7h11l-3-3M17 17H6l3 3"/></svg>
-                </span>
-                <strong>TRANSFER REQUESTS</strong>
-                <small>My offers</small>
-            </a>
-            <a href="{% url 'free_agents' %}" class="mgl-dash-card">
-                <span class="mgl-dash-card-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3"/><path d="M5 19a7 7 0 0 1 14 0"/></svg>
-                </span>
-                <strong>FREE AGENTS</strong>
-            </a>
-        </div>
-    </section>
+            </section>
 
-    <section class="mgl-dash-section">
-        <div class="mgl-dash-section-head">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="10" r="3"/><circle cx="16" cy="10" r="3"/><path d="M5 13.2 3 18h5.2M19 13.2 21 18h-5.2"/></svg>
-            <h2>PLAYER RECRUITMENT</h2>
-            <span></span>
+            <section class="ud-pending" id="pending-actions">
+                <header class="ud-band-head">
+                    <h2>PENDING ACTIONS</h2>
+                </header>
+                <div class="ud-pending-grid">
+                    <a href="{% url 'transfer_requests' %}" class="ud-pending-card">
+                        {% if incoming_transfer_count %}<span class="mgl-dash-badge">{{ incoming_transfer_count }}</span>{% endif %}
+                        <strong>NEGOTIATIONS</strong>
+                        <small>{{ incoming_transfer_count }} open offer{{ incoming_transfer_count|pluralize }}</small>
+                    </a>
+                    <a href="{% url 'fixture_list' %}" class="ud-pending-card">
+                        {% if outstanding_count %}<span class="mgl-dash-badge">{{ outstanding_count }}</span>{% endif %}
+                        <strong>MATCH CENTRE</strong>
+                        <small>{{ outstanding_count }} outstanding fixture{{ outstanding_count|pluralize }}</small>
+                    </a>
+                    <a href="{% url 'manager_notifications' %}" class="ud-pending-card">
+                        <strong>NOTIFICATIONS</strong>
+                        <small>Transfers, auctions, press and scouting</small>
+                    </a>
+                </div>
+            </section>
         </div>
-        <div class="mgl-dash-grid mgl-dash-grid-4">
-            <a href="{% url 'scouting' %}" class="mgl-dash-card mgl-dash-card-feature">
-                <span class="mgl-dash-card-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="10" r="3"/><circle cx="16" cy="10" r="3"/><path d="M5 13.2 3 18h5.2M19 13.2 21 18h-5.2"/></svg>
-                </span>
-                <strong>SCOUTING</strong>
-            </a>
-            <a href="{% url 'recruitment_drive' %}" class="mgl-dash-card">
-                <span class="mgl-dash-card-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8h16v11H4z"/><path d="M9 8V6h6v2"/></svg>
-                </span>
-                <strong>Recruitment Drive</strong>
-            </a>
-            <a href="{% url 'live_auctions' %}" class="mgl-dash-card">
-                <span class="mgl-dash-card-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m8 14 8-8M6 16l2-2 8-8 2 2-8 8-2 2H6v-2Z"/></svg>
-                </span>
-                <strong>AUCTIONS</strong>
-            </a>
-            <a href="{% url 'player_database' %}" class="mgl-dash-card">
-                <span class="mgl-dash-card-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="6.5" rx="7" ry="2.5"/><path d="M5 6.5v11c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-11"/><path d="M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/></svg>
-                </span>
-                <strong>PLAYER DATABASE</strong>
-            </a>
-        </div>
-    </section>
 
-    <section class="mgl-dash-section">
-        <div class="mgl-dash-section-head">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm8 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM4 19a4 4 0 0 1 8 0M12 19a4 4 0 0 1 8 0"/></svg>
-            <h2>STATS &amp; COMMUNITY</h2>
-            <span></span>
-        </div>
-        <div class="mgl-dash-grid mgl-dash-grid-4">
-            <a href="{% url 'stats_page' %}" class="mgl-dash-card mgl-dash-card-feature">
-                <span class="mgl-dash-card-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19h16"/><path d="M7 16v-5M12 16V7M17 16v-8"/></svg>
-                </span>
-                <strong>STATS HUB</strong>
-            </a>
-            <a href="{% url 'pressroom' %}" class="mgl-dash-card">
-                <span class="mgl-dash-card-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 10v4l10-2V8L4 10Z"/><path d="M14 9.2A6 6 0 0 1 18 14"/><path d="M14 12.4A3.4 3.4 0 0 1 16.6 15"/></svg>
-                </span>
-                <strong>PRESSROOM</strong>
-            </a>
-            <a href="{% url 'historical_tables' %}" class="mgl-dash-card">
-                <span class="mgl-dash-card-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><path d="M12 8v4.4l2.6 1.6"/></svg>
-                </span>
-                <strong>HISTORY</strong>
-            </a>
-            <a href="{% url 'clubs_index' %}" class="mgl-dash-card">
-                <span class="mgl-dash-card-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V8l8-4 8 4v12"/><path d="M9 20v-6h6v6"/></svg>
-                </span>
-                <strong>Club Profiles</strong>
-            </a>
-        </div>
-    </section>
-
-    {% if team %}
-    <section class="mgl-dash-board mgl-dash-board-4">
-        <div class="mgl-dash-board-main">
-            <article class="mgl-dash-panel">
-                <div class="mgl-dash-panel-head">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16"/></svg>
+        {% if team %}
+        <aside class="ud-aside">
+            <article class="ud-panel">
+                <div class="ud-panel-head">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="1"/><path d="M4 10h16"/></svg>
                     <h2>OUTSTANDING FIXTURES</h2>
                     {% if outstanding_count %}
                         <a href="{% url 'fixture_list' %}">VIEW ALL ({{ outstanding_count }})</a>
                     {% endif %}
                 </div>
-                <p class="mgl-dash-note">THE REMAINING GAMES LEFT TO PLAY</p>
+                <p class="ud-note">THE REMAINING GAMES LEFT TO PLAY</p>
                 {% for fixture in outstanding %}
-                    <div class="mgl-dash-row">
+                    <div class="ud-row">
                         <div>
                             <strong>vs {{ fixture.opponent.name }}</strong>
                             <small>
@@ -382,71 +351,74 @@
                             </small>
                         </div>
                         {% if fixture.can_submit %}
-                            <a class="mgl-dash-action" href="{% url 'submit_match' fixture.id %}">ENTER RESULT</a>
+                            <a class="ud-action" href="{% url 'submit_match' fixture.id %}">ENTER RESULT</a>
                         {% endif %}
                     </div>
                 {% empty %}
-                    <p class="mgl-dash-empty">No outstanding fixtures</p>
-                {% endfor %}
-            </article>
-
-            <article class="mgl-dash-panel">
-                <div class="mgl-dash-panel-head">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v5l3 2"/></svg>
-                    <h2>RECENT RESULTS</h2>
-                </div>
-                {% for fixture in recent_results %}
-                    <div class="mgl-dash-row">
-                        <div class="mgl-dash-result">
-                            <span class="mgl-dash-form-mark mgl-wdl-{{ fixture.outcome|lower }}">{{ fixture.outcome }}</span>
-                            <strong>
-                                {% if fixture.home_goals is not None and fixture.away_goals is not None %}
-                                    {{ fixture.home_goals }}–{{ fixture.away_goals }}
-                                {% endif %}
-                                vs {{ fixture.opponent.name }}
-                            </strong>
-                            <small>{% if fixture.league %}{{ fixture.league|league_label }} · {% endif %}MD {{ fixture.matchweek }}</small>
-                        </div>
-                        <a class="mgl-dash-action" href="{% url 'fixture_list' %}">MATCH</a>
-                    </div>
-                {% empty %}
-                    <p class="mgl-dash-empty">No approved results yet</p>
-                {% endfor %}
-            </article>
-        </div>
-
-        <aside class="mgl-dash-board-side">
-            <article class="mgl-dash-panel">
-                <div class="mgl-dash-panel-head">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v8M9 14l3 3 3-3"/></svg>
-                    <h2>TOP SCORERS • THIS SEASON</h2>
-                </div>
-                {% for player in top_scorers %}
-                    <div class="mgl-dash-rank">
-                        <span class="mgl-dash-rank-n{% if forloop.counter == 1 %} is-gold{% elif forloop.counter == 2 %} is-silver{% elif forloop.counter == 3 %} is-bronze{% endif %}">{{ forloop.counter }}</span>
-                        <a href="{% url 'player_profile' player.id %}">{{ player.name }}</a>
-                        <b>{{ player.goals }} G</b>
-                    </div>
-                {% empty %}
-                    <p class="mgl-dash-empty">No goals yet</p>
-                {% endfor %}
-            </article>
-            <article class="mgl-dash-panel">
-                <div class="mgl-dash-panel-head">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 16c3-6 8-9 14-10"/><path d="M14 5h5v5"/></svg>
-                    <h2>TOP ASSISTS • THIS SEASON</h2>
-                </div>
-                {% for player in top_assists %}
-                    <div class="mgl-dash-rank">
-                        <span class="mgl-dash-rank-n{% if forloop.counter == 1 %} is-gold{% elif forloop.counter == 2 %} is-silver{% elif forloop.counter == 3 %} is-bronze{% endif %}">{{ forloop.counter }}</span>
-                        <a href="{% url 'player_profile' player.id %}">{{ player.name }}</a>
-                        <b>{{ player.assists }} A</b>
-                    </div>
-                {% empty %}
-                    <p class="mgl-dash-empty">No assists yet</p>
+                    <p class="ud-empty">No outstanding fixtures</p>
                 {% endfor %}
             </article>
         </aside>
+        {% endif %}
+    </div>
+
+    {% if team %}
+    <section class="ud-lists">
+        <article class="ud-panel">
+            <div class="ud-panel-head">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v5l3 2"/></svg>
+                <h2>RECENT RESULTS</h2>
+            </div>
+            {% for fixture in recent_results %}
+                <div class="ud-row">
+                    <div class="ud-result">
+                        <span class="mgl-dash-form-mark mgl-wdl-{{ fixture.outcome|lower }}">{{ fixture.outcome }}</span>
+                        <strong>
+                            {% if fixture.home_goals is not None and fixture.away_goals is not None %}
+                                {{ fixture.home_goals }}–{{ fixture.away_goals }}
+                            {% endif %}
+                            vs {{ fixture.opponent.name }}
+                        </strong>
+                        <small>{% if fixture.league %}{{ fixture.league|league_label }} · {% endif %}MD {{ fixture.matchweek }}</small>
+                    </div>
+                    <a class="ud-action" href="{% url 'fixture_list' %}">MATCH</a>
+                </div>
+            {% empty %}
+                <p class="ud-empty">No approved results yet</p>
+            {% endfor %}
+        </article>
+        <article class="ud-panel">
+            <div class="ud-panel-head">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v8M9 14l3 3 3-3"/></svg>
+                <h2>TOP SCORERS</h2>
+            </div>
+            {% for player in top_scorers %}
+                {% player_face_url player "small" as face %}
+                <div class="ud-rank">
+                    {% if face %}<img src="{{ face }}" alt="" class="ud-face">{% endif %}
+                    <a href="{% url 'player_profile' player.id %}">{{ player.name }}</a>
+                    <b>{{ player.goals }} G</b>
+                </div>
+            {% empty %}
+                <p class="ud-empty">No goals yet</p>
+            {% endfor %}
+        </article>
+        <article class="ud-panel">
+            <div class="ud-panel-head">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 16c3-6 8-9 14-10"/><path d="M14 5h5v5"/></svg>
+                <h2>TOP ASSISTS</h2>
+            </div>
+            {% for player in top_assists %}
+                {% player_face_url player "small" as face %}
+                <div class="ud-rank">
+                    {% if face %}<img src="{{ face }}" alt="" class="ud-face">{% endif %}
+                    <a href="{% url 'player_profile' player.id %}">{{ player.name }}</a>
+                    <b>{{ player.assists }} A</b>
+                </div>
+            {% empty %}
+                <p class="ud-empty">No assists yet</p>
+            {% endfor %}
+        </article>
     </section>
     {% endif %}
 </div>
