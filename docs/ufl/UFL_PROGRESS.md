@@ -2,7 +2,7 @@
 
 Checklist of the **current** project, not a future roadmap disguised as done work.
 
-Last documentation update: 1 September 2026 — **Phase 4 Job Application + player release lifecycle implemented (no Season 1 apply)**.
+Last documentation update: 1 September 2026 — **Phase 5 Discord/YourBot inspection recorded (no implementation, no Season 1 apply)**.
 
 ---
 
@@ -105,6 +105,7 @@ Implementation of gaps is **not** Phase 1. That is a later, explicit task.
 - Remaining Phase 1 gaps: none of the DEC-041 / immediate-release items remain. Discord/YourBot not connected.
 - Recruitment / scouting / FA / auction economy: **IMPLEMENTED** (Phase 3). Discord/YourBot not connected.
 - Job Application + immediate manager release: **IMPLEMENTED** (Phase 4).
+- Discord / YourBot: **INSPECTED** (`UFL_DISCORD_AUDIT.md`). Outbox + separate bot exist; not connected; no commands. **NOT IMPLEMENTED** as a Phase 5 product.
 - Genuine UFL FA population stays empty until an approved process (club release, admin unsigned no-bid auction) runs. Unsigned FC26 rows stay unsigned. Pack/scout rejects stay UNSIGNED.
 
 ---

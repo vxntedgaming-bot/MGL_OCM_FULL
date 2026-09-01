@@ -6,6 +6,17 @@ This file started with the documentation/audit pass. It does **not** claim that 
 
 ---
 
+## 2026-09-01 — Phase 5 Discord / YourBot inspection (documentation only)
+
+Read-only audit of the existing Discord outbox and bot. Recorded in `UFL_DISCORD_AUDIT.md`.
+
+- Website/database remains the source of truth. `DiscordEvent` + `run_mgl_bot.py` already exist as an outbox publisher.
+- No slash commands, buttons, embeds, webhooks, or YourBot codebase.
+- Discord is not connected in the documented production shape. The bot is a separate process and was not started.
+- **No application, migration, production, Season 1, or Discord-send changes.**
+
+---
+
 ## 2026-09-01 — Phase 4 Job Application + player release lifecycle
 
 Implemented DEC-041 and immediate manager release (DEC-025 / Phase 1 lock).
