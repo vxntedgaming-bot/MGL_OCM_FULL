@@ -336,7 +336,7 @@
                     {% endif %}
                 </div>
                 <p class="ud-note">THE REMAINING GAMES LEFT TO PLAY</p>
-                {% for fixture in outstanding %}
+                {% for fixture in outstanding|slice:":8" %}
                     <div class="ud-row">
                         <div>
                             <strong>vs {{ fixture.opponent.name }}</strong>

@@ -416,6 +416,11 @@ body.mgl-hub-page .mgl-main {
     top: 76px;
 }
 
+.ud-aside .ud-panel {
+    max-height: calc(100vh - 110px);
+    overflow: auto;
+}
+
 .ud-panel {
     min-width: 0;
     padding: 14px 14px 8px;
