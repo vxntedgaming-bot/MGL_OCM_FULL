@@ -6,6 +6,9 @@
 {% block extra_css_late %}
 <link rel="stylesheet" href="{% static 'core/css/ufl-public-home.css' %}">
 {% endblock %}
+{% block favicon %}
+<link rel="icon" href="{% static 'core/img/ufl-logo-chrome.png' %}">
+{% endblock %}
 
 {% block header %}
     {% if mgl_signed_in_nav %}

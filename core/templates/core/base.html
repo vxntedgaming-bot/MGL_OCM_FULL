@@ -15,7 +15,9 @@
     {% block extra_css %}{% endblock %}
     <link rel="stylesheet" href="{% static 'core/css/ufl-pages.css' %}">
     {% block extra_css_late %}{% endblock %}
+    {% block favicon %}
     <link rel="icon" href="{% static 'core/img/mgl-logo.png' %}">
+    {% endblock %}
 </head>
 <body class="{% block body_class %}{% endblock %}">
 {% block header %}
