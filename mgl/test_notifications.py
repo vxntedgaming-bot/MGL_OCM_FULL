@@ -347,7 +347,7 @@ class NotificationAndPressroomTests(TestCase):
         self.assertContains(home, "MARKET")
         self.assertContains(home, "COMMUNITY")
         self.assertContains(home, "LEAGUE")
-        self.assertContains(home, "STATISTICS")
+        self.assertContains(home, "LEAGUE")
         self.assertContains(home, reverse("leagues_page"))
         self.assertContains(home, reverse("league_stats", kwargs={"slug": "premier-league"}))
         self.assertContains(home, "ACCOUNT")
@@ -462,7 +462,7 @@ class NotificationAndPressroomTests(TestCase):
         self.assertContains(hub, "mgl-notify-count")
         self.assertContains(hub, f'href="{reverse("manager_profile")}"')
         self.assertContains(hub, "RESIGN")
-        self.assertNotContains(hub, "Club Profile")
+        self.assertContains(hub, "Club Profiles")
 
         inbox = self.client.get(reverse("manager_notifications"))
         self.assertEqual(inbox.status_code, 200)

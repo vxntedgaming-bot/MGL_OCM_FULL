@@ -106,7 +106,7 @@ class ManagerHubDashboardTests(TestCase):
         self.assertNotContains(response, "ACTION REQUIRED")
         self.assertContains(response, "RESIGN")
         self.assertContains(response, f'href="{reverse("manager_hub")}?resign=1"')
-        self.assertNotContains(response, "Club Profile")
+        self.assertContains(response, "Club Profiles")
         self.assertNotContains(response, "CLUB PROFILE")
         self.assertContains(response, reverse("transfer_market"))
         self.assertContains(response, reverse("free_agents"))

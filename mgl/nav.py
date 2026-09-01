@@ -19,6 +19,7 @@ PUBLIC_LEAGUE_MENU = {
     },
     "items": (
         {"label": "League Overview", "url_name": "leagues_page"},
+        {"label": "All Leagues", "url_name": "leagues_page", "divider": True},
         {"label": "League Table", "url_name": "leagues_page", "divider": True},
         {"label": "Fixtures", "url_name": "fixture_list", "divider": True},
         {"label": "Results", "url_name": "fixture_list", "divider": True},
@@ -37,6 +38,24 @@ PUBLIC_LEAGUE_MENU = {
             "label": "Club Statistics",
             "url_name": "league_stats",
             "url_kwargs": {"slug": "championship"},
+            "style": "sub",
+        },
+        {
+            "label": "Premier League Stats",
+            "url_name": "league_stats",
+            "url_kwargs": {"slug": "premier-league"},
+            "style": "sub",
+        },
+        {
+            "label": "Championship Stats",
+            "url_name": "league_stats",
+            "url_kwargs": {"slug": "championship"},
+            "style": "sub",
+        },
+        {
+            "label": "League One Stats",
+            "url_name": "league_stats",
+            "url_kwargs": {"slug": "league-one"},
             "style": "sub",
         },
         {"label": "League Activity", "url_name": "live_activity", "divider": True},
@@ -106,12 +125,6 @@ PUBLIC_PLAYERS_MENU = {
             "url_name": "live_auctions",
             "divider": True,
         },
-        {
-            "label": "Unassigned Players",
-            "url_name": "unassigned_players",
-            "divider": True,
-            "control_only": True,
-        },
     ),
 }
 
@@ -132,7 +145,6 @@ PUBLIC_TRANSFERS_MENU = {
         {"label": "Transfer Market", "url_name": "transfer_market"},
         {"label": "Transfer News", "url_name": "news_centre", "divider": True},
         {"label": "Completed Transfers", "url_name": "public_transfers", "divider": True},
-        {"label": "Negotiations", "url_name": "transfer_requests", "divider": True},
     ),
 }
 

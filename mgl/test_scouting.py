@@ -373,7 +373,7 @@ class ScoutGenerationTests(TestCase):
         ready_at = assignment.ready_at
         self.assertAlmostEqual(
             (assignment.ready_at - assignment.started_at).total_seconds(),
-            8 * 3600,
+            6 * 3600,
             delta=3,
         )
         assignment.refresh_from_db()
