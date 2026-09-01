@@ -5,11 +5,9 @@
 
 {% block content %}
 <section class="mgl-section">
+    {% url 'clubs_index' as clubs_url %}
+    {% include "core/includes/mgl_page_header.html" with header_section="CLUBS" header_section_url=clubs_url header_title="UFL CLUBS" header_icon="stadium" header_description="Every UFL club, its league, manager and squad size." %}
     <div class="section-heading">
-        <div>
-            <div class="eyebrow">TEAMS</div>
-            <h2>UFL CLUBS</h2>
-        </div>
         <a href="{% url 'leagues_page' %}" class="view-all">TABLES →</a>
     </div>
     <div class="mgl-club-grid">

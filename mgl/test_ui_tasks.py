@@ -149,7 +149,7 @@ class AuctionCountdownTests(TestCase):
         self.assertContains(page, "LIVE AUCTIONS")
         self.assertContains(page, "data-auction-end")
         self.assertContains(page, "mgl-auction-countdown.js")
-        self.assertContains(page, ">BID</a>")
+        self.assertContains(page, ">BID NOW</a>")
         self.assertContains(page, "PLACE BID")
         self.assertNotContains(page, "VIEW AUCTION")
         self.assertContains(page, "RECENTLY ENDED")
@@ -313,7 +313,7 @@ class PlayerDatabaseFilterTests(TestCase):
     def test_database_row_shows_age_and_opens_full_profile(self):
         page = self.client.get(reverse("player_database"), {"search": "Mbappe"})
         self.assertContains(page, "26")
-        self.assertContains(page, "2 PLAYERS")
+        self.assertContains(page, "2 players.")
         self.assertContains(page, "mgl-pdb-arrow")
         self.assertContains(page, reverse("player_profile", args=[self.mbappe.id]))
         self.mbappe.fc_playstyles = "Technical, Rapid"

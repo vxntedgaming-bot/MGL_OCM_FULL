@@ -1,0 +1,52 @@
+{% extends "core/base.html" %}
+{% load static mgl_ui %}
+
+{% block title %}Recruitment Drive — UFL{% endblock %}
+
+{% block content %}
+<section class="mgl-section">
+    {% url 'transfer_market' as market_url %}
+    {% include "core/includes/mgl_page_header.html" with header_section="MARKET" header_section_url=market_url header_title="RECRUITMENT DRIVE" header_icon="pack" header_description="Spend 1 token to open a three-player unsigned pack. Choose one. The other two stay in the unsigned pool. Maximum OVR 74." %}
+
+    <p class="mgl-help">Personal balance: <strong>{{ token_balance }} TKN</strong></p>
+
+    {% if opening %}
+        <section class="dashboard-panel">
+            <div class="panel-heading"><span>OPEN PACK</span><em>CHOOSE ONE</em></div>
+            <p>These three players were generated server-side. Submitting a different player ID will fail.</p>
+            <div class="mgl-player-card-grid">
+                {% for player in candidates %}
+                    <article class="mgl-club-card">
+                        {% player_card player "small" %}
+                        <strong>{{ player|card_name }}</strong>
+                        <span>{{ player.position }} · {{ player.overall }} OVR</span>
+                        <form method="post" action="{% url 'choose_recruitment_player' opening.id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="player_id" value="{{ player.id }}">
+                            <button type="submit" class="primary-button">SIGN THIS PLAYER</button>
+                        </form>
+                    </article>
+                {% empty %}
+                    {% include "mgl/includes/empty_state.html" with title="PACK PLAYERS UNAVAILABLE" body="The generated players are no longer unsigned. Contact the league office." %}
+                {% endfor %}
+            </div>
+        </section>
+    {% elif not team %}
+        {% include "mgl/includes/empty_state.html" with title="NO CLUB" body="You need an appointed club before opening a recruitment pack." %}
+    {% else %}
+        <div class="mgl-cp-action-grid">
+            {% for pack in packs %}
+                <article class="dashboard-panel">
+                    <h2>{{ pack.label }}</h2>
+                    <p>{{ pack.positions|join:", " }} · 3 unsigned players · 1 token</p>
+                    <form method="post" action="{% url 'open_recruitment_pack' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="pack_code" value="{{ pack.code }}">
+                        <button type="submit" class="primary-button">OPEN PACK</button>
+                    </form>
+                </article>
+            {% endfor %}
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

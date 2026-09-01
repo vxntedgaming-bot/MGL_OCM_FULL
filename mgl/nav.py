@@ -1,4 +1,4 @@
-"""Header dropdown definitions for the UFL nav."""
+"""Canonical UFL information architecture."""
 
 from django.urls import NoReverseMatch, reverse
 
@@ -6,40 +6,34 @@ from accounts.models import User
 from mgl.permissions import approved_manager
 
 
-PUBLIC_LEAGUE_MENU = {
+LEAGUE_MENU = {
     "id": "leagues",
     "label": "LEAGUE",
     "current": {
         "leagues_page",
         "competition_page",
-        "fixture_list",
         "stats_page",
         "league_stats",
-        "live_activity",
     },
     "items": (
-        {"label": "League Overview", "url_name": "leagues_page"},
-        {"label": "All Leagues", "url_name": "leagues_page", "divider": True},
-        {"label": "League Table", "url_name": "leagues_page", "divider": True},
-        {"label": "Fixtures", "url_name": "fixture_list", "divider": True},
-        {"label": "Results", "url_name": "fixture_list", "divider": True},
         {
-            "label": "Statistics",
-            "url_name": "stats_page",
-            "divider": True,
-        },
-        {
-            "label": "Player Statistics",
-            "url_name": "league_stats",
+            "label": "Premier League",
+            "url_name": "competition_page",
             "url_kwargs": {"slug": "premier-league"},
-            "style": "sub",
         },
         {
-            "label": "Club Statistics",
-            "url_name": "league_stats",
+            "label": "Championship",
+            "url_name": "competition_page",
             "url_kwargs": {"slug": "championship"},
             "style": "sub",
         },
+        {
+            "label": "League One",
+            "url_name": "competition_page",
+            "url_kwargs": {"slug": "league-one"},
+            "style": "sub",
+        },
+        {"label": "Stats", "heading": True, "divider": True},
         {
             "label": "Premier League Stats",
             "url_name": "league_stats",
@@ -58,97 +52,65 @@ PUBLIC_LEAGUE_MENU = {
             "url_kwargs": {"slug": "league-one"},
             "style": "sub",
         },
-        {"label": "League Activity", "url_name": "live_activity", "divider": True},
         {
-            "label": "Premier League",
-            "url_name": "competition_page",
-            "url_kwargs": {"slug": "premier-league"},
-            "style": "sub",
-            "divider": True,
-        },
-        {
-            "label": "Championship",
-            "url_name": "competition_page",
-            "url_kwargs": {"slug": "championship"},
-            "style": "sub",
-        },
-        {
-            "label": "League One",
-            "url_name": "competition_page",
-            "url_kwargs": {"slug": "league-one"},
-            "style": "sub",
-        },
-        {
-            "label": "Cups (Coming soon)",
+            "label": "UFL Cups (Coming soon)",
             "url_name": "competition_page",
             "url_kwargs": {"slug": "cups"},
             "divider": True,
         },
-    ),
-}
-
-PUBLIC_CLUBS_MENU = {
-    "id": "clubs",
-    "label": "CLUBS",
-    "current": {
-        "clubs_index",
-        "club_page",
-        "manager_search",
-        "historical_tables",
-    },
-    "items": (
-        {"label": "Clubs", "url_name": "clubs_index"},
-        {"label": "Club Profiles", "url_name": "clubs_index", "divider": True},
-        {"label": "Managers", "url_name": "manager_search", "divider": True},
-        {"label": "Manager History", "url_name": "historical_tables", "divider": True},
-    ),
-}
-
-PUBLIC_PLAYERS_MENU = {
-    "id": "players",
-    "label": "PLAYERS",
-    "current": {
-        "player_database",
-        "player_profile",
-        "free_agents",
-        "unassigned_players",
-        "transfer_history",
-        "public_transfers",
-    },
-    "items": (
-        {"label": "FC26 Player Database", "url_name": "player_database"},
-        {"label": "Player Search", "url_name": "player_database", "divider": True},
-        {"label": "Free Agents", "url_name": "free_agents", "divider": True},
-        {"label": "Transfer History", "url_name": "transfer_history", "divider": True},
         {
-            "label": "Auction History",
-            "url_name": "live_auctions",
-            "divider": True,
+            "label": "UFL Champions League (Coming soon)",
+            "url_name": "competition_page",
+            "url_kwargs": {"slug": "champions-league"},
         },
     ),
 }
 
-PUBLIC_TRANSFERS_MENU = {
-    "id": "transfers",
-    "label": "TRANSFERS",
+CLUBS_MENU = {
+    "id": "clubs",
+    "label": "CLUBS",
+    "current": {"clubs_index", "club_page"},
+    "items": (
+        {"label": "Clubs", "url_name": "clubs_index"},
+        {"label": "Club Profiles", "url_name": "clubs_index", "divider": True},
+    ),
+}
+
+MARKET_MENU = {
+    "id": "market",
+    "label": "MARKET",
     "current": {
         "transfer_market",
         "transfer_history",
         "public_transfers",
-        "news_centre",
         "transfer_requests",
         "respond_transfer_request",
         "request_player_transfer",
         "purchase_listing",
+        "free_agents",
+        "player_database",
+        "player_profile",
+        "recruitment_drive",
+        "open_recruitment_pack",
+        "choose_recruitment_player",
+        "live_auctions",
+        "place_bid",
+        "scouting",
     },
     "items": (
-        {"label": "Transfer Market", "url_name": "transfer_market"},
-        {"label": "Transfer News", "url_name": "news_centre", "divider": True},
+        {"label": "Transfer History", "url_name": "transfer_history"},
+        {"label": "Transfer Market", "url_name": "transfer_market", "divider": True},
+        {"label": "Auctions", "url_name": "live_auctions", "divider": True},
+        {"label": "Recruitment Drive", "url_name": "recruitment_drive", "divider": True},
+        {"label": "Scouting", "url_name": "scouting", "divider": True},
+        {"label": "Negotiations", "url_name": "transfer_requests", "divider": True},
         {"label": "Completed Transfers", "url_name": "public_transfers", "divider": True},
+        {"label": "Free Agents", "url_name": "free_agents", "divider": True},
+        {"label": "Player Database", "url_name": "player_database", "divider": True},
     ),
 }
 
-PUBLIC_NEWS_MENU = {
+NEWS_MENU = {
     "id": "news",
     "label": "NEWS",
     "current": {
@@ -158,9 +120,8 @@ PUBLIC_NEWS_MENU = {
         "answer_press",
     },
     "items": (
-        {"label": "News", "url_name": "news_centre"},
-        {"label": "Pressroom", "url_name": "pressroom", "divider": True},
-        {"label": "Live Activity", "url_name": "live_activity", "divider": True},
+        {"label": "UFL Newsroom", "url_name": "live_activity"},
+        {"label": "UFL Press Conference", "url_name": "pressroom", "divider": True},
     ),
 }
 
@@ -170,64 +131,86 @@ CAREER_MENU = {
     "current": {
         "manager_hub",
         "team_management",
-        "club_page",
-        "transfer_market",
-        "transfer_requests",
-        "respond_transfer_request",
-        "live_auctions",
-        "place_bid",
-        "scouting",
         "fixture_list",
         "submit_match",
         "fixture_stats",
-        "press_conference",
-        "pressroom",
-        "answer_press",
-        "manager_rewards",
-        "manager_notifications",
-        "manager_notification_respond",
-        "manager_profile",
         "historical_tables",
     },
     "items": (
         {"label": "Dashboard", "url_name": "manager_hub"},
         {"label": "My Squad", "url_name": "team_management", "divider": True},
-        {"label": "Transfers", "url_name": "transfer_market", "divider": True},
-        {"label": "Negotiations", "url_name": "transfer_requests", "divider": True},
-        {"label": "My Auctions", "url_name": "live_auctions", "divider": True},
-        {"label": "Scouting", "url_name": "scouting", "divider": True},
-        {"label": "Matches", "url_name": "fixture_list", "divider": True},
-        {"label": "Press", "url_name": "pressroom", "divider": True},
-        {"label": "Tokens", "url_name": "manager_rewards", "divider": True},
-        {"label": "Notifications", "url_name": "manager_notifications", "divider": True},
+        {"label": "Fixtures", "url_name": "fixture_list", "divider": True},
         {"label": "Career History", "url_name": "manager_profile", "divider": True},
     ),
 }
 
-# Public visitors — Career Mode destinations stay out of the top bar.
-NAV_DROPDOWNS = (
-    PUBLIC_LEAGUE_MENU,
-    PUBLIC_CLUBS_MENU,
-    PUBLIC_PLAYERS_MENU,
-    PUBLIC_TRANSFERS_MENU,
-    PUBLIC_NEWS_MENU,
-)
+PROFILE_MENU = {
+    "id": "profile",
+    "label": "PROFILE",
+    "current": {
+        "manager_profile",
+        "manager_rewards",
+    },
+    "items": (
+        {"label": "Career Profile", "url_name": "manager_profile"},
+        {"label": "Token History", "url_name": "manager_rewards", "divider": True},
+    ),
+}
 
-# Approved managers / Control — public IA plus My Career.
+CONTROL_MENU = {
+    "id": "control",
+    "label": "CONTROL CENTRE",
+    "control_only": True,
+    "current": {
+        "control_centre",
+        "control_pending",
+        "control_approvals",
+        "control_scores",
+        "control_transfers",
+        "control_press",
+        "control_managers",
+        "control_clubs",
+        "control_starting_squads",
+        "control_season_controls",
+        "control_league",
+        "control_logs",
+        "control_weekly_awards",
+        "control_monthly_awards",
+        "control_tokens",
+        "site_management",
+        "season_management",
+    },
+    "items": (
+        {"label": "Dashboard", "url_name": "control_centre"},
+        {"label": "Approvals", "url_name": "control_pending", "divider": True},
+        {"label": "Clubs & Managers", "url_name": "control_clubs", "divider": True},
+        {"label": "Starting Squads", "url_name": "control_starting_squads", "divider": True},
+        {"label": "Season Controls", "url_name": "control_season_controls", "divider": True},
+        {"label": "League Controls", "url_name": "control_league", "divider": True},
+        {"label": "History / Audit", "url_name": "control_logs", "divider": True},
+    ),
+}
+
+# Public visitors: league information only.
+NAV_DROPDOWNS = (LEAGUE_MENU,)
+
+# Approved managers / Control.
 SIGNED_IN_NAV_DROPDOWNS = (
     CAREER_MENU,
-    PUBLIC_LEAGUE_MENU,
-    PUBLIC_CLUBS_MENU,
-    PUBLIC_PLAYERS_MENU,
-    PUBLIC_TRANSFERS_MENU,
-    PUBLIC_NEWS_MENU,
+    CLUBS_MENU,
+    MARKET_MENU,
+    LEAGUE_MENU,
+    NEWS_MENU,
+    PROFILE_MENU,
+    CONTROL_MENU,
 )
 
 COMPETITIONS = {
     "premier-league": "Premier League",
     "championship": "Championship",
     "league-one": "League One",
-    "cups": "Cups",
+    "cups": "UFL Cups",
+    "champions-league": "UFL Champions League",
 }
 
 LIVE_COMPETITION_SLUGS = {
@@ -238,7 +221,6 @@ LIVE_COMPETITION_SLUGS = {
 
 
 def live_competition_choices():
-    """Existing live divisions only. Used by Tables and Statistics selectors."""
     return [
         {
             "slug": slug,
@@ -251,6 +233,8 @@ def live_competition_choices():
 
 
 def _item_url(item):
+    if item.get("heading"):
+        return ""
     if item.get("href"):
         return item["href"]
     kwargs = item.get("url_kwargs") or None
@@ -261,7 +245,7 @@ def _item_url(item):
 
 
 def _item_is_current(item, url_name, kwargs):
-    if item.get("href"):
+    if item.get("heading") or item.get("href"):
         return False
     if item.get("url_name") != url_name:
         return False
@@ -275,6 +259,8 @@ def _build_menus(source, url_name, kwargs, is_control, extra_by_id=None):
     extra_by_id = extra_by_id or {}
     menus = []
     for menu in source:
+        if menu.get("control_only") and not is_control:
+            continue
         items = []
         for item in menu["items"]:
             if item.get("control_only") and not is_control:
@@ -283,6 +269,7 @@ def _build_menus(source, url_name, kwargs, is_control, extra_by_id=None):
                 {
                     "label": item["label"],
                     "url": _item_url(item),
+                    "heading": bool(item.get("heading")),
                     "divider": bool(item.get("divider")),
                     "style": item.get("style") or "",
                     "badge": item.get("badge") or "",
@@ -333,10 +320,9 @@ def nav_dropdowns_for_request(request):
             except NoReverseMatch:
                 requests_url = ""
             for menu in menus:
-                if menu["id"] not in {"career", "transfers"}:
+                if menu["id"] != "market":
                     continue
-                if menu["id"] == "career":
-                    menu["badge"] = str(count)
+                menu["badge"] = str(count)
                 for item in menu["items"]:
                     if item["url"] == requests_url:
                         item["badge"] = str(count)

@@ -10,21 +10,7 @@
 
 {% block content %}
 <section class="mgl-section mgl-tr-page">
-    <nav class="mgl-market-crumbs" aria-label="Market location">
-        {% if user.is_authenticated %}
-            <a href="{% url 'manager_hub' %}" class="mgl-market-crumb">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10.5V20h11V10.5"/></svg>
-                MANAGER HUB
-            </a>
-        {% else %}
-            <a href="{% url 'home' %}" class="mgl-market-crumb">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10.5V20h11V10.5"/></svg>
-                HOME
-            </a>
-        {% endif %}
-        <span class="mgl-market-crumb-sep" aria-hidden="true">›</span>
-        <span class="mgl-market-crumb-current">TRANSFERS</span>
-    </nav>
+    {% include "core/includes/mgl_page_header.html" with header_section="MARKET" header_title="COMPLETED TRANSFERS" header_icon="tag" header_description="League-wide historical completed transfers: purchases, sales and swaps." %}
 
     <div class="mgl-tr-status-bar">
         <span class="mgl-tr-window{% if not window_open %} is-closed{% endif %}">

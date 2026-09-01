@@ -1,0 +1,56 @@
+{% extends "core/base.html" %}
+{% load static mgl_ui %}
+
+{% block title %}Transfer History — UFL{% endblock %}
+
+{% block content %}
+<section class="mgl-section">
+    {% url 'transfer_market' as market_url %}
+    {% include "core/includes/mgl_page_header.html" with header_section="MARKET" header_section_url=market_url header_title="TRANSFER HISTORY" header_icon="tag" header_description="Your club's incoming, outgoing and pending transfer activity. League-wide completed deals live on Completed Transfers." %}
+
+    {% if not club %}
+        {% include "mgl/includes/empty_state.html" with title="NO CLUB" body="Personal transfer history is attached to your manager profile once you are appointed." %}
+    {% else %}
+        <section class="dashboard-panel">
+            <div class="panel-heading"><span>PENDING INCOMING</span></div>
+            {% for listing in incoming_offers %}
+                <div class="table-row">
+                    <strong>{{ listing.player.name }}</strong>
+                    <span>{{ listing.asking_price }} TKN · {{ listing.get_status_display }}</span>
+                    <a href="{% url 'transfer_requests' %}" class="secondary-button">NEGOTIATE</a>
+                </div>
+            {% empty %}
+                <p class="mgl-help">No incoming offers.</p>
+            {% endfor %}
+        </section>
+        <section class="dashboard-panel">
+            <div class="panel-heading"><span>PENDING OUTGOING</span></div>
+            {% for listing in outgoing_offers %}
+                <div class="table-row">
+                    <strong>{{ listing.player.name }}</strong>
+                    <span>{{ listing.asking_price }} TKN · {{ listing.get_status_display }}</span>
+                    <a href="{% url 'transfer_requests' %}" class="secondary-button">VIEW</a>
+                </div>
+            {% empty %}
+                <p class="mgl-help">No outgoing offers.</p>
+            {% endfor %}
+        </section>
+        <section class="dashboard-panel">
+            <div class="panel-heading"><span>COMPLETED</span></div>
+            {% for row in completed_transfers %}
+                <div class="table-row">
+                    <strong>{% if row.player %}{{ row.player.name }}{% else %}Transfer{% endif %}</strong>
+                    <span>
+                        {% if row.from_team %}{{ row.from_team.short_name }}{% else %}FA{% endif %}
+                        →
+                        {% if row.to_team %}{{ row.to_team.short_name }}{% else %}—{% endif %}
+                        · {{ row.amount }} TKN
+                    </span>
+                </div>
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with title="NO TRANSFER ACTIVITY" body="Completed deals for your club will appear here." %}
+            {% endfor %}
+        </section>
+    {% endif %}
+</section>
+{% endblock %}

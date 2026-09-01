@@ -9,7 +9,8 @@
 
 {% block content %}
 <section class="mgl-section mgl-pdb-page">
-    {% include "core/includes/mgl_page_header.html" with header_section="MY CLUB" header_title="PLAYER DATABASE" %}
+    {% url 'transfer_market' as market_url %}
+    {% include "core/includes/mgl_page_header.html" with header_section="MARKET" header_section_url=market_url header_title="PLAYER DATABASE" header_icon="football" %}
 
     <form method="get" class="mgl-pdb-layout" role="search">
         <div class="mgl-pdb-main">
@@ -132,6 +133,11 @@
 
                     <div>
                         <span class="mgl-filter-check">RATING</span>
+                        <div class="mgl-pdb-positions" role="group" aria-label="OVR groups">
+                            {% for label, lo, hi in ovr_groups %}
+                                <a class="mgl-pdb-pos-btn{% if rating_min == lo and rating_max == hi %} is-active{% endif %}" href="?rating_min={{ lo }}&amp;rating_max={{ hi }}{% if search %}&amp;search={{ search|urlencode }}{% endif %}{% if selected_position %}&amp;position={{ selected_position|urlencode }}{% endif %}">{{ label }}</a>
+                            {% endfor %}
+                        </div>
                         <div class="mgl-pdb-range">
                             <label>MIN OVR <input type="number" name="rating_min" min="1" max="99" value="{{ rating_min }}" placeholder="0"></label>
                             <label>MAX OVR <input type="number" name="rating_max" min="1" max="99" value="{{ rating_max }}" placeholder="99"></label>

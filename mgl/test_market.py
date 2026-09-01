@@ -226,11 +226,14 @@ class MarketEconomyTests(TestCase):
         self.assertEqual(response["Location"], reverse("manager_hub"))
 
     def test_public_pages_render(self):
-        for url in ["/", "/leagues/", "/stats/", "/jobs/", "/market/", "/login/", "/register/"]:
+        for url in ["/", "/leagues/", "/stats/", "/jobs/", "/login/", "/register/"]:
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200, url)
+        market = self.client.get("/market/")
+        self.assertEqual(market.status_code, 302)
+        self.assertEqual(market["Location"], reverse("job_centre"))
 
     def test_logged_out_team_still_redirects(self):
         response = self.client.get("/mgl/team/")
         self.assertEqual(response.status_code, 302)
-        self.assertIn("/login/", response["Location"])
+        self.assertIn(reverse("job_centre"), response["Location"])

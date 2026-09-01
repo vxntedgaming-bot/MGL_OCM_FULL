@@ -1,4 +1,5 @@
 from django.urls import include, path
+from django.views.generic import RedirectView
 
 from mgl.market_views import job_centre, league_stats_page, leagues_page, stats_page, transfer_market
 from mgl.site_views import (
@@ -11,11 +12,15 @@ from mgl.site_views import (
     ufl_rules,
 )
 from mgl.views import (
+    choose_recruitment_player,
     compare_players,
     competition_page,
     historical_tables,
     home,
     manager_search,
+    open_recruitment_pack,
+    public_completed_transfers,
+    recruitment_drive,
     scouting,
     transfer_history,
 )
@@ -37,10 +42,21 @@ urlpatterns = [
     path("stats/managers/", manager_search, name="manager_search"),
     path("stats/<slug:slug>/", league_stats_page, name="league_stats"),
     path("jobs/", job_centre, name="job_centre"),
+    path("job-offers/", job_centre, name="job_offers"),
+    path("job-centre/", RedirectView.as_view(pattern_name="job_centre", permanent=False)),
     path("rules/", ufl_rules, name="ufl_rules"),
     path("market/", transfer_market, name="transfer_market"),
     path("market/transfers/", transfer_history, name="transfer_history"),
-    path("transfers/", transfer_history, name="public_transfers"),
+    path("transfers/", public_completed_transfers, name="public_transfers"),
     path("market/scouting/", scouting, name="scouting"),
+    path("market/recruitment/", recruitment_drive, name="recruitment_drive"),
+    path("market/recruitment/open/", open_recruitment_pack, name="open_recruitment_pack"),
+    path(
+        "market/recruitment/<int:opening_id>/choose/",
+        choose_recruitment_player,
+        name="choose_recruitment_player",
+    ),
+    path("matches/", RedirectView.as_view(pattern_name="fixture_list", permanent=False)),
+    path("auctions/history/", RedirectView.as_view(url="/auctions/?tab=history", permanent=False)),
     path("mgl/", include("mgl.urls")),
 ]

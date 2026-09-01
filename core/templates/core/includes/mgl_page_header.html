@@ -1,34 +1,90 @@
 {% load static %}
-<nav class="mgl-page-header-crumbs" aria-label="{{ header_title }} location">
-    {% if header_section %}
-        <span>{{ header_section }}</span>
-        <span aria-hidden="true">›</span>
+{% if header_root_url %}{% else %}
+    {% if mgl_signed_in_nav %}
+        {% url 'manager_hub' as header_root_url %}
+    {% else %}
+        {% url 'home' as header_root_url %}
     {% endif %}
-    <span class="mgl-page-header-crumb-current">{{ header_title }}</span>
-</nav>
-<header class="mgl-page-header">
-    <img src="{% static 'core/img/mgl-logo.png' %}" alt="" class="mgl-page-header-mark">
-    <div>
+{% endif %}
+{% if mgl_signed_in_nav %}
+    {% firstof header_root_label "MANAGER HUB" as header_root_text %}
+{% else %}
+    {% firstof header_root_label "HOME" as header_root_text %}
+{% endif %}
+<header class="ufl-page-head">
+    <nav class="ufl-crumbs" aria-label="Location">
+        <a href="{{ header_root_url }}" class="ufl-crumb-pill">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10.5V20h11V10.5"/></svg>
+            <span class="ufl-crumb-full">{{ header_root_text }}</span>
+            <span class="ufl-crumb-short">{% if mgl_signed_in_nav %}CAREER{% else %}HOME{% endif %}</span>
+        </a>
         {% if header_section %}
-            <div class="eyebrow">{{ header_section }}</div>
+            <span class="ufl-crumb-sep" aria-hidden="true">→</span>
+            {% if header_section_url %}
+                <a href="{{ header_section_url }}" class="ufl-crumb-pill">{{ header_section }}</a>
+            {% else %}
+                <span class="ufl-crumb-pill">{{ header_section }}</span>
+            {% endif %}
         {% endif %}
-        <h1>{{ header_title }}</h1>
-        {% if header_description %}
-            <p>{{ header_description }}</p>
-        {% elif header_title == "PLAYER DATABASE" %}
-            <p>
-                {{ total_player_count }} PLAYERS
-                {% if page_obj %}
-                    · PLAYER {{ page_obj.start_index }} OF {{ result_count }}
-                {% endif %}
-            </p>
+        <span class="ufl-crumb-sep" aria-hidden="true">→</span>
+        <span class="ufl-crumb-pill is-current">{{ header_title }}</span>
+    </nav>
+    <div class="ufl-page-title">
+        <span class="ufl-page-icon" aria-hidden="true">
+            {% if header_icon == "gavel" %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14.5 3.5 8 10l3.5 3.5 6.5-6.5-3.5-3.5z"/><path d="M8 10 4 14"/><path d="M13.5 15.5 19 21"/><path d="M3 19h8"/></svg>
+            {% elif header_icon == "radar" %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 12 18 7"/></svg>
+            {% elif header_icon == "users" %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><circle cx="17" cy="9" r="2.4"/><path d="M16 19a4.8 4.8 0 0 1 5-4"/></svg>
+            {% elif header_icon == "calendar" %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M8 3.5v3M16 3.5v3M3.5 10h17"/></svg>
+            {% elif header_icon == "trophy" %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M8 5h8v4a4 4 0 0 1-8 0V5z"/><path d="M8 7H5.5A2.5 2.5 0 0 0 8 9.5"/><path d="M16 7h2.5A2.5 2.5 0 0 1 16 9.5"/><path d="M12 13v3"/><path d="M9 20h6"/></svg>
+            {% elif header_icon == "newspaper" %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 6h11v14H7a2 2 0 0 1-2-2V6z"/><path d="M16 10h3v8a2 2 0 0 1-2 2h-1"/><path d="M8 10h5M8 13h5M8 16h3"/></svg>
+            {% elif header_icon == "mic" %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="9" y="3.5" width="6" height="10" rx="3"/><path d="M7 11a5 5 0 0 0 10 0M12 16v3M9 20h6"/></svg>
+            {% elif header_icon == "wallet" %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3.5" y="6" width="17" height="12" rx="2"/><path d="M16 12h4.5v4H16a2 2 0 0 1 0-4z"/></svg>
+            {% elif header_icon == "bell" %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2H4.5L6 16z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>
+            {% elif header_icon == "briefcase" %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3.5" y="8" width="17" height="12" rx="2"/><path d="M9 8V6.5A2.5 2.5 0 0 1 11.5 4h1A2.5 2.5 0 0 1 15 6.5V8"/></svg>
+            {% elif header_icon == "stadium" %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><ellipse cx="12" cy="12" rx="8" ry="4"/><path d="M4 12v4c0 2.2 3.6 4 8 4s8-1.8 8-4v-4"/></svg>
+            {% elif header_icon == "football" %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8"/><path d="M12 4.2 14.2 9l5.1 0.4-3.9 3.4 1.2 5-4.6-2.7-4.6 2.7 1.2-5-3.9-3.4L9.8 9z"/></svg>
+            {% elif header_icon == "shield" %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3 20 7v6c0 5-3.5 7.5-8 8-4.5-.5-8-3-8-8V7l8-4z"/></svg>
+            {% elif header_icon == "pack" %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 8h16v11H4z"/><path d="M9 8V6h6v2"/><path d="M12 12v4"/></svg>
+            {% elif header_icon == "chart" %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 19h16"/><path d="M7 16v-5M12 16V7M17 16v-8"/></svg>
+            {% else %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 8h13l-3-3"/><path d="M20 16H7l3 3"/></svg>
+            {% endif %}
+        </span>
+        <div class="ufl-page-copy">
+            <h1>{{ header_title }}</h1>
+            {% if header_description %}
+                <p>{{ header_description }}</p>
+            {% elif header_title == "PLAYER DATABASE" %}
+                <p>
+                    Search the EA FC26 player pool.
+                    {% if total_player_count %}{{ total_player_count }} players.{% endif %}
+                </p>
+            {% endif %}
+        </div>
+        {% if header_status %}
+            <span class="ufl-page-status">{{ header_status }}</span>
+        {% endif %}
+        {% if header_action_url and header_action_label %}
+            <a
+                href="{{ header_action_url }}"
+                class="secondary-button ufl-page-cta"
+                {% if header_action_newtab %}target="_blank" rel="noopener"{% endif %}
+            >{{ header_action_label }}</a>
         {% endif %}
     </div>
-    {% if header_action_url and header_action_label %}
-        <a
-            href="{{ header_action_url }}"
-            class="secondary-button mgl-page-header-cta"
-            {% if header_action_newtab %}target="_blank" rel="noopener"{% endif %}
-        >{{ header_action_label }}</a>
-    {% endif %}
 </header>

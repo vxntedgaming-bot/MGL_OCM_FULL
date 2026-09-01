@@ -9,12 +9,12 @@
 
 {% block content %}
 <section class="mgl-section">
-    {% include "core/includes/mgl_page_header.html" with header_section="COMMUNITY" header_title="LIVE ACTIVITY" header_description="Confirmed UFL results, transfers and signings." %}
+    {% include "core/includes/mgl_page_header.html" with header_section="NEWS" header_title="UFL NEWSROOM" header_icon="newspaper" header_description="Confirmed UFL results, transfers, signings and league activity. The website is the source of truth." %}
     <nav class="mgl-league-tabs mgl-activity-tabs">
         <a href="{% url 'pressroom' %}" class="mgl-league-tab">Pressroom</a>
         <a href="{% url 'live_activity' %}" class="mgl-league-tab is-active">Live Activity</a>
     </nav>
-    <div class="mgl-activity-feed">
+    <div class="mgl-activity-feed" data-newsroom-feed>
         {% for item in items %}
             {% include "mgl/includes/activity_card.html" with show_body=True %}
         {% empty %}

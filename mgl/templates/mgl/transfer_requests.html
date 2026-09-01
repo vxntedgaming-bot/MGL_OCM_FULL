@@ -9,15 +9,8 @@
 
 {% block content %}
 <div class="mgl-xf">
-    <header class="mgl-xf-title">
-        <svg class="mgl-xf-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-            <path d="M4 8h13l-3-3"/><path d="M20 16H7l3 3"/>
-        </svg>
-        <div>
-            <h1>TRANSFERS</h1>
-            <p>Negotiate buy, sell and swap deals. Nothing changes ownership until the league office approves.</p>
-        </div>
-    </header>
+    {% url 'transfer_market' as market_url %}
+    {% include "core/includes/mgl_page_header.html" with header_section="MARKET" header_section_url=market_url header_title="NEGOTIATIONS" header_icon="tag" header_description="Transfer requests that need your response. Accept, counter, reject or withdraw. League office approval still required before ownership moves." %}
 
     <section class="mgl-xf-panel" id="negotiations">
         <div class="mgl-xf-panel-head">

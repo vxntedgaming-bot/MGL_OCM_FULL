@@ -1,8 +1,9 @@
 from django.db.utils import OperationalError, ProgrammingError
+from django.urls import reverse
 from django.utils import timezone
 
 from accounts.models import User
-from mgl.market import club_for_user, token_balance_for_user
+from mgl.market import club_for_user, token_balance_for_user, transfer_window_is_open
 from mgl.nav import nav_dropdowns_for_request, uses_signed_in_nav
 from mgl.notifications import inbox_for_user, notifications_for_user
 from mgl.services import manager_for_user
@@ -58,6 +59,25 @@ def mgl_nav(request):
             unread_count = sum(1 for item in inbox if item.is_unread)
             notifications = notifications_for_user(user)
             incoming_transfer_count = incoming_offer_count_for_user(user)
+    live_items = []
+    try:
+        from mgl.activity import ACTIVITY_EMOJI, published_ticker_activity
+
+        for post in published_ticker_activity()[:10]:
+            live_items.append(
+                {
+                    "title": post.title,
+                    "url": reverse("live_activity"),
+                    "emoji": ACTIVITY_EMOJI.get(post.category, "●"),
+                }
+            )
+    except (OperationalError, ProgrammingError):
+        live_items = []
+    window_open = True
+    try:
+        window_open = transfer_window_is_open()
+    except (OperationalError, ProgrammingError):
+        window_open = True
     return {
         "mgl_is_control": is_control,
         "mgl_has_club": has_club,
@@ -69,6 +89,8 @@ def mgl_nav(request):
         "mgl_notify_items": notify_items,
         "mgl_unread_notification_count": unread_count,
         "incoming_transfer_count": incoming_transfer_count,
+        "mgl_live_items": live_items,
+        "window_open": window_open,
         **_current_season_context(),
         **site_chrome(),
     }

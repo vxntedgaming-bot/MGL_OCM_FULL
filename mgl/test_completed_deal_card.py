@@ -6,7 +6,7 @@ from django.urls import reverse
 from accounts.models import User
 from leagues.models import League
 from managers.models import ManagerApplication
-from mgl.activity import activity_payloads, completed_deal_payload, published_football_activity
+from mgl.activity import activity_payloads, completed_deal_payload, extract_newsroom_feed, extract_page_main, published_football_activity
 from mgl.market import (
     approve_listing,
     create_listed_purchase_offer,
@@ -115,7 +115,7 @@ class CompletedDealCardTests(TestCase):
     def test_one_player_swap_separates_both_clubs(self):
         self._complete("2.00", offered=self.swap_one)
         page = self._activity()
-        html = page.content.decode()
+        html = extract_page_main(page.content.decode())
         self.assertContains(page, "Atletico Test")
         self.assertContains(page, "Bayer Test")
         self.assertContains(page, "Target Forward")
@@ -196,8 +196,9 @@ class CompletedDealCardTests(TestCase):
         )
         respond_to_transfer_offer(listing, self.user_b, False)
         page = self._activity()
-        self.assertNotContains(page, "TRANSFER COMPLETED")
-        self.assertNotContains(page, "Target Forward")
+        main = extract_page_main(page.content.decode())
+        self.assertNotIn("TRANSFER COMPLETED", main)
+        self.assertNotIn("Target Forward", main)
         self.assertFalse(self._deal_posts().exists())
         self.assertFalse(published_football_activity().filter(category=NewsPost.TRANSFER).exists())
 
@@ -206,8 +207,9 @@ class CompletedDealCardTests(TestCase):
         respond_to_transfer_offer(listing, self.user_b, True)
         reject_listing(listing, self.owner)
         page = self._activity()
-        self.assertNotContains(page, "TRANSFER COMPLETED")
-        self.assertNotContains(page, "Target Forward")
+        main = extract_page_main(page.content.decode())
+        self.assertNotIn("TRANSFER COMPLETED", main)
+        self.assertNotIn("Target Forward", main)
         self.assertFalse(self._deal_posts().exists())
 
     def test_snapshot_stays_after_players_move_again(self):
@@ -292,10 +294,11 @@ class CompletedDealCardTests(TestCase):
             primary_team=self.team_a,
         )
         page = self._activity()
-        self.assertNotContains(page, "Free Signing")
-        self.assertNotContains(page, "Pool Player")
-        self.assertNotContains(page, "Scouted Mid")
-        self.assertNotContains(page, "has left Bayer Test")
+        feed = extract_newsroom_feed(page.content.decode())
+        self.assertNotIn("Free Signing", feed)
+        self.assertNotIn("Pool Player", feed)
+        self.assertNotIn("Scouted Mid", feed)
+        self.assertNotIn("has left Bayer Test", feed)
         self.assertFalse(published_football_activity().exclude(category__in=["RESULTS", "TRANSFER"]).exists())
 
     def test_transfer_header_uses_existing_club_logos(self):

@@ -133,7 +133,7 @@ class ManagerHubDashboardTests(TestCase):
         self.assertNotContains(response, "PLAYER RECRUITMENT")
         self.assertContains(response, "PENDING ACTIONS")
         self.assertNotContains(response, "Propose Transfer")
-        self.assertNotContains(response, "Recruitment Drive")
+        self.assertContains(response, "Recruitment Drive")
 
     def test_manager_without_club_sees_empty_states_and_jobs(self):
         vacant = _user("vacantmgr")

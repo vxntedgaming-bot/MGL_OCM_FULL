@@ -27,6 +27,7 @@ from mgl.press import (
     maybe_create_odd_matchday_interview,
 )
 from mgl.press_questions import QUESTION_BANK
+from mgl.activity import extract_newsroom_feed
 from mgl.services import sign_free_agent
 from players.models import Player
 from teams.models import Team
@@ -222,7 +223,7 @@ class JobCentreExperienceTests(TestCase):
         self.client.login(username="applicant", password="test-pass-123")
         hub = self.client.get(reverse("manager_hub"))
         self.assertEqual(hub.status_code, 200)
-        self.assertContains(hub, ">JOBS</a>")
+        self.assertContains(hub, "JOB OFFERS")
         self.assertContains(hub, reverse("job_centre"))
         jobs = self.client.get(reverse("job_centre"))
         self.assertEqual(jobs.status_code, 200)
@@ -236,7 +237,7 @@ class JobCentreExperienceTests(TestCase):
         self.client.login(username="owner", password="test-pass-123")
         jobs = self.client.get(reverse("job_centre"))
         self.assertEqual(jobs.status_code, 200)
-        self.assertContains(jobs, ">JOBS</a>")
+        self.assertContains(jobs, "JOB OFFERS")
         self.assertContains(jobs, reverse("job_centre"))
         self.assertContains(jobs, reverse("control_centre"))
         self.assertContains(jobs, self.vacant.name)
@@ -464,9 +465,10 @@ class LiveActivityAndPressTests(TestCase):
         sign_free_agent(fa, self.mgr_a)
         self.assertTrue(NewsPost.objects.filter(category=NewsPost.SIGNING).exists())
         activity = self.client.get(reverse("live_activity"))
-        self.assertNotContains(activity, "MANAGER APPOINTED")
-        self.assertNotContains(activity, "SIGNING")
-        self.assertNotContains(activity, "Free Signing")
+        feed = extract_newsroom_feed(activity.content.decode())
+        self.assertNotIn("MANAGER APPOINTED", feed)
+        self.assertNotIn("SIGNING", feed)
+        self.assertNotIn("Free Signing", feed)
 
     def test_auction_no_bid_creates_free_agent_activity(self):
         player = Player.objects.create(
@@ -483,8 +485,9 @@ class LiveActivityAndPressTests(TestCase):
             NewsPost.objects.filter(category=NewsPost.FREE_AGENT, body__icontains="no bids").exists()
         )
         activity = self.client.get(reverse("live_activity"))
-        self.assertNotContains(activity, "AUCTION STARTED")
-        self.assertNotContains(activity, "Pool Player")
+        feed = extract_newsroom_feed(activity.content.decode())
+        self.assertNotIn("AUCTION STARTED", feed)
+        self.assertNotIn("Pool Player", feed)
 
 
 class ManagerHubExperienceTests(TestCase):
@@ -551,13 +554,8 @@ class ManagerHubExperienceTests(TestCase):
     def test_assigned_manager_homepage_becomes_hub(self):
         self.client.login(username="hubmgr", password="test-pass-123")
         home = self.client.get("/")
-        self.assertEqual(home.status_code, 200)
-        self.assertContains(home, "YOUR CLUB.")
-        self.assertContains(home, "LATEST NEWS")
-        self.assertContains(home, "ACCOUNT")
-        self.assertContains(home, "LOGOUT")
-        self.assertContains(home, reverse("job_centre"))
-        self.assertNotContains(home, "LEAGUE LIVE UPDATES")
+        self.assertEqual(home.status_code, 302)
+        self.assertEqual(home["Location"], reverse("manager_hub"))
         hub = self.client.get(reverse("manager_hub"))
         self.assertContains(hub, "Hub United")
         self.assertContains(hub, "UFL CAREER MODE")
@@ -578,7 +576,7 @@ class ManagerHubExperienceTests(TestCase):
         self.assertContains(hub, reverse("manager_notifications"))
         self.assertContains(hub, reverse("team_management"))
         self.assertContains(hub, reverse("submit_match", args=[hub.context["outstanding"][0].id]))
-        self.assertNotContains(hub, "Recruitment Drive")
+        self.assertContains(hub, "Recruitment Drive")
         self.assertNotContains(hub, "PLAYER RECRUITMENT")
         self.assertContains(hub, "PENDING ACTIONS")
         self.assertNotContains(hub, "Propose Transfer")
@@ -590,15 +588,8 @@ class ManagerHubExperienceTests(TestCase):
         _manager(member)
         self.client.login(username="fan", password="test-pass-123")
         home = self.client.get("/")
-        self.assertEqual(home.status_code, 200)
-        self.assertContains(home, "COMPETE.")
-        self.assertContains(home, "YOUR CLUB.")
-        self.assertContains(home, "LATEST NEWS")
-        self.assertContains(home, "ACCOUNT")
-        self.assertContains(home, reverse("job_centre"))
-        self.assertNotContains(home, "LEAGUE LIVE UPDATES")
-        self.assertNotContains(home, "mgl-activity-feed--home")
-        self.assertNotContains(home, "UFL CLUBS")
+        self.assertEqual(home.status_code, 302)
+        self.assertEqual(home["Location"], reverse("manager_hub"))
 
 
 class NewsAndTablePublicTests(TestCase):
@@ -609,7 +600,7 @@ class NewsAndTablePublicTests(TestCase):
     def test_league_table_club_is_clickable_and_clubs_grid_removed(self):
         tables = self.client.get(reverse("leagues_page"))
         self.assertEqual(tables.status_code, 200)
-        self.assertContains(tables, "ALL LEAGUE")
+        self.assertContains(tables, "COMPETITIONS")
         arsenal = Team.objects.get(short_name="ARS")
         self.assertContains(tables, club_page_url(arsenal))
         self.assertContains(tables, "/clubs/arsenal/")
@@ -622,7 +613,7 @@ class NewsAndTablePublicTests(TestCase):
         self.assertEqual(news["Location"], reverse("live_activity"))
         self.assertEqual(self.client.get(reverse("live_activity")).status_code, 200)
         self.assertEqual(self.client.get(reverse("pressroom")).status_code, 200)
-        self.assertEqual(self.client.get(reverse("fixture_list")).status_code, 200)
+        self.assertEqual(self.client.get(reverse("fixture_list")).status_code, 302)
         self.assertEqual(self.client.get(reverse("clubs_index")).status_code, 200)
 
 

@@ -91,7 +91,7 @@ class OcmEndToEndTests(TestCase):
         public_home = self.client.get("/")
         self.assertEqual(public_home.status_code, 200)
         self.assertContains(public_home, "YOUR CLUB.")
-        self.assertContains(public_home, "ACCOUNT")
+        self.assertContains(public_home, "PROFILE")
         self.client.logout()
 
         self.assertEqual(self.client.get(reverse("control_centre")).status_code, 302)

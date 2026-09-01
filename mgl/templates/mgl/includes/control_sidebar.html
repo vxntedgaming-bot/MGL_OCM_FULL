@@ -3,58 +3,18 @@
 <aside class="mgl-cp-sidebar" id="cp-sidebar">
     <div class="mgl-cp-brand">
         <img src="{% static 'core/img/mgl-logo.png' %}" alt="UFL">
-        <p class="mgl-cp-sidebar-title">UFL<small>CONTROL SYSTEM</small></p>
+        <p class="mgl-cp-sidebar-title">UFL<small>CONTROL CENTRE</small></p>
     </div>
     <nav aria-label="Control panel">
-        <details class="mgl-cp-nav-group {% if control_section == 'dashboard' or control_section == 'pending' or control_section == 'scores' or control_section == 'transfers' or control_section == 'press' or control_section == 'managers' %}is-current{% endif %}" {% if control_section == 'dashboard' or control_section == 'pending' or control_section == 'scores' or control_section == 'transfers' or control_section == 'press' or control_section == 'managers' %}open{% endif %}>
-            <summary>APPROVALS</summary>
-            <a href="{% url 'control_centre' %}" class="{% if control_section == 'dashboard' %}is-active{% endif %}">Approval Center</a>
-            <a href="{% url 'control_pending' %}" class="{% if control_section == 'pending' %}is-active{% endif %}">Pending Approvals{% if pending_counts.approvals %}<span class="mgl-cp-badge">{{ pending_counts.approvals }}</span>{% endif %}</a>
-            <a href="{% url 'control_scores' %}" class="{% if control_section == 'scores' %}is-active{% endif %}">Scores Approvals{% if pending_counts.results %}<span class="mgl-cp-badge">{{ pending_counts.results }}</span>{% endif %}</a>
-            <a href="{% url 'control_transfers' %}" class="{% if control_section == 'transfers' %}is-active{% endif %}">Transfer Approvals{% if pending_counts.listings %}<span class="mgl-cp-badge">{{ pending_counts.listings }}</span>{% endif %}</a>
-            <a href="{% url 'control_press' %}" class="{% if control_section == 'press' %}is-active{% endif %}">Press Conference Approvals{% if pending_counts.press %}<span class="mgl-cp-badge">{{ pending_counts.press }}</span>{% endif %}</a>
-            <a href="{% url 'control_managers' %}" class="{% if control_section == 'managers' %}is-active{% endif %}">Manager Applications{% if pending_counts.managers or pending_counts.jobs %}<span class="mgl-cp-badge">{{ pending_counts.managers|add:pending_counts.jobs }}</span>{% endif %}</a>
-        </details>
-
-        <details class="mgl-cp-nav-group {% if control_section == 'weekly' or control_section == 'monthly' %}is-current{% endif %}" {% if control_section == 'weekly' or control_section == 'monthly' %}open{% endif %}>
-            <summary>HISTORY</summary>
-            <a href="{% url 'control_weekly_awards' %}" class="{% if control_section == 'weekly' %}is-active{% endif %}">Weekly Rewards{% if pending_counts.weekly %}<span class="mgl-cp-badge">{{ pending_counts.weekly }}</span>{% endif %}</a>
-            <a href="{% url 'control_monthly_awards' %}" class="{% if control_section == 'monthly' %}is-active{% endif %}">Monthly Rewards{% if pending_counts.monthly %}<span class="mgl-cp-badge">{{ pending_counts.monthly }}</span>{% endif %}</a>
-        </details>
-
-        <details class="mgl-cp-nav-group {% if control_section == 'clubs' or control_section == 'scouting' or control_section == 'auctions' or control_section == 'tokens' %}is-current{% endif %}" {% if control_section == 'clubs' or control_section == 'scouting' or control_section == 'auctions' or control_section == 'tokens' %}open{% endif %}>
-            <summary>MANAGEMENT</summary>
-            <a href="{% url 'control_clubs' %}" class="{% if control_section == 'clubs' %}is-active{% endif %}">Clubs &amp; Managers</a>
-            <a href="{% url 'control_scouting' %}" class="{% if control_section == 'scouting' %}is-active{% endif %}">Scouting{% if pending_counts.scout_exceptions %}<span class="mgl-cp-badge">{{ pending_counts.scout_exceptions }}</span>{% elif pending_counts.scouts %}<span class="mgl-cp-badge">{{ pending_counts.scouts }}</span>{% endif %}</a>
-            <a href="{% url 'control_auctions' %}" class="{% if control_section == 'auctions' %}is-active{% endif %}">Auctions / Release Players{% if pending_counts.auctions %}<span class="mgl-cp-badge">{{ pending_counts.auctions }}</span>{% endif %}</a>
-            <a href="{% url 'player_database' %}">Player Database</a>
-            <a href="{% url 'control_tokens' %}" class="{% if control_section == 'tokens' %}is-active{% endif %}">Token Rewards</a>
-        </details>
-
-        <details class="mgl-cp-nav-group {% if control_section == 'season_history' or control_section == 'season_controls' or control_section == 'season_settings' or control_section == 'starting_squads' %}is-current{% endif %}" {% if control_section == 'season_history' or control_section == 'season_controls' or control_section == 'season_settings' or control_section == 'starting_squads' %}open{% endif %}>
-            <summary>SEASON</summary>
-            <a href="{% url 'control_season_history' %}" class="{% if control_section == 'season_history' %}is-active{% endif %}">Season History</a>
-            <a href="{% url 'control_season_controls' %}" class="{% if control_section == 'season_controls' %}is-active{% endif %}">Season Controls</a>
-            <a href="{% url 'control_starting_squads' %}" class="{% if control_section == 'starting_squads' %}is-active{% endif %}">Starting Squads</a>
-            <a href="{% url 'season_management' %}" class="{% if control_section == 'season_settings' %}is-active{% endif %}">Season Settings</a>
-        </details>
-
-        <details class="mgl-cp-nav-group {% if control_section == 'logs' or control_section == 'notifications' %}is-current{% endif %}" {% if control_section == 'logs' or control_section == 'notifications' %}open{% endif %}>
-            <summary>SYSTEM</summary>
-            <a href="{% url 'control_logs' %}" class="{% if control_section == 'logs' %}is-active{% endif %}">Logs &amp; Activity</a>
-            <a href="{% url 'control_notifications' %}" class="{% if control_section == 'notifications' %}is-active{% endif %}">Notification History</a>
-        </details>
-
-        <details class="mgl-cp-nav-group {% if control_section == 'league' or control_section == 'site' or control_section == 'teams' or control_section == 'settings' %}is-current{% endif %}" {% if control_section == 'league' or control_section == 'site' or control_section == 'teams' or control_section == 'settings' %}open{% endif %}>
-            <summary>LEAGUE CONTROL</summary>
-            <a href="{% url 'control_league' %}" class="{% if control_section == 'league' %}is-active{% endif %}">League Control</a>
-            <a href="{% url 'site_management_settings' %}" class="{% if control_section == 'settings' %}is-active{% endif %}">Site Settings</a>
-            <a href="{% url 'site_management_teams' %}" class="{% if control_section == 'teams' %}is-active{% endif %}">Team Management</a>
-            <a href="{% url 'site_management_leagues' %}" class="{% if control_section == 'leagues' %}is-active{% endif %}">League Settings</a>
-            <a href="{% url 'control_league' %}#transfers">Transfer Settings</a>
-            <a href="{% url 'control_league' %}#rewards">Reward Settings</a>
-            <a href="{% url 'site_management' %}" class="{% if control_section == 'site' %}is-active{% endif %}">Site Management</a>
-        </details>
+        <a href="{% url 'control_centre' %}" class="{% if control_section == 'dashboard' %}is-active{% endif %}">Dashboard</a>
+        <a href="{% url 'control_pending' %}" class="{% if control_section == 'pending' or control_section == 'scores' or control_section == 'transfers' or control_section == 'press' or control_section == 'managers' %}is-active{% endif %}">
+            Approvals{% if pending_counts.approvals %}<span class="mgl-cp-badge">{{ pending_counts.approvals }}</span>{% endif %}
+        </a>
+        <a href="{% url 'control_clubs' %}" class="{% if control_section == 'clubs' %}is-active{% endif %}">Clubs &amp; Managers</a>
+        <a href="{% url 'control_starting_squads' %}" class="{% if control_section == 'starting_squads' %}is-active{% endif %}">Starting Squads</a>
+        <a href="{% url 'control_season_controls' %}" class="{% if control_section == 'season_controls' %}is-active{% endif %}">Season Controls</a>
+        <a href="{% url 'control_league' %}" class="{% if control_section == 'league' %}is-active{% endif %}">League Controls</a>
+        <a href="{% url 'control_logs' %}" class="{% if control_section == 'logs' or control_section == 'weekly' or control_section == 'monthly' or control_section == 'tokens' %}is-active{% endif %}">History / Audit</a>
     </nav>
     <div class="mgl-cp-league-status">
         <p>STATUS <strong>{{ league_status|default:"ACTIVE" }}</strong></p>

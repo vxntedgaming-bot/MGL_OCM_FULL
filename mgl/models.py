@@ -320,6 +320,49 @@ class PackReward(models.Model):
     player=models.ForeignKey("players.Player",on_delete=models.PROTECT,related_name="pack_rewards")
     assigned_team=models.ForeignKey("teams.Team",on_delete=models.SET_NULL,null=True,blank=True,related_name="pack_rewards")
 
+
+class RecruitmentOpening(models.Model):
+    """One Recruitment Drive pack. Token is taken when opened; one player may be signed."""
+
+    PENDING = "PENDING"
+    COMPLETED = "COMPLETED"
+    EXPIRED = "EXPIRED"
+    STATUS_CHOICES = (
+        (PENDING, "Pending"),
+        (COMPLETED, "Completed"),
+        (EXPIRED, "Expired"),
+    )
+
+    manager = models.ForeignKey(
+        "managers.ManagerApplication",
+        on_delete=models.CASCADE,
+        related_name="recruitment_openings",
+    )
+    team = models.ForeignKey(
+        "teams.Team",
+        on_delete=models.CASCADE,
+        related_name="recruitment_openings",
+    )
+    pack_code = models.CharField(max_length=12)
+    player_ids = models.JSONField(default=list)
+    chosen_player = models.ForeignKey(
+        "players.Player",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="recruitment_selections",
+    )
+    status = models.CharField(max_length=12, choices=STATUS_CHOICES, default=PENDING)
+    created_at = models.DateTimeField(auto_now_add=True)
+    resolved_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+
+    def __str__(self):
+        return f"{self.pack_code} pack for {self.manager_id}"
+
+
 class ApprovalRequest(models.Model):
     kind=models.CharField(max_length=50)
     object_id=models.PositiveBigIntegerField()

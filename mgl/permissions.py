@@ -65,3 +65,21 @@ def approved_manager(user):
     if not manager or manager.status != manager.APPROVED:
         return None
     return manager
+
+
+def can_use_career_pages(user):
+    if is_owner_or_admin(user):
+        return True
+    return approved_manager(user) is not None
+
+
+def career_required(view_func):
+    """Approved managers and Control. Everyone else goes to Job Offers."""
+
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if can_use_career_pages(request.user):
+            return view_func(request, *args, **kwargs)
+        return redirect("job_centre")
+
+    return wrapper

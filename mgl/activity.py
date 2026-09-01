@@ -47,6 +47,44 @@ def published_activity():
     )
 
 
+TICKER_CATEGORIES = (
+    NewsPost.RESULTS,
+    NewsPost.TRANSFER,
+    NewsPost.AUCTION,
+    NewsPost.MANAGER,
+    NewsPost.SIGNING,
+    NewsPost.PRESS,
+    NewsPost.FREE_AGENT,
+    NewsPost.SCOUTING,
+    NewsPost.REWARD,
+)
+NEWSROOM_FEED_ATTR = "data-newsroom-feed"
+
+
+def published_ticker_activity():
+    """Genuine published events for the global LIVE ACTIVITY bar."""
+    return published_activity().filter(category__in=TICKER_CATEGORIES)
+
+
+def extract_newsroom_feed(html):
+    """Newsroom page HTML after the feed marker, excluding the global ticker."""
+    start = html.find(NEWSROOM_FEED_ATTR)
+    if start < 0:
+        return ""
+    return html[start:]
+
+
+def extract_page_main(html):
+    """Page body inside <main>, excluding the global header ticker."""
+    start = html.find("<main")
+    end = html.find("</main>")
+    if start < 0:
+        return html
+    if end < 0:
+        return html[start:]
+    return html[start:end]
+
+
 def _non_m2m_transfer_noise():
     """Hide listings, auctions, releases and free-agent copy from the feed.
 

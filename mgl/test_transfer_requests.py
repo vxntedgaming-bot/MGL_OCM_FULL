@@ -89,14 +89,14 @@ class TransferRequestsPageTests(TestCase):
     def test_anonymous_user_cannot_open_manager_page(self):
         response = self.client.get(reverse("transfer_requests"))
         self.assertEqual(response.status_code, 302)
-        self.assertIn("/login/", response["Location"])
+        self.assertIn(reverse("job_centre"), response["Location"])
 
     def test_pending_offers_do_not_appear_on_completed_history(self):
         create_transfer_offer(self.player_b, self.mgr_a, "8.00")
         self.client.login(username="seller", password="test-pass-123")
         page = self.client.get(reverse("transfer_requests"))
         self.assertEqual(page.status_code, 200)
-        self.assertContains(page, "TRANSFERS")
+        self.assertContains(page, "NEGOTIATIONS")
         self.assertContains(page, "COMPLETED TRANSFERS")
         self.assertContains(page, "No completed transfers yet.")
         self.assertNotContains(page, "INCOMING REQUESTS")

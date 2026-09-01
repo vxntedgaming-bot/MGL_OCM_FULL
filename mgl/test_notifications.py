@@ -16,7 +16,7 @@ from mgl.models import (
     PressConference,
     TeamMatchStats,
 )
-from mgl.activity import activity_payloads, teams_for_post
+from mgl.activity import activity_payloads, extract_newsroom_feed, teams_for_post
 from mgl.models import ManagerNotification
 from mgl.notifications import (
     NotificationItem,
@@ -86,7 +86,7 @@ class NotificationAndPressroomTests(TestCase):
         self.assertNotContains(home, "Recruitment Drive")
         self.assertNotContains(home, "MY TEAM")
         self.assertNotContains(home, "MY CLUB")
-        self.assertContains(home, "JOBS")
+        self.assertContains(home, "JOB OFFERS")
         self.assertContains(home, "LOGIN")
         self.assertNotContains(home, "YOUR APPLICATIONS")
         self.assertNotContains(home, ">STATUS</h2>")
@@ -164,7 +164,8 @@ class NotificationAndPressroomTests(TestCase):
         self.assertFalse(NewsPost.objects.filter(category=NewsPost.PRESS).exists())
         pending_activity = self.client.get(reverse("live_activity"))
         self.assertContains(pending_activity, "No league activity yet.")
-        self.assertNotContains(pending_activity, "We controlled the game from the start.")
+        pending_feed = extract_newsroom_feed(pending_activity.content.decode())
+        self.assertNotIn("We controlled the game from the start.", pending_feed)
 
         self.client.logout()
         self.client.login(username="owner", password="test-pass-123")
@@ -196,8 +197,9 @@ class NotificationAndPressroomTests(TestCase):
             NewsPost.objects.filter(category=NewsPost.PRESS, published=True).exists()
         )
         activity = self.client.get(reverse("live_activity"))
-        self.assertNotContains(activity, "PRESS CONFERENCE")
-        self.assertNotContains(activity, "We controlled the game from the start.")
+        feed = extract_newsroom_feed(activity.content.decode())
+        self.assertNotIn("PRESS CONFERENCE", feed)
+        self.assertNotIn("We controlled the game from the start.", feed)
         news = NewsPost.objects.get(category=NewsPost.PRESS)
         self.assertEqual(news.primary_team_id, self.team_a.id)
         payload = activity_payloads([news])[0]
@@ -350,7 +352,7 @@ class NotificationAndPressroomTests(TestCase):
         self.assertContains(home, "LEAGUE")
         self.assertContains(home, reverse("leagues_page"))
         self.assertContains(home, reverse("league_stats", kwargs={"slug": "premier-league"}))
-        self.assertContains(home, "ACCOUNT")
+        self.assertContains(home, "PROFILE")
         self.assertContains(home, "data-notify-dropdown")
         self.assertNotContains(home, "ACTION REQUIRED")
         self.assertNotContains(home, reverse("unassigned_players"))
@@ -560,7 +562,7 @@ class NotificationAndPressroomTests(TestCase):
     def test_anonymous_users_cannot_open_notifications(self):
         response = self.client.get(reverse("manager_notifications"))
         self.assertEqual(response.status_code, 302)
-        self.assertIn("/login/", response["Location"])
+        self.assertIn(reverse("job_centre"), response["Location"])
 
     def test_unread_count_uses_persisted_rows_not_a_hardcoded_one(self):
         self.assertEqual(unread_count_for_user(self.user_a), 0)

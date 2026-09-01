@@ -43,7 +43,7 @@ def approve_manager_application(application, reviewer):
         message="Your manager application was approved. You can now apply for a club.",
         actor="UFL Admin",
         action_url=reverse("job_centre"),
-        action_label="JOB CENTRE",
+        action_label="JOB OFFERS",
     )
     return application
 

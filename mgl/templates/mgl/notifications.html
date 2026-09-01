@@ -9,11 +9,9 @@
 
 {% block content %}
 <section class="mgl-section">
+    {% url 'manager_hub' as hub_url %}
+    {% include "core/includes/mgl_page_header.html" with header_section="MY CAREER" header_section_url=hub_url header_title="NOTIFICATIONS CENTRE" header_icon="bell" header_description="Match confirmations, transfer requests, press, auctions, scouting and recruitment that need your attention." %}
     <header class="mgl-notify-page-head">
-        <div>
-            <h1>MANAGER NOTIFICATIONS</h1>
-            <p>Review and respond to pending match, transfer and press actions.</p>
-        </div>
         <form method="post" action="{% url 'notification_mark_all_read' %}">
             {% csrf_token %}
             <button type="submit" class="secondary-button">MARK ALL AS READ</button>

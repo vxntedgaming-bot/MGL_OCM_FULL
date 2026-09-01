@@ -1,10 +1,10 @@
 {% extends "mgl/includes/control_page.html" %}
 
-{% block control_title %}Logs & Activity — UFL Control{% endblock %}
-{% block control_crumb %}CONTROL / SYSTEM / LOGS{% endblock %}
+{% block control_title %}History / Audit — UFL Control{% endblock %}
+{% block control_crumb %}CONTROL / HISTORY{% endblock %}
 {% block control_kicker %}SYSTEM{% endblock %}
-{% block control_heading %}LOGS &amp; ACTIVITY{% endblock %}
-{% block control_intro %}View all system logs and activity{% endblock %}
+{% block control_heading %}HISTORY / AUDIT{% endblock %}
+{% block control_intro %}League activity, admin actions, owner actions and the token ledger. Filters do not change balances.{% endblock %}
 
 {% block control_body %}
 <form method="get" class="mgl-cp-toolbar">
@@ -20,6 +20,14 @@
         {% for option in user_options %}
             <option value="{{ option }}" {% if log_user == option %}selected{% endif %}>{{ option }}</option>
         {% endfor %}
+    </select>
+    <select name="kind">
+        <option value="">All kinds</option>
+        <option value="TOKEN" {% if log_kind == "TOKEN" %}selected{% endif %}>Token activity</option>
+        <option value="ADMIN" {% if log_kind == "ADMIN" %}selected{% endif %}>Admin</option>
+        <option value="OWNER" {% if log_kind == "OWNER" %}selected{% endif %}>Owner</option>
+        <option value="MANAGER" {% if log_kind == "MANAGER" %}selected{% endif %}>Manager</option>
+        <option value="CLUB" {% if log_kind == "CLUB" %}selected{% endif %}>Club</option>
     </select>
     <input type="date" name="date" value="{{ log_date }}">
     <button class="header-button mgl-cp-review-btn" type="submit">FILTER</button>
@@ -45,6 +53,34 @@
                 </tr>
             {% empty %}
                 <tr><td colspan="4">{% include "mgl/includes/empty_state.html" with title="NO AUDIT ENTRIES" %}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+
+<section class="dashboard-panel mgl-cp-panel mgl-cp-table-wrap">
+    <div class="panel-heading"><span>TOKEN LEDGER</span><em>REWARD TRANSACTION</em></div>
+    <table class="mgl-cp-table">
+        <thead>
+            <tr>
+                <th>DATE</th>
+                <th>MANAGER</th>
+                <th>CATEGORY</th>
+                <th>AMOUNT</th>
+                <th>NOTE</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in token_activity %}
+                <tr>
+                    <td>{{ row.created_at|date:"d/m/Y H:i" }}</td>
+                    <td>{{ row.manager.display_name }}</td>
+                    <td>{{ row.category }}</td>
+                    <td>{{ row.amount }}</td>
+                    <td>{{ row.reason }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="5">{% include "mgl/includes/empty_state.html" with title="NO TOKEN ACTIVITY" body="No token ledger rows yet." %}</td></tr>
             {% endfor %}
         </tbody>
     </table>

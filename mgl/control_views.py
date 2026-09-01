@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils import timezone
 
+from accounts.models import User
 from auctions.models import PlayerAuction
 from managers.models import ManagerApplication
 from teams.models import Team
@@ -448,6 +449,7 @@ def control_logs(request):
     action = (request.GET.get("action") or "").strip()
     log_user = (request.GET.get("user") or "").strip()
     log_date = (request.GET.get("date") or "").strip()
+    kind = (request.GET.get("kind") or "").strip().upper()
     logs = SiteChangeLog.objects.select_related("user").order_by("-created_at")
     if search:
         logs = logs.filter(
@@ -461,12 +463,35 @@ def control_logs(request):
         logs = logs.filter(user__username=log_user)
     if log_date:
         logs = logs.filter(created_at__date=log_date)
+    if kind == "TOKEN":
+        logs = logs.filter(
+            Q(action__icontains="token")
+            | Q(action__icontains="reward")
+            | Q(summary__icontains="token")
+            | Q(summary__icontains="TKN")
+        )
+    elif kind == "ADMIN":
+        logs = logs.filter(user__role=User.ADMIN)
+    elif kind == "OWNER":
+        logs = logs.filter(user__role=User.OWNER)
+    elif kind == "MANAGER":
+        logs = logs.filter(
+            Q(user__role=User.MANAGER)
+            | Q(summary__icontains="manager")
+            | Q(action__icontains="manager")
+        )
+    elif kind == "CLUB":
+        logs = logs.filter(Q(summary__icontains="club") | Q(action__icontains="club"))
+    token_activity = RewardTransaction.objects.select_related(
+        "manager", "manager__user"
+    ).order_by("-created_at")[:60]
     context = control_shell_context(request, "logs", queues)
     context["ocm_audit_log"] = logs[:80]
     context["log_search"] = search
     context["log_action"] = action
     context["log_user"] = log_user
     context["log_date"] = log_date
+    context["log_kind"] = kind
     context["action_options"] = list(
         SiteChangeLog.objects.exclude(action="").values_list("action", flat=True).distinct()[:40]
     )
@@ -479,6 +504,7 @@ def control_logs(request):
     context["recent_activity"] = MarketTransaction.objects.select_related(
         "player", "seller", "buyer", "from_team", "to_team", "approved_by"
     ).order_by("-created_at")[:40]
+    context["token_activity"] = token_activity
     return render(request, "mgl/control_logs.html", context)
 
 
@@ -496,8 +522,32 @@ def control_season_history(request):
 
 @owner_admin_required
 def control_season_controls(request):
+    from django.contrib import messages
+    from django.shortcuts import redirect
+
     from mgl.models import HistoricalSeason
+    from mgl.permissions import is_owner
     from mgl.season_history import ensure_active_season
+
+    if request.method == "POST" and request.POST.get("action") == "ensure_clubs":
+        if not is_owner(request.user):
+            messages.error(request, "Only the Owner can ensure the 42-club structure.")
+            return redirect("control_season_controls")
+        if (request.POST.get("confirm_text") or "").strip().upper() != "ENSURE CLUBS":
+            messages.error(request, "Type ENSURE CLUBS to confirm. No clubs were changed.")
+            return redirect("control_season_controls")
+        from teams.official_ufl_clubs import ensure_official_ufl_clubs
+
+        result = ensure_official_ufl_clubs()
+        messages.success(
+            request,
+            (
+                f"Official club structure checked. Created {len(result['created'])} missing clubs. "
+                f"PL {result['counts']['PL']}, CH {result['counts']['CH']}, L1 {result['counts']['L1']}. "
+                "Starting squads were not applied."
+            ),
+        )
+        return redirect("control_season_controls")
 
     ensure_active_season()
     queues = load_queues()
@@ -505,6 +555,7 @@ def control_season_controls(request):
     context["active_season"] = (
         HistoricalSeason.objects.filter(status=HistoricalSeason.ACTIVE).order_by("-number").first()
     )
+    context["is_owner"] = is_owner(request.user)
     return render(request, "mgl/control_season_controls.html", context)
 
 

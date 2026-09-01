@@ -56,7 +56,7 @@ from .job_applications import (
     parse_club_application,
 )
 from .nav import live_competition_choices
-from .permissions import approved_manager, owner_admin_required
+from .permissions import approved_manager, career_required, owner_admin_required
 from .services import create_news, manager_for_user
 from .standings import build_live_league_table
 from .player_state import club_players, free_agents as free_agent_qs, market_counts, unassigned_players
@@ -128,6 +128,7 @@ def control_centre_redirect(request, default="control_centre"):
     return redirect(page)
 
 
+@career_required
 def transfer_market(request):
     close_expired_auctions()
     auctions = (
@@ -859,7 +860,7 @@ def control_reject_job(request, application_id):
         message=f"Your application for {application.team.name} was rejected.",
         actor="UFL Admin",
         action_url=reverse("job_centre"),
-        action_label="JOB CENTRE",
+        action_label="JOB OFFERS",
         team=application.team,
     )
     messages.success(

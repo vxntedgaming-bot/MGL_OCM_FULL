@@ -197,7 +197,7 @@ class PhaseBRegressionTests(TestCase):
 
         team = self.client.get("/mgl/team/")
         self.assertEqual(team.status_code, 302)
-        self.assertIn("/login/", team["Location"])
+        self.assertIn(reverse("job_centre"), team["Location"])
 
     def test_authenticated_manager_routes_still_work(self):
         self.assertTrue(self.client.login(username="phaseb", password="test-pass-123"))
@@ -219,7 +219,7 @@ class PhaseBRegressionTests(TestCase):
         self.assertEqual(response["Location"], "/")
         follow = self.client.get("/mgl/hub/")
         self.assertEqual(follow.status_code, 302)
-        self.assertIn("/login/", follow["Location"])
+        self.assertIn(reverse("job_centre"), follow["Location"])
 
     def test_messages_still_render_on_homepage(self):
         factory = RequestFactory()

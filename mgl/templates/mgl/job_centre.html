@@ -1,7 +1,7 @@
 {% extends "core/base.html" %}
 {% load static mgl_ui %}
 
-{% block title %}Job Centre — UFL{% endblock %}
+{% block title %}Job Offers — UFL{% endblock %}
 {% block body_class %}mgl-jobs-body{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'core/css/mgl-jobs.css' %}?v=jobs-filter-2">
@@ -42,7 +42,7 @@
     </div>
 
     <div class="mgl-jobs-shell">
-        {% include "core/includes/mgl_page_header.html" with header_section="JOBS" header_title="JOB CENTRE" header_description="Looking for your next challenge? Browse available UFL clubs and apply for a managerial position." %}
+        {% include "core/includes/mgl_page_header.html" with header_section="JOB OFFERS" header_title="JOB OFFERS" header_icon="briefcase" header_description="Available managerial vacancies. Apply for a club. Anonymous visitors land here when a Career Mode page is restricted." %}
         <div class="mgl-jobs-hero">
             <div class="mgl-jobs-hero-copy">
                 <div class="mgl-jobs-openings">

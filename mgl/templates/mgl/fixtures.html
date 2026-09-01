@@ -9,17 +9,9 @@
 
 {% block content %}
 <div class="mgl-fx">
-    <header class="mgl-fx-title">
-        <div class="mgl-fx-title-copy">
-            <svg class="mgl-fx-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                <rect x="3.5" y="5" width="17" height="16" rx="2"/>
-                <path d="M8 3.5v3M16 3.5v3M3.5 10h17"/>
-            </svg>
-            <div>
-                <h1>FIXTURES</h1>
-                <p>VIEW ALL FIXTURES AND RESULTS.</p>
-            </div>
-        </div>
+    {% url 'manager_hub' as hub_url %}
+    {% include "core/includes/mgl_page_header.html" with header_section="MY CAREER" header_section_url=hub_url header_title="FIXTURES" header_icon="calendar" header_description="Upcoming fixtures, results, opponent confirmation and league-office approval status." %}
+
         <form class="mgl-fx-filters" method="get" action="{% url 'fixture_list' %}">
             <label>
                 <span>LEAGUE</span>
@@ -38,7 +30,6 @@
                 </select>
             </label>
         </form>
-    </header>
 
     <section class="mgl-fx-club">
         <div class="mgl-fx-club-main">

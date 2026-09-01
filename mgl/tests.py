@@ -64,7 +64,7 @@ class AuthAndTeamTests(PhaseAClientTestCase):
     def test_team_management_redirects_when_logged_out(self):
         response = self.client.get("/mgl/team/")
         self.assertEqual(response.status_code, 302)
-        self.assertIn("/login/", response["Location"])
+        self.assertIn(reverse("job_centre"), response["Location"])
 
     def test_logout_get_is_not_allowed(self):
         response = self.client.get("/logout/")
@@ -81,7 +81,7 @@ class AuthAndTeamTests(PhaseAClientTestCase):
         self.assertEqual(response["Location"], "/")
         follow = self.client.get("/mgl/hub/")
         self.assertEqual(follow.status_code, 302)
-        self.assertIn("/login/", follow["Location"])
+        self.assertIn("/jobs/", follow["Location"])
 
 
 class RewardsAndSquadTests(PhaseAClientTestCase):
@@ -176,4 +176,7 @@ class ConnectedRouteSmokeTests(PhaseAClientTestCase):
         ]:
             response = self.client.get(reverse(name, args=args))
             self.assertEqual(response.status_code, 302, name)
-            self.assertIn("/login/", response["Location"], name)
+            if name == "club_management_admin":
+                self.assertIn("/login/", response["Location"], name)
+            else:
+                self.assertEqual(response["Location"], reverse("job_centre"), name)

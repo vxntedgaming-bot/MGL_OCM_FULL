@@ -5,6 +5,8 @@
 
 {% block content %}
 <section class="mgl-section">
+    {% url 'clubs_index' as clubs_url %}
+    {% include "core/includes/mgl_page_header.html" with header_section="CLUBS" header_section_url=clubs_url header_title=team.name header_icon="stadium" header_description="Club profile, squad, fixtures and results." %}
     <div class="mgl-club-hero">
         {% team_logo team "lg" %}
         <div>
@@ -22,7 +24,7 @@
             {% endif %}
             <div class="mgl-hub-links">
                 <a href="{% url 'leagues_page' %}">League table</a>
-                <a href="{% url 'fixture_list' %}">Fixtures</a>
+                <a href="#fixtures">Fixtures</a>
                 {% if is_own_club %}<a href="{% url 'team_management' %}">Manage squad</a>{% endif %}
             </div>
         </div>
@@ -47,8 +49,7 @@
     {% endif %}
 </section>
 
-<section class="mgl-section">
-    <div class="mgl-hub-stats">
+<section class="mgl-section" id="fixtures">
         <div class="dashboard-panel">
             <div class="panel-heading"><span>FIXTURES</span></div>
             {% for fixture in upcoming %}

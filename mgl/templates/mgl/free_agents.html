@@ -9,12 +9,8 @@
 
 {% block content %}
 <section class="mgl-section mgl-fa-page">
-    <nav class="mgl-fa-crumbs" aria-label="Free Agents location">
-        <svg class="mgl-fa-crumb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 3 20 7v6c0 5-3.5 7.5-8 8-4.5-.5-8-3-8-8V7l8-4z"/></svg>
-        <a href="{% url 'manager_hub' %}">MY CLUB</a>
-        <span aria-hidden="true">›</span>
-        <span class="mgl-fa-crumb-current">FREE AGENTS</span>
-    </nav>
+    {% url 'transfer_market' as market_url %}
+    {% include "core/includes/mgl_page_header.html" with header_section="MARKET" header_section_url=market_url header_title="FREE AGENTS" header_icon="users" header_description="Players who currently have no club." %}
 
     <header class="mgl-fa-head">
         <div class="mgl-fa-hero">

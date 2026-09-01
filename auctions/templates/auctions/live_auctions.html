@@ -9,23 +9,15 @@
 
 {% block content %}
 <section class="mgl-section mgl-auc-page">
-    <nav class="mgl-auc-crumbs" aria-label="Auctions location">
-        <svg class="mgl-auc-crumb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 3 20 7v6c0 5-3.5 7.5-8 8-4.5-.5-8-3-8-8V7l8-4z"/></svg>
-        <a href="{% url 'transfer_market' %}">MARKET</a>
-        <span aria-hidden="true">›</span>
-        <span class="mgl-auc-crumb-current">AUCTIONS</span>
+    {% url 'transfer_market' as market_url %}
+    {% include "core/includes/mgl_page_header.html" with header_section="MARKET" header_section_url=market_url header_title="AUCTIONS" header_icon="gavel" header_description="Live bidding, ending soon, your listings and auction history. Highest bid wins. No bids returns the player to the seller." %}
+    <nav class="mgl-league-tabs" aria-label="Auction views">
+        <a href="?tab=live" class="mgl-league-tab {% if auction_tab == 'live' %}is-active{% endif %}">LIVE</a>
+        <a href="?tab=ending" class="mgl-league-tab {% if auction_tab == 'ending' %}is-active{% endif %}">ENDING</a>
+        <a href="?tab=mine" class="mgl-league-tab {% if auction_tab == 'mine' %}is-active{% endif %}">MY AUCTIONS</a>
+        <a href="?tab=history" class="mgl-league-tab {% if auction_tab == 'history' %}is-active{% endif %}">AUCTION HISTORY</a>
     </nav>
 
-    <header class="mgl-auc-head">
-        <div class="mgl-auc-hero">
-            <div class="mgl-auc-hero-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14.5 3.5 8 10l3.5 3.5 6.5-6.5-3.5-3.5z"/><path d="M8 10 4 14"/><path d="M13.5 15.5 19 21"/><path d="M3 19h8"/></svg>
-            </div>
-            <div>
-                <h1>LIVE AUCTIONS</h1>
-                <p>Bid with tokens. Highest bidder wins when the timer ends.</p>
-            </div>
-        </div>
         <div class="mgl-auc-head-side">
             <div class="mgl-auc-stats">
                 <div>
@@ -43,13 +35,13 @@
             </div>
             <a href="{% url 'transfer_market' %}" class="mgl-auc-market-link">VIEW FULL MARKET →</a>
         </div>
-    </header>
 
     <div class="mgl-auc-layout">
         <div class="mgl-auc-primary">
             <div class="mgl-auc-toolbar">
-                <h2>LIVE AUCTIONS</h2>
+                <h2>{{ auction_heading|default:"LIVE AUCTIONS" }}</h2>
                 <form method="get" class="mgl-auc-tools" role="search">
+                    <input type="hidden" name="tab" value="{{ auction_tab }}">
                     {% if per_page %}<input type="hidden" name="per_page" value="{{ per_page }}">{% endif %}
                     <div class="mgl-auc-search">
                         <input type="search" name="search" value="{{ search }}" placeholder="Search player..." autocomplete="off">
@@ -142,8 +134,8 @@
                             <div class="mgl-auc-action">
                                 {% if user.is_authenticated and manager and auction.listed_by_manager_id == manager.id %}
                                     <span class="mgl-card-status">YOUR AUCTION</span>
-                                {% elif manager %}
-                                <a href="?auction={{ auction.id }}{% if querystring %}&{{ querystring }}{% endif %}" class="secondary-button" data-auction-open="{{ auction.id }}">BID</a>
+                                {% elif manager and auction.status == "LIVE" %}
+                                <a href="?tab={{ auction_tab }}&auction={{ auction.id }}{% if querystring %}&{{ querystring }}{% endif %}" class="secondary-button" data-auction-open="{{ auction.id }}">BID NOW</a>
                                 {% elif user.is_authenticated %}
                                     <span class="mgl-card-status">MANAGERS ONLY</span>
                                 {% else %}
@@ -191,7 +183,7 @@
                     {% endfor %}
                 </div>
             {% else %}
-                {% include "mgl/includes/empty_state.html" with kicker="AUCTIONS" title="NO LIVE AUCTIONS" %}
+                {% include "mgl/includes/empty_state.html" with kicker="AUCTIONS" title="NO LIVE AUCTIONS" body="No live auctions right now." %}
             {% endif %}
 
             {% if page_obj %}
@@ -290,7 +282,7 @@
                 {% endif %}
             </section>
 
-            <a href="{% url 'team_management' %}" class="primary-button mgl-auc-mine">MY AUCTIONS</a>
+            <a href="?tab=mine" class="primary-button mgl-auc-mine">MY AUCTIONS</a>
         </aside>
     </div>
 </section>

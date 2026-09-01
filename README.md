@@ -4,9 +4,9 @@ Django site and Discord outbox bot for Ultimate Fantasy League (UFL), an EA FC 2
 
 This tree is the existing production Career Mode application. Internal `/mgl/` URLs stay so Railway, Discord links, and tests keep working. See `UFL_AUDIT.md` for the domain map.
 
-Presentation lives in `core/templates/core/base.html`, `core/static/core/css/mgl.css`, `core/static/core/css/mgl-theme.css`, and the UFL token layer `core/static/core/css/ufl-system.css`. Inner pages inherit header, footer, cards, badges, tables, and mobile navigation from that base. Player market states stay visually distinct: **UNASSIGNED**, **ASSIGNED**, **TRANSFER LISTED**, **IN NEGOTIATION**, **AUCTION**, and **FREE AGENT**.
+Presentation lives in `core/templates/core/base.html`, `core/static/core/css/mgl.css`, `core/static/core/css/mgl-theme.css`, and the UFL token layer `core/static/core/css/ufl-system.css`. Inner pages inherit one header, LIVE ACTIVITY ticker, page header, footer, cards, badges, tables, and mobile navigation from that base.
 
-Assigned managers keep the public homepage at `/` and open Career Mode from **MY CAREER**. Logged-in managers use the header notification bell for match confirmations, transfer requests, and press conferences. Public visitors see HOME, LEAGUE, CLUBS, PLAYERS, TRANSFERS, AUCTIONS, SCOUTING, NEWS, PRESS, JOBS, and RULES. Cups are labelled Coming soon until a live knockout exists. Club squads are at `/clubs/<club-name-slug>/` (short codes such as `/clubs/ARS/` still resolve). Public News has two destinations: **Pressroom** (`/news/pressroom/`) for approved interviews, and **Live Activity** (`/news/activity/`) for approved results, completed transfers and signings. Manager submissions stay pending until Admin approves them. Account registration does not require approval; applying for a club does. Set `DISCORD_INVITE_URL` to show Discord buttons (header **DISCORD**); leave it empty to hide them. Do not hardcode an invite.
+Assigned managers who open `/` are sent to **MY CAREER** (`/mgl/hub/`). Public visitors only see HOME, LEAGUE, and JOB OFFERS in the header. Career Mode pages redirect anonymous users to Job Offers. Cups and Champions League are labelled Coming soon until a live competition exists. Public Newsroom and Pressroom URLs still load for the league record. Club squads are at `/clubs/<club-name-slug>/`. Account registration does not require approval; applying for a club does. Set `DISCORD_INVITE_URL` to show Discord buttons; leave it empty to hide them.
 
 ## Local development
 
@@ -100,8 +100,9 @@ python manage.py close_expired_auctions
 - Manager tools: `/mgl/hub/`
 - Owner / admin control: `/mgl/control/` is the command dashboard (what needs attention). Dedicated pages: `/mgl/control/pending/`, `/mgl/control/scores/`, `/mgl/control/transfers/`, `/mgl/control/press/`, `/mgl/control/awards/weekly/`, `/mgl/control/awards/monthly/`, `/mgl/control/managers/`, `/mgl/control/tokens/`, `/mgl/control/scouting/`, `/mgl/control/auctions/`, `/mgl/control/clubs/`, `/mgl/control/notifications/`, `/mgl/control/logs/`. Approve/reject still use the existing POST actions and token ledger.
 - Site Management (owner/admin only): `/mgl/control/site/` — clubs, leagues, website copy, Discord and site settings. Season history and season controls stay at `/mgl/control/site/seasons/`. Managers receive HTTP 403. Display edits do not change Team/League IDs, squads, fixtures, tokens or player states. The legacy `/mgl/admin/clubs/<id>/edit/` URL redirects to the Site Management team editor. Official crests are pinned to `Team.badge_code` so a short-name change cannot show another club's badge.
-- Public pages: `/leagues/`, `/market/`, `/stats/premier-league/`, `/jobs/`
-- Jobs (`/jobs/`): each vacant club shows its application form on the card. After a successful apply, the existing ClubApplication is saved and the MGL Discord invite opens (`https://discord.gg/Jmf29wBafP`). Occupied clubs stay off the vacancy list. Owner/Admin still appoint from Control Centre.
+- Public pages: `/`, `/leagues/`, `/stats/premier-league/`, `/jobs/`, `/job-offers/`, `/clubs/`, `/transfers/`, `/news/activity/`, `/news/pressroom/`
+- Career Mode (approved managers): `/mgl/hub/`, `/mgl/team/`, `/mgl/fixtures/`, `/market/`, `/market/transfers/`, `/market/recruitment/`, `/market/scouting/`, `/auctions/`
+- Jobs (`/jobs/` and `/job-offers/`): vacant clubs with application forms. Anonymous Career Mode URLs redirect here.
 
 Statistics are per division (`/stats/premier-league/`, `/stats/championship/`, `/stats/league-one/`) and use **approved** match submissions only. Pending results do not move the table or player leaderboards. Waiting Room League and the Compare page are not in navigation; those URLs 404.
 

@@ -9,7 +9,8 @@
 
 {% block content %}
 <section class="mgl-section mgl-scout-page">
-    {% include "core/includes/mgl_page_header.html" with header_section="CAREER MODE" header_title="SCOUTING CENTRE" header_description="Send one scout at a time. Choose country and position. When the scout returns, the discovered FC26 player joins your squad if you have space." %}
+    {% url 'scouting' as scout_url %}
+    {% include "core/includes/mgl_page_header.html" with header_section="MARKET" header_section_url=scout_url header_title="SCOUTING CENTRE" header_icon="radar" header_description="Send one scout at a time. Choose country and position. When the scout returns, the discovered FC26 player joins your squad if you have space." %}
 
     {% if pack %}
         <section class="mgl-sc-pack" id="scout-pack">

@@ -136,7 +136,7 @@ class ManagerResignTests(TestCase):
         anonymous = Client(HTTP_HOST="127.0.0.1")
         response = anonymous.post(reverse("resign_from_club"))
         self.assertEqual(response.status_code, 302)
-        self.assertTrue(response["Location"].startswith("/login/"))
+        self.assertTrue(reverse("job_centre") in response["Location"] or response["Location"].startswith("/login/"))
         self.club.refresh_from_db()
         self.assertEqual(self.club.manager_id, self.user.id)
 

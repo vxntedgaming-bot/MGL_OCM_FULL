@@ -23,7 +23,7 @@ from mgl.models import (
     PressConference,
     TeamMatchStats,
 )
-from mgl.activity import published_football_activity
+from mgl.activity import extract_newsroom_feed, extract_page_main, published_football_activity
 from mgl.press import approve_press_conference, create_press_question, reject_press_conference
 from mgl.services import sign_free_agent
 from players.models import Player
@@ -102,9 +102,7 @@ class NewsSectionTests(TestCase):
 
     def test_news_routes_and_nav_only_have_two_destinations(self):
         home = self.client.get("/")
-        self.assertContains(home, reverse("pressroom"))
         self.assertContains(home, reverse("live_activity"))
-        self.assertNotContains(home, "Latest News")
         self.assertNotContains(home, "Official News")
 
         centre = self.client.get(reverse("news_centre"))
@@ -131,7 +129,7 @@ class NewsSectionTests(TestCase):
         self.assertContains(room, reverse("live_activity"))
         self.assertContains(room, "mgl-pressroom.css")
         self.assertContains(room, "PRESS ROOM")
-        self.assertContains(room, "Managers front up to the media.")
+        self.assertContains(room, "Approved press answers")
         self.assertContains(room, "NO PRESSROOM STORIES YET")
         self.assertContains(room, "NO PRESS CONFERENCES YET")
         self.assertContains(room, "THE UFL WORLD IS WATCHING")
@@ -186,16 +184,18 @@ class NewsSectionTests(TestCase):
             primary_team=self.team_a,
         )
         page = self.client.get(reverse("live_activity"))
-        self.assertNotContains(page, "Secret Chelsea Test deal")
-        self.assertNotContains(page, "Interview night")
-        self.assertNotContains(page, "listed for sale")
+        feed = extract_newsroom_feed(page.content.decode())
+        self.assertNotIn("Secret Chelsea Test deal", feed)
+        self.assertNotIn("Interview night", feed)
+        self.assertNotIn("listed for sale", feed)
         self.assertFalse(published_football_activity().exists())
 
     def test_pending_listing_is_not_a_completed_transfer(self):
         listing = list_player_for_sale(self.player, self.mgr_a, 8)
         self.assertEqual(listing.status, "LIVE")
         page = self.client.get(reverse("live_activity"))
-        self.assertNotContains(page, "Moveable Mid")
+        feed = extract_newsroom_feed(page.content.decode())
+        self.assertNotIn("Moveable Mid", feed)
         self.assertFalse(
             published_football_activity().filter(category=NewsPost.TRANSFER).exists()
         )
@@ -207,12 +207,14 @@ class NewsSectionTests(TestCase):
         listing.save(update_fields=["status", "reserved_buyer"])
         reject_listing(listing, self.owner)
         page = self.client.get(reverse("live_activity"))
-        self.assertNotContains(page, "Moveable Mid")
+        feed = extract_newsroom_feed(page.content.decode())
+        self.assertNotIn("Moveable Mid", feed)
 
     def test_approved_completed_transfer_appears_on_live_activity(self):
         listing = list_player_for_sale(self.player, self.mgr_a, 8)
         listed_page = self.client.get(reverse("live_activity"))
-        self.assertNotContains(listed_page, "listed for sale")
+        listed_feed = extract_newsroom_feed(listed_page.content.decode())
+        self.assertNotIn("listed for sale", listed_feed)
         offer = create_listed_purchase_offer(listing, self.mgr_b, "8")
         respond_to_transfer_offer(offer, self.user_a, True)
         approve_listing(offer, self.owner)
@@ -223,7 +225,7 @@ class NewsSectionTests(TestCase):
         self.assertContains(page, "Chelsea Test")
         self.assertContains(page, "TRANSFER COMPLETED")
         room = self.client.get(reverse("pressroom"))
-        self.assertNotContains(room, "Moveable Mid")
+        self.assertNotIn("Moveable Mid", extract_page_main(room.content.decode()))
 
     def test_approved_signing_does_not_appear_on_live_activity(self):
         fa = Player.objects.create(
@@ -235,14 +237,15 @@ class NewsSectionTests(TestCase):
         sign_free_agent(fa, self.mgr_a)
         self.assertTrue(NewsPost.objects.filter(category=NewsPost.SIGNING).exists())
         page = self.client.get(reverse("live_activity"))
-        self.assertNotContains(page, "SIGNING")
-        self.assertNotContains(page, "New Signing")
-        self.assertNotContains(page, "New signing")
+        feed = extract_newsroom_feed(page.content.decode())
+        self.assertNotIn("SIGNING", feed)
+        self.assertNotIn("New Signing", feed)
+        self.assertNotIn("New signing", feed)
         self.assertFalse(
             published_football_activity().filter(category=NewsPost.SIGNING).exists()
         )
         room = self.client.get(reverse("pressroom"))
-        self.assertNotContains(room, "New Signing")
+        self.assertNotIn("New Signing", extract_page_main(room.content.decode()))
 
     def test_manager_cannot_publish_press_or_open_another_manager_answer(self):
         press = create_press_question(

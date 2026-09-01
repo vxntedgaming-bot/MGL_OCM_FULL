@@ -7,23 +7,25 @@
 <section class="mgl-section">
     {% url 'leagues_page' as leagues_index %}
     {% if competition_slug == "premier-league" %}
-        {% include "core/includes/mgl_page_header.html" with header_section="LEAGUE" header_title="PREMIER LEAGUE" header_description="The top active UFL competition." header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
+        {% include "core/includes/mgl_page_header.html" with header_section="LEAGUE" header_section_url=leagues_index header_title="PREMIER LEAGUE" header_icon="trophy" header_description="The top active UFL competition." header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
     {% elif competition_slug == "championship" %}
-        {% include "core/includes/mgl_page_header.html" with header_section="LEAGUE" header_title="CHAMPIONSHIP" header_description="Active division." header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
+        {% include "core/includes/mgl_page_header.html" with header_section="LEAGUE" header_section_url=leagues_index header_title="CHAMPIONSHIP" header_icon="trophy" header_description="Second UFL division." header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
     {% elif competition_slug == "league-one" %}
-        {% include "core/includes/mgl_page_header.html" with header_section="LEAGUE" header_title="LEAGUE ONE" header_description="Active division." header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
+        {% include "core/includes/mgl_page_header.html" with header_section="LEAGUE" header_section_url=leagues_index header_title="LEAGUE ONE" header_icon="trophy" header_description="Third UFL division." header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
     {% elif competition_slug == "cups" %}
-        {% include "core/includes/mgl_page_header.html" with header_section="LEAGUE" header_title="CUPS" header_description="Cup competitions are coming soon. They are not live." header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
+        {% include "core/includes/mgl_page_header.html" with header_section="LEAGUE" header_section_url=leagues_index header_title="UFL CUPS" header_icon="trophy" header_description="Knockout cup competitions, including the UFL Phantom Cup." header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
+    {% elif competition_slug == "champions-league" %}
+        {% include "core/includes/mgl_page_header.html" with header_section="LEAGUE" header_section_url=leagues_index header_title="UFL CHAMPIONS LEAGUE" header_icon="trophy" header_description="16 teams. Two groups of eight. Top four from each group advance. Semi-finals are two legs. The final is one leg." header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
     {% else %}
-        {% include "core/includes/mgl_page_header.html" with header_section="LEAGUE" header_title=competition_name header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
+        {% include "core/includes/mgl_page_header.html" with header_section="LEAGUE" header_section_url=leagues_index header_title=competition_name header_icon="trophy" header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
     {% endif %}
     {% include "mgl/includes/competition_selector.html" %}
-    {% if is_live %}
+    {% if coming_soon or not is_live %}
+        {% include "mgl/includes/empty_state.html" with kicker="COMING SOON" title="NO LIVE COMPETITION DATA" body="This competition structure is published. Live fixtures and results will appear here when the league office starts it. Nothing on this page is a fake score." %}
+    {% else %}
         <div class="dashboard-panel">
             {% include "mgl/includes/league_table.html" with table=table league=league %}
         </div>
-    {% else %}
-        {% include "mgl/includes/empty_state.html" with kicker="NOT LIVE" title=competition_name|upper %}
     {% endif %}
 </section>
 {% endblock %}

@@ -52,6 +52,18 @@
             <p>Open the existing season editor to finalise awards and freeze the snapshot.</p>
             <a href="{% url 'season_management' %}?season={{ active_season.number }}" class="header-button mgl-cp-approve">OPEN SEASON SETTINGS</a>
         </article>
+        {% if is_owner %}
+        <article class="mgl-cp-action-card">
+            <h2>42-club structure</h2>
+            <p>Create missing official Premier League, Championship and League One clubs. Does not delete clubs, reset tokens, or apply starting squads.</p>
+            <form method="post" data-confirm-phrase="ENSURE CLUBS" data-confirm="Type ENSURE CLUBS. Missing real clubs will be created. Existing clubs stay in place." data-confirm-title="ENSURE 42 CLUBS" data-confirm-ok="CONFIRM">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="ensure_clubs">
+                <input type="text" name="confirm_text" placeholder="Type ENSURE CLUBS" required>
+                <button class="header-button mgl-cp-review-btn" type="submit">ENSURE 42 CLUBS</button>
+            </form>
+        </article>
+        {% endif %}
     </div>
     <p class="mgl-cp-warn">These actions are permanent and cannot be undone!</p>
 {% else %}

@@ -5,12 +5,9 @@
 
 {% block content %}
 <section class="mgl-section">
+    {% url 'manager_hub' as hub_url %}
+    {% include "core/includes/mgl_page_header.html" with header_section="PROFILE" header_section_url=hub_url header_title="CAREER PROFILE" header_icon="users" header_description="Permanent manager record. Tokens, clubs, results and career activity stay with this profile if you resign." %}
     <div class="section-heading">
-        <div>
-            <div class="eyebrow">MANAGER PROFILE</div>
-            <h1>{{ manager.display_name|upper }}</h1>
-            <p>{{ manager.user.username }} · {{ manager.gamertag }}</p>
-        </div>
         <span class="section-line"></span>
     </div>
 

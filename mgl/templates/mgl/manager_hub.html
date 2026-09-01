@@ -242,7 +242,7 @@
         <div class="mgl-dash-grid">
             <a href="{% url 'job_centre' %}" class="mgl-dash-card mgl-dash-card-feature">
                 <div>
-                    <small>JOB CENTRE</small>
+                    <small>JOB OFFERS</small>
                     <strong>APPLY FOR A CLUB</strong>
                 </div>
             </a>
@@ -425,7 +425,7 @@
         <div class="eyebrow">CLUB</div>
         <h2>RESIGN FROM CLUB?</h2>
         <p>Are you sure you want to leave your current UFL club?</p>
-        <p>Resigning does not delete your account. Your profile, tokens, statistics and club history stay with this manager. {{ team.name }} keeps its squad and becomes available in the Job Centre.</p>
+        <p>Resigning does not delete your account. Your profile, tokens, statistics and club history stay with this manager. {{ team.name }} keeps its squad and becomes available in Job Offers.</p>
         <form method="post" action="{% url 'resign_from_club' %}" class="mgl-modal-form">
             {% csrf_token %}
             <input type="hidden" name="next" value="hub">

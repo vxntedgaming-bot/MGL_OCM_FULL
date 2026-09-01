@@ -44,7 +44,7 @@ from .market import (
     token_balance_for_user,
 )
 from .nav import COMPETITIONS, LIVE_COMPETITION_SLUGS, live_competition_choices
-from .permissions import approved_manager, is_owner_or_admin, owner_admin_required
+from .permissions import approved_manager, career_required, is_owner_or_admin, owner_admin_required
 from .player_state import (
     AUCTION,
     CLUB_PLAYER,
@@ -107,6 +107,9 @@ def mgl_index(request):
 
 def home(request):
     from mgl.season_history import current_season_number
+
+    if approved_manager(request.user):
+        return redirect("manager_hub")
 
     league = active_league()
     upcoming_qs = (
@@ -349,7 +352,7 @@ def _notify_next(request):
     return reverse("manager_hub")
 
 
-@login_required
+@career_required
 def manager_notifications(request):
     manager = manager_for_user(request.user)
     is_control = getattr(request.user, "role", None) in ("OWNER", "ADMIN")
@@ -376,7 +379,7 @@ def manager_notifications(request):
     )
 
 
-@login_required
+@career_required
 def notification_panel(request):
     manager = manager_for_user(request.user)
     is_control = getattr(request.user, "role", None) in ("OWNER", "ADMIN")
@@ -400,7 +403,7 @@ def unread_count_safe(user):
     return unread_count_for_user(user)
 
 
-@login_required
+@career_required
 @require_POST
 def notification_mark_all_read(request):
     from mgl.notifications import mark_inbox_read
@@ -413,7 +416,7 @@ def notification_mark_all_read(request):
     return redirect(request.POST.get("next") or request.META.get("HTTP_REFERER") or "manager_hub")
 
 
-@login_required
+@career_required
 @require_POST
 def notification_mark_read(request, notification_id):
     from mgl.notifications import mark_notification_read, unread_count_for_user
@@ -426,7 +429,7 @@ def notification_mark_read(request, notification_id):
     return redirect(request.POST.get("next") or request.META.get("HTTP_REFERER") or "manager_hub")
 
 
-@login_required
+@career_required
 @require_POST
 def manager_notification_respond(request, notification_id):
     from django.core.exceptions import PermissionDenied
@@ -479,7 +482,7 @@ def manager_notification_respond(request, notification_id):
     return redirect(_notify_next(request))
 
 
-@login_required
+@career_required
 def transfer_requests(request):
     from mgl.market import close_expired_auctions
     from mgl.transfer_requests import completed_transfers_for
@@ -498,7 +501,7 @@ def transfer_requests(request):
 
     incoming = incoming_transfer_requests(club)
     outgoing = outgoing_transfer_requests(manager)
-    completed = completed_transfers_for(None, all_clubs=True)
+    completed = completed_transfers_for(club)
     return render(
         request,
         "mgl/transfer_requests.html",
@@ -512,7 +515,7 @@ def transfer_requests(request):
     )
 
 
-@login_required
+@career_required
 @require_POST
 def respond_transfer_request(request, listing_id):
     from mgl.market import respond_to_transfer_offer
@@ -567,7 +570,7 @@ def respond_transfer_request(request, listing_id):
     return redirect("transfer_requests")
 
 
-@login_required
+@career_required
 def manager_hub(request):
     manager = manager_for_user(request.user)
 
@@ -801,6 +804,7 @@ def manager_hub(request):
     )
 
 
+@career_required
 def fixture_list(request):
     from mgl.fixture_display import (
         annotate_fixtures,
@@ -888,7 +892,7 @@ def fixture_list(request):
     )
 
 
-@login_required
+@career_required
 @transaction.atomic
 def submit_match(request, fixture_id):
     from mgl.match_submit import MatchSubmitError, save_match_submission, submission_blocks_resubmit
@@ -1025,7 +1029,7 @@ def submit_match(request, fixture_id):
     )
 
 
-@login_required
+@career_required
 @require_POST
 def press_conference(request, fixture_id):
     fixture = get_object_or_404(Fixture, pk=fixture_id)
@@ -1075,7 +1079,7 @@ def press_conference(request, fixture_id):
     return redirect("pressroom")
 
 
-@login_required
+@career_required
 @require_POST
 def release_my_player(request, player_id):
     from .services import request_player_release
@@ -1117,7 +1121,7 @@ FREE_AGENT_POSITION_GROUPS = {
 }
 
 
-@login_required
+@career_required
 def free_agents(request):
     search = request.GET.get("search", "").strip()
     position = request.GET.get("position", "").strip()
@@ -1205,7 +1209,7 @@ def free_agents(request):
     )
 
 
-@login_required
+@career_required
 @require_POST
 def sign_free_agent_view(request, player_id):
     from .services import sign_free_agent
@@ -1267,7 +1271,7 @@ def unassigned_players_page(request):
     )
 
 
-@login_required
+@career_required
 def manager_profile(request):
     manager = manager_for_user(request.user)
 
@@ -1343,7 +1347,7 @@ def manager_profile(request):
     )
 
 
-@login_required
+@career_required
 @require_POST
 def resign_from_club(request):
     manager = approved_manager(request.user)
@@ -1374,6 +1378,7 @@ PLAYER_DATABASE_FACE_FILTERS = (
 )
 
 
+@career_required
 def player_database(request):
     tier = request.GET.get("tier", "").upper()
     search = request.GET.get("search", "").strip()
@@ -1508,12 +1513,18 @@ def player_database(request):
             "querystring": _querystring(request),
             "result_count": page.paginator.count,
             "total_player_count": total_player_count,
+            "ovr_groups": (
+                ("48–60", "48", "60"),
+                ("60–70", "60", "70"),
+                ("70–80", "70", "80"),
+                ("80–93", "80", "93"),
+            ),
             **face_values,
         },
     )
 
 
-@login_required
+@career_required
 def rewards(request):
     manager = manager_for_user(request.user)
 
@@ -1547,7 +1558,7 @@ def rewards(request):
     )
 
 
-@login_required
+@career_required
 def team_management(request):
     team = getattr(request.user, "managed_team", None)
 
@@ -1885,6 +1896,7 @@ def competition_page(request, slug):
             "competition_choices": live_competition_choices(),
             "selector_kind": "tables",
             "selector_label": "League tables",
+            "coming_soon": slug in {"cups", "champions-league"},
         },
     )
 
@@ -1927,7 +1939,7 @@ def manager_search(request):
     )
 
 
-def transfer_history(request):
+def public_completed_transfers(request):
     from mgl.market import close_expired_auctions, transfer_window_is_open
     from mgl.transfer_requests import (
         completed_transfer_queryset,
@@ -1966,11 +1978,97 @@ def transfer_history(request):
             "window_open": transfer_window_is_open(),
             "completed_count": page.paginator.count,
             "latest_result": latest_result,
+            "is_personal": False,
         },
     )
 
 
-@login_required
+@career_required
+def transfer_history(request):
+    from mgl.market import close_expired_auctions, transfer_window_is_open
+    from mgl.transfer_requests import (
+        completed_transfers_for,
+        incoming_transfer_requests,
+        outgoing_transfer_requests,
+    )
+
+    close_expired_auctions()
+    club = club_for_user(request.user)
+    manager = approved_manager(request.user)
+    incoming = incoming_transfer_requests(club) if club else []
+    outgoing = outgoing_transfer_requests(manager) if manager else []
+    completed = completed_transfers_for(club) if club else []
+    return render(
+        request,
+        "mgl/manager_transfer_history.html",
+        {
+            "club": club,
+            "incoming_offers": incoming,
+            "outgoing_offers": outgoing,
+            "completed_transfers": completed,
+            "window_open": transfer_window_is_open(),
+        },
+    )
+
+
+@career_required
+def recruitment_drive(request):
+    from mgl.recruitment import (
+        pack_choices,
+        pending_opening_for,
+        players_for_opening,
+    )
+
+    manager = approved_manager(request.user)
+    team = club_for_user(request.user)
+    opening = pending_opening_for(manager)
+    return render(
+        request,
+        "mgl/recruitment_drive.html",
+        {
+            "manager": manager,
+            "team": team,
+            "packs": pack_choices(),
+            "opening": opening,
+            "candidates": players_for_opening(opening),
+            "token_balance": token_balance_for_user(request.user),
+        },
+    )
+
+
+@career_required
+@require_POST
+def open_recruitment_pack(request):
+    from mgl.recruitment import open_recruitment_pack as open_pack
+
+    try:
+        open_pack(request.user, request.POST.get("pack_code"))
+        messages.success(request, "Pack opened. Choose one of the three players.")
+    except ValueError as exc:
+        messages.error(request, str(exc))
+    return redirect("recruitment_drive")
+
+
+@career_required
+@require_POST
+def choose_recruitment_player(request, opening_id):
+    from mgl.recruitment import choose_recruitment_player as choose_player
+
+    try:
+        opening = choose_player(
+            request.user, opening_id, request.POST.get("player_id")
+        )
+        if opening.chosen_player_id:
+            messages.success(
+                request,
+                f"{opening.chosen_player.name} has joined your club.",
+            )
+    except ValueError as exc:
+        messages.error(request, str(exc))
+    return redirect("recruitment_drive")
+
+
+@career_required
 def scouting(request):
     from mgl.scouting import (
         BRONZE,
@@ -2212,7 +2310,7 @@ def scouting(request):
     )
 
 
-@login_required
+@career_required
 @require_POST
 def list_player_for_auction(request, player_id):
     from mgl.ufl_settings import allow_manager_auctions
@@ -2241,7 +2339,7 @@ def list_player_for_auction(request, player_id):
     return redirect("team_management")
 
 
-@login_required
+@career_required
 @require_POST
 def auction_free_agent(request, player_id):
     if getattr(request.user, "role", None) not in [User.OWNER, User.ADMIN]:

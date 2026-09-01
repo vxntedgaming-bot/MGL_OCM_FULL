@@ -1,8 +1,11 @@
+from datetime import timedelta
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Count, Prefetch
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
@@ -13,7 +16,7 @@ from mgl.market import (
     place_auction_bid,
     token_balance_for_user,
 )
-from mgl.permissions import approved_manager
+from mgl.permissions import approved_manager, career_required
 from mgl.services import manager_for_user
 from players.search import matching_player_ids
 
@@ -51,6 +54,7 @@ def _attach_bid_meta(auctions):
     return auctions
 
 
+@career_required
 def live_auctions(request):
     close_expired_auctions()
     detach_live_club_auction_players()
@@ -100,11 +104,47 @@ def live_auctions(request):
 
     manager = manager_for_user(request.user) if request.user.is_authenticated else None
     my_won = 0
+    my_auctions = []
+    ending_auctions = []
+    now = timezone.now()
+    soon = now + timedelta(minutes=15)
+    ending_auctions = [
+        row for row in live_qs
+        if row.ends_at and now <= row.ends_at <= soon
+    ]
+    _attach_bid_meta(ending_auctions)
     if manager:
         my_won = PlayerAuction.objects.filter(
             status=PlayerAuction.ENDED,
             winning_manager=manager,
         ).count()
+        my_auctions = list(
+            PlayerAuction.objects.filter(listed_by_manager=manager)
+            .select_related("player", "winning_manager", "origin_team")
+            .order_by("-ends_at", "-id")[:20]
+        )
+        _attach_bid_meta(my_auctions)
+
+    tab = (request.GET.get("tab") or "live").strip().lower()
+    if tab not in {"live", "ending", "mine", "history"}:
+        tab = "live"
+
+    if tab == "ending":
+        board = ending_auctions
+        page_obj = None
+        heading = "ENDING SOON"
+    elif tab == "mine":
+        board = my_auctions
+        page_obj = None
+        heading = "MY AUCTIONS"
+    elif tab == "history":
+        board = list(ended)
+        page_obj = None
+        heading = "AUCTION HISTORY"
+    else:
+        board = page
+        page_obj = page
+        heading = "LIVE AUCTIONS"
 
     open_auction = None
     open_raw = request.GET.get("auction", "").strip()
@@ -120,8 +160,8 @@ def live_auctions(request):
         request,
         "auctions/live_auctions.html",
         {
-            "auctions": page,
-            "page_obj": page,
+            "auctions": board,
+            "page_obj": page_obj,
             "ended_auctions": ended,
             "manager": manager,
             "token_balance": token_balance_for_user(request.user),
@@ -129,16 +169,20 @@ def live_auctions(request):
             "selected_position": position,
             "per_page": page_size,
             "querystring": _querystring(request),
-            "result_count": page.paginator.count,
+            "result_count": page.paginator.count if tab == "live" else len(board),
             "live_count": live_count,
             "live_bid_count": live_bid_count,
             "my_won": my_won,
             "open_auction": open_auction,
+            "auction_tab": tab,
+            "auction_heading": heading,
+            "ending_auctions": ending_auctions,
+            "my_auctions": my_auctions,
         },
     )
 
 
-@login_required
+@career_required
 @require_POST
 def place_bid(request, auction_id):
     manager = approved_manager(request.user)
