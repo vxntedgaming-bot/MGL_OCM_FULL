@@ -1,11 +1,11 @@
 <div class="ufl-livebar" role="region" aria-label="Live activity">
     <div class="ufl-livebar-window">
-        <span class="ufl-live-pill {% if window_open %}is-open{% else %}is-closed{% endif %}">
-            ● {% if window_open %}WINDOW OPEN{% else %}WINDOW CLOSED{% endif %}
+        <span class="ufl-live-pill is-live">
+            ● LIVE
         </span>
     </div>
     <div class="ufl-livebar-track">
-        <strong class="ufl-livebar-label">LIVE ACTIVITY</strong>
+        <strong class="ufl-livebar-label">UFL LIVE ACTIVITY</strong>
         {% if mgl_live_items %}
             <div class="ufl-livebar-marquee">
                 <div class="ufl-livebar-scroll">
@@ -25,6 +25,6 @@
         {% if mgl_live_latest %}
             <span class="ufl-livebar-ago">{{ mgl_live_latest|timesince }} ago</span>
         {% endif %}
-        <a href="{% url 'live_activity' %}" class="ufl-livebar-all">ALL →</a>
+        <a href="{% url 'live_activity' %}" class="ufl-livebar-all">ALL ACTIVITY →</a>
     </div>
 </div>

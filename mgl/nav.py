@@ -8,7 +8,7 @@ from mgl.permissions import approved_manager
 
 LEAGUE_MENU = {
     "id": "leagues",
-    "label": "LEAGUE",
+    "label": "LEAGUES",
     "current": {
         "leagues_page",
         "competition_page",
@@ -110,24 +110,32 @@ MARKET_MENU = {
     ),
 }
 
-NEWS_MENU = {
+STATS_MENU = {
     "id": "news",
-    "label": "NEWS",
+    "label": "STATS & HISTORY",
     "current": {
         "news_centre",
         "live_activity",
         "pressroom",
         "answer_press",
+        "stats_page",
+        "league_stats",
+        "historical_tables",
+        "manager_search",
     },
     "items": (
         {"label": "UFL Newsroom", "url_name": "live_activity"},
         {"label": "UFL Press Conference", "url_name": "pressroom", "divider": True},
+        {"label": "Premier League Stats", "url_name": "league_stats", "url_kwargs": {"slug": "premier-league"}, "divider": True},
+        {"label": "Championship Stats", "url_name": "league_stats", "url_kwargs": {"slug": "championship"}, "style": "sub"},
+        {"label": "League One Stats", "url_name": "league_stats", "url_kwargs": {"slug": "league-one"}, "style": "sub"},
+        {"label": "Career History", "url_name": "historical_tables", "divider": True},
     ),
 }
 
 CAREER_MENU = {
     "id": "career",
-    "label": "MY CAREER",
+    "label": "MY TEAM",
     "current": {
         "manager_hub",
         "team_management",
@@ -135,11 +143,15 @@ CAREER_MENU = {
         "submit_match",
         "fixture_stats",
         "historical_tables",
+        "clubs_index",
+        "club_page",
     },
     "items": (
         {"label": "Dashboard", "url_name": "manager_hub"},
         {"label": "My Squad", "url_name": "team_management", "divider": True},
         {"label": "Fixtures", "url_name": "fixture_list", "divider": True},
+        {"label": "CLUBS", "url_name": "clubs_index", "divider": True},
+        {"label": "Club Profiles", "url_name": "clubs_index"},
         {"label": "Career History", "url_name": "manager_profile", "divider": True},
     ),
 }
@@ -197,11 +209,9 @@ NAV_DROPDOWNS = (LEAGUE_MENU,)
 # Approved managers / Control.
 SIGNED_IN_NAV_DROPDOWNS = (
     CAREER_MENU,
-    CLUBS_MENU,
     MARKET_MENU,
     LEAGUE_MENU,
-    NEWS_MENU,
-    PROFILE_MENU,
+    STATS_MENU,
     CONTROL_MENU,
 )
 

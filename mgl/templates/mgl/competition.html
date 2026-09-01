@@ -2,30 +2,113 @@
 {% load static mgl_ui %}
 
 {% block title %}{{ competition_name }} — UFL{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/mgl-leagues.css' %}">
+{% endblock %}
 
 {% block content %}
-<section class="mgl-section">
     {% url 'leagues_page' as leagues_index %}
-    {% if competition_slug == "premier-league" %}
-        {% include "core/includes/mgl_page_header.html" with header_section="LEAGUE" header_section_url=leagues_index header_title="PREMIER LEAGUE" header_icon="trophy" header_description="The top active UFL competition." header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
-    {% elif competition_slug == "championship" %}
-        {% include "core/includes/mgl_page_header.html" with header_section="LEAGUE" header_section_url=leagues_index header_title="CHAMPIONSHIP" header_icon="trophy" header_description="Second UFL division." header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
-    {% elif competition_slug == "league-one" %}
-        {% include "core/includes/mgl_page_header.html" with header_section="LEAGUE" header_section_url=leagues_index header_title="LEAGUE ONE" header_icon="trophy" header_description="Third UFL division." header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
-    {% elif competition_slug == "cups" %}
-        {% include "core/includes/mgl_page_header.html" with header_section="LEAGUE" header_section_url=leagues_index header_title="UFL CUPS" header_icon="trophy" header_description="Knockout cup competitions, including the UFL Phantom Cup." header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
-    {% elif competition_slug == "champions-league" %}
-        {% include "core/includes/mgl_page_header.html" with header_section="LEAGUE" header_section_url=leagues_index header_title="UFL CHAMPIONS LEAGUE" header_icon="trophy" header_description="16 teams. Two groups of eight. Top four from each group advance. Semi-finals are two legs. The final is one leg." header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
-    {% else %}
-        {% include "core/includes/mgl_page_header.html" with header_section="LEAGUE" header_section_url=leagues_index header_title=competition_name header_icon="trophy" header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
-    {% endif %}
-    {% include "mgl/includes/competition_selector.html" %}
-    {% if coming_soon or not is_live %}
-        {% include "mgl/includes/empty_state.html" with kicker="COMING SOON" title="NO LIVE COMPETITION DATA" body="This competition structure is published. Live fixtures and results will appear here when the league office starts it. Nothing on this page is a fake score." %}
-    {% else %}
-        <div class="dashboard-panel">
-            {% include "mgl/includes/league_table.html" with table=table league=league %}
+    {% url 'competition_page' 'cups' as cups_index %}
+    {% if competition_slug == "cups" %}
+<section class="mgl-section ufl-cups-page">
+    {% include "core/includes/mgl_page_header.html" with header_section="CUPS" header_section_url=leagues_index header_title="CUP COMPETITIONS" header_icon="trophy" header_description="Compete in the biggest cups and chase glory. Live draws and results appear here when the league office starts a competition. Nothing on this page is a fake score." header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
+
+    <section class="ufl-cup-band">
+        <div class="ufl-cup-band-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg>
+            <h2>LIVE NOW</h2>
         </div>
-    {% endif %}
+        <div class="ufl-cup-grid">
+            {% for cup in live_cups %}
+                {% include "mgl/includes/cup_card.html" with cup=cup %}
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with kicker="LIVE NOW" title="NO LIVE CUP COMPETITION" body="Cup competitions are published. Live knockout rounds will appear here when the office starts them." %}
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="ufl-cup-band">
+        <div class="ufl-cup-band-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 5h8v4a4 4 0 0 1-8 0V5z"/><path d="M12 13v3"/><path d="M9 20h6"/></svg>
+            <h2>RECENTLY WON</h2>
+        </div>
+        <div class="ufl-cup-grid">
+            {% for cup in won_cups %}
+                {% include "mgl/includes/cup_card.html" with cup=cup %}
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with kicker="COMPLETE" title="NO COMPLETED CUPS YET" %}
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="ufl-cup-band">
+        <div class="ufl-cup-band-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M8 3.5v3M16 3.5v3M3.5 10h17"/></svg>
+            <h2>UPCOMING</h2>
+        </div>
+        <div class="ufl-cup-grid">
+            {% for cup in upcoming_cups %}
+                {% include "mgl/includes/cup_card.html" with cup=cup %}
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with kicker="UPCOMING" title="NO SCHEDULED CUPS" %}
+            {% endfor %}
+        </div>
+    </section>
 </section>
+{% elif coming_soon or not is_live %}
+<section class="mgl-section ufl-cup-detail">
+    {% if competition_slug == "champions-league" %}
+        {% include "core/includes/mgl_page_header.html" with header_section="CUPS" header_section_url=cups_index header_title="CHAMPIONS LEAGUE" header_icon="trophy" header_description="Europe’s elite. Only the best compete here. Live fixtures and a bracket will appear when the league office starts this competition." header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
+    {% else %}
+        {% include "core/includes/mgl_page_header.html" with header_section="CUPS" header_section_url=cups_index header_title=competition_name header_icon="trophy" header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
+    {% endif %}
+    <div class="ufl-cup-hero">
+        <div>
+            <p class="mgl-home-kicker">{{ competition_name|upper }}</p>
+            <h2>{{ competition_name|upper }}</h2>
+            {% if competition_slug == "champions-league" %}
+                <p>16 teams. Two groups of eight. Top four from each group advance. Semi-finals are two legs. The final is one leg.</p>
+                <p class="ufl-cup-meta"><span>16 TEAMS</span><span>KNOCKOUT</span></p>
+            {% else %}
+                <p>Knockout cup competitions, including the UFL Phantom Cup.</p>
+                <p class="ufl-cup-meta"><span>KNOCKOUT</span></p>
+            {% endif %}
+        </div>
+        <div class="ufl-cup-hero-art" aria-hidden="true">
+            <img src="{% static 'core/img/mgl-cup-trophy.png' %}" alt="">
+        </div>
+    </div>
+    <nav class="ufl-subtabs" aria-label="Competition sections">
+        <a href="?tab=overview" class="{% if cup_tab == 'overview' %}is-active{% endif %}">OVERVIEW</a>
+        <a href="?tab=fixtures" class="{% if cup_tab == 'fixtures' %}is-active{% endif %}">FIXTURES</a>
+        <a href="?tab=bracket" class="{% if cup_tab == 'bracket' %}is-active{% endif %}">BRACKET</a>
+        <a href="?tab=stats" class="{% if cup_tab == 'stats' %}is-active{% endif %}">STATS</a>
+        <a href="?tab=history" class="{% if cup_tab == 'history' %}is-active{% endif %}">HISTORY</a>
+    </nav>
+    {% include "mgl/includes/empty_state.html" with kicker="COMING SOON" title="NO LIVE COMPETITION DATA" body="This competition structure is published. Live fixtures, brackets and results will appear here when the league office starts it. Nothing on this page is a fake score." %}
+    <p><a href="{% url 'competition_page' 'cups' %}" class="secondary-button">← BACK TO CUPS</a></p>
+</section>
+{% else %}
+<section class="mgl-section ufl-league-page">
+    {% if competition_slug == "premier-league" %}
+        {% include "core/includes/mgl_page_header.html" with header_section="LEAGUE TABLES" header_section_url=leagues_index header_title="LEAGUE TABLES" header_icon="trophy" header_description="The top active UFL competition." header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
+    {% elif competition_slug == "championship" %}
+        {% include "core/includes/mgl_page_header.html" with header_section="LEAGUE TABLES" header_section_url=leagues_index header_title="LEAGUE TABLES" header_icon="trophy" header_description="Second UFL division." header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
+    {% elif competition_slug == "league-one" %}
+        {% include "core/includes/mgl_page_header.html" with header_section="LEAGUE TABLES" header_section_url=leagues_index header_title="LEAGUE TABLES" header_icon="trophy" header_description="Third UFL division." header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
+    {% else %}
+        {% include "core/includes/mgl_page_header.html" with header_section="LEAGUE TABLES" header_section_url=leagues_index header_title=competition_name header_icon="trophy" header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
+    {% endif %}
+    <div class="ufl-league-title">
+        <h2>LEAGUE TABLES <span class="is-gold">{{ competition_name|upper }}</span></h2>
+        {% if league.season %}
+            <p>SEASON: {{ competition_name|upper }} - SEASON {{ league.season }}</p>
+        {% endif %}
+    </div>
+    {% include "mgl/includes/competition_selector.html" %}
+    <div class="dashboard-panel ufl-table-panel">
+        {% include "mgl/includes/league_table.html" with table=table league=league %}
+    </div>
+</section>
+{% endif %}
 {% endblock %}

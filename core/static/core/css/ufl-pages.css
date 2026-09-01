@@ -907,3 +907,19 @@ input[type="checkbox"]:checked {
         max-width: 1180px;
     }
 }
+
+.mgl-standings.ufl-standings-head,
+.mgl-standings.ufl-standings-row {
+    display: grid;
+    grid-template-columns: 40px minmax(160px, 1.6fr) repeat(5, 48px) 56px minmax(110px, 0.8fr) 56px 64px;
+    gap: 8px;
+    align-items: center;
+    padding: 12px 14px;
+}
+
+@media (max-width: 900px) {
+    .mgl-standings.ufl-standings-head,
+    .mgl-standings.ufl-standings-row {
+        grid-template-columns: 32px minmax(140px, 1fr) repeat(4, 36px) 48px minmax(90px, 0.7fr);
+    }
+}

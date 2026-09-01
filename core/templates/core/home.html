@@ -14,21 +14,19 @@
     </div>
     <div class="mgl-home-hero-copy">
         <p class="mgl-home-kicker">ULTIMATE FANTASY LEAGUE</p>
-        <h1>BUILD YOUR CLUB.<br>MANAGE YOUR SQUAD.<br>MAKE YOUR LEGACY.</h1>
+        <h1>EA FC<br>ONLINE<br><span class="is-gold">CAREER MODE</span></h1>
         <p class="mgl-home-hero-mode">EA FC 26 CAREER MODE</p>
         {% site_text "home.hero_title" as hero_title %}
         {% if hero_title %}
             <p class="mgl-home-hero-cms">{{ hero_title }}</p>
         {% endif %}
         <p class="mgl-home-hero-lead">
+            Take control of a club. Build your squad. Manage your fixtures. Compete against real managers in Ultimate Fantasy League.
             {% site_text "home.hero_subtitle" %}
         </p>
         <div class="hero-actions">
-            <a href="{{ apply_club_url }}" class="primary-button">ENTER THE LEAGUE</a>
-            <a href="{% url 'leagues_page' %}" class="secondary-button">VIEW LEAGUE</a>
-            {% if discord_invite_url %}
-                <a href="{{ discord_invite_url }}" class="secondary-button" target="_blank" rel="noopener">JOIN DISCORD</a>
-            {% endif %}
+            <a href="{{ apply_club_url }}" class="primary-button">VIEW JOB OPENINGS</a>
+            <a href="{% url 'leagues_page' %}" class="secondary-button">VIEW LEAGUE TABLE</a>
         </div>
     </div>
 </section>
@@ -36,12 +34,7 @@
 <section class="mgl-home-stats" aria-label="Live UFL summary">
     <div class="mgl-home-stats-inner">
         <div>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 20V8l8-4 8 4v12"/><path d="M9 20v-6h6v6"/></svg>
-            <strong>{{ club_count }}</strong>
-            <span>ACTIVE CLUBS</span>
-        </div>
-        <div>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 12a3.5 3.5 0 1 0-3.5-3.5A3.5 3.5 0 0 0 12 12Z"/><path d="M5 20a7 7 0 0 1 14 0"/><path d="M18 8a2.4 2.4 0 1 0 0-4.8"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 12a3.5 3.5 0 1 0-3.5-3.5A3.5 3.5 0 0 0 12 12Z"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>
             <strong>{{ manager_count }}</strong>
             <span>ACTIVE MANAGERS</span>
         </div>
@@ -51,11 +44,83 @@
             <span>MATCHES PLAYED</span>
         </div>
         <div>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 20V8l8-4 8 4v12"/><path d="M9 20v-6h6v6"/></svg>
+            <strong>{{ club_count }}</strong>
+            <span>ACTIVE CLUBS</span>
+        </div>
+        <div>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M6 15.5 12 4l6 11.5"/><path d="M8.2 20h7.6"/><path d="M12 4v16"/></svg>
             <strong>SEASON {{ current_season_number }}</strong>
             <span>CURRENT SEASON</span>
         </div>
     </div>
+</section>
+
+<section class="ufl-home-split">
+    <div class="ufl-home-split-main">
+        <div class="mgl-home-experience-head">
+            <p class="mgl-home-kicker">GETTING STARTED</p>
+            <h2>HOW UFL WORKS</h2>
+        </div>
+        <ol class="ufl-how">
+            <li>
+                <em>STEP 01</em>
+                <h3>Become a Manager</h3>
+                <p>Create an account and apply for a vacant club in Job Centre. Owner/Admin approval appoints you.</p>
+                <a href="{{ apply_club_url }}">Manager Career →</a>
+            </li>
+            <li>
+                <em>STEP 02</em>
+                <h3>Build Your Squad</h3>
+                <p>Your official UFL squad is on the site. Mirror it in EA FC with Edit Team. Tactics stay yours.</p>
+                <span>EA FC</span>
+            </li>
+            <li>
+                <em>STEP 03</em>
+                <h3>Play Your Fixtures</h3>
+                <p>Arrange the match, play, then submit the result. The office approves and the table updates.</p>
+                <span>Fixtures</span>
+            </li>
+            <li>
+                <em>STEP 04</em>
+                <h3>Transfer &amp; Recruit</h3>
+                <p>Propose deals, use Recruitment Drive, and spend tokens. Ownership only moves after office approval.</p>
+                <span>Transfers</span>
+            </li>
+            <li>
+                <em>STEP 05</em>
+                <h3>Build Your Legacy</h3>
+                <p>Results, tokens and history stay with your manager across seasons.</p>
+                <span>Career Mode</span>
+            </li>
+        </ol>
+        <div class="ufl-home-mini-cta">
+            <article>
+                <h3>Ready to take the dugout?</h3>
+                <a href="{{ apply_club_url }}" class="primary-button">VIEW JOB OPENINGS</a>
+            </article>
+            <article>
+                <h3>Create your UFL account</h3>
+                <a href="{{ join_mgl_url }}" class="secondary-button">CREATE ACCOUNT</a>
+            </article>
+        </div>
+    </div>
+    <aside class="ufl-home-split-side">
+        <p class="mgl-home-kicker">HOW IT MIRRORS</p>
+        <h2>ONE CLUB. TWO EXPERIENCES.</h2>
+        <p>YOUR CLUB. Two surfaces, one identity. What you see on the site is exactly what you build in EA FC. Your squad is assigned — you mirror it in-game and manage it all season.</p>
+        <div class="ufl-two-screens">
+            <figure>
+                <img src="{% static 'core/img/mgl-starting-xi.png' %}" alt="UFL squad on the site">
+                <figcaption>UFL on site — official squad, ratings and positions</figcaption>
+            </figure>
+            <figure>
+                <img src="{% static 'core/img/mgl-home-hero.jpg' %}" alt="EA FC in-game">
+                <figcaption>EA FC in-game — Edit Team mirrors your assigned squad</figcaption>
+            </figure>
+        </div>
+        <p class="ufl-home-note">We use original release-day EA FC26 squad ratings — not live winter updates.</p>
+    </aside>
 </section>
 
 <section class="mgl-home-board-wrap">
@@ -93,13 +158,6 @@
                             <strong>{{ next_fixture.away_team.name }}</strong>
                         </div>
                     </div>
-                    <p class="mgl-home-fixture-when">
-                        {% if next_fixture.scheduled_at %}
-                            {{ next_fixture.scheduled_at|date:"l j M Y, g:i A"|upper }}
-                        {% else %}
-                            DATE TBC
-                        {% endif %}
-                    </p>
                     <a href="{% url 'competition_page' 'premier-league' %}" class="secondary-button">VIEW LEAGUE</a>
                 </div>
             {% else %}
@@ -119,87 +177,34 @@
     </div>
 </section>
 
-<section class="mgl-home-board-wrap">
-    <div class="mgl-home-board">
-        <article class="mgl-home-card">
-            <div class="mgl-home-card-head">
-                <h2>RECENT RESULTS</h2>
-                <a href="{% url 'live_activity' %}" class="view-all">VIEW ALL →</a>
-            </div>
-            {% for fixture in recent_results %}
-                <p>
-                    <strong>{{ fixture.home_team.name }}</strong>
-                    {% if fixture.home_goals is not None and fixture.away_goals is not None %}
-                        {{ fixture.home_goals }}–{{ fixture.away_goals }}
-                    {% else %}
-                        FT
-                    {% endif %}
-                    <strong>{{ fixture.away_team.name }}</strong>
-                </p>
-            {% empty %}
-                {% include "mgl/includes/empty_state.html" with title="NO APPROVED RESULTS YET" %}
-            {% endfor %}
+<section class="mgl-home-experience">
+    <div class="mgl-home-experience-head">
+        <p class="mgl-home-kicker">THE UFL EXPERIENCE</p>
+        <h2>BUILD YOUR CAREER</h2>
+    </div>
+    <div class="mgl-home-experience-grid">
+        <article>
+            <h3>MANAGE YOUR CLUB</h3>
+            <p>Build your squad. Negotiate transfers. Compete against real managers. Build your career.</p>
         </article>
-
-        <article class="mgl-home-card">
-            <div class="mgl-home-card-head">
-                <h2>LATEST TRANSFERS</h2>
-                <a href="{% url 'public_transfers' %}" class="view-all">VIEW TRANSFERS →</a>
-            </div>
-            {% for row in recent_transfers %}
-                <p>
-                    <strong>{% if row.player %}{{ row.player.name }}{% else %}Token movement{% endif %}</strong>
-                    · {% if row.from_team %}{{ row.from_team.short_name }}{% else %}FA{% endif %}
-                    → {% if row.to_team %}{{ row.to_team.short_name }}{% else %}—{% endif %}
-                    · {{ row.amount }} TKN
-                </p>
-            {% empty %}
-                {% include "mgl/includes/empty_state.html" with title="NO COMPLETED TRANSFERS YET" %}
-            {% endfor %}
+        <article>
+            <h3>COMPETE AGAINST REAL MANAGERS</h3>
+            <p>Play matches and compete for trophies against other managers in UFL Career Mode.</p>
         </article>
-
-        <article class="mgl-home-card">
-            <div class="mgl-home-card-head">
-                <h2>LIVE AUCTIONS</h2>
-                <a href="{% url 'job_centre' %}" class="view-all">JOIN TO BID →</a>
-            </div>
-            {% for auction in live_home_auctions %}
-                <p>
-                    <strong>{{ auction.player.name }}</strong>
-                    · {{ auction.player.position }} · {{ auction.player.overall }} OVR
-                    · {{ auction.current_bid }} TKN
-                </p>
-            {% empty %}
-                {% include "mgl/includes/empty_state.html" with title="NO LIVE AUCTIONS" %}
-            {% endfor %}
+        <article>
+            <h3>BUILD YOUR LEGACY</h3>
+            <p>Take control of a club, build your squad, compete against other managers and fight for trophies.</p>
         </article>
-
-        <article class="mgl-home-card">
-            <div class="mgl-home-card-head">
-                <h2>FEATURED PLAYERS</h2>
-                <a href="{% url 'clubs_index' %}" class="view-all">VIEW CLUBS →</a>
-            </div>
-            {% for player in featured_players %}
-                <p>
-                    <a href="{% url 'player_profile' player.id %}"><strong>{{ player.name }}</strong></a>
-                    · {{ player.position }} · {{ player.goals }} G
-                    {% if player.mgl_team %} · {{ player.mgl_team.short_name }}{% endif %}
-                </p>
-            {% empty %}
-                {% include "mgl/includes/empty_state.html" with title="NO FEATURED PLAYERS YET" %}
-            {% endfor %}
-        </article>
-
-        <article class="mgl-home-card">
-            <div class="mgl-home-card-head">
-                <h2>LEAGUE ACTIVITY</h2>
-            </div>
-            {% for item in activity %}
-                <p><strong>{{ item.kind }}</strong> · {{ item.title }} · {{ item.detail }}</p>
-            {% empty %}
-                {% include "mgl/includes/empty_state.html" with title="NO LEAGUE ACTIVITY YET" %}
-            {% endfor %}
-        </article>
+    </div>
+    <div class="ufl-feature-grid" aria-label="UFL modules">
+        <a href="{% url 'competition_page' 'premier-league' %}"><span>Matchday</span></a>
+        <a href="{% url 'public_transfers' %}"><span>Transfers</span></a>
+        <a href="{{ apply_club_url }}"><span>Squad Management</span></a>
+        <a href="{% url 'leagues_page' %}"><span>League Table</span></a>
+        <a href="{{ apply_club_url }}"><span>Manager Career</span></a>
+        <a href="{% url 'historical_tables' %}"><span>Club History</span></a>
+        <a href="{% url 'job_centre' %}"><span>Tokens System</span></a>
+        <a href="{% url 'job_centre' %}"><span>Recruitment Drive</span></a>
     </div>
 </section>
 
@@ -218,58 +223,19 @@
     </div>
 </section>
 
-<section class="mgl-home-feature mgl-home-legacy">
-    <div class="mgl-home-feature-copy">
-        <p class="mgl-home-kicker">YOUR CLUB. YOUR SQUAD.</p>
-        <h2>BUILD YOUR LEGACY</h2>
-        <p>Take control of a club, build your squad, compete against other managers and fight for trophies.</p>
-        {% site_text "home.league_intro" as league_intro %}
-        {% if league_intro %}
-            <p>{{ league_intro }}</p>
-        {% endif %}
-        <div class="hero-actions">
-            <a href="{{ apply_club_url }}" class="primary-button">APPLY FOR A CLUB</a>
-        </div>
-    </div>
-    <div class="mgl-home-feature-media">
-        <img src="{% static 'core/img/mgl-starting-xi.png' %}" alt="">
-    </div>
+{% if discord_invite_url %}
+<section class="ufl-discord">
+    <h2>Ready to take the dugout?</h2>
+    <p>Arrange fixtures, discuss transfers, and stay up to date with the league.</p>
+    <a href="{{ discord_invite_url }}" class="primary-button" target="_blank" rel="noopener">JOIN OUR DISCORD</a>
 </section>
-
-<section class="mgl-home-experience">
-    <div class="mgl-home-experience-head">
-        <p class="mgl-home-kicker">THE UFL EXPERIENCE</p>
-        <h2>BUILD YOUR CAREER</h2>
-    </div>
-    <div class="mgl-home-experience-grid">
-        <article>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 9h8M8 13h5"/><circle cx="16.5" cy="16.5" r="1.5"/></svg>
-            <h3>MANAGE YOUR CLUB</h3>
-            <p>Build your squad. Negotiate transfers. Compete against real managers. Build your career.</p>
-        </article>
-        <article>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M8 14a3.2 3.2 0 1 0-3.2-3.2A3.2 3.2 0 0 0 8 14Z"/><path d="M2.8 20a5.4 5.4 0 0 1 10.4 0"/><path d="M16 14a3.2 3.2 0 1 0-1.2-6.2"/><path d="M14.4 20a5.4 5.4 0 0 1 6.8-4.2"/></svg>
-            <h3>COMPETE ONLINE</h3>
-            <p>Play matches and compete for trophies against other managers in UFL Career Mode.</p>
-        </article>
-        <article>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M8 18V8l4-3 4 3v10"/><path d="M8 12h8"/></svg>
-            <h3>LIVE MARKET</h3>
-            <p>Buy, sell, swap and release players with Tokens. Loans are not part of UFL.</p>
-        </article>
-        <article>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 19V9h4v10H4Zm6 0V5h4v14h-4Zm6 0v-7h4v7h-4Z"/></svg>
-            <h3>REAL STATS</h3>
-            <p>Matches, results and statistics are recorded through UFL. Pending results stay off the public site.</p>
-        </article>
-    </div>
-</section>
+{% endif %}
 
 <section class="mgl-home-support" id="mgl-support">
     <article id="mgl-faq">
         <h2>FAQ</h2>
         <h3>How do I join?</h3>
-        <p>Create an account, then apply for a vacant club in Job Offers. Signing up does not require approval.</p>
+        <p>Create an account, then apply for a vacant club in Job Centre. Signing up does not require approval.</p>
         <h3>When do I get a club?</h3>
         <p>Job applications stay pending until an Owner or Admin approves them. You are not assigned a club when you submit.</p>
     </article>
@@ -291,17 +257,5 @@
         <h2>TERMS</h2>
         <p>By creating an account you agree to play by the published UFL rules, keep job applications honest, and accept that Owner/Admin decisions on appointments, results and market actions are final for the competition.</p>
     </article>
-</section>
-
-<section class="mgl-home-cta" id="mgl-join">
-    <div class="mgl-home-cta-media" aria-hidden="true">
-        <img src="{% static 'core/img/mgl-stadium-cta.jpg' %}" alt="">
-    </div>
-    <div class="mgl-home-cta-copy">
-        <p class="mgl-home-kicker">YOUR CAREER STARTS HERE</p>
-        <h2>{% site_text "home.join_title" %}</h2>
-        <p>{% site_text "home.join_text" %}</p>
-        <a href="{{ join_mgl_url }}" class="primary-button">JOIN UFL TODAY</a>
-    </div>
 </section>
 {% endblock %}

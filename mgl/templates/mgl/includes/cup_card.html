@@ -1,0 +1,18 @@
+{% load static %}
+<a href="{% url 'competition_page' cup.slug %}" class="ufl-cup-card ufl-cup-card-{{ cup.status }}">
+    <div class="ufl-cup-card-art" aria-hidden="true">
+        <img src="{% static 'core/img/mgl-cup-trophy.png' %}" alt="">
+    </div>
+    <span class="ufl-cup-status">{{ cup.status_label }}</span>
+    <h3>{{ cup.name }}</h3>
+    {% if cup.description %}<p>{{ cup.description }}</p>{% endif %}
+    <p class="ufl-cup-card-meta">
+        {% if cup.team_count %}<span>{{ cup.team_count }} TEAMS</span>{% endif %}
+        {% if cup.format %}<span>{{ cup.format|upper }}</span>{% endif %}
+        {% if cup.season %}<span>SEASON {{ cup.season }}</span>{% endif %}
+    </p>
+    {% if cup.winner %}
+        <p class="ufl-cup-winner">{{ cup.winner }}</p>
+    {% endif %}
+    <span class="secondary-button">{{ cup.action_label }}</span>
+</a>

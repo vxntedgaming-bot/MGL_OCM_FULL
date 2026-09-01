@@ -71,7 +71,7 @@ class TeamMarketListingTests(TestCase):
         self.assertContains(page, ">RELEASE<")
         self.assertContains(page, ">AUCTION<")
         self.assertContains(page, "mgl-squad-table")
-        self.assertNotContains(page, "TRANSFER LIST")
+        self.assertContains(page, "TRANSFER LIST")
         self.assertNotContains(page, "mgl-squad-check-link")
         html = page.content.decode()
         transfer_at = html.find(">TRANSFER<")

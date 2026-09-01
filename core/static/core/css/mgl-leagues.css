@@ -1,0 +1,167 @@
+/* League tables and cup competitions. */
+
+.ufl-league-title {
+    margin: 0 0 16px;
+}
+
+.ufl-league-title h2 {
+    margin: 0;
+    font-size: clamp(1.8rem, 3vw, 2.6rem);
+}
+
+.ufl-league-title p {
+    margin: 8px 0 0;
+    color: var(--ufl-muted);
+    letter-spacing: 0.08em;
+}
+
+.ufl-table-panel {
+    padding: 18px;
+}
+
+.ufl-cup-band {
+    margin: 28px 0 8px;
+}
+
+.ufl-cup-band-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    color: var(--ufl-gold);
+}
+
+.ufl-cup-band-head svg {
+    width: 18px;
+    height: 18px;
+}
+
+.ufl-cup-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.ufl-cup-card {
+    display: grid;
+    gap: 10px;
+    padding: 18px;
+    min-height: 280px;
+    border: 1px solid var(--ufl-line);
+    border-radius: 14px;
+    background: linear-gradient(180deg, #161b24, #0d1118);
+    color: inherit;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.ufl-cup-card-art {
+    position: absolute;
+    right: -20px;
+    top: 24px;
+    width: 160px;
+    opacity: 0.55;
+}
+
+.ufl-cup-card-art img {
+    width: 100%;
+    height: auto;
+}
+
+.ufl-cup-status {
+    justify-self: end;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--ufl-gold-line);
+    color: var(--ufl-gold);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    font-weight: 800;
+}
+
+.ufl-cup-card h3 {
+    margin: 48px 0 0;
+    max-width: 70%;
+}
+
+.ufl-cup-card p {
+    color: var(--ufl-muted);
+    max-width: 70%;
+}
+
+.ufl-cup-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 240px;
+    gap: 24px;
+    align-items: center;
+    padding: 24px;
+    margin-bottom: 20px;
+    border: 1px solid var(--ufl-line);
+    border-radius: 16px;
+    background: radial-gradient(circle at 80% 40%, rgba(228, 199, 122, 0.12), transparent 46%), #0d1118;
+}
+
+.ufl-cup-hero-art img {
+    width: 100%;
+    height: auto;
+}
+
+.ufl-cup-meta {
+    display: flex;
+    gap: 14px;
+    color: var(--ufl-gold);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    font-weight: 800;
+}
+
+.ufl-subtabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin: 0 0 22px;
+    border-bottom: 1px solid var(--ufl-line);
+}
+
+.ufl-subtabs a {
+    padding: 10px 0 12px;
+    color: var(--ufl-muted);
+    letter-spacing: 0.12em;
+    font-family: var(--font-display);
+    font-weight: 800;
+}
+
+.ufl-subtabs a.is-active {
+    color: var(--ufl-gold);
+    box-shadow: inset 0 -2px 0 var(--ufl-gold);
+}
+
+.mgl-league-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 22px;
+}
+
+.mgl-league-tab {
+    padding: 8px 14px;
+    border: 1px solid var(--ufl-line);
+    border-radius: 999px;
+    color: var(--ufl-text-soft);
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: 0.1em;
+}
+
+.mgl-league-tab.is-active {
+    border-color: var(--ufl-gold);
+    color: var(--ufl-gold);
+}
+
+@media (max-width: 900px) {
+    .ufl-cup-grid,
+    .ufl-cup-hero {
+        grid-template-columns: 1fr;
+    }
+}

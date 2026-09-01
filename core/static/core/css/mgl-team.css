@@ -224,7 +224,7 @@ body.mgl-team-page {
 }
 
 .mgl-sq-tabs button.is-active {
-    color: #fff;
+    color: var(--ufl-gold);
     border-bottom-color: var(--ufl-gold);
 }
 
@@ -295,8 +295,24 @@ body.mgl-team-page {
 .mgl-sq-col-player { width: auto; }
 .mgl-sq-col-pos { width: 76px; }
 .mgl-sq-col-nation { width: 20%; }
+.mgl-sq-col-ovr { width: 64px; }
 .mgl-sq-col-age { width: 64px; }
-.mgl-sq-col-actions { width: 32%; }
+.mgl-sq-col-list { width: 88px; }
+.mgl-sq-col-actions { width: 28%; }
+
+.ufl-list-toggle {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 1px solid var(--ufl-gold-line);
+    border-radius: 4px;
+    background: transparent;
+}
+
+.ufl-list-toggle:hover {
+    border-color: var(--ufl-gold);
+    background: var(--ufl-gold-soft);
+}
 
 .mgl-squad-table th,
 .mgl-squad-table td {

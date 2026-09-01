@@ -55,3 +55,20 @@
         grid-template-columns: 1fr;
     }
 }
+
+.ufl-attr-bar {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.ufl-attr-pac strong { color: #5ec8d8; }
+.ufl-attr-sho strong { color: #e25555; }
+.ufl-attr-pas strong { color: #3dbe74; }
+.ufl-attr-dri strong { color: var(--ufl-gold); }
+.ufl-attr-def strong { color: #9b7dff; }
+.ufl-attr-phy strong { color: #e8a23a; }
+
+@media (max-width: 720px) {
+    .ufl-attr-bar { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}

@@ -9,15 +9,18 @@
 
 {% block content %}
 <section class="mgl-section mgl-profile">
-    <nav class="mgl-pp-crumbs" aria-label="Player profile location">
-        <a href="{% url 'player_database' %}">PLAYER DATABASE</a>
-        <span aria-hidden="true">›</span>
-        <span>{{ player|card_name }}</span>
+    <nav class="mgl-pp-crumbs ufl-crumbs" aria-label="Player profile location">
+        <a href="{% url 'manager_hub' %}" class="ufl-crumb-pill">MANAGER HUB</a>
+        <span class="ufl-crumb-sep" aria-hidden="true">›</span>
+        <a href="{% url 'player_database' %}" class="ufl-crumb-pill">PLAYERS</a>
+        <span class="ufl-crumb-sep" aria-hidden="true">›</span>
+        <span class="ufl-crumb-pill is-current">{{ player|card_name }}</span>
     </nav>
 
     <div class="mgl-profile-header">
         <div class="eyebrow">PLAYER PROFILE</div>
         <h1>{{ player.name }}</h1>
+        {% if live_listing %}<span class="mgl-card-status">LISTED</span>{% endif %}
         <p>
             {{ player.position }}
             · {{ player.overall }} OVR
@@ -109,7 +112,7 @@
                     <strong class="mgl-info-club">
                         {% team_logo player.mgl_team "sm" %}
                         {% if player.mgl_team %}
-                            {{ player.mgl_team.name }}
+                            <a href="{% club_url player.mgl_team %}">{{ player.mgl_team.name }}</a>
                         {% else %}
                             {{ player|market_status_label }}
                         {% endif %}
@@ -163,13 +166,13 @@
     <div class="mgl-main-ratings">
         <div class="eyebrow">ATTRIBUTES</div>
         <h2>PAC · SHO · PAS · DRI · DEF · PHY</h2>
-        <div class="mgl-rating-grid">
-            <div class="mgl-rating-box"><strong>{{ player.pace }}</strong><span>PAC</span></div>
-            <div class="mgl-rating-box"><strong>{{ player.shooting }}</strong><span>SHO</span></div>
-            <div class="mgl-rating-box"><strong>{{ player.passing }}</strong><span>PAS</span></div>
-            <div class="mgl-rating-box"><strong>{{ player.dribbling }}</strong><span>DRI</span></div>
-            <div class="mgl-rating-box"><strong>{{ player.defending }}</strong><span>DEF</span></div>
-            <div class="mgl-rating-box"><strong>{{ player.physical }}</strong><span>PHY</span></div>
+        <div class="mgl-rating-grid ufl-attr-bar">
+            <div class="mgl-rating-box ufl-attr-pac"><strong>{{ player.pace }}</strong><span>PAC</span></div>
+            <div class="mgl-rating-box ufl-attr-sho"><strong>{{ player.shooting }}</strong><span>SHO</span></div>
+            <div class="mgl-rating-box ufl-attr-pas"><strong>{{ player.passing }}</strong><span>PAS</span></div>
+            <div class="mgl-rating-box ufl-attr-dri"><strong>{{ player.dribbling }}</strong><span>DRI</span></div>
+            <div class="mgl-rating-box ufl-attr-def"><strong>{{ player.defending }}</strong><span>DEF</span></div>
+            <div class="mgl-rating-box ufl-attr-phy"><strong>{{ player.physical }}</strong><span>PHY</span></div>
         </div>
     </div>
 
@@ -253,6 +256,25 @@
         {% endif %}
     </div>
     {% endif %}
+
+    <div class="mgl-history">
+        <div class="eyebrow">RECENT RESULTS</div>
+        {% for fixture in recent_results %}
+            <div class="mgl-history-row">
+                <strong>{{ fixture.home_team.name }} {{ fixture.home_goals }}–{{ fixture.away_goals }} {{ fixture.away_team.name }}</strong>
+                <span class="mgl-dash-form-mark mgl-wdl-{{ fixture.outcome|lower }}">{{ fixture.outcome }}</span>
+            </div>
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with title="NO DATA YET" %}
+        {% endfor %}
+    </div>
+
+    <div class="mgl-history">
+        <div class="eyebrow">TOP MANAGERS BY GOALS</div>
+        {% include "mgl/includes/empty_state.html" with title="NO DATA YET" %}
+        <div class="eyebrow">TOP MANAGERS BY ASSISTS</div>
+        {% include "mgl/includes/empty_state.html" with title="NO DATA YET" %}
+    </div>
 
     <a href="{% url 'player_database' %}" class="secondary-button" style="display:inline-flex;margin-top:30px;">
         ← BACK TO PLAYER DATABASE

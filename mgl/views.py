@@ -340,6 +340,7 @@ def player_profile(request, player_id):
             "totw_selections": totw_selections,
             "auction_requests": auction_requests,
             "attribute_groups": attribute_groups_for_player(player),
+            "recent_results": _recent_results_for_team(player.mgl_team) if player.mgl_team_id else [],
             **transfer_offer_context_for(request.user, player),
         },
     )
@@ -1558,6 +1559,52 @@ def rewards(request):
     )
 
 
+def _recent_results_for_team(team, limit=5):
+    if not team:
+        return []
+    completed = list(
+        Fixture.objects.filter(
+            Q(home_team=team) | Q(away_team=team),
+            status="COMPLETED",
+        )
+        .select_related("home_team", "away_team", "league")
+        .prefetch_related("submission__team_stats")
+        .order_by("-matchweek", "-id")[:limit]
+    )
+    results = []
+    for fixture in completed:
+        stats = {}
+        try:
+            stats = {
+                row.team_id: row.goals
+                for row in fixture.submission.team_stats.all()
+            }
+        except MatchSubmission.DoesNotExist:
+            pass
+        own = stats.get(team.id)
+        opp_id = (
+            fixture.away_team_id if fixture.home_team_id == team.id else fixture.home_team_id
+        )
+        opp = stats.get(opp_id)
+        if own is None or opp is None:
+            outcome = "—"
+        elif own > opp:
+            outcome = "W"
+        elif own < opp:
+            outcome = "L"
+        else:
+            outcome = "D"
+        fixture.home_goals = stats.get(fixture.home_team_id)
+        fixture.away_goals = stats.get(fixture.away_team_id)
+        fixture.outcome = outcome
+        fixture.opponent = (
+            fixture.away_team if fixture.home_team_id == team.id else fixture.home_team
+        )
+        fixture.venue = "H" if fixture.home_team_id == team.id else "A"
+        results.append(fixture)
+    return results
+
+
 @career_required
 def team_management(request):
     team = getattr(request.user, "managed_team", None)
@@ -1706,6 +1753,7 @@ def team_management(request):
             "allow_manager_auctions": allow_manager_auctions(),
             "listing_action": listing_action if listing_player else "",
             "listing_player": listing_player,
+            "recent_results": _recent_results_for_team(team),
         },
     )
 
@@ -1884,6 +1932,36 @@ def competition_page(request, slug):
         if league:
             table = build_live_league_table(league)
             name = league.public_name or name
+    coming_soon = slug in {"cups", "champions-league"}
+    cup_tab = (request.GET.get("tab") or "overview").strip().lower()
+    if cup_tab not in {"overview", "fixtures", "bracket", "stats", "history"}:
+        cup_tab = "overview"
+    cup_catalog = (
+        {
+            "slug": "cups",
+            "name": COMPETITIONS["cups"],
+            "description": "Knockout cup competitions, including the UFL Phantom Cup.",
+            "status": "upcoming",
+            "status_label": "UPCOMING",
+            "format": "Knockout",
+            "team_count": None,
+            "winner": None,
+            "season": None,
+            "action_label": "VIEW DETAILS →",
+        },
+        {
+            "slug": "champions-league",
+            "name": COMPETITIONS["champions-league"],
+            "description": "16 teams. Two groups of eight. Top four from each group advance.",
+            "status": "upcoming",
+            "status_label": "UPCOMING",
+            "format": "Knockout",
+            "team_count": 16,
+            "winner": None,
+            "season": None,
+            "action_label": "VIEW DETAILS →",
+        },
+    )
     return render(
         request,
         "mgl/competition.html",
@@ -1896,7 +1974,11 @@ def competition_page(request, slug):
             "competition_choices": live_competition_choices(),
             "selector_kind": "tables",
             "selector_label": "League tables",
-            "coming_soon": slug in {"cups", "champions-league"},
+            "coming_soon": coming_soon,
+            "cup_tab": cup_tab,
+            "live_cups": [cup for cup in cup_catalog if cup["status"] == "live"],
+            "won_cups": [cup for cup in cup_catalog if cup["status"] == "complete"],
+            "upcoming_cups": [cup for cup in cup_catalog if cup["status"] == "upcoming"],
         },
     )
 

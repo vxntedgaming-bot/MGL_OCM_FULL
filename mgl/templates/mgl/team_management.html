@@ -72,12 +72,10 @@
         <div class="mgl-sq-layout">
             <div class="mgl-squad-board">
                 <div class="mgl-squad-board-head">
-                    <div class="mgl-sq-tabs" role="tablist">
-                        <button type="button" class="is-active" data-sq-tab="all">ALL PLAYERS</button>
-                        <button type="button" data-sq-tab="keepers">GOALKEEPERS</button>
-                        <button type="button" data-sq-tab="defenders">DEFENDERS</button>
-                        <button type="button" data-sq-tab="midfielders">MIDFIELDERS</button>
-                        <button type="button" data-sq-tab="attackers">ATTACKERS</button>
+                    <div class="mgl-sq-tabs mgl-sq-boards" role="tablist">
+                        <button type="button" class="is-active" data-sq-board="squad">SQUAD</button>
+                        <button type="button" data-sq-board="listed">TRANSFER LIST</button>
+                        <button type="button" data-sq-board="released">RELEASED PLAYERS</button>
                     </div>
                     <div class="mgl-sq-tools">
                         <label>
@@ -98,14 +96,23 @@
                         </details>
                     </div>
                 </div>
-                <div class="mgl-squad-scroll">
+                <div class="mgl-sq-tabs mgl-sq-lines" role="tablist" data-sq-board-panel="squad">
+                    <button type="button" class="is-active" data-sq-tab="all">ALL PLAYERS</button>
+                    <button type="button" data-sq-tab="keepers">GOALKEEPERS</button>
+                    <button type="button" data-sq-tab="defenders">DEFENDERS</button>
+                    <button type="button" data-sq-tab="midfielders">MIDFIELDERS</button>
+                    <button type="button" data-sq-tab="attackers">ATTACKERS</button>
+                </div>
+                <div class="mgl-squad-scroll" data-sq-board-panel="squad">
                     <table class="mgl-squad-table" id="mgl-squad-table">
                         <colgroup>
                             <col class="mgl-sq-col-num">
                             <col class="mgl-sq-col-player">
                             <col class="mgl-sq-col-pos">
                             <col class="mgl-sq-col-nation">
+                            <col class="mgl-sq-col-ovr">
                             <col class="mgl-sq-col-age">
+                            <col class="mgl-sq-col-list">
                             <col class="mgl-sq-col-actions">
                         </colgroup>
                         <thead>
@@ -114,7 +121,9 @@
                                 <th data-sort="name">PLAYER</th>
                                 <th data-sort="pos">POS</th>
                                 <th data-sort="nation">NATION</th>
+                                <th data-sort="ovr">OVR</th>
                                 <th data-sort="age">AGE</th>
+                                <th>TRANSFER LIST</th>
                                 <th>ACTIONS</th>
                             </tr>
                         </thead>
@@ -152,7 +161,19 @@
                                         <span class="mgl-squad-nation-name">{{ player.nationality }}</span>
                                     {% endif %}
                                 </td>
+                                <td class="mgl-squad-ovr" data-label="OVR">
+                                    <span class="ufl-ovr">{{ player.overall }}</span>
+                                </td>
                                 <td class="mgl-squad-age" data-label="AGE">{{ player|player_age }}</td>
+                                <td class="mgl-squad-list" data-label="TRANSFER LIST">
+                                    {% if player.current_listing %}
+                                        <span class="mgl-card-status">LISTED</span>
+                                    {% elif player.current_auction %}
+                                        <span class="mgl-card-status">AUCTION</span>
+                                    {% else %}
+                                        <a href="{% url 'team_management' %}?list=transfer&amp;player={{ player.id }}" class="ufl-list-toggle" aria-label="List {{ player.name }} for transfer"></a>
+                                    {% endif %}
+                                </td>
                                 <td class="mgl-squad-actions" data-label="ACTIONS">
                                     <a href="{% url 'player_profile' player.id %}" class="mgl-sq-view" aria-label="View {{ player.name }}">VIEW</a>
                                     {% if player.current_listing %}
@@ -177,7 +198,7 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="mgl-sq-pager">
+                <div class="mgl-sq-pager" data-sq-board-panel="squad">
                     <p id="sq-range">Showing {{ players|length }} player{{ players|length|pluralize }}</p>
                     <div>
                         <div id="sq-pages" class="mgl-sq-pages"></div>
@@ -216,12 +237,13 @@
                 <p class="mgl-sq-limit">Maximum squad size is 28. Transfer list, auction and release stay available only when the backend will accept them.</p>
             </aside>
         </div>
-        {% if listed_players %}
-        <section class="mgl-squad-board" style="margin-top:24px">
+        {% endif %}
+        <section class="mgl-squad-board" data-sq-board-panel="listed" hidden style="margin-top:24px">
             <div class="mgl-squad-board-head">
                 <h2>OFF ACTIVE ROSTER</h2>
                 <p>You still own these players. They do not count as active squad options until the listing ends.</p>
             </div>
+            {% if listed_players %}
             <div class="mgl-squad-scroll">
                 <table class="mgl-squad-table">
                     <tbody>
@@ -252,8 +274,36 @@
                     </tbody>
                 </table>
             </div>
+            {% else %}
+                {% include "mgl/includes/empty_state.html" with kicker="TRANSFER LIST" title="NO PLAYERS LISTED" %}
+            {% endif %}
         </section>
-        {% endif %}
+        <section class="mgl-squad-board" data-sq-board-panel="released" hidden style="margin-top:24px">
+            {% include "mgl/includes/empty_state.html" with kicker="RELEASED PLAYERS" title="NO RELEASED PLAYERS ON THIS VIEW" body="Released players become Free Agents after office approval. They are not stored as a separate squad list." %}
+        </section>
+        <section class="mgl-squad-board ufl-recent-board" style="margin-top:24px">
+            <div class="mgl-squad-board-head">
+                <h2>RECENT RESULTS</h2>
+                <p>Active season only</p>
+            </div>
+            {% for fixture in recent_results %}
+                <div class="mgl-dash-row">
+                    <div class="mgl-dash-result">
+                        <span class="mgl-dash-form-mark mgl-wdl-{{ fixture.outcome|lower }}">{{ fixture.outcome }}</span>
+                        <strong>
+                            {% if fixture.home_goals is not None and fixture.away_goals is not None %}
+                                {{ fixture.home_goals }}–{{ fixture.away_goals }}
+                            {% endif %}
+                            vs {{ fixture.opponent.name }}
+                        </strong>
+                        <small>{% if fixture.league %}{{ fixture.league|league_label }} · {% endif %}MD {{ fixture.matchweek }}</small>
+                    </div>
+                    <a class="mgl-dash-action" href="{% url 'fixture_list' %}">VIEW</a>
+                </div>
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with title="NO APPROVED RESULTS YET" %}
+            {% endfor %}
+        </section>
         {% elif squad_size %}
             {% include "mgl/includes/empty_state.html" with title="SQUAD PLAYERS IN AUCTION" %}
         {% else %}
@@ -334,5 +384,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'core/js/mgl-team.js' %}?v=sq-2"></script>
+<script src="{% static 'core/js/mgl-team.js' %}?v=sq-3"></script>
 {% endblock %}

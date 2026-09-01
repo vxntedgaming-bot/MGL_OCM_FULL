@@ -120,5 +120,18 @@
     if (search) search.addEventListener("input", function () { page = 1; render(); });
     if (pos) pos.addEventListener("change", function () { page = 1; render(); });
     if (pageSize) pageSize.addEventListener("change", function () { page = 1; render(); });
+    var boards = document.querySelectorAll("[data-sq-board]");
+    var panels = document.querySelectorAll("[data-sq-board-panel]");
+    boards.forEach(function (button) {
+        button.addEventListener("click", function () {
+            var name = button.getAttribute("data-sq-board") || "squad";
+            boards.forEach(function (item) {
+                item.classList.toggle("is-active", item === button);
+            });
+            panels.forEach(function (panel) {
+                panel.hidden = panel.getAttribute("data-sq-board-panel") !== name;
+            });
+        });
+    });
     render();
 })();

@@ -1,24 +1,25 @@
 {% extends "core/base.html" %}
 {% load static mgl_ui %}
 
-{% block title %}Leagues — UFL{% endblock %}
+{% block title %}League Tables — UFL{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/mgl-leagues.css' %}">
+{% endblock %}
 
 {% block content %}
-<section class="mgl-section">
-    {% include "core/includes/mgl_page_header.html" with header_section="LEAGUE" header_title="COMPETITIONS" header_icon="trophy" header_description="Official UFL standings. Click a club to open its squad and club page." %}
+<section class="mgl-section ufl-league-page">
+    {% url 'leagues_page' as leagues_index %}
+    {% include "core/includes/mgl_page_header.html" with header_section="COMPETITIONS" header_title="LEAGUE TABLES" header_icon="trophy" header_description="Official UFL standings. Click a club crest or name to open that club’s existing team page." %}
     {% include "mgl/includes/competition_selector.html" %}
 </section>
 
 {% for block in tables %}
-<section class="mgl-section" id="table-{{ block.league.short_name|slugify }}">
-    <div class="mgl-league-banner">
-        <img src="{% static 'core/img/mgl-logo.png' %}" alt="" class="mgl-logo-img">
-        <div>
-            <div class="eyebrow">SEASON {{ block.league.season|default:"1" }}</div>
-            <h3>{{ block.league|league_label|upper }}</h3>
-        </div>
+<section class="mgl-section ufl-league-page" id="table-{{ block.league.short_name|slugify }}">
+    <div class="ufl-league-title">
+        <h2>LEAGUE TABLES <span class="is-gold">{{ block.league|league_label|upper }}</span></h2>
+        <p>SEASON: {{ block.league|league_label|upper }}{% if block.league.season %} - SEASON {{ block.league.season }}{% endif %}</p>
     </div>
-    <div class="dashboard-panel" style="margin-top:24px">
+    <div class="dashboard-panel ufl-table-panel">
         {% include "mgl/includes/league_table.html" with table=block.table league=block.league %}
     </div>
 </section>

@@ -1,34 +1,52 @@
 {% load mgl_ui %}
-<div class="panel-heading">
+<div class="ufl-table-head">
     <span>{% if league %}{{ league|league_label|upper }}{% else %}PREMIER LEAGUE{% endif %}</span>
-    <b>TABLE</b>
+    <b>{% if league.season %}SEASON {{ league.season }}{% else %}TABLE{% endif %}</b>
 </div>
 {% if table %}
-<div class="mgl-standings-wrap">
-    <div class="mgl-standings mgl-standings-head">
-        <span>POS</span>
-        <span>CLUB</span>
-        <span>P</span>
-        <span class="mgl-standings-wide">W</span>
-        <span class="mgl-standings-wide">D</span>
-        <span class="mgl-standings-wide">L</span>
-        <span class="mgl-standings-wide">GF</span>
-        <span class="mgl-standings-wide">GA</span>
+<div class="mgl-standings-wrap ufl-standings-wrap">
+    <div class="mgl-standings mgl-standings-head ufl-standings-head">
+        <span>#</span>
+        <span>TEAM</span>
+        <span>MP</span>
+        <span>W</span>
+        <span>D</span>
+        <span>L</span>
         <span>GD</span>
         <span>PTS</span>
+        <span>FORM</span>
+        <span>GOALS</span>
+        <span>ASSISTS</span>
     </div>
     {% for row in table %}
-    <div class="mgl-standings">
-        <span>{{ row.position|stringformat:"02d" }}</span>
-        <strong class="mgl-standings-club">{% team_logo row.team "xs" %} <a href="{% club_url row.team %}">{{ row.team.name }}</a></strong>
+    <div class="mgl-standings ufl-standings-row">
+        <span>{{ row.position }}</span>
+        <strong class="mgl-standings-club ufl-standings-club">
+            <a href="{% club_url row.team %}" class="ufl-standings-crest">{% team_logo row.team "xs" %}</a>
+            <span>
+                <a href="{% club_url row.team %}">{{ row.team.name }}</a>
+                {% if row.manager %}
+                    <em>{{ row.manager.username }}</em>
+                {% elif row.team.manager %}
+                    <em>{{ row.team.manager.username }}</em>
+                {% endif %}
+            </span>
+        </strong>
         <span>{{ row.played }}</span>
-        <span class="mgl-standings-wide">{{ row.wins }}</span>
-        <span class="mgl-standings-wide">{{ row.draws }}</span>
-        <span class="mgl-standings-wide">{{ row.losses }}</span>
-        <span class="mgl-standings-wide">{{ row.gf }}</span>
-        <span class="mgl-standings-wide">{{ row.ga }}</span>
-        <span>{{ row.gd }}</span>
+        <span>{{ row.wins }}</span>
+        <span>{{ row.draws }}</span>
+        <span>{{ row.losses }}</span>
+        <span class="ufl-gd {% if row.gd > 0 %}is-pos{% elif row.gd < 0 %}is-neg{% endif %}">{% if row.gd > 0 %}+{% endif %}{{ row.gd }}</span>
         <b>{{ row.points }}</b>
+        <span class="ufl-form">
+            {% for mark in row.form %}
+                <span class="mgl-dash-form-mark mgl-wdl-{{ mark|lower }}">{{ mark }}</span>
+            {% empty %}
+                <span class="ufl-form-empty">—</span>
+            {% endfor %}
+        </span>
+        <span class="is-gold">{{ row.goals|default:0 }}</span>
+        <span class="ufl-assists">{{ row.assists|default:0 }}</span>
     </div>
     {% endfor %}
 </div>

@@ -130,7 +130,7 @@ class ManagerHubDashboardTests(TestCase):
         self.assertContains(response, "RECENT RESULTS")
         self.assertNotContains(response, "NEW MANAGER? START HERE")
         self.assertNotContains(response, "Take over an official MGL club")
-        self.assertNotContains(response, "PLAYER RECRUITMENT")
+        self.assertContains(response, "PLAYER RECRUITMENT")
         self.assertContains(response, "PENDING ACTIONS")
         self.assertNotContains(response, "Propose Transfer")
         self.assertContains(response, "Recruitment Drive")

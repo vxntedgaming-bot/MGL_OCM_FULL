@@ -542,3 +542,14 @@ body.mgl-hub-page {
         flex-wrap: wrap;
     }
 }
+
+.mgl-dash-pill-gold {
+    background: var(--ufl-gold);
+    color: var(--ufl-gold-ink);
+    border: 1px solid var(--ufl-gold);
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: 0.12em;
+}
