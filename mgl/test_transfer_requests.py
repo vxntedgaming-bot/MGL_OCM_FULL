@@ -475,6 +475,7 @@ class AuctionTransferHistoryTests(TestCase):
             position="LW",
             overall=70,
             is_free_agent=True,
+            released_at=timezone.now(),
         )
         sign_free_agent(signed, self.mgr_a)
         page = self._history_page("buyer")

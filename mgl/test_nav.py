@@ -3,6 +3,7 @@ from decimal import Decimal
 from django.db.models import Count
 from django.test import Client, RequestFactory, TestCase
 from django.urls import reverse
+from django.utils import timezone
 
 from accounts.models import User
 from leagues.services import ensure_super_league_1
@@ -349,12 +350,14 @@ class PlayerSearchAndCardNameTests(TestCase):
             status=ManagerApplication.APPROVED,
             tokens=Decimal("50.00"),
         )
+        now = timezone.now()
         self.salah = Player.objects.create(
             name="Mohamed Salah",
             fc27_id="209331",
             position="RM",
             overall=91,
             is_free_agent=True,
+            released_at=now,
         )
         self.mbappe = Player.objects.create(
             name="Kylian Mbappé",
@@ -362,6 +365,7 @@ class PlayerSearchAndCardNameTests(TestCase):
             position="ST",
             overall=91,
             is_free_agent=True,
+            released_at=now,
         )
         self.hakimi = Player.objects.create(
             name="Achraf Hakimi",
@@ -369,6 +373,7 @@ class PlayerSearchAndCardNameTests(TestCase):
             position="RB",
             overall=89,
             is_free_agent=True,
+            released_at=now,
         )
         self.vvd = Player.objects.create(
             name="Virgil van Dijk",
@@ -376,6 +381,7 @@ class PlayerSearchAndCardNameTests(TestCase):
             position="CB",
             overall=89,
             is_free_agent=True,
+            released_at=now,
         )
         self.club_st = Player.objects.create(
             name="Club Striker",
@@ -453,6 +459,7 @@ class PlayerSearchAndCardNameTests(TestCase):
                 position="CM",
                 overall=60,
                 is_free_agent=True,
+                released_at=timezone.now(),
             )
         page_two = self.client.get(
             reverse("free_agents"),

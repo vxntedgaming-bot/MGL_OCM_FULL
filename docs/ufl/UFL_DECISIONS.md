@@ -314,7 +314,9 @@ Manager club auction: if sold, original club → new club. If no sale, player **
 - OVR band remains 64–69.
 - After Season 1 squads are established, the normal status system applies.
 
-Scout upgrades (tokens reducing hours by a percentage) and pack catalogue remain Owner/Admin-controlled. `scout_can_recruit` must still enforce (DEC-040). Pack/scouting/auction product work is **not** implemented in this documentation pass.
+Scout upgrades (tokens reducing hours by a percentage) and pack catalogue remain Owner/Admin-controlled. `scout_can_recruit` must still enforce (DEC-040). Pack/scouting catalogue work is **not** implemented in this pass.
+
+**CURRENT CODE (2026-09-01):** Season 1 generator uses UNSIGNED eligibility and the RB/LB wing-back mapping. Genuine UFL Free Agents are players with `released_at` set by an explicit UFL process. The public Free Agents page no longer lists unused FC26 rows. Production Season 1 apply/approve remains fenced.
 
 ---
 

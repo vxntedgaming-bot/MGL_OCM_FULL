@@ -25,7 +25,7 @@
         <div>
             <p class="mgl-cp-kicker">GENERATOR</p>
             <h2>BUILD A PROPOSAL</h2>
-            <p>Uses UNASSIGNED FC26 players rated 64–69 against the official 30-player structure. Does not write club ownership.</p>
+            <p>Uses UNSIGNED FC26 players rated 64–69 against the official 30-player structure. RB may fill RWB and LB may fill LWB. The legacy free-agent flag is ignored. Does not write club ownership.</p>
         </div>
         {% if is_owner %}
         <form method="post" class="mgl-ss-generate">
@@ -36,7 +36,7 @@
             </label>
             <label class="mgl-ss-check">
                 <input type="checkbox" name="include_free_agents" value="1">
-                Include Free Agents
+                Include genuine UFL Free Agents
             </label>
             <button class="header-button mgl-cp-review-btn" type="submit">{% if selected %}REGENERATE PROPOSAL{% else %}GENERATE PROPOSAL{% endif %}</button>
         </form>

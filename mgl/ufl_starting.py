@@ -16,6 +16,7 @@ from django.utils import timezone
 
 from mgl.player_state import (
     LIVE_LISTING_STATUSES,
+    is_ufl_free_agent,
     live_auction_player_ids,
     market_status,
     roster_occupancy,
@@ -39,6 +40,25 @@ MAX_OVR = UFL_MAX_OVR
 DEFAULT_MAX_AVG_DIFF = Decimal("1.500")
 MAX_ATTEMPTS = 80
 
+# DEC-042: RB may fill RB or RWB; LB may fill LB or LWB.
+# The FC26 position is never rewritten. `slot` is the squad seat only.
+SLOT_SOURCES = {
+    "GK": ("GK",),
+    "CB": ("CB",),
+    "RB": ("RB",),
+    "LB": ("LB",),
+    "RWB": ("RWB", "RB"),
+    "LWB": ("LWB", "LB"),
+    "CDM": ("CDM",),
+    "CM": ("CM",),
+    "CAM": ("CAM",),
+    "LM": ("LM",),
+    "RM": ("RM",),
+    "LW": ("LW",),
+    "RW": ("RW",),
+    "ST": ("ST",),
+}
+
 
 @dataclass(frozen=True)
 class ProposedPlayer:
@@ -47,6 +67,11 @@ class ProposedPlayer:
     name: str
     position: str
     overall: int
+    slot: str = ""
+
+    @property
+    def squad_slot(self):
+        return self.slot or self.position
 
     def as_dict(self):
         return {
@@ -55,6 +80,7 @@ class ProposedPlayer:
             "name": self.name,
             "position": self.position,
             "overall": self.overall,
+            "slot": self.squad_slot,
         }
 
 
@@ -86,13 +112,14 @@ class ProposedClubSquad:
     def position_counts(self):
         counts = {pos: 0 for pos in POSITIONS}
         for player in self.players:
-            counts[player.position] = counts.get(player.position, 0) + 1
+            slot = player.squad_slot
+            counts[slot] = counts.get(slot, 0) + 1
         return counts
 
     def by_position(self):
         grouped = {pos: [] for pos in POSITIONS}
         for player in self.players:
-            grouped.setdefault(player.position, []).append(player)
+            grouped.setdefault(player.squad_slot, []).append(player)
         for pos in grouped:
             grouped[pos].sort(key=lambda item: (-item.overall, item.name, item.id))
         return grouped
@@ -117,24 +144,32 @@ def target_clubs():
 def eligible_queryset(include_free_agents=False):
     from players.models import Player
 
-    qs = Player.objects.filter(
-        overall__gte=MIN_OVR,
-        overall__lte=MAX_OVR,
-        position__in=POSITIONS,
-        mgl_team__isnull=True,
-    ).exclude(id__in=live_auction_player_ids()).exclude(id__in=_blocked_listing_ids())
+    # DEC-042 Season 1: UNSIGNED = no club. Ignore legacy is_free_agent.
+    qs = (
+        Player.objects.filter(
+            overall__gte=MIN_OVR,
+            overall__lte=MAX_OVR,
+            position__in=POSITIONS,
+            mgl_team__isnull=True,
+        )
+        .exclude(fc27_id__isnull=True)
+        .exclude(fc27_id="")
+        .exclude(id__in=live_auction_player_ids())
+        .exclude(id__in=_blocked_listing_ids())
+    )
     if include_free_agents:
         return qs
-    return qs.filter(is_free_agent=False)
+    return qs.filter(released_at__isnull=True)
 
 
-def _from_model(player):
+def _from_model(player, slot=""):
     return ProposedPlayer(
         id=player.id,
         fc27_id=str(player.fc27_id or ""),
         name=player.name,
         position=player.position,
         overall=int(player.overall or 0),
+        slot=slot or "",
     )
 
 
@@ -148,10 +183,22 @@ def load_eligible_players(include_free_agents=False, queryset=None):
 
 
 def availability_report(grouped, club_count):
+    rb_have = len(grouped.get("RB", []))
+    lb_have = len(grouped.get("LB", []))
+    rb_need = SHAPE_COUNTS["RB"] * club_count
+    lb_need = SHAPE_COUNTS["LB"] * club_count
+    leftover_rb = max(0, rb_have - rb_need)
+    leftover_lb = max(0, lb_have - lb_need)
+    have_by_slot = {
+        pos: len(grouped.get(pos, []))
+        for pos, _each in SQUAD_SHAPE
+    }
+    have_by_slot["RWB"] = len(grouped.get("RWB", [])) + leftover_rb
+    have_by_slot["LWB"] = len(grouped.get("LWB", [])) + leftover_lb
     report = {}
     for pos, each in SQUAD_SHAPE:
         need = each * club_count
-        have = len(grouped.get(pos, []))
+        have = have_by_slot[pos]
         report[pos] = {"have": have, "need": need, "ok": have >= need}
     return report
 
@@ -188,8 +235,8 @@ def _equalize(teams, rounds=20000):
         best = None
         best_gap = totals[high] - totals[low]
         for pos, _each in SQUAD_SHAPE:
-            high_pos = [player for player in teams[high] if player.position == pos]
-            low_pos = [player for player in teams[low] if player.position == pos]
+            high_pos = [player for player in teams[high] if player.squad_slot == pos]
+            low_pos = [player for player in teams[low] if player.squad_slot == pos]
             for left in high_pos:
                 for right in low_pos:
                     delta = left.overall - right.overall
@@ -206,15 +253,38 @@ def _equalize(teams, rounds=20000):
         teams[low][teams[low].index(right)] = left
 
 
+def _slot_candidates(grouped, slot, used_ids):
+    return [
+        player
+        for source in SLOT_SOURCES[slot]
+        for player in grouped.get(source, [])
+        if player.id not in used_ids
+    ]
+
+
+def _with_slot(player, slot):
+    return ProposedPlayer(
+        id=player.id,
+        fc27_id=player.fc27_id,
+        name=player.name,
+        position=player.position,
+        overall=player.overall,
+        slot=slot,
+    )
+
+
 def _attempt(grouped, rng, club_count):
     selected = {}
-    for pos, each in SQUAD_SHAPE:
+    used_ids = set()
+    for slot, each in SQUAD_SHAPE:
         needed = each * club_count
-        pool = list(grouped[pos])
+        pool = _slot_candidates(grouped, slot, used_ids)
         rng.shuffle(pool)
         if len(pool) < needed:
             return None
-        selected[pos] = pool[:needed]
+        chosen = [_with_slot(player, slot) for player in pool[:needed]]
+        used_ids.update(player.id for player in chosen)
+        selected[slot] = chosen
     teams = _snake_deal(selected, club_count)
     _equalize(teams)
     return teams
@@ -223,7 +293,7 @@ def _attempt(grouped, rng, club_count):
 def _sort_squad(players):
     return sorted(
         players,
-        key=lambda player: (POSITIONS.index(player.position), -player.overall, player.name, player.id),
+        key=lambda player: (POSITIONS.index(player.squad_slot), -player.overall, player.name, player.id),
     )
 
 
@@ -427,9 +497,15 @@ def validate_allocation(squads, include_free_agents=False, max_avg_diff=DEFAULT_
             owned_ok = False
             eligible_ok = False
             problems.append(f"{player.name} already belongs to {player.mgl_team.short_name}.")
-        if player.is_free_agent and not include_free_agents:
+        allowed = SLOT_SOURCES.get(item.squad_slot, ())
+        if item.squad_slot not in POSITIONS or player.position not in allowed:
             eligible_ok = False
-            problems.append(f"{player.name} is a Free Agent and was not included in this proposal.")
+            problems.append(
+                f"{player.name} ({player.position}) cannot fill the {item.squad_slot} slot."
+            )
+        if is_ufl_free_agent(player) and not include_free_agents:
+            eligible_ok = False
+            problems.append(f"{player.name} is a UFL Free Agent and was not included in this proposal.")
         status = market_status(player)
         if status == "AUCTION":
             auction_ok = False
@@ -508,7 +584,17 @@ def squads_from_payload(payload):
                 team_id=row["team_id"],
                 club_name=row["club_name"],
                 short_name=row["short_name"],
-                players=[ProposedPlayer(**item) for item in row.get("players") or []],
+                players=[
+                    ProposedPlayer(
+                        id=item["id"],
+                        fc27_id=item["fc27_id"],
+                        name=item["name"],
+                        position=item["position"],
+                        overall=item["overall"],
+                        slot=item.get("slot") or item["position"],
+                    )
+                    for item in row.get("players") or []
+                ],
             )
         )
     return squads

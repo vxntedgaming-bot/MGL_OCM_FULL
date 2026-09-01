@@ -379,9 +379,9 @@ def release_player(player, team, source="MANAGER_RELEASE", reviewer=None):
         reference="",
     )
 
-    player.mgl_team = None
-    player.is_free_agent = True
-    player.save(update_fields=["mgl_team", "is_free_agent"])
+    from mgl.player_state import enter_ufl_free_agency
+
+    enter_ufl_free_agency(player)
 
     create_news(
         NewsPost.FREE_AGENT,
@@ -434,9 +434,11 @@ def assign_player(player, team, source="ADMIN", reference=""):
             f"{player.name} already belongs to another UFL club."
         )
 
+    from mgl.player_state import clear_ufl_free_agency
+
     player.mgl_team = team
-    player.is_free_agent = False
-    player.save(update_fields=["mgl_team", "is_free_agent"])
+    clear_ufl_free_agency(player)
+    player.save(update_fields=["mgl_team", "is_free_agent", "released_at"])
 
     PlayerOwnershipHistory.objects.create(
         player=player,
@@ -466,7 +468,9 @@ def sign_free_agent(player, manager):
         raise ValueError("This player is in a live auction.")
     if player.mgl_team_id:
         raise ValueError("This player already belongs to a club.")
-    if not player.is_free_agent:
+    from mgl.player_state import is_ufl_free_agent
+
+    if not is_ufl_free_agent(player):
         raise ValueError("Only Free Agents can be signed for free. Unassigned players are not Free Agents.")
     assert_roster_space(team)
     signed = assign_player(

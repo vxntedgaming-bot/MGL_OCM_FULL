@@ -186,7 +186,7 @@ Exact debit/credit category strings: inspect `_complete_listing_sale` at change 
 - Sign for 0 TKN onto current club if not in a live auction, no club, genuine UFL Free Agent, roster space.
 - **DEC-042:** the Free Agents page must not list every unsigned FC26 player. FA examples: pack reject/release, scout reject/release, no-bid admin auction, other explicit FA processes.
 - Unsigned FC26 players are the recruitment/scouting/admin-auction pool, not public Free Agents.
-- **CURRENT CODE** still uses `is_free_agent=True` for the FA page. Many unused FC26 rows are flagged true in the database. GAP — do not mass-edit those flags in a docs pass.
+- **CURRENT CODE:** the FA page lists genuine UFL Free Agents (`released_at` set by an explicit UFL process). Unused FC26 rows stay unsigned even when the legacy `is_free_agent` flag is true. Do not mass-edit that flag.
 
 ---
 

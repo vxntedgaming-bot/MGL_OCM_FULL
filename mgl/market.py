@@ -471,7 +471,7 @@ def assert_swap_roster_space(buyer_club, selling_team, swap_count):
 @transaction.atomic
 def create_free_agent_auction(player, user, duration_minutes, starting_bid=1):
     """Admin-only: release an UNASSIGNED player into the existing auction system."""
-    from mgl.player_state import is_unassigned
+    from mgl.player_state import is_ufl_free_agent, is_unassigned
 
     if getattr(user, "role", None) not in (User.OWNER, User.ADMIN):
         raise PermissionDenied(
@@ -481,7 +481,7 @@ def create_free_agent_auction(player, user, duration_minutes, starting_bid=1):
     player = Player.objects.select_for_update().get(pk=player.pk)
     if player.mgl_team_id:
         raise ValueError("Only unassigned or free-agent players can be released to auction by an admin.")
-    if not player.is_free_agent and not is_unassigned(player):
+    if not is_unassigned(player) and not is_ufl_free_agent(player) and not player.is_free_agent:
         raise ValueError("Only unassigned or free-agent players can be released to auction by an admin.")
     _assert_no_live_auction(player)
     bid = parse_auction_starting_bid(starting_bid)
@@ -545,9 +545,11 @@ def create_manager_auction(player, manager, duration_minutes, starting_bid=1):
 
 
 def _detach_player_for_club_auction(player):
+    from mgl.player_state import clear_ufl_free_agency
+
     player.mgl_team = None
-    player.is_free_agent = False
-    player.save(update_fields=["mgl_team", "is_free_agent"])
+    clear_ufl_free_agency(player)
+    player.save(update_fields=["mgl_team", "is_free_agent", "released_at"])
     return player
 
 
@@ -564,19 +566,20 @@ def detach_live_club_auction_players():
     return Player.objects.filter(pk__in=player_ids, mgl_team__isnull=False).update(
         mgl_team=None,
         is_free_agent=False,
+        released_at=None,
     )
 
 
 def _restore_unsold_player(auction):
+    from mgl.player_state import clear_ufl_free_agency, enter_ufl_free_agency
+
     player = Player.objects.select_for_update().get(pk=auction.player_id)
     if auction.listing_kind == PlayerAuction.CLUB and auction.origin_team_id:
         player.mgl_team_id = auction.origin_team_id
-        player.is_free_agent = False
-        player.save(update_fields=["mgl_team", "is_free_agent"])
+        clear_ufl_free_agency(player)
+        player.save(update_fields=["mgl_team", "is_free_agent", "released_at"])
         return player
-    player.mgl_team = None
-    player.is_free_agent = True
-    player.save(update_fields=["mgl_team", "is_free_agent"])
+    enter_ufl_free_agency(player)
     create_news(
         NewsPost.FREE_AGENT,
         f"{player.name} is a Free Agent",
@@ -605,9 +608,11 @@ def transfer_player(player, from_team, to_team, source="TRANSFER", reference="",
                 f"{to_team.name} has reached its {roster_limit}-player roster limit."
             )
 
+    from mgl.player_state import clear_ufl_free_agency
+
     player.mgl_team = to_team
-    player.is_free_agent = False
-    player.save(update_fields=["mgl_team", "is_free_agent"])
+    clear_ufl_free_agency(player)
+    player.save(update_fields=["mgl_team", "is_free_agent", "released_at"])
 
     PlayerOwnershipHistory.objects.create(
         player=player,

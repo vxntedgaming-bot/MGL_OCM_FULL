@@ -461,7 +461,13 @@ class LiveActivityAndPressTests(TestCase):
                 manager=newbie, trigger=PressConference.APPOINTMENT
             ).exists()
         )
-        fa = Player.objects.create(name="Free Signing", position="ST", overall=66, is_free_agent=True)
+        fa = Player.objects.create(
+            name="Free Signing",
+            position="ST",
+            overall=66,
+            is_free_agent=True,
+            released_at=timezone.now(),
+        )
         sign_free_agent(fa, self.mgr_a)
         self.assertTrue(NewsPost.objects.filter(category=NewsPost.SIGNING).exists())
         activity = self.client.get(reverse("live_activity"))

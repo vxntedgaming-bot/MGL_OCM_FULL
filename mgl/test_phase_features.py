@@ -155,7 +155,13 @@ class AuctionWorkflowTests(TestCase):
         self.owned = Player.objects.create(name="Club Player", position="ST", overall=70, mgl_team=self.team_a, is_free_agent=False)
         self.other = Player.objects.create(name="Other Club", position="CM", overall=68, mgl_team=self.team_b, is_free_agent=False)
         self.unassigned = Player.objects.create(name="Unassigned Z", position="CB", overall=66, is_free_agent=False)
-        self.fa = Player.objects.create(name="Free Agent Z", position="CB", overall=66, is_free_agent=True)
+        self.fa = Player.objects.create(
+            name="Free Agent Z",
+            position="CB",
+            overall=66,
+            is_free_agent=True,
+            released_at=timezone.now(),
+        )
         self.client = Client(HTTP_HOST="127.0.0.1")
 
     def test_parse_duration_max_120_minutes(self):
@@ -231,13 +237,29 @@ class AuctionWorkflowTests(TestCase):
 
     def test_free_agents_page_excludes_unassigned_and_hides_release(self):
         self.client.login(username="seller", password="test-pass-123")
+        legacy = Player.objects.create(
+            name="Legacy Unsigned",
+            position="ST",
+            overall=67,
+            is_free_agent=True,
+        )
         response = self.client.get(reverse("free_agents"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "FREE AGENT Z")
         self.assertNotContains(response, "UNASSIGNED Z")
+        self.assertNotContains(response, "LEGACY UNSIGNED")
         self.assertNotContains(response, "RELEASE TO AUCTION")
         self.assertContains(response, ">BUY</button>")
         self.assertNotContains(response, "SIGN FOR 0 TKN")
+        self.client.logout()
+        self.client.login(username="owner", password="test-pass-123")
+        unassigned = self.client.get(reverse("unassigned_players"))
+        self.assertContains(unassigned, "LEGACY UNSIGNED")
+        self.assertContains(unassigned, "UNASSIGNED Z")
+        self.assertNotContains(unassigned, "FREE AGENT Z")
+        legacy.refresh_from_db()
+        self.assertTrue(legacy.is_free_agent)
+        self.assertIsNone(legacy.released_at)
 
     def test_unassigned_page_is_admin_only_and_excludes_free_agents(self):
         self.client.login(username="seller", password="test-pass-123")
@@ -464,7 +486,11 @@ class FreeAgentSigningTests(TestCase):
             name="Sign Beta", short_name="SGB", league=self.league, manager=self.user_b
         )
         self.fa = Player.objects.create(
-            name="Free Signing", position="ST", overall=66, is_free_agent=True
+            name="Free Signing",
+            position="ST",
+            overall=66,
+            is_free_agent=True,
+            released_at=timezone.now(),
         )
         self.unassigned = Player.objects.create(
             name="Still Pool", position="CM", overall=65, is_free_agent=False
@@ -586,7 +612,13 @@ class ControlCentreFreeAgentFilterTests(TestCase):
         self.mid = Player.objects.create(name="Filter Mid", position="ST", overall=70, is_free_agent=False)
         self.high = Player.objects.create(name="Filter High", position="ST", overall=71, is_free_agent=False)
         self.star = Player.objects.create(name="Filter Star", position="ST", overall=88, is_free_agent=False)
-        self.fa = Player.objects.create(name="Filter Free Agent", position="ST", overall=66, is_free_agent=True)
+        self.fa = Player.objects.create(
+            name="Filter Free Agent",
+            position="ST",
+            overall=66,
+            is_free_agent=True,
+            released_at=timezone.now(),
+        )
         self.assigned = Player.objects.create(
             name="Filter Assigned",
             position="CM",

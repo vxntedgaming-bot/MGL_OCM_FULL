@@ -6,6 +6,7 @@ import csv
 from django.core.management import call_command
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 
 from accounts.models import User
 from leagues.services import ensure_super_league_1
@@ -236,6 +237,7 @@ class PlayerAttributeProfileTests(TestCase):
             defending=45,
             physical=76,
             is_free_agent=True,
+            released_at=timezone.now(),
         )
         apply_fc26_attributes(self.salah, raw_row("209331"))
         self.salah.save()

@@ -81,7 +81,7 @@ Commands that assign starting squads or import FC26 must be dry-run first. `popu
 - Identity: `name`, unique `fc27_id`, `fc27_club`, face URLs, biometrics, `nationality`, `position`, card ratings (`overall`, pace…physical)
 - FC26 individual `fc_*` attributes and playstyles
 - UFL: FK `mgl_team`, `is_free_agent`, `released_at`, `card_tier`
-- **DEC-042:** `is_free_agent` is **not** the product status for unused FC26 rows. Unsigned = no `mgl_team`. Do not mass-update the ~18,000 unused flags. The application must distinguish FC26/unsigned availability, genuine UFL Free Agents, club-owned players, and manager-auction holds.
+- **DEC-042:** `is_free_agent` is **not** the product status for unused FC26 rows. Unsigned = no `mgl_team` and no `released_at`. Genuine UFL Free Agents have `released_at` set by an explicit UFL process. Do not mass-update the ~18,000 unused flags. The application distinguishes FC26/unsigned availability, genuine UFL Free Agents, club-owned players, and manager-auction holds.
 - Aggregates: `appearances`, `goals`, `assists`, `average_rating`
 
 ### auctions

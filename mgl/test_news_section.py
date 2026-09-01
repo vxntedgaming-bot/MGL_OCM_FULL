@@ -2,6 +2,7 @@ from decimal import Decimal
 
 from django.test import Client, TestCase
 from django.urls import reverse
+from django.utils import timezone
 
 from accounts.models import User
 from leagues.services import ensure_premier_league
@@ -233,6 +234,7 @@ class NewsSectionTests(TestCase):
             position="ST",
             overall=66,
             is_free_agent=True,
+            released_at=timezone.now(),
         )
         sign_free_agent(fa, self.mgr_a)
         self.assertTrue(NewsPost.objects.filter(category=NewsPost.SIGNING).exists())

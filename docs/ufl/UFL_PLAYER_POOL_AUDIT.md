@@ -153,10 +153,10 @@ That is why the earlier audit stopped. **DEC-042 replaces that interpretation fo
 |---|---|
 | Eligible UNSIGNED 64–69 pool under DEC-042 | **Resolved** — 6,225 |
 | RWB / LWB under DEC-042 mapping | **Resolved** — leftover RB / LB cover demand |
-| Generator still uses old FA exclude + exact position | **GAP** — do not generate production squads until updated |
-| Free Agents page still lists `is_free_agent=True` | **GAP** — product page must use genuine UFL FA status later |
+| Generator DEC-042 eligibility + RB/LB mapping | **Implemented** — do not generate/approve production squads until Owner authorises |
+| Free Agents page | **Implemented** — genuine UFL FA (`released_at`) only. Unsigned FC26 rows are not listed. |
 | Production Season 1 apply | **Blocked** until Owner authorises |
-| Production squad generate / approve | **Blocked** until generator implements DEC-042 and Owner authorises |
+| Production squad generate / approve | **Blocked** until Owner authorises |
 
 ---
 

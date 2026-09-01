@@ -1420,9 +1420,9 @@ def player_database(request):
         )
 
     if club == "FA" or free_only:
-        players = players.filter(mgl_team__isnull=True, is_free_agent=True)
+        players = players.filter(mgl_team__isnull=True, released_at__isnull=False)
     elif club == "UNASSIGNED":
-        players = players.filter(mgl_team__isnull=True, is_free_agent=False).exclude(
+        players = players.filter(mgl_team__isnull=True, released_at__isnull=True).exclude(
             id__in=live_auction_player_ids()
         )
     elif club.isdigit():
@@ -1431,9 +1431,9 @@ def player_database(request):
     if status == "CLUB" or status == CLUB_PLAYER.replace(" ", "_"):
         players = players.filter(mgl_team__isnull=False)
     elif status in {"FREE_AGENT", "FA", FREE_AGENT.replace(" ", "_")}:
-        players = players.filter(mgl_team__isnull=True, is_free_agent=True)
+        players = players.filter(mgl_team__isnull=True, released_at__isnull=False)
     elif status == UNASSIGNED:
-        players = players.filter(mgl_team__isnull=True, is_free_agent=False).exclude(
+        players = players.filter(mgl_team__isnull=True, released_at__isnull=True).exclude(
             id__in=live_auction_player_ids()
         )
     elif status == AUCTION:

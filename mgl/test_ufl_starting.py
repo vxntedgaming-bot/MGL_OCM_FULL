@@ -222,8 +222,18 @@ class StartingGeneratorTests(TestCase):
         )
 
     def test_eligibility_excludes_owned_fa_auction_and_listing(self):
+        from mgl.player_state import enter_ufl_free_agency
+
         owned = _player(name="Already Owned", position="ST", overall=66, fc27_id="fc-owned", mgl_team=self.club_a)
+        legacy_unsigned = _player(
+            name="Legacy Flag",
+            position="ST",
+            overall=66,
+            fc27_id="fc-legacy",
+            is_free_agent=True,
+        )
         fa = _player(name="Free Agent", position="ST", overall=66, fc27_id="fc-fa", is_free_agent=True)
+        enter_ufl_free_agency(fa)
         auctioned = _player(name="On Auction", position="ST", overall=66, fc27_id="fc-auc")
         PlayerAuction.objects.create(
             player=auctioned,
@@ -241,14 +251,59 @@ class StartingGeneratorTests(TestCase):
         )
         low = _player(name="Too Low", position="ST", overall=63, fc27_id="fc-low")
         high = _player(name="Too High", position="ST", overall=70, fc27_id="fc-high")
+        blank_id = _player(name="No Identity", position="ST", overall=66, fc27_id="")
         ids = set(eligible_queryset().values_list("id", flat=True))
         self.assertNotIn(owned.id, ids)
+        self.assertIn(legacy_unsigned.id, ids)
         self.assertNotIn(fa.id, ids)
         self.assertNotIn(auctioned.id, ids)
         self.assertNotIn(listed.id, ids)
         self.assertNotIn(low.id, ids)
         self.assertNotIn(high.id, ids)
+        self.assertNotIn(blank_id.id, ids)
         self.assertIn(fa.id, set(eligible_queryset(include_free_agents=True).values_list("id", flat=True)))
+
+    def test_legacy_free_agent_flag_does_not_block_season1_pool(self):
+        for player in self.pool:
+            player.is_free_agent = True
+            player.save(update_fields=["is_free_agent"])
+        ids = set(eligible_queryset().values_list("id", flat=True))
+        self.assertTrue(self.pool)
+        self.assertTrue(all(player.id in ids for player in self.pool))
+        self.assertEqual(Player.objects.filter(is_free_agent=True).count(), len(self.pool))
+        result = generate_allocation(seed=42, clubs=[self.club_a, self.club_b])
+        self.assertEqual(len(result["clubs"]), 2)
+        self.assertEqual(sum(len(squad.players) for squad in result["clubs"]), 60)
+        self.assertTrue(validate_allocation(result["clubs"])["ok"])
+
+    def test_rb_and_lb_fill_wing_back_slots_without_rewriting_fc26(self):
+        Player.objects.filter(position__in=["RWB", "LWB"]).delete()
+        for index in range(6):
+            _player(name=f"Spare RB {index}", position="RB", overall=65, fc27_id=f"fc-spare-rb-{index}")
+            _player(name=f"Spare LB {index}", position="LB", overall=65, fc27_id=f"fc-spare-lb-{index}")
+        result = generate_allocation(seed=42, clubs=[self.club_a, self.club_b])
+        self.assertEqual(len(result["clubs"]), 2)
+        selected = [player for squad in result["clubs"] for player in squad.players]
+        self.assertEqual(len(selected), 60)
+        self.assertEqual(len({player.id for player in selected}), 60)
+        rwb = [player for player in selected if player.squad_slot == "RWB"]
+        lwb = [player for player in selected if player.squad_slot == "LWB"]
+        self.assertEqual(len(rwb), 4)
+        self.assertEqual(len(lwb), 4)
+        self.assertTrue(all(player.position == "RB" for player in rwb))
+        self.assertTrue(all(player.position == "LB" for player in lwb))
+        live = {player.id: player for player in Player.objects.filter(pk__in=[row.id for row in rwb + lwb])}
+        for row in rwb + lwb:
+            self.assertEqual(live[row.id].position, row.position)
+        validation = validate_allocation(result["clubs"])
+        self.assertTrue(validation["ok"], validation)
+
+    def test_short_wing_back_pool_fails_safely(self):
+        Player.objects.filter(position__in=["RB", "RWB", "LB", "LWB"]).delete()
+        result = generate_allocation(seed=1, clubs=[self.club_a, self.club_b])
+        self.assertEqual(result["clubs"], [])
+        self.assertFalse(result["exact"])
+        self.assertTrue(result["notes"])
 
     def test_owner_approval_assigns_atomically_and_emits_news(self):
         proposal = create_proposal(self.owner, seed=7, clubs=[self.club_a, self.club_b])

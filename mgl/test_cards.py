@@ -4,6 +4,7 @@ from pathlib import Path
 from django.template import Context, Template
 from django.test import Client, TestCase
 from django.urls import reverse
+from django.utils import timezone
 
 from accounts.models import User
 from leagues.services import ensure_super_league_1
@@ -38,17 +39,20 @@ class PlayerCardAndBadgeTests(TestCase):
             mgl_team=self.team,
             is_free_agent=False,
         )
+        now = timezone.now()
         self.silver = Player.objects.create(
             name="Silver Mid",
             position="CM",
             overall=70,
             is_free_agent=True,
+            released_at=now,
         )
         self.bronze = Player.objects.create(
             name="Bronze Back",
             position="CB",
             overall=60,
             is_free_agent=True,
+            released_at=now,
         )
         self.user = User.objects.create_user(
             username="carduser",

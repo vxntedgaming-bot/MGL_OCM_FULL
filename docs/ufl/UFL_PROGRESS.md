@@ -2,7 +2,7 @@
 
 Checklist of the **current** project, not a future roadmap disguised as done work.
 
-Last documentation update: 1 September 2026 — **DEC-042 player-status lock + Season 1 pool feasibility (read-only)**.
+Last documentation update: 1 September 2026 — **DEC-042 generator + genuine Free Agent status implemented (no production apply)**.
 
 ---
 
@@ -88,7 +88,7 @@ Implementation of gaps is **not** Phase 1. That is a later, explicit task.
 ## IN PROGRESS
 
 - Season 1 production bootstrap: **WAITING ON OWNER APPROVAL**. Mechanism implemented; apply blocked.
-- Generator still uses exact position + stored `is_free_agent` exclusion. **DEC-042 Season 1 eligibility is documented; not applied in code yet.**
+- DEC-042 generator eligibility + RB/LB wing-back mapping: **IMPLEMENTED**. Production generate/approve still blocked until Owner authorises.
 
 ---
 
@@ -101,10 +101,10 @@ Implementation of gaps is **not** Phase 1. That is a later, explicit task.
 - Password reset / email verification
 - REST API
 - Stored MEMBER role
-- **Apply DEC-042 Season 1 eligibility in the generator** (unsigned, ignore FA flag, RB/LB wing-back mapping) — **NEEDS IMPLEMENTATION**
 - **Apply Season 1 bootstrap + generate/approve 30-player squads on production** — Owner must authorise later
 - Remaining Phase 1 gaps: release without Control, scout setting enforcement, per-pack opening limits, 0.5 validators, **DEC-041 single Job Application**
-- Free Agents page still driven by `is_free_agent` (many unused FC26 rows flagged true) — GAP vs DEC-042
+- Recruitment Pack / Scouting catalogue and token-upgrade economy — not implemented in this pass
+- Genuine UFL FA population is empty until an approved process (pack/scout reject, admin no-bid auction, club release) runs. Unsigned FC26 rows stay unsigned.
 
 ---
 

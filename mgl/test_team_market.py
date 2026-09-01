@@ -281,6 +281,7 @@ class TeamMarketListingTests(TestCase):
             position="CM",
             overall=70,
             is_free_agent=True,
+            released_at=timezone.now(),
         )
         auction_player = Player.objects.create(
             name="Bid Target",

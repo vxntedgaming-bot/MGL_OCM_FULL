@@ -65,6 +65,8 @@ An FC26 player with no UFL club is **UNSIGNED**, not a UFL Free Agent. Do not ma
 
 **Season 1 starting squads only:** unsigned players are eligible regardless of the stored `is_free_agent` flag; `RB` may fill RB/RWB; `LB` may fill LB/LWB; OVR 64–69. That does not publish them as public Free Agents.
 
+**CURRENT CODE:** the generator implements that eligibility and mapping. Genuine UFL Free Agent status is `Player.released_at` (set only by an explicit UFL process). The public Free Agents page uses that status, not the unused FC26 `is_free_agent` flags. Production Season 1 apply/approve remains fenced.
+
 ### Scouting / packs / recruitment
 
 Admin/Owner control which packs are available. Packs may be added, removed, released, replaced, changed, made temporarily available, or made unavailable (regular rating, high rating, lower rating, random position, drops, future types). Each pack can have its **own** configurable maximum number of openings (example: Pack A = 1, Pack B = 2). The system must eventually enforce that limit. Pack/recruitment **token costs use 0.5 increments only** (0, 0.5, 1, 1.5, …). Invalid: 0.25, 0.75, 1.25, 1.75. The existing scout safety/recruitment setting (`LeagueSettings.scout_can_recruit`) **should actually enforce** configured restrictions. Managers may spend tokens to upgrade scouting (shorter hours). Catalogue remains Owner/Admin-controlled.

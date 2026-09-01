@@ -6,6 +6,17 @@ This file started with the documentation/audit pass. It does **not** claim that 
 
 ---
 
+## 2026-09-01 — DEC-042 generator and genuine Free Agent status
+
+Implemented the locked Season 1 player-pool rules and stopped the public Free Agents page from listing the unused FC26 set.
+
+- Starting-squad generator treats unassigned players as UNSIGNED regardless of `is_free_agent`.
+- RB may fill RB/RWB and LB may fill LB/LWB without rewriting FC26 positions.
+- Genuine UFL Free Agent status is `Player.released_at`, set only by explicit UFL processes (club release, no-bid admin/unsigned auction). The legacy flag is not mass-edited.
+- Public Free Agents page and player-database FA filters use that status.
+- Manager no-bid club auctions still return the player to the original club.
+- Read-only 38-club simulation only. Production apply/approve was not run.
+
 ## 2026-09-01 — DEC-042 player status + Season 1 pool re-check (docs + read-only)
 
 Owner locked: unsigned ≠ Free Agent; do not mass-edit `is_free_agent`; FA page is explicit FA only; manager no-bid auctions return home; Season 1 eligibility uses unsigned players, ignores the stored FA flag, and maps RB→RB/RWB and LB→LB/LWB.

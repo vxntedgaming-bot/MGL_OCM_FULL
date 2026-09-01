@@ -184,11 +184,12 @@ class FreeAgentSearchTests(TestCase):
         self.owned = Team.objects.create(
             name="Owned Club", short_name="OWN", league=self.league, manager=self.user
         )
+        now = timezone.now()
         self.fa = Player.objects.create(
-            name="Free Striker", position="ST", overall=77, is_free_agent=True
+            name="Free Striker", position="ST", overall=77, is_free_agent=True, released_at=now
         )
         self.other_fa = Player.objects.create(
-            name="Free Back", position="CB", overall=71, is_free_agent=True
+            name="Free Back", position="CB", overall=71, is_free_agent=True, released_at=now
         )
         self.club_player = Player.objects.create(
             name="Club Bound", position="ST", overall=80, mgl_team=self.owned, is_free_agent=False
@@ -249,6 +250,7 @@ class PlayerDatabaseFilterTests(TestCase):
             skill_moves=2,
             weak_foot=2,
             is_free_agent=True,
+            released_at=timezone.now(),
         )
         self.client.login(username="db-search", password="test-pass-123")
 
