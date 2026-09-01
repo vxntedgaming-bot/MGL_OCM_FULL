@@ -228,6 +228,15 @@ def home(request):
             }
         )
 
+    from auctions.models import PlayerAuction
+
+    live_home_auctions = (
+        PlayerAuction.objects.filter(status=PlayerAuction.LIVE)
+        .select_related("player", "origin_team", "listed_by_manager")
+        .order_by("ends_at")[:4]
+    )
+    featured_players = list(top_scorers)
+
     jobs_url = reverse("job_centre")
     if request.user.is_authenticated:
         apply_club_url = jobs_url
@@ -257,6 +266,8 @@ def home(request):
                 status=PlayerListing.LIVE
             ).count(),
             "recent_transfers": recent_transfers,
+            "live_home_auctions": live_home_auctions,
+            "featured_players": featured_players,
             "activity": activity,
             "active_league": league,
             "table": table,
@@ -349,15 +360,18 @@ def manager_notifications(request):
         )
         return redirect("manager_login")
 
-    from mgl.notifications import inbox_for_user
+    from mgl.notifications import NOTIFICATION_CATEGORIES, inbox_for_user
 
-    inbox = inbox_for_user(request.user)
+    selected_category = (request.GET.get("category") or "").strip()
+    inbox = inbox_for_user(request.user, category=selected_category)
     return render(
         request,
         "mgl/notifications.html",
         {
             "manager": manager,
             "notifications": inbox,
+            "notification_categories": NOTIFICATION_CATEGORIES,
+            "selected_category": selected_category,
         },
     )
 
@@ -698,10 +712,22 @@ def manager_hub(request):
         .order_by("-created_at")[:8]
     )
 
-    roster_count = len(squad) if team else 0
+    from mgl.player_state import roster_occupancy
     from mgl.ufl_settings import effective_roster_limit
 
+    roster_count = roster_occupancy(team) if team else 0
     roster_limit = effective_roster_limit(team) if team else 28
+    if team and squad:
+        listed_ids = set(
+            PlayerListing.objects.filter(
+                team=team,
+                player_id__in=[player.id for player in squad],
+                status__in=[PlayerListing.LIVE, PlayerListing.OFFER, PlayerListing.PENDING],
+            ).values_list("player_id", flat=True)
+        )
+        squad = [player for player in squad if player.id not in listed_ids][:12]
+    else:
+        squad = squad[:12]
     token_balance = token_balance_for_user(request.user)
     from mgl.transfer_requests import incoming_offer_count
 
@@ -726,7 +752,7 @@ def manager_hub(request):
             "recent_results": recent_results,
             "top_scorers": top_scorers,
             "top_assists": top_assists,
-            "squad": squad[:12],
+            "squad": squad,
             "league_position": league_position,
             "league_size": league_size,
             "standings_row": standings_row,
@@ -1210,6 +1236,24 @@ def manager_profile(request):
     if not manager:
         return redirect("manager_login")
 
+    if request.method == "POST" and request.POST.get("action") == "link_discord":
+        raw = (request.POST.get("discord_id") or "").strip()
+        if raw and not raw.isdigit():
+            messages.error(request, "Discord User ID must be the numeric ID, not a username.")
+            return redirect("manager_profile")
+        if raw:
+            taken = User.objects.filter(discord_id=raw).exclude(pk=request.user.pk).exists()
+            if taken:
+                messages.error(request, "That Discord User ID is already linked to another UFL account.")
+                return redirect("manager_profile")
+        request.user.discord_id = raw or None
+        request.user.save(update_fields=["discord_id"])
+        messages.success(
+            request,
+            "Discord account linked." if raw else "Discord account unlinked.",
+        )
+        return redirect("manager_profile")
+
     career = getattr(manager, "career", None)
     trophies = manager.trophies.all() if manager else []
     rewards = (
@@ -1495,14 +1539,17 @@ def team_management(request):
         )
     )
 
+    from mgl.ufl_settings import effective_roster_limit
+
     total_ovr = sum(player.overall for player in players)
     squad_size = roster_occupancy(team)
-    available_spaces = max(0, team.roster_limit - squad_size)
+    roster_limit = effective_roster_limit(team)
+    available_spaces = max(0, roster_limit - squad_size)
     listings = {
         listing.player_id: listing
         for listing in PlayerListing.objects.filter(
             team=team,
-            status__in=[PlayerListing.PENDING, PlayerListing.LIVE],
+            status__in=[PlayerListing.PENDING, PlayerListing.LIVE, PlayerListing.OFFER],
         )
     }
     from auctions.models import PlayerAuction
@@ -1584,13 +1631,19 @@ def team_management(request):
         {player.position for player in players if player.position}
     )
 
+    listed_players = [player for player in players if player.current_listing]
+    active_players = [player for player in players if not player.current_listing]
+
     return render(
         request,
         "mgl/team_management.html",
         {
             "team": team,
-            "players": players,
+            "players": active_players,
+            "listed_players": listed_players,
+            "active_count": len(active_players),
             "squad_size": squad_size,
+            "roster_limit": roster_limit,
             "total_ovr": total_ovr,
             "available_spaces": available_spaces,
             "squad_groups": squad_groups,
@@ -1912,7 +1965,7 @@ def scouting(request):
     )
     from mgl.market import club_for_user
     from mgl.permissions import is_owner_or_admin
-    from mgl.regions import REGION_NATIONS, region_label
+    from mgl.regions import REGION_NATIONS, country_menu, region_label
     from mgl.player_state import roster_occupancy
 
     manager = manager_for_user(request.user)
@@ -1940,6 +1993,7 @@ def scouting(request):
                     request.POST.get("tier"),
                     request.POST.get("region", ""),
                     request.POST.get("position", ""),
+                    country=request.POST.get("country", ""),
                 )
                 messages.success(
                     request,
@@ -2096,6 +2150,7 @@ def scouting(request):
             "upgrade": next_upgrade(scout_level),
             "panels": panels,
             "region_menu": scout_region_menu(),
+            "country_menu": country_menu(),
             "region_guide": region_guide,
             "positions": scout_positions(),
             "reports": reports,

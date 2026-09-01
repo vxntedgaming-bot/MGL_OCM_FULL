@@ -3,9 +3,37 @@
 {% block control_title %}Scouting History — UFL Control{% endblock %}
 {% block control_kicker %}MANAGEMENT{% endblock %}
 {% block control_heading %}SCOUTING HISTORY{% endblock %}
-{% block control_intro %}History of unsigned players and where they went. SCOUTING ACTIVITY remains the existing assignment log.{% endblock %}
+{% block control_intro %}Resolve full-squad scout returns, then review scouting movement.{% endblock %}
 
 {% block control_body %}
+<section class="dashboard-panel mgl-cp-panel">
+    <div class="panel-heading"><span>SQUAD-FULL EXCEPTIONS</span><em>{{ pending_scout_exceptions|length }}</em></div>
+    {% for exception in pending_scout_exceptions %}
+        <article class="mgl-cp-review">
+            <p class="mgl-cp-kicker">SCOUT RETURN · SQUAD FULL</p>
+            <h2>{{ exception.player.name }}</h2>
+            <p>{{ exception.player.position }} · {{ exception.player.overall }} OVR · {{ exception.club.name }}</p>
+            <p>Manager {{ exception.manager.display_name }} already has a 28-player squad. The discovered player was not discarded.</p>
+            <div class="mgl-cp-actions">
+                <form method="post" action="{% url 'control_resolve_scout_exception' exception.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="decision" value="assign">
+                    <input type="text" name="note" placeholder="Owner note (optional)">
+                    <button class="header-button mgl-cp-approve" type="submit">ASSIGN TO CLUB</button>
+                </form>
+                <form method="post" action="{% url 'control_resolve_scout_exception' exception.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="decision" value="release">
+                    <input type="text" name="note" placeholder="Return to unassigned pool">
+                    <button class="header-button mgl-cp-reject" type="submit">RELEASE TO POOL</button>
+                </form>
+            </div>
+        </article>
+    {% empty %}
+        {% include "mgl/includes/empty_state.html" with title="NO SCOUT EXCEPTIONS" %}
+    {% endfor %}
+</section>
+
 <form method="get" class="mgl-cp-toolbar">
     <input type="search" name="q" value="{{ search }}" placeholder="Search player or club">
     <label>From

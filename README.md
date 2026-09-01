@@ -1,10 +1,10 @@
 # Ultimate Fantasy League (UFL)
 
-Django site and Discord outbox bot for Ultimate Fantasy League, an EA FC 26 Online Career Mode: managers, clubs, FC26 player pool, fixtures, match approval, auctions, tokens, and rewards.
+Django site and Discord outbox bot for Ultimate Fantasy League (UFL), an EA FC 26 Career Mode league: managers, clubs, FC26 player pool, fixtures, match approval, auctions, tokens, scouting, press, and rewards. The website is the source of truth. Discord only reports official events.
 
 This tree is the existing production Career Mode application. Internal `/mgl/` URLs stay so Railway, Discord links, and tests keep working. See `UFL_AUDIT.md` for the domain map.
 
-Presentation lives in `core/templates/core/base.html`, `core/static/core/css/mgl.css`, and the overlay design system `core/static/core/css/mgl-theme.css`. Inner pages inherit header, footer, cards, badges, tables, and mobile navigation from that base. Player market states stay visually distinct: **UNASSIGNED**, **AUCTION**, and **FREE AGENT**.
+Presentation lives in `core/templates/core/base.html`, `core/static/core/css/mgl.css`, and the overlay design system `core/static/core/css/mgl-theme.css`. Inner pages inherit header, footer, cards, badges, tables, and mobile navigation from that base. Player market states stay visually distinct: **UNASSIGNED**, **ASSIGNED**, **TRANSFER LISTED**, **IN NEGOTIATION**, **AUCTION**, and **FREE AGENT**.
 
 Assigned managers keep the public homepage at `/` and open the Manager Hub from **MY CLUB**. Logged-in managers use the header notification bell for match confirmations, transfer requests, and press conferences — there is no separate notifications workflow in the hub. Public visitors see the redesigned homepage. Club squads are at `/clubs/<club-name-slug>/` (short codes such as `/clubs/ARS/` still resolve). Public News has two destinations: **Pressroom** (`/news/pressroom/`) for approved interviews, and **Live Activity** (`/news/activity/`) for approved results, completed transfers and signings. Manager submissions stay pending until Admin approves them. Account registration does not require approval; applying for a club does. Set `DISCORD_INVITE_URL` to show Discord buttons (header **DISCORD**); leave it empty to hide them. Do not hardcode an invite.
 
@@ -41,10 +41,14 @@ That command creates the 14 official Premier League clubs if missing and imports
 
 Player market states:
 
-- **UNASSIGNED** — unused FC26 pool. No club, not in auction, not a Free Agent. These players are not available to sign.
-- **AUCTION** — owner/admin released an unassigned player into the existing auction system.
-- **FREE AGENT** — an unassigned auction closed with **no bids**, or a club manager released their own player. Eligible managers can sign them for **0 TKN**.
-- **CLUB PLAYER** — belongs to an MGL club (starting squad, auction win, free-agent signing, transfer, or scout).
+- **UNASSIGNED** — unused FC26 pool. No club, not in auction, not a Free Agent.
+- **ASSIGNED** — owned by a UFL club.
+- **TRANSFER LISTED** — still owned, temporarily off the active roster.
+- **IN NEGOTIATION** — an accepted or open offer is waiting.
+- **AUCTION** — live club or league-office auction. Occupies a roster slot until settlement.
+- **FREE AGENT** — approved club release, or an unsold league-office auction. Eligible managers can sign them for **0 TKN**.
+
+Hard backend rules: 28-player squads, 5 active listings, 3 new listings / 24h, 3 manager auctions / 24h, no loans, Tokens only. Starting squads are a 25-player Owner-approved allocation. Scouting recruits a random eligible FC26 player when the timer ends.
 
 Only an owner/admin can move UNASSIGNED → AUCTION. Managers receive HTTP 403 if they POST the unassigned-release endpoint. A no-bid auction becomes a Free Agent. A manager can only release players on their own club; that player becomes a Free Agent with no auction.
 

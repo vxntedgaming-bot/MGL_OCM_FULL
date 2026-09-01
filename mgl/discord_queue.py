@@ -7,7 +7,7 @@ from mgl.models import DiscordEvent, NewsPost
 
 CHANNEL_FOR_CATEGORY = {
     NewsPost.RESULTS: "NEWS",
-    NewsPost.TRANSFER: "TRANSFER",
+    NewsPost.TRANSFER: "TRANSFER MARKET",
     NewsPost.AUCTION: "AUCTIONS",
     NewsPost.FREE_AGENT: "FREE_AGENTS",
     NewsPost.PRESS: "PRESS",
@@ -27,6 +27,48 @@ def queue_discord_event(event_type, payload=None, *, channel_key="", news_post=N
         payload=payload,
         news_post=news_post,
         status=DiscordEvent.PENDING,
+    )
+
+
+PERSONAL_TYPES = (
+    "TRANSFER",
+    "AUCTION",
+    "PRESS",
+    "MATCH",
+    "RESULT",
+    "ADMIN",
+    "SCOUTING",
+    "CLUB",
+)
+
+
+def queue_personal_discord(user, notification_type, title, message, url=""):
+    """Queue a personal Discord DM. Website/DB state is already committed."""
+    discord_id = getattr(user, "discord_id", None)
+    if not user or not discord_id:
+        return None
+    type_key = (notification_type or "").upper()
+    if not any(key in type_key for key in PERSONAL_TYPES):
+        return None
+    text = "\n".join(
+        part
+        for part in (
+            "UFL NOTIFICATION",
+            title or "",
+            message or "",
+            f"VIEW ON WEBSITE → {url}" if url else "",
+        )
+        if part
+    )
+    return queue_discord_event(
+        notification_type or "NOTICE",
+        {
+            "text": text,
+            "title": title,
+            "body": message,
+            "discord_id": str(discord_id),
+        },
+        channel_key="DM",
     )
 
 

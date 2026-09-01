@@ -198,7 +198,7 @@ CONTENT_FIELDS = (
         "Managers only control their own club. Releases and auctions follow the existing rules.",
     ),
     # FOOTER
-    ContentField("footer.description", "footer", "Footer Description", "long", "Online Career Mode"),
+    ContentField("footer.description", "footer", "Footer Description", "long", "Ultimate Fantasy League"),
     ContentField("footer.contact_text", "footer", "Contact Text", "long", ""),
     ContentField("footer.discord_text", "footer", "Discord Text", "short", "JOIN OUR DISCORD"),
     # SETTINGS — stored in the same table, edited on Site Settings

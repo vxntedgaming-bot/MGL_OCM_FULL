@@ -52,8 +52,13 @@
                     <form method="post" action="{% url 'control_reject_listing' listing.id %}" class="mgl-cp-reject-form">
                         {% csrf_token %}
                         <input type="hidden" name="next_page" value="control_transfers">
-                        <input type="text" name="reason" placeholder="Rejection / correction reason">
+                        <input type="text" name="reason" placeholder="Rejection reason">
                         <button class="header-button mgl-cp-reject" type="submit">REJECT</button>
+                    </form>
+                    <form method="post" action="{% url 'control_request_listing_changes' listing.id %}" class="mgl-cp-reject-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="next_page" value="control_transfers">
+                        <input type="text" name="reason" placeholder="What must change before approval">
                         <button class="header-button mgl-cp-review-btn" type="submit">REQUEST CHANGES</button>
                     </form>
                 </div>

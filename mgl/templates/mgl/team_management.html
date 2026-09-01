@@ -33,7 +33,7 @@
                         {% if team.league %}
                             <span>League: {{ team.league|league_label }}</span>
                         {% endif %}
-                        <span>Squad Size: {{ squad_size }}/{{ team.roster_limit }}</span>
+                        <span>Squad Size: {{ squad_size }}/{{ roster_limit }}</span>
                     </p>
                     <span class="mgl-team-token-pill">{{ token_balance }} TOKENS</span>
                 </div>
@@ -62,13 +62,13 @@
             </div>
             <div class="mgl-team-hero-count">
                 <span>SQUAD SIZE</span>
-                <strong>{{ squad_size }} / {{ team.roster_limit }}</strong>
-                <small>MAX {{ team.roster_limit }}</small>
-                <small>{{ squad_size }}/{{ team.roster_limit }} · {{ market_listing_count }}/{{ market_listing_limit }} LISTINGS</small>
+                <strong>{{ squad_size }} / {{ roster_limit }}</strong>
+                <small>MAX {{ roster_limit }} · {{ active_count }} ON ACTIVE ROSTER</small>
+                <small>{{ squad_size }}/{{ roster_limit }} · {{ market_listing_count }}/{{ market_listing_limit }} LISTINGS</small>
             </div>
         </header>
 
-        {% if players %}
+        {% if players or listed_players %}
         <div class="mgl-sq-layout">
             <div class="mgl-squad-board">
                 <div class="mgl-squad-board-head">
@@ -216,6 +216,44 @@
                 <span class="mgl-sq-report" aria-disabled="true">SQUAD REPORT</span>
             </aside>
         </div>
+        {% if listed_players %}
+        <section class="mgl-squad-board" style="margin-top:24px">
+            <div class="mgl-squad-board-head">
+                <h2>OFF ACTIVE ROSTER</h2>
+                <p>You still own these players. They do not count as active squad options until the listing ends.</p>
+            </div>
+            <div class="mgl-squad-scroll">
+                <table class="mgl-squad-table">
+                    <tbody>
+                        {% for player in listed_players %}
+                        <tr class="mgl-squad-row">
+                            <td class="mgl-squad-player" data-label="PLAYER">
+                                <a href="{% url 'player_profile' player.id %}">{{ player|card_name }}</a>
+                            </td>
+                            <td class="mgl-squad-pos" data-label="POS">{{ player.position }}</td>
+                            <td data-label="STATUS">
+                                {% if player.current_listing.status == "OFFER" or player.current_listing.status == "PENDING" %}
+                                    <span class="mgl-card-status">IN NEGOTIATION · {{ player.current_listing.asking_price }} TKN</span>
+                                {% else %}
+                                    <span class="mgl-card-status">TRANSFER LISTED · {{ player.current_listing.asking_price }} TKN</span>
+                                {% endif %}
+                            </td>
+                            <td class="mgl-squad-actions" data-label="ACTIONS">
+                                <a href="{% url 'player_profile' player.id %}" class="mgl-sq-view">VIEW</a>
+                                {% if player.current_listing.status == "LIVE" %}
+                                    <form method="post" action="{% url 'cancel_player_listing' player.current_listing.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="mgl-squad-action">WITHDRAW</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        {% endif %}
         {% elif squad_size %}
             {% include "mgl/includes/empty_state.html" with title="SQUAD PLAYERS IN AUCTION" %}
         {% else %}

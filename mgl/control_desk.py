@@ -21,6 +21,7 @@ from mgl.models import (
     PlayerReleaseRequest,
     RewardTransaction,
     ScoutAssignment,
+    ScoutSquadException,
     SiteChangeLog,
     WeeklyAwardBatch,
 )
@@ -148,6 +149,7 @@ def pending_counts_from(queues):
         "monthly": queues["pending_monthly"],
         "disputed": len(queues["disputed_results"]),
         "scouts": queues["active_scouts"],
+        "scout_exceptions": len(queues.get("pending_scout_exceptions") or []),
         "releases": len(queues.get("pending_releases") or []),
     }
     counts["approvals"] = (
@@ -158,6 +160,7 @@ def pending_counts_from(queues):
         + counts["press"]
         + counts["awards"]
         + counts["releases"]
+        + counts["scout_exceptions"]
     )
     return counts
 
@@ -190,6 +193,11 @@ def load_queues():
         .select_related("player", "team", "manager")
         .order_by("-created_at")
     )
+    pending_scout_exceptions = list(
+        ScoutSquadException.objects.filter(status=ScoutSquadException.PENDING)
+        .select_related("player", "manager", "manager__user", "club", "assignment")
+        .order_by("-created_at")
+    )
     queues = {
         "pending_managers": pending_managers,
         "pending_listings": pending_listings(),
@@ -198,6 +206,7 @@ def load_queues():
         "pending_jobs": pending_jobs,
         "pending_press": pending_press_reviews(),
         "pending_releases": pending_releases,
+        "pending_scout_exceptions": pending_scout_exceptions,
         "live_auctions": live_auctions,
         "pending_weekly": weekly_pending,
         "pending_monthly": monthly_pending,

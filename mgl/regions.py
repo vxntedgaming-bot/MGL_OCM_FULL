@@ -386,5 +386,9 @@ def unique_mapped_nations():
     return frozenset(mapped)
 
 
+def country_menu():
+    return tuple(sorted(unique_mapped_nations()))
+
+
 def region_option_count():
     return sum(len(items) for _group, items in REGION_MENU)

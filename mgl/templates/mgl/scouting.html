@@ -9,7 +9,7 @@
 
 {% block content %}
 <section class="mgl-section mgl-scout-page">
-    {% include "core/includes/mgl_page_header.html" with header_section="CAREER MODE" header_title="SCOUTING CENTRE" header_description="Send one scout at a time. When the scout returns, the discovered player joins your squad if you have space." %}
+    {% include "core/includes/mgl_page_header.html" with header_section="CAREER MODE" header_title="SCOUTING CENTRE" header_description="Send one scout at a time. Choose country and position. When the scout returns, the discovered FC26 player joins your squad if you have space." %}
 
     {% if pack %}
         <section class="mgl-sc-pack" id="scout-pack">
@@ -28,7 +28,7 @@
                     {% csrf_token %}
                     <input type="hidden" name="action" value="open_pack">
                     <input type="hidden" name="assignment" value="{{ pack.id }}">
-                    <button type="submit" class="primary-button">OPEN PACK</button>
+                    <button type="submit" class="primary-button">OPEN REPORT</button>
                 </form>
             {% else %}
                 <div class="mgl-sc-reveal">
@@ -46,13 +46,11 @@
                     <a href="{% url 'player_profile' pack.player.id %}" class="secondary-button">VIEW PLAYER</a>
                     {% if pack.confidence %}<p>Scout confidence {{ pack.confidence }}%</p>{% endif %}
                     {% if pack.availability_label %}<p class="mgl-sc-muted">{{ pack.availability_label }}</p>{% endif %}
-                    <p class="mgl-sc-muted">Scouting discovers this player. It does not sign them.</p>
-                    <form method="post">
-                        {% csrf_token %}
-                        <input type="hidden" name="action" value="watchlist">
-                        <input type="hidden" name="assignment" value="{{ pack.id }}">
-                        <button type="submit" class="primary-button">ADD TO WATCHLIST</button>
-                    </form>
+                    {% if pack.player.mgl_team %}
+                        <p class="mgl-sc-muted">{{ pack.player|card_name }} has been assigned to {{ pack.player.mgl_team.name }}.</p>
+                    {% else %}
+                        <p class="mgl-sc-muted">Scout report filed. If your squad is already at 28, the league office must resolve the exception.</p>
+                    {% endif %}
                 </div>
                 <div class="mgl-sc-pack-actions">
                     <form method="post">
@@ -104,6 +102,15 @@
                         <input type="hidden" name="action" value="dispatch">
                         <input type="hidden" name="tier" value="{{ panel.tier }}">
                         <label>
+                            COUNTRY
+                            <select name="country">
+                                <option value="">Any country</option>
+                                {% for nation in country_menu %}
+                                    <option value="{{ nation }}">{{ nation }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                        <label>
                             REGION
                             <select name="region" class="mgl-region-select">
                                 {% for group, items in region_menu %}
@@ -131,7 +138,7 @@
                             </select>
                         </label>
                         {% if panel.ready %}
-                            <a href="?pack={{ panel.current.id }}" class="secondary-button">OPEN PACK</a>
+                            <a href="?pack={{ panel.current.id }}" class="secondary-button">VIEW REPORT</a>
                         {% else %}
                             <button type="submit" class="secondary-button mgl-sc-dispatch" {% if not panel.available %}disabled{% endif %}>DISPATCH SCOUT</button>
                         {% endif %}
@@ -212,7 +219,7 @@
                             <strong class="mgl-auction-countdown" data-scout-end="{{ item.ready_at|date:'c' }}">{{ item.remaining|wait_left }} REMAINING</strong>
                             <span>IN PROGRESS</span>
                         {% else %}
-                            <a href="?pack={{ item.id }}" class="secondary-button">OPEN PACK</a>
+                            <a href="?pack={{ item.id }}" class="secondary-button">VIEW REPORT</a>
                             <span>SCOUT REPORT READY</span>
                         {% endif %}
                     </article>

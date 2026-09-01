@@ -25,6 +25,7 @@ from .market import (
     list_player_for_sale,
     locked_squad_player_ids,
     reject_listing,
+    request_listing_changes,
     settle_auction,
     token_balance_for_user,
     transfer_offer_details,
@@ -706,6 +707,39 @@ def control_reject_listing(request, listing_id):
     except ValueError as exc:
         messages.error(request, str(exc))
     return control_centre_redirect(request, default="control_transfers")
+
+
+@owner_admin_required
+@require_POST
+def control_request_listing_changes(request, listing_id):
+    listing = get_object_or_404(PlayerListing, pk=listing_id)
+    note = (request.POST.get("reason") or request.POST.get("note") or "").strip()
+    try:
+        request_listing_changes(listing, request.user, note)
+        messages.success(request, "Deal sent back for changes. Ownership did not change.")
+    except ValueError as exc:
+        messages.error(request, str(exc))
+    return control_centre_redirect(request, default="control_transfers")
+
+
+@owner_admin_required
+@require_POST
+def control_resolve_scout_exception(request, exception_id):
+    from mgl.models import ScoutSquadException
+    from mgl.scouting import resolve_scout_exception
+
+    exception = get_object_or_404(ScoutSquadException, pk=exception_id)
+    assign = (request.POST.get("decision") or "assign").strip().lower() != "release"
+    note = (request.POST.get("note") or "").strip()
+    try:
+        resolve_scout_exception(exception, request.user, assign=assign, note=note)
+        messages.success(
+            request,
+            "Scout exception assigned to the club." if assign else "Scout exception released to the pool.",
+        )
+    except ValueError as exc:
+        messages.error(request, str(exc))
+    return control_centre_redirect(request, default="control_scouting")
 
 
 @owner_admin_required

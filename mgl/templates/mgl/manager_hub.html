@@ -103,6 +103,32 @@
         </div>
     </section>
 
+    {% if transfers or rewards %}
+    <section class="mgl-dash-section">
+        <div class="mgl-dash-section-head">
+            <h2>CAREER MOVEMENT</h2>
+        </div>
+        <div class="mgl-dash-grid mgl-dash-grid-2">
+            <article class="mgl-dash-card">
+                <strong>TRANSFER ACTIVITY</strong>
+                {% for row in transfers %}
+                    <small>{{ row.player.name }} · {{ row.amount }} TKN</small>
+                {% empty %}
+                    <small>No completed transfers yet</small>
+                {% endfor %}
+            </article>
+            <article class="mgl-dash-card">
+                <strong>TOKEN HISTORY</strong>
+                {% for row in rewards %}
+                    <small>{{ row.reason }} · {{ row.amount }} TKN</small>
+                {% empty %}
+                    <small>No token movements yet</small>
+                {% endfor %}
+            </article>
+        </div>
+    </section>
+    {% endif %}
+
     {% if squad %}
     <section class="mgl-dash-section">
         <div class="mgl-dash-section-head">

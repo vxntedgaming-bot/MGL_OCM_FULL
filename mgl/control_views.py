@@ -344,6 +344,7 @@ def control_scouting(request):
     context = control_shell_context(request, "scouting", queues)
     context.update(
         {
+            "pending_scout_exceptions": queues.get("pending_scout_exceptions") or [],
             "recent_scouts": assignments[:40],
             "movement_rows": movement_rows,
             "search": request.GET.get("q") or "",

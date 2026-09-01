@@ -47,6 +47,13 @@
             </div>
         </div>
         <div class="mgl-profile-actions">
+            <form method="post" class="mgl-profile-discord">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="link_discord">
+                <label for="discord_id">Discord User ID</label>
+                <input id="discord_id" name="discord_id" value="{{ user.discord_id|default:'' }}" placeholder="Numeric Discord ID" inputmode="numeric">
+                <button type="submit" class="secondary-button">{% if user.discord_id %}UPDATE DISCORD LINK{% else %}LINK DISCORD{% endif %}</button>
+            </form>
             {% if team %}
                 <a href="{% url 'manager_profile' %}?resign=1" class="mgl-danger-button">RESIGN FROM CLUB</a>
             {% endif %}

@@ -34,9 +34,12 @@ def _season_number(fixture=None):
         return 1
 
 
-def _format_question(question, team=None):
+def _format_question(question, team=None, extra=None):
     club = team.name if team is not None else "the club"
-    return question.replace("{club}", club)
+    question = question.replace("{club}", club)
+    for key, value in (extra or {}).items():
+        question = question.replace("{" + key + "}", str(value or ""))
+    return question
 
 
 def _used_keys_for_manager(manager):
@@ -170,11 +173,27 @@ def create_match_press_questions(fixture, home_stats, away_stats):
         else:
             result = "LOSS"
         categories = MATCH_CATEGORY_BY_RESULT[result]
+        opponent = fixture.away_team if team.id == fixture.home_team_id else fixture.home_team
         category, key, question = _pick_question(
             categories,
             team.manager,
             extra_blocked=used_this_event,
         )
+        if result == "WIN":
+            question = (
+                f"You've secured an important victory against {opponent.name} "
+                f"({scored}–{conceded}). What pleased you most about the performance?"
+            )
+        elif result == "LOSS":
+            question = (
+                f"Your team suffered a difficult defeat to {opponent.name} "
+                f"({scored}–{conceded}). What went wrong and how do you respond?"
+            )
+        else:
+            question = (
+                f"You shared the points with {opponent.name} at {scored}–{conceded}. "
+                f"Is that a fair reflection of the contest?"
+            )
         row = create_press_question(
             manager=team.manager,
             team=team,
@@ -294,6 +313,21 @@ def maybe_create_signing_press(user, team):
         return None
     categories = MULTI_SIGNING_CATEGORIES if recent >= 3 else SIGNING_CATEGORIES
     category, key, question = _pick_question(categories, user)
+    latest = (
+        NewsPost.objects.filter(
+            published=True,
+            category__in=[NewsPost.SIGNING, NewsPost.TRANSFER],
+            created_at__gte=week_ago,
+            body__icontains=team.name,
+        )
+        .order_by("-created_at")
+        .first()
+    )
+    if latest and latest.title:
+        question = (
+            f"You've strengthened the squad with a new signing. {latest.title.rstrip('.')}. "
+            f"What does he bring to your team?"
+        )
     return create_press_question(
         manager=user,
         team=team,

@@ -81,6 +81,8 @@
                         <span>AGE</span>
                         <span>OVR</span>
                         <span>TIME LEFT</span>
+                        <span>SELLER</span>
+                        <span>STATUS</span>
                         <span>START BID</span>
                         <span>CURRENT BID</span>
                         <span>BIDS</span>
@@ -113,7 +115,15 @@
                             <div class="mgl-auc-time">
                                 <span class="mgl-auc-mobile-label">TIME LEFT</span>
                                 <span class="mgl-auction-countdown" data-auction-end="{{ auction.ends_at|date:'c' }}">{{ auction.ends_at|time_left }}</span>
-                                <small>({{ auction.bid_total }} BID{{ auction.bid_total|pluralize }})</small>
+                                <small>ENDS {{ auction.ends_at|date:"j M Y, H:i" }}</small>
+                            </div>
+                            <div>
+                                <span class="mgl-auc-mobile-label">SELLER</span>
+                                {% if auction.origin_team %}{{ auction.origin_team.short_name }}{% elif auction.listed_by_manager %}{{ auction.listed_by_manager.display_name }}{% else %}LEAGUE OFFICE{% endif %}
+                            </div>
+                            <div>
+                                <span class="mgl-auc-mobile-label">STATUS</span>
+                                {{ auction.status }}
                             </div>
                             <div class="mgl-auc-tokens">
                                 <span class="mgl-auc-mobile-label">START BID</span>
@@ -130,7 +140,14 @@
                                 {{ auction.bid_total }}
                             </div>
                             <div class="mgl-auc-action">
+                                {% if user.is_authenticated and manager and auction.listed_by_manager_id == manager.id %}
+                                    <span class="mgl-card-status">YOUR AUCTION</span>
+                                {% elif user.is_authenticated %}
                                 <a href="?auction={{ auction.id }}{% if querystring %}&{{ querystring }}{% endif %}" class="secondary-button" data-auction-open="{{ auction.id }}">BID</a>
+                                {% else %}
+                                    <a href="{% url 'manager_login' %}?next={{ request.get_full_path }}" class="secondary-button">SIGN IN TO BID</a>
+                                {% endif %}
+                                {% if not manager or auction.listed_by_manager_id != manager.id %}
                                 <dialog class="mgl-auc-dialog" id="auction-bid-{{ auction.id }}" {% if open_auction and open_auction.id == auction.id %}open{% endif %}>
                                     <div class="mgl-auc-dialog-inner">
                                         <div class="mgl-auc-dialog-head">
@@ -140,13 +157,17 @@
                                         <dl class="mgl-auc-dialog-meta">
                                             <div><dt>POSITION</dt><dd>{% if auction.player.position %}{{ auction.player.position }}{% else %}—{% endif %}</dd></div>
                                             <div><dt>OVR</dt><dd>{{ auction.player.overall }}</dd></div>
+                                            <div><dt>SELLER</dt><dd>{% if auction.origin_team %}{{ auction.origin_team.name }}{% elif auction.listed_by_manager %}{{ auction.listed_by_manager.display_name }}{% else %}LEAGUE OFFICE{% endif %}</dd></div>
+                                            <div><dt>STATUS</dt><dd>{{ auction.status }}</dd></div>
                                             <div><dt>START BID</dt><dd>{{ auction.starting_bid }}</dd></div>
                                             <div><dt>CURRENT BID</dt><dd>{{ auction.current_bid }}</dd></div>
                                             <div><dt>BIDS</dt><dd>{{ auction.bid_total }}</dd></div>
+                                            <div><dt>ENDS</dt><dd>{{ auction.ends_at|date:"j M Y, H:i" }}</dd></div>
                                             <div><dt>TIME LEFT</dt><dd class="mgl-auction-countdown" data-auction-end="{{ auction.ends_at|date:'c' }}">{{ auction.ends_at|time_left }}</dd></div>
                                             <div><dt>YOUR TOKENS</dt><dd>{{ token_balance }}</dd></div>
                                             <div><dt>MINIMUM BID</dt><dd>{{ auction.input_min }}</dd></div>
                                         </dl>
+                                        {% if user.is_authenticated %}
                                         <form method="post" action="{% url 'place_bid' auction.id %}" class="mgl-auction-bid-form" data-auction-bid-form>
                                             {% csrf_token %}
                                             <input type="hidden" name="next" value="{{ request.get_full_path }}">
@@ -159,8 +180,10 @@
                                                 <button type="submit" class="primary-button">PLACE BID</button>
                                             </div>
                                         </form>
+                                        {% endif %}
                                     </div>
                                 </dialog>
+                                {% endif %}
                             </div>
                         </article>
                     {% endfor %}

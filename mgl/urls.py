@@ -321,6 +321,16 @@ urlpatterns = [
         name="control_reject_listing",
     ),
     path(
+        "control/listings/<int:listing_id>/changes/",
+        views_market.control_request_listing_changes,
+        name="control_request_listing_changes",
+    ),
+    path(
+        "control/scouting/exceptions/<int:exception_id>/resolve/",
+        views_market.control_resolve_scout_exception,
+        name="control_resolve_scout_exception",
+    ),
+    path(
         "control/results/<int:submission_id>/approve/",
         views_market.control_approve_result,
         name="control_approve_result",

@@ -25,7 +25,7 @@
         <details class="mgl-cp-nav-group {% if control_section == 'clubs' or control_section == 'scouting' or control_section == 'auctions' or control_section == 'tokens' %}is-current{% endif %}" {% if control_section == 'clubs' or control_section == 'scouting' or control_section == 'auctions' or control_section == 'tokens' %}open{% endif %}>
             <summary>MANAGEMENT</summary>
             <a href="{% url 'control_clubs' %}" class="{% if control_section == 'clubs' %}is-active{% endif %}">Clubs &amp; Managers</a>
-            <a href="{% url 'control_scouting' %}" class="{% if control_section == 'scouting' %}is-active{% endif %}">Scouting{% if pending_counts.scouts %}<span class="mgl-cp-badge">{{ pending_counts.scouts }}</span>{% endif %}</a>
+            <a href="{% url 'control_scouting' %}" class="{% if control_section == 'scouting' %}is-active{% endif %}">Scouting{% if pending_counts.scout_exceptions %}<span class="mgl-cp-badge">{{ pending_counts.scout_exceptions }}</span>{% elif pending_counts.scouts %}<span class="mgl-cp-badge">{{ pending_counts.scouts }}</span>{% endif %}</a>
             <a href="{% url 'control_auctions' %}" class="{% if control_section == 'auctions' %}is-active{% endif %}">Auctions / Release Players{% if pending_counts.auctions %}<span class="mgl-cp-badge">{{ pending_counts.auctions }}</span>{% endif %}</a>
             <a href="{% url 'player_database' %}">Player Database</a>
             <a href="{% url 'control_tokens' %}" class="{% if control_section == 'tokens' %}is-active{% endif %}">Token Rewards</a>

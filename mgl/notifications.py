@@ -367,7 +367,23 @@ def notify_user(
             "is_action": is_action,
         },
     )
+    if _created:
+        from mgl.discord_queue import queue_personal_discord
+
+        queue_personal_discord(user, notification_type, title, message, action_url)
     return obj
+
+
+NOTIFICATION_CATEGORIES = (
+    "Transfers",
+    "Auctions",
+    "Matches",
+    "Press",
+    "Scouting",
+    "Club",
+    "Admin",
+    "Career",
+)
 
 
 def inbox_queryset_for_user(user):
@@ -594,9 +610,13 @@ def decorate_inbox_items(items):
     return items
 
 
-def inbox_for_user(user):
+def inbox_for_user(user, category=""):
     sync_pending_notifications(user)
-    items = attach_press_briefs(list(inbox_queryset_for_user(user)), user)
+    qs = inbox_queryset_for_user(user)
+    category = (category or "").strip()
+    if category in NOTIFICATION_CATEGORIES:
+        qs = qs.filter(category=category)
+    items = attach_press_briefs(list(qs), user)
     return decorate_inbox_items(items)
 
 

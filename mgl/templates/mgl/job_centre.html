@@ -176,8 +176,8 @@
                             <input type="text" name="gamertag" value="{{ manager.gamertag }}" required maxlength="64" placeholder="Enter your EA ID / Gamertag">
                         </label>
                         <label>
-                            DISCORD USERNAME
-                            <input type="text" name="discord_username" required maxlength="64" placeholder="Enter your Discord username">
+                            DISCORD USER ID
+                            <input type="text" name="discord_id" value="{{ user.discord_id|default:'' }}" required maxlength="32" inputmode="numeric" placeholder="Numeric Discord User ID">
                         </label>
                         <label>
                             GAMES PER WEEK

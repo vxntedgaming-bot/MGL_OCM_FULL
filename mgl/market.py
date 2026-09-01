@@ -481,8 +481,10 @@ def create_free_agent_auction(player, user, duration_minutes, starting_bid=1):
         )
     minutes = parse_auction_duration(duration_minutes)
     player = Player.objects.select_for_update().get(pk=player.pk)
-    if player.mgl_team_id or player.is_free_agent or not is_unassigned(player):
-        raise ValueError("Only unassigned players can be released to auction by an admin.")
+    if player.mgl_team_id:
+        raise ValueError("Only unassigned or free-agent players can be released to auction by an admin.")
+    if not player.is_free_agent and not is_unassigned(player):
+        raise ValueError("Only unassigned or free-agent players can be released to auction by an admin.")
     _assert_no_live_auction(player)
     bid = parse_auction_starting_bid(starting_bid)
     now = timezone.now()
@@ -1660,6 +1662,7 @@ def request_listing_changes(listing, reviewer, note=""):
         listing.request_changes_note,
     )
     from mgl.audit import log_ocm_action
+    from mgl.notifications import notify_user
 
     log_ocm_action(
         reviewer,
@@ -1669,6 +1672,24 @@ def request_listing_changes(listing, reviewer, note=""):
         object_label=listing.player.name,
         summary=f"League office requested changes on {listing.player.name}.",
     )
+    note = listing.request_changes_note or "The league office asked for changes before this deal can be approved."
+    for manager in (listing.seller, listing.reserved_buyer):
+        user = getattr(manager, "user", None) if manager is not None else None
+        if user is None:
+            continue
+        notify_user(
+            user,
+            source_key=f"transfer-changes-{listing.pk}-{user.pk}",
+            notification_type="TRANSFER",
+            title="TRANSFER CHANGES REQUESTED",
+            message=note,
+            actor=getattr(reviewer, "username", "") or "League office",
+            team=listing.team,
+            player=listing.player,
+            listing=listing,
+            action_url="/mgl/transfers/requests/",
+            action_label="OPEN NEGOTIATION",
+        )
     return listing
 
 

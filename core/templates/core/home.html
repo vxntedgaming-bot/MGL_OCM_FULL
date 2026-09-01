@@ -119,6 +119,90 @@
     </div>
 </section>
 
+<section class="mgl-home-board-wrap">
+    <div class="mgl-home-board">
+        <article class="mgl-home-card">
+            <div class="mgl-home-card-head">
+                <h2>RECENT RESULTS</h2>
+                <a href="{% url 'fixture_list' %}" class="view-all">VIEW ALL →</a>
+            </div>
+            {% for fixture in recent_results %}
+                <p>
+                    <strong>{{ fixture.home_team.name }}</strong>
+                    {% if fixture.home_goals is not None and fixture.away_goals is not None %}
+                        {{ fixture.home_goals }}–{{ fixture.away_goals }}
+                    {% else %}
+                        FT
+                    {% endif %}
+                    <strong>{{ fixture.away_team.name }}</strong>
+                </p>
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with title="NO APPROVED RESULTS YET" %}
+            {% endfor %}
+        </article>
+
+        <article class="mgl-home-card">
+            <div class="mgl-home-card-head">
+                <h2>LATEST TRANSFERS</h2>
+                <a href="{% url 'transfer_market' %}" class="view-all">VIEW MARKET →</a>
+            </div>
+            {% for row in recent_transfers %}
+                <p>
+                    <strong>{% if row.player %}{{ row.player.name }}{% else %}Token movement{% endif %}</strong>
+                    · {% if row.from_team %}{{ row.from_team.short_name }}{% else %}FA{% endif %}
+                    → {% if row.to_team %}{{ row.to_team.short_name }}{% else %}—{% endif %}
+                    · {{ row.amount }} TKN
+                </p>
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with title="NO COMPLETED TRANSFERS YET" %}
+            {% endfor %}
+        </article>
+
+        <article class="mgl-home-card">
+            <div class="mgl-home-card-head">
+                <h2>LIVE AUCTIONS</h2>
+                <a href="{% url 'live_auctions' %}" class="view-all">VIEW AUCTIONS →</a>
+            </div>
+            {% for auction in live_home_auctions %}
+                <p>
+                    <strong>{{ auction.player.name }}</strong>
+                    · {{ auction.player.position }} · {{ auction.player.overall }} OVR
+                    · {{ auction.current_bid }} TKN
+                </p>
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with title="NO LIVE AUCTIONS" %}
+            {% endfor %}
+        </article>
+
+        <article class="mgl-home-card">
+            <div class="mgl-home-card-head">
+                <h2>FEATURED PLAYERS</h2>
+                <a href="{% url 'player_database' %}" class="view-all">VIEW PLAYERS →</a>
+            </div>
+            {% for player in featured_players %}
+                <p>
+                    <a href="{% url 'player_profile' player.id %}"><strong>{{ player.name }}</strong></a>
+                    · {{ player.position }} · {{ player.goals }} G
+                    {% if player.mgl_team %} · {{ player.mgl_team.short_name }}{% endif %}
+                </p>
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with title="NO FEATURED PLAYERS YET" %}
+            {% endfor %}
+        </article>
+
+        <article class="mgl-home-card">
+            <div class="mgl-home-card-head">
+                <h2>LEAGUE ACTIVITY</h2>
+            </div>
+            {% for item in activity %}
+                <p><strong>{{ item.kind }}</strong> · {{ item.title }} · {{ item.detail }}</p>
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with title="NO LEAGUE ACTIVITY YET" %}
+            {% endfor %}
+        </article>
+    </div>
+</section>
+
 <section class="mgl-home-feature mgl-home-cup">
     <div class="mgl-home-feature-media">
         <img src="{% static 'core/img/mgl-cup-trophy.png' %}" alt="The UFL Cup trophy">
@@ -165,7 +249,7 @@
         <article>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M8 14a3.2 3.2 0 1 0-3.2-3.2A3.2 3.2 0 0 0 8 14Z"/><path d="M2.8 20a5.4 5.4 0 0 1 10.4 0"/><path d="M16 14a3.2 3.2 0 1 0-1.2-6.2"/><path d="M14.4 20a5.4 5.4 0 0 1 6.8-4.2"/></svg>
             <h3>COMPETE ONLINE</h3>
-            <p>Play matches and compete for trophies against other managers in Online Career Mode.</p>
+            <p>Play matches and compete for trophies against other managers in UFL Career Mode.</p>
         </article>
         <article>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M8 18V8l4-3 4 3v10"/><path d="M8 12h8"/></svg>
@@ -200,7 +284,7 @@
     </article>
     <article id="mgl-privacy">
         <h2>PRIVACY</h2>
-        <p>UFL stores the account, club and match records needed to run Online Career Mode. Public pages only show approved results, news and appointments. We do not sell member data.</p>
+        <p>UFL stores the account, club and match records needed to run Career Mode. Public pages only show approved results, news and appointments. We do not sell member data.</p>
     </article>
     <article id="mgl-terms">
         <h2>TERMS</h2>
