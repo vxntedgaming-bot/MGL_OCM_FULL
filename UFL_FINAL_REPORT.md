@@ -96,7 +96,9 @@ Inner page class names still use the `mgl-*` prefix so existing templates inheri
 
 ## 11. Mobile
 
-CSS: no page `overflow-x`, tables scroll, 44px nav targets, logo-only header at 430px. Automated viewports were not pixel-measured in this pass — that is on the manual list. A browser inspect is running against the live preview.
+CSS: no page `overflow-x`, tables scroll, 44px nav targets, logo-only header at 430px.
+
+Browser inspect (desktop ~1280px plus Home and League table at 390px): no horizontal overflow, honest empty states, UFL branding throughout, cups labelled Coming soon. Remaining viewports (320 / 430 / 768 / 1024 / 1440 / 1920) are still on the owner checklist.
 
 ## 12. Security
 
@@ -164,7 +166,7 @@ Local SQLite isolation (`DATABASE_URL` unset). Includes press daily cap, scout l
 - Holiday mode is not implemented.
 - Public scouting URL redirects guests to login (nav is public; workflow is manager-only).
 - Some inner page headers still say “MY CLUB” as a breadcrumb label.
-- Visual pixel-pass across all 9 viewports was not completed as a recorded matrix in this session.
+- Visual pixel-pass recorded for ~1280px (major public pages) and 390px (Home + League table). Other listed widths still need a human pass.
 
 ## 22. Pre-launch status
 
