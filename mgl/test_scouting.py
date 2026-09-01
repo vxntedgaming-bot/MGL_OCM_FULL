@@ -522,7 +522,8 @@ class ScoutPageTests(TestCase):
         self.assertEqual(html.count('name="action" value="upgrade"'), 1)
         self.assertNotIn('name="tier"', html.split('mgl-scout-upgrade', 1)[1].split("</form>", 1)[0])
         self.assertEqual(html.count('name="action" value="dispatch"'), 4)
-        self.assertNotContains(page, '<option value="France">')
+        self.assertContains(page, "COUNTRY")
+        self.assertContains(page, '<option value="France">')
         for pos in SCOUT_POSITIONS:
             self.assertContains(page, f'<option value="{pos}">{pos}</option>')
 

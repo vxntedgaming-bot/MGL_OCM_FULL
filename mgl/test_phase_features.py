@@ -195,16 +195,17 @@ class AuctionWorkflowTests(TestCase):
         self.assertFalse(self.unassigned.is_free_agent)
         self.assertIsNone(self.unassigned.mgl_team_id)
 
-    def test_admin_cannot_auction_a_real_free_agent(self):
+    def test_admin_can_auction_a_real_free_agent(self):
         self.client.login(username="owner", password="test-pass-123")
         response = self.client.post(
             reverse("auction_free_agent", args=[self.fa.id]),
             {"duration": "30", "starting_bid": "1"},
         )
         self.assertEqual(response.status_code, 302)
-        self.assertFalse(PlayerAuction.objects.filter(player=self.fa).exists())
+        self.assertTrue(PlayerAuction.objects.filter(player=self.fa, status=PlayerAuction.LIVE).exists())
         self.fa.refresh_from_db()
         self.assertTrue(self.fa.is_free_agent)
+        self.assertIsNone(self.fa.mgl_team_id)
 
     def test_manager_cannot_release_unassigned_player(self):
         self.client.login(username="seller", password="test-pass-123")

@@ -108,7 +108,7 @@ class JobCentreExperienceTests(TestCase):
         response = self.client.get(reverse("job_centre"))
         self.assertContains(response, "APPLY FOR")
         self.assertContains(response, "EA ID / GAMERTAG")
-        self.assertContains(response, "DISCORD USERNAME")
+        self.assertContains(response, "DISCORD USER ID")
         self.assertContains(response, "GAMES PER WEEK")
         self.assertContains(response, "REFERRED BY")
         self.assertContains(response, "new gen console")
