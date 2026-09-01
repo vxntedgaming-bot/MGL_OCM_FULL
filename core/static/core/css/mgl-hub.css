@@ -2,7 +2,7 @@
 
 body.mgl-hub-page {
     background:
-        radial-gradient(ellipse at 50% 0%, rgba(197, 157, 95, 0.08), transparent 42%),
+        radial-gradient(ellipse at 50% 0%, rgba(228, 199, 122, 0.08), transparent 42%),
         #050505;
 }
 
@@ -23,9 +23,9 @@ body.mgl-hub-page {
     grid-template-columns: minmax(0, 1.7fr) minmax(280px, 0.9fr);
     gap: 0;
     background: #0d1118;
-    border: 1px solid rgba(197, 157, 95, 0.38);
+    border: 1px solid rgba(228, 199, 122, 0.38);
     border-radius: 16px;
-    box-shadow: 0 0 32px rgba(197, 157, 95, 0.06), 0 16px 40px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 0 32px rgba(228, 199, 122, 0.06), 0 16px 40px rgba(0, 0, 0, 0.35);
     overflow: hidden;
 }
 
@@ -48,15 +48,15 @@ body.mgl-hub-page {
     border-radius: 50%;
     display: grid;
     place-items: center;
-    border: 1px solid rgba(197, 157, 95, 0.4);
-    color: #c59d5f;
+    border: 1px solid rgba(228, 199, 122, 0.4);
+    color: var(--ufl-gold);
     font-weight: 800;
     letter-spacing: 0.08em;
 }
 
 .mgl-dash-eyebrow {
     margin: 0 0 8px;
-    color: #c59d5f;
+    color: var(--ufl-gold);
     font-family: var(--font-display, "Barlow Condensed", sans-serif);
     font-size: 12px;
     font-weight: 800;
@@ -88,7 +88,7 @@ body.mgl-hub-page {
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    color: #c59d5f;
+    color: var(--ufl-gold);
     font-weight: 700;
 }
 
@@ -110,7 +110,7 @@ body.mgl-hub-page {
     min-height: 40px;
     padding: 0 16px;
     border-radius: 8px;
-    border: 1px solid rgba(197, 157, 95, 0.45);
+    border: 1px solid rgba(228, 199, 122, 0.45);
     font-family: var(--font-display, "Barlow Condensed", sans-serif);
     font-size: 13px;
     font-weight: 800;
@@ -127,8 +127,8 @@ body.mgl-hub-page {
 
 .mgl-dash-pill-ok,
 .mgl-dash-pill-alert {
-    background: #c59d5f;
-    border-color: #c59d5f;
+    background: var(--ufl-gold);
+    border-color: var(--ufl-gold);
     color: #111;
 }
 
@@ -139,7 +139,7 @@ body.mgl-hub-page {
 
 .mgl-dash-balance {
     margin: 16px 0 0;
-    color: #c59d5f;
+    color: var(--ufl-gold);
     font-family: var(--font-display, "Barlow Condensed", sans-serif);
     font-size: 14px;
     font-weight: 800;
@@ -156,7 +156,7 @@ body.mgl-hub-page {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 18px 16px;
     padding: 26px 24px;
-    border-left: 1px solid rgba(197, 157, 95, 0.28);
+    border-left: 1px solid rgba(228, 199, 122, 0.28);
     align-content: center;
 }
 
@@ -179,7 +179,7 @@ body.mgl-hub-page {
 }
 
 .mgl-dash-stat strong.is-accent {
-    color: #c59d5f;
+    color: var(--ufl-gold);
 }
 
 .mgl-dash-stat small {
@@ -237,14 +237,14 @@ body.mgl-hub-page {
 .mgl-dash-panel-head svg {
     width: 18px;
     height: 18px;
-    color: #c59d5f;
+    color: var(--ufl-gold);
     flex: 0 0 auto;
 }
 
 .mgl-dash-section-head span {
     flex: 1;
     height: 1px;
-    background: linear-gradient(90deg, rgba(197, 157, 95, 0.7), transparent);
+    background: linear-gradient(90deg, rgba(228, 199, 122, 0.7), transparent);
 }
 
 .mgl-dash-panel-head a {
@@ -256,7 +256,7 @@ body.mgl-hub-page {
 }
 
 .mgl-dash-panel-head a:hover {
-    color: #c59d5f;
+    color: var(--ufl-gold);
 }
 
 .mgl-dash-grid {
@@ -287,7 +287,7 @@ body.mgl-hub-page {
     gap: 12px;
     padding: 20px;
     background: #10141c;
-    border: 1px solid rgba(197, 157, 95, 0.32);
+    border: 1px solid rgba(228, 199, 122, 0.32);
     border-radius: 14px;
     color: #fff;
     text-decoration: none;
@@ -297,8 +297,8 @@ body.mgl-hub-page {
 }
 
 .mgl-dash-card:hover {
-    border-color: #c59d5f;
-    box-shadow: 0 0 22px rgba(197, 157, 95, 0.16);
+    border-color: var(--ufl-gold);
+    box-shadow: 0 0 22px rgba(228, 199, 122, 0.16);
     transform: translateY(-2px);
 }
 
@@ -312,14 +312,14 @@ body.mgl-hub-page {
     border-radius: 10px;
     display: grid;
     place-items: center;
-    background: rgba(197, 157, 95, 0.08);
-    border: 1px solid rgba(197, 157, 95, 0.28);
+    background: rgba(228, 199, 122, 0.08);
+    border: 1px solid rgba(228, 199, 122, 0.28);
 }
 
 .mgl-dash-card-icon svg {
     width: 22px;
     height: 22px;
-    color: #c59d5f;
+    color: var(--ufl-gold);
 }
 
 .mgl-dash-card strong {
@@ -349,14 +349,14 @@ body.mgl-hub-page {
     border-radius: 999px;
     display: grid;
     place-items: center;
-    background: #c59d5f;
+    background: var(--ufl-gold);
     color: #111;
     font-size: 11px;
     font-weight: 800;
 }
 
 .mgl-dash-badge-new {
-    background: #c59d5f;
+    background: var(--ufl-gold);
 }
 
 .mgl-dash-board {
@@ -382,7 +382,7 @@ body.mgl-hub-page {
 
 .mgl-dash-panel {
     background: #10141c;
-    border: 1px solid rgba(197, 157, 95, 0.28);
+    border: 1px solid rgba(228, 199, 122, 0.28);
     border-radius: 14px;
     padding: 18px 18px 8px;
     min-width: 0;
@@ -421,7 +421,7 @@ body.mgl-hub-page {
 }
 
 .mgl-dash-rank a:hover {
-    color: #c59d5f;
+    color: var(--ufl-gold);
 }
 
 .mgl-dash-row small {
@@ -447,9 +447,9 @@ body.mgl-hub-page {
     flex: 0 0 auto;
     min-height: 30px;
     padding: 0 12px;
-    border: 1px solid #c59d5f;
+    border: 1px solid var(--ufl-gold);
     border-radius: 8px;
-    color: #c59d5f;
+    color: var(--ufl-gold);
     text-decoration: none;
     font-size: 11px;
     font-weight: 800;
@@ -459,7 +459,7 @@ body.mgl-hub-page {
 }
 
 .mgl-dash-action:hover {
-    background: rgba(197, 157, 95, 0.12);
+    background: rgba(228, 199, 122, 0.12);
 }
 
 .mgl-dash-rank {
@@ -471,7 +471,7 @@ body.mgl-hub-page {
 }
 
 .mgl-dash-rank b {
-    color: #c59d5f;
+    color: var(--ufl-gold);
     font-size: 13px;
 }
 
@@ -509,7 +509,7 @@ body.mgl-hub-page {
 
     .mgl-dash-stats {
         border-left: 0;
-        border-top: 1px solid rgba(197, 157, 95, 0.28);
+        border-top: 1px solid rgba(228, 199, 122, 0.28);
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }

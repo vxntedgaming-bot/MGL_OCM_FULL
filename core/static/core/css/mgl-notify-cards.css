@@ -14,7 +14,7 @@
     margin: 0;
     padding: 22px 22px 20px;
     background:
-        radial-gradient(120% 80% at 100% 0%, rgba(197, 157, 95, 0.1), transparent 46%),
+        radial-gradient(120% 80% at 100% 0%, rgba(228, 199, 122, 0.1), transparent 46%),
         #10141c;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
@@ -25,7 +25,7 @@
 .mgl-inbox .mgl-notify-item.mgl-ncard.is-unread {
     border-left: 1px solid rgba(255, 255, 255, 0.1);
     padding-left: 22px;
-    box-shadow: inset 3px 0 0 var(--mgl-orange, #c59d5f);
+    box-shadow: inset 3px 0 0 var(--mgl-orange, var(--ufl-gold));
 }
 
 .mgl-ncard-top {
@@ -43,9 +43,9 @@
     height: 42px;
     flex-shrink: 0;
     border-radius: 10px;
-    background: rgba(197, 157, 95, 0.12);
-    border: 1px solid rgba(197, 157, 95, 0.35);
-    color: var(--mgl-orange, #c59d5f);
+    background: rgba(228, 199, 122, 0.12);
+    border: 1px solid rgba(228, 199, 122, 0.35);
+    color: var(--mgl-orange, var(--ufl-gold));
 }
 
 .mgl-ncard-icon svg {
@@ -74,9 +74,9 @@
 }
 
 .mgl-ncard-status.is-pending {
-    color: var(--mgl-orange, #c59d5f);
-    border-color: rgba(197, 157, 95, 0.45);
-    background: rgba(197, 157, 95, 0.08);
+    color: var(--mgl-orange, var(--ufl-gold));
+    border-color: rgba(228, 199, 122, 0.45);
+    background: rgba(228, 199, 122, 0.08);
 }
 
 .mgl-ncard-status.is-accepted {
@@ -91,7 +91,7 @@
 
 .mgl-ncard-kicker {
     margin: 0;
-    color: var(--mgl-orange, #c59d5f);
+    color: var(--mgl-orange, var(--ufl-gold));
     font-size: 11px;
     font-weight: 800;
     letter-spacing: 0.16em;
@@ -194,8 +194,8 @@
 }
 
 .mgl-ncard-btn-accept {
-    border: 1px solid var(--mgl-orange, #c59d5f);
-    background: var(--mgl-orange, #c59d5f);
+    border: 1px solid var(--mgl-orange, var(--ufl-gold));
+    background: var(--mgl-orange, var(--ufl-gold));
     color: #120800;
 }
 

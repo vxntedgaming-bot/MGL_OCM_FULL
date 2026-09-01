@@ -2,7 +2,7 @@
 
 body.mgl-pressroom-page {
     background:
-        radial-gradient(ellipse at 82% 8%, rgba(197, 157, 95, 0.14), transparent 46%),
+        radial-gradient(ellipse at 82% 8%, rgba(228, 199, 122, 0.14), transparent 46%),
         #050505;
 }
 
@@ -46,7 +46,7 @@ body.mgl-pressroom-page {
 }
 
 .mgl-pressroom-title {
-    color: var(--mgl-orange, #c59d5f);
+    color: var(--mgl-orange, var(--ufl-gold));
     font-size: clamp(54px, 9vw, 108px);
 }
 
@@ -55,7 +55,7 @@ body.mgl-pressroom-page {
     width: 72px;
     height: 3px;
     margin: 22px 0 16px;
-    background: var(--mgl-orange, #c59d5f);
+    background: var(--mgl-orange, var(--ufl-gold));
 }
 
 .mgl-pressroom-hero-copy p {
@@ -117,13 +117,13 @@ body.mgl-pressroom-page {
 }
 
 .mgl-pressroom-crumb-sep {
-    color: var(--mgl-orange, #c59d5f);
+    color: var(--mgl-orange, var(--ufl-gold));
     font-weight: 800;
 }
 
 .mgl-pressroom-crumb-current {
-    background: var(--mgl-orange, #c59d5f);
-    border-color: var(--mgl-orange, #c59d5f);
+    background: var(--mgl-orange, var(--ufl-gold));
+    border-color: var(--mgl-orange, var(--ufl-gold));
     color: #050505;
 }
 
@@ -138,7 +138,7 @@ body.mgl-pressroom-page .mgl-press-story {
     padding: 22px 22px 20px 24px;
     background: #10141c;
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-left: 3px solid var(--mgl-orange, #c59d5f);
+    border-left: 3px solid var(--mgl-orange, var(--ufl-gold));
     border-radius: 12px;
     transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
 }
@@ -146,8 +146,8 @@ body.mgl-pressroom-page .mgl-press-story {
 body.mgl-pressroom-page .mgl-press-story:hover {
     transform: translateY(-2px);
     background: #141a24;
-    border-color: rgba(197, 157, 95, 0.35);
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(197, 157, 95, 0.12);
+    border-color: rgba(228, 199, 122, 0.35);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(228, 199, 122, 0.12);
 }
 
 body.mgl-pressroom-page .mgl-press-story-head {
@@ -186,7 +186,7 @@ body.mgl-pressroom-page .mgl-press-story-date {
 .mgl-press-card-more {
     display: inline-block;
     margin-top: 16px;
-    color: var(--mgl-orange, #c59d5f);
+    color: var(--mgl-orange, var(--ufl-gold));
     font-family: var(--font-display, "Barlow Condensed", sans-serif);
     font-size: 14px;
     font-weight: 800;
@@ -195,7 +195,7 @@ body.mgl-pressroom-page .mgl-press-story-date {
 }
 
 .mgl-press-card-more:hover {
-    color: var(--mgl-orange-2, #d4b07a);
+    color: var(--mgl-orange-2, var(--ufl-gold-2));
 }
 
 .mgl-pressroom-empty {
@@ -230,9 +230,9 @@ body.mgl-pressroom-page .mgl-press-story-date {
     margin-top: 48px;
     padding: 28px 24px;
     background:
-        linear-gradient(90deg, rgba(197, 157, 95, 0.16), rgba(197, 157, 95, 0.04)),
+        linear-gradient(90deg, rgba(228, 199, 122, 0.16), rgba(228, 199, 122, 0.04)),
         #10141c;
-    border: 1px solid rgba(197, 157, 95, 0.28);
+    border: 1px solid rgba(228, 199, 122, 0.28);
 }
 
 .mgl-pressroom-cta-copy {
@@ -246,8 +246,8 @@ body.mgl-pressroom-page .mgl-press-story-date {
     place-items: center;
     width: 46px;
     height: 46px;
-    border: 1px solid var(--mgl-orange, #c59d5f);
-    color: var(--mgl-orange, #c59d5f);
+    border: 1px solid var(--mgl-orange, var(--ufl-gold));
+    color: var(--mgl-orange, var(--ufl-gold));
     flex-shrink: 0;
 }
 
@@ -258,7 +258,7 @@ body.mgl-pressroom-page .mgl-press-story-date {
 
 .mgl-pressroom-cta p {
     margin: 0;
-    color: var(--mgl-orange, #c59d5f);
+    color: var(--mgl-orange, var(--ufl-gold));
     font-family: var(--font-display, "Barlow Condensed", sans-serif);
     font-size: clamp(20px, 3vw, 28px);
     font-weight: 800;

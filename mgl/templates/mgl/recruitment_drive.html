@@ -6,13 +6,19 @@
 {% block content %}
 <section class="mgl-section">
     {% url 'transfer_market' as market_url %}
-    {% include "core/includes/mgl_page_header.html" with header_section="MARKET" header_section_url=market_url header_title="RECRUITMENT DRIVE" header_icon="pack" header_description="Spend 1 token to open a three-player unsigned pack. Choose one. The other two stay in the unsigned pool. Maximum OVR 74." %}
+    {% include "core/includes/mgl_page_header.html" with header_section="MARKET" header_section_url=market_url header_title="RECRUITMENT DRIVES" header_icon="pack" header_description="Spend 1 token to open a three-player unsigned pack. Choose one. The other two stay in the unsigned pool. Maximum OVR 74." %}
 
-    <p class="mgl-help">Personal balance: <strong>{{ token_balance }} TKN</strong></p>
+    <div class="ufl-rd-title-row">
+        <span></span>
+        <span class="mgl-rd-tokens">{{ token_balance }} TOKENS</span>
+    </div>
 
     {% if opening %}
-        <section class="dashboard-panel">
-            <div class="panel-heading"><span>OPEN PACK</span><em>CHOOSE ONE</em></div>
+        <section class="ufl-rd-board">
+            <div class="ufl-rd-board-head">
+                <h2>OPEN PACK</h2>
+                <em>CHOOSE ONE</em>
+            </div>
             <p>These three players were generated server-side. Submitting a different player ID will fail.</p>
             <div class="mgl-player-card-grid">
                 {% for player in candidates %}
@@ -34,19 +40,45 @@
     {% elif not team %}
         {% include "mgl/includes/empty_state.html" with title="NO CLUB" body="You need an appointed club before opening a recruitment pack." %}
     {% else %}
-        <div class="mgl-cp-action-grid">
-            {% for pack in packs %}
-                <article class="dashboard-panel">
-                    <h2>{{ pack.label }}</h2>
-                    <p>{{ pack.positions|join:", " }} · 3 unsigned players · 1 token</p>
-                    <form method="post" action="{% url 'open_recruitment_pack' %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="pack_code" value="{{ pack.code }}">
-                        <button type="submit" class="primary-button">OPEN PACK</button>
-                    </form>
-                </article>
-            {% endfor %}
-        </div>
+        <section class="ufl-rd-board">
+            <div class="ufl-rd-board-head">
+                <h2>AVAILABLE RECRUITMENT DRIVES</h2>
+            </div>
+            <div class="mgl-squad-scroll">
+                <table class="ufl-rd-table">
+                    <thead>
+                        <tr>
+                            <th>TYPE</th>
+                            <th>RATING RANGE</th>
+                            <th>COST</th>
+                            <th>REMAINING</th>
+                            <th>ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pack in packs %}
+                            <tr>
+                                <td>{{ pack.label }}</td>
+                                <td><span class="ufl-rd-range">≤ {{ pack.rating_max }}</span></td>
+                                <td class="mgl-rd-cost">{{ pack.cost }} TOKENS</td>
+                                <td>{{ pack.remaining }} left</td>
+                                <td>
+                                    <form method="post" action="{% url 'open_recruitment_pack' %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="pack_code" value="{{ pack.code }}">
+                                        <button type="submit" class="mgl-rd-use"{% if pack.remaining < 3 %} disabled{% endif %}>USE</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="5">No recruitment packs are available.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
     {% endif %}
 </section>
 {% endblock %}

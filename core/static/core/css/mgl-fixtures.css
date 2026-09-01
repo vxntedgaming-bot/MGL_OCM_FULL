@@ -2,7 +2,7 @@
 
 body.mgl-fx-page {
     background:
-        radial-gradient(ellipse at 50% 0%, rgba(197, 157, 95, 0.08), transparent 42%),
+        radial-gradient(ellipse at 50% 0%, rgba(228, 199, 122, 0.08), transparent 42%),
         #050505;
 }
 
@@ -36,7 +36,7 @@ body.mgl-fx-page {
 .mgl-fx-title-icon {
     width: 42px;
     height: 42px;
-    color: #c59d5f;
+    color: var(--ufl-gold);
     flex: 0 0 auto;
 }
 
@@ -70,7 +70,7 @@ body.mgl-fx-page {
 }
 
 .mgl-fx-filters span {
-    color: #c59d5f;
+    color: var(--ufl-gold);
     font-family: var(--font-display, "Barlow Condensed", sans-serif);
     font-size: 11px;
     font-weight: 800;
@@ -80,7 +80,7 @@ body.mgl-fx-page {
 .mgl-fx-filters select {
     min-height: 42px;
     padding: 0 12px;
-    border: 1px solid rgba(197, 157, 95, 0.45);
+    border: 1px solid rgba(228, 199, 122, 0.45);
     border-radius: 6px;
     background: #0d1118;
     color: #fff;
@@ -90,7 +90,7 @@ body.mgl-fx-page {
     display: grid;
     grid-template-columns: minmax(0, 1.4fr) minmax(260px, 0.9fr);
     background: #0d1118;
-    border: 1px solid rgba(197, 157, 95, 0.38);
+    border: 1px solid rgba(228, 199, 122, 0.38);
     border-radius: 14px;
     overflow: hidden;
 }
@@ -113,15 +113,15 @@ body.mgl-fx-page {
     height: 96px;
     display: grid;
     place-items: center;
-    border: 1px solid rgba(197, 157, 95, 0.4);
+    border: 1px solid rgba(228, 199, 122, 0.4);
     border-radius: 50%;
-    color: #c59d5f;
+    color: var(--ufl-gold);
     font-weight: 800;
 }
 
 .mgl-fx-club-main h2 {
     margin: 0;
-    color: #c59d5f;
+    color: var(--ufl-gold);
     font-family: var(--font-display, "Barlow Condensed", sans-serif);
     font-size: clamp(28px, 4vw, 42px);
     font-weight: 900;
@@ -144,10 +144,10 @@ body.mgl-fx-page {
     gap: 8px;
     min-height: 38px;
     padding: 0 14px;
-    border: 1px solid #c59d5f;
+    border: 1px solid var(--ufl-gold);
     border-radius: 6px;
     color: #111;
-    background: #c59d5f;
+    background: var(--ufl-gold);
     font-family: var(--font-display, "Barlow Condensed", sans-serif);
     font-size: 13px;
     font-weight: 800;
@@ -165,13 +165,13 @@ body.mgl-fx-page {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 14px 10px;
     padding: 24px;
-    border-left: 1px solid rgba(197, 157, 95, 0.28);
+    border-left: 1px solid rgba(228, 199, 122, 0.28);
     align-content: center;
 }
 
 .mgl-fx-club-stats span {
     display: block;
-    color: rgba(197, 157, 95, 0.72);
+    color: rgba(228, 199, 122, 0.72);
     font-family: var(--font-display, "Barlow Condensed", sans-serif);
     font-size: 11px;
     font-weight: 800;
@@ -193,14 +193,14 @@ body.mgl-fx-page {
     gap: 16px;
     flex-wrap: wrap;
     padding: 14px 18px;
-    border: 1px solid rgba(197, 157, 95, 0.35);
+    border: 1px solid rgba(228, 199, 122, 0.35);
     border-radius: 10px;
     background: #10151c;
 }
 
 .mgl-fx-deadline.is-soon {
-    border-color: #c59d5f;
-    box-shadow: 0 0 0 1px rgba(197, 157, 95, 0.35);
+    border-color: var(--ufl-gold);
+    box-shadow: 0 0 0 1px rgba(228, 199, 122, 0.35);
 }
 
 .mgl-fx-deadline.is-passed {
@@ -241,7 +241,7 @@ body.mgl-fx-page {
 
 .mgl-fx-tabs button.is-active {
     color: #fff;
-    border-bottom-color: #c59d5f;
+    border-bottom-color: var(--ufl-gold);
 }
 
 .mgl-fx-toolbar {
@@ -258,14 +258,14 @@ body.mgl-fx-page {
     gap: 8px;
     min-height: 40px;
     padding: 0 12px;
-    border: 1px solid rgba(197, 157, 95, 0.4);
+    border: 1px solid rgba(228, 199, 122, 0.4);
     border-radius: 6px;
 }
 
 .mgl-fx-filter svg {
     width: 16px;
     height: 16px;
-    color: #c59d5f;
+    color: var(--ufl-gold);
 }
 
 .mgl-fx-filter select {
@@ -292,12 +292,12 @@ body.mgl-fx-page {
 .mgl-fx-key svg {
     width: 16px;
     height: 16px;
-    color: #c59d5f;
+    color: var(--ufl-gold);
 }
 
 .mgl-fx-month {
     margin: 22px 0 10px;
-    color: #c59d5f;
+    color: var(--ufl-gold);
     font-family: var(--font-display, "Barlow Condensed", sans-serif);
     font-size: 18px;
     letter-spacing: 0.14em;
@@ -328,7 +328,7 @@ body.mgl-fx-page {
 }
 
 .mgl-fx-venue.is-home {
-    color: #c59d5f;
+    color: var(--ufl-gold);
 }
 
 .mgl-fx-venue svg {
@@ -356,7 +356,7 @@ body.mgl-fx-page {
 }
 
 .mgl-fx-club-name.is-own a {
-    color: #c59d5f;
+    color: var(--ufl-gold);
 }
 
 .mgl-fx-ko {
@@ -367,10 +367,10 @@ body.mgl-fx-page {
 .mgl-fx-ko span {
     min-width: 72px;
     padding: 6px 8px;
-    border: 1px solid rgba(197, 157, 95, 0.55);
+    border: 1px solid rgba(228, 199, 122, 0.55);
     border-radius: 6px;
     text-align: center;
-    color: #c59d5f;
+    color: var(--ufl-gold);
     font-family: var(--font-display, "Barlow Condensed", sans-serif);
     font-size: 16px;
     font-weight: 800;
@@ -401,10 +401,10 @@ body.mgl-fx-page {
 }
 
 .mgl-fx-badge.is-upcoming { background: #8a8174; color: #111; }
-.mgl-fx-badge.is-live { background: #c59d5f; }
+.mgl-fx-badge.is-live { background: var(--ufl-gold); }
 .mgl-fx-badge.is-submitted,
 .mgl-fx-badge.is-awaiting { background: #d4a017; }
-.mgl-fx-badge.is-pending-admin { background: #c59d5f; }
+.mgl-fx-badge.is-pending-admin { background: var(--ufl-gold); }
 .mgl-fx-badge.is-approved,
 .mgl-fx-badge.is-completed { background: #3ddc97; }
 .mgl-fx-badge.is-rejected { background: #ff5c5c; color: #fff; }
@@ -415,9 +415,9 @@ body.mgl-fx-page {
     height: 38px;
     display: grid;
     place-items: center;
-    border: 1px solid #c59d5f;
+    border: 1px solid var(--ufl-gold);
     border-radius: 6px;
-    color: #c59d5f;
+    color: var(--ufl-gold);
     background: transparent;
 }
 
@@ -427,7 +427,7 @@ body.mgl-fx-page {
 }
 
 .mgl-fx-arrow:hover {
-    background: #c59d5f;
+    background: var(--ufl-gold);
     color: #111;
 }
 
@@ -444,7 +444,7 @@ body.mgl-fx-page {
 }
 
 .mgl-fx-cal-head span {
-    color: rgba(197, 157, 95, 0.7);
+    color: rgba(228, 199, 122, 0.7);
     font-size: 11px;
     letter-spacing: 0.08em;
     text-align: center;
@@ -459,7 +459,7 @@ body.mgl-fx-page {
 }
 
 .mgl-fx-cal-day.has-match {
-    border-color: rgba(197, 157, 95, 0.45);
+    border-color: rgba(228, 199, 122, 0.45);
 }
 
 .mgl-fx-cal-day span {
@@ -472,7 +472,7 @@ body.mgl-fx-page {
 .mgl-fx-cal-day a {
     display: block;
     margin-top: 4px;
-    color: #c59d5f;
+    color: var(--ufl-gold);
     font-size: 11px;
     text-decoration: none;
 }
@@ -486,14 +486,14 @@ body.mgl-fx-page {
 .mgl-fx-summary article {
     padding: 18px 16px;
     background: #0d1118;
-    border: 1px solid rgba(197, 157, 95, 0.28);
+    border: 1px solid rgba(228, 199, 122, 0.28);
     border-radius: 10px;
 }
 
 .mgl-fx-summary svg {
     width: 20px;
     height: 20px;
-    color: #c59d5f;
+    color: var(--ufl-gold);
 }
 
 .mgl-fx-summary strong {
@@ -527,7 +527,7 @@ body.mgl-fx-page {
 
     .mgl-fx-club-stats {
         border-left: 0;
-        border-top: 1px solid rgba(197, 157, 95, 0.28);
+        border-top: 1px solid rgba(228, 199, 122, 0.28);
     }
 
     .mgl-fx-row {

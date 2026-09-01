@@ -11,7 +11,7 @@
 }
 
 .mgl-pp-crumbs a {
-    color: var(--mgl-orange, #c59d5f);
+    color: var(--mgl-orange, var(--ufl-gold));
     text-decoration: none;
 }
 
@@ -27,7 +27,7 @@
     gap: 16px;
     margin: 0 0 28px;
     padding: 18px;
-    border: 1px solid rgba(197, 157, 95, 0.28);
+    border: 1px solid rgba(228, 199, 122, 0.28);
     border-radius: 14px;
     background: #0d1118;
 }
@@ -43,7 +43,7 @@
 
 .mgl-pp-styles li {
     padding: 6px 10px;
-    border: 1px solid rgba(197, 157, 95, 0.35);
+    border: 1px solid rgba(228, 199, 122, 0.35);
     border-radius: 999px;
     color: #fff;
     font-size: 13px;

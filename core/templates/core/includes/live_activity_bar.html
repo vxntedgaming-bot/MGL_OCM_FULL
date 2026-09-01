@@ -1,7 +1,7 @@
 <div class="ufl-livebar" role="region" aria-label="Live activity">
     <div class="ufl-livebar-window">
         <span class="ufl-live-pill {% if window_open %}is-open{% else %}is-closed{% endif %}">
-            {% if window_open %}WINDOW OPEN{% else %}WINDOW CLOSED{% endif %}
+            ● {% if window_open %}WINDOW OPEN{% else %}WINDOW CLOSED{% endif %}
         </span>
     </div>
     <div class="ufl-livebar-track">
@@ -21,5 +21,10 @@
             <p class="ufl-livebar-empty">No recent league activity.</p>
         {% endif %}
     </div>
-    <a href="{% url 'live_activity' %}" class="ufl-livebar-all">ALL →</a>
+    <div class="ufl-livebar-meta">
+        {% if mgl_live_latest %}
+            <span class="ufl-livebar-ago">{{ mgl_live_latest|timesince }} ago</span>
+        {% endif %}
+        <a href="{% url 'live_activity' %}" class="ufl-livebar-all">ALL →</a>
+    </div>
 </div>

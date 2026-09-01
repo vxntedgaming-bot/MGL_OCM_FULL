@@ -60,10 +60,14 @@ def mgl_nav(request):
             notifications = notifications_for_user(user)
             incoming_transfer_count = incoming_offer_count_for_user(user)
     live_items = []
+    live_latest = None
     try:
         from mgl.activity import ACTIVITY_EMOJI, published_ticker_activity
 
-        for post in published_ticker_activity()[:10]:
+        ticker = list(published_ticker_activity()[:10])
+        if ticker:
+            live_latest = ticker[0].created_at
+        for post in ticker:
             live_items.append(
                 {
                     "title": post.title,
@@ -73,6 +77,7 @@ def mgl_nav(request):
             )
     except (OperationalError, ProgrammingError):
         live_items = []
+        live_latest = None
     window_open = True
     try:
         window_open = transfer_window_is_open()
@@ -90,6 +95,7 @@ def mgl_nav(request):
         "mgl_unread_notification_count": unread_count,
         "incoming_transfer_count": incoming_transfer_count,
         "mgl_live_items": live_items,
+        "mgl_live_latest": live_latest,
         "window_open": window_open,
         **_current_season_context(),
         **site_chrome(),

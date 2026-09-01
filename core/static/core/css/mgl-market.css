@@ -3,7 +3,7 @@
 body.mgl-market-page {
     overflow-x: hidden;
     background:
-        radial-gradient(ellipse at 50% 0%, rgba(197, 157, 95, 0.08), transparent 42%),
+        radial-gradient(ellipse at 50% 0%, rgba(228, 199, 122, 0.08), transparent 42%),
         #050505;
 }
 
@@ -58,7 +58,7 @@ body.mgl-market-page {
 }
 
 .mgl-market-crumb-current {
-    color: #c59d5f;
+    color: var(--ufl-gold);
 }
 
 .mgl-market-hero {
@@ -75,9 +75,9 @@ body.mgl-market-page {
     width: 52px;
     height: 52px;
     border-radius: 14px;
-    background: rgba(197, 157, 95, 0.12);
-    border: 1px solid rgba(197, 157, 95, 0.4);
-    color: #c59d5f;
+    background: rgba(228, 199, 122, 0.12);
+    border: 1px solid rgba(228, 199, 122, 0.4);
+    color: var(--ufl-gold);
     flex-shrink: 0;
 }
 
@@ -116,7 +116,7 @@ body.mgl-market-page {
     justify-items: start;
     gap: 6px;
     padding: 18px 16px;
-    border: 1px solid rgba(197, 157, 95, 0.35);
+    border: 1px solid rgba(228, 199, 122, 0.35);
     border-radius: 12px;
     background: #0d1118;
     color: inherit;
@@ -126,11 +126,11 @@ body.mgl-market-page {
 .mgl-mk-stat svg {
     width: 18px;
     height: 18px;
-    color: #c59d5f;
+    color: var(--ufl-gold);
 }
 
 .mgl-mk-stat strong {
-    color: #c59d5f;
+    color: var(--ufl-gold);
     font-family: var(--font-display);
     font-size: 28px;
     line-height: 1;
@@ -153,7 +153,7 @@ body.mgl-market-page {
 .mgl-market-board,
 .mgl-mk-card {
     background: #0d1118;
-    border: 1px solid rgba(197, 157, 95, 0.28);
+    border: 1px solid rgba(228, 199, 122, 0.28);
     border-radius: 14px;
 }
 
@@ -194,7 +194,7 @@ body.mgl-market-page {
 
 .mgl-mk-tabs button.is-active {
     color: #fff;
-    border-bottom-color: #c59d5f;
+    border-bottom-color: var(--ufl-gold);
 }
 
 .mgl-mk-tools {
@@ -208,7 +208,7 @@ body.mgl-market-page {
 .mgl-mk-filters summary {
     min-height: 36px;
     padding: 0 12px;
-    border: 1px solid rgba(197, 157, 95, 0.4);
+    border: 1px solid rgba(228, 199, 122, 0.4);
     border-radius: 6px;
     background: #080b10;
     color: #fff;
@@ -227,9 +227,9 @@ body.mgl-market-page {
     align-items: center;
     cursor: pointer;
     list-style: none;
-    background: #c59d5f;
+    background: var(--ufl-gold);
     color: #111;
-    border-color: #c59d5f;
+    border-color: var(--ufl-gold);
 }
 
 .mgl-mk-filters summary::-webkit-details-marker {
@@ -243,13 +243,13 @@ body.mgl-market-page {
     z-index: 4;
     min-width: 220px;
     padding: 10px;
-    border: 1px solid rgba(197, 157, 95, 0.35);
+    border: 1px solid rgba(228, 199, 122, 0.35);
     border-radius: 8px;
     background: #0d1118;
 }
 
 .mgl-market-count {
-    color: #c59d5f;
+    color: var(--ufl-gold);
     font-family: var(--font-display);
     font-size: 16px;
     font-weight: 800;
@@ -281,7 +281,7 @@ body.mgl-market-page {
 .mgl-pos-filter {
     min-height: 30px;
     padding: 0 11px;
-    border: 1px solid rgba(197, 157, 95, 0.28);
+    border: 1px solid rgba(228, 199, 122, 0.28);
     border-radius: 999px;
     background: #080b10;
     color: rgba(255, 255, 255, 0.72);
@@ -295,8 +295,8 @@ body.mgl-market-page {
 
 .mgl-pos-filter:hover,
 .mgl-pos-filter.is-active {
-    border-color: #c59d5f;
-    background: rgba(197, 157, 95, 0.16);
+    border-color: var(--ufl-gold);
+    background: rgba(228, 199, 122, 0.16);
     color: #fff;
 }
 
@@ -332,7 +332,7 @@ body.mgl-market-page {
 }
 
 .mgl-market-row:hover {
-    background: rgba(197, 157, 95, 0.04);
+    background: rgba(228, 199, 122, 0.04);
 }
 
 .mgl-market-player {
@@ -347,7 +347,7 @@ body.mgl-market-page {
     height: 36px;
     border-radius: 50%;
     object-fit: cover;
-    border: 1px solid rgba(197, 157, 95, 0.28);
+    border: 1px solid rgba(228, 199, 122, 0.28);
     flex-shrink: 0;
 }
 
@@ -362,7 +362,7 @@ body.mgl-market-page {
 }
 
 .mgl-market-player a:hover {
-    color: #c59d5f;
+    color: var(--ufl-gold);
 }
 
 .mgl-pos-badge {
@@ -415,7 +415,7 @@ body.mgl-market-page {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    border: 2px solid rgba(197, 157, 95, 0.7);
+    border: 2px solid rgba(228, 199, 122, 0.7);
     color: #fff;
     font-family: var(--font-display);
     font-size: 16px;
@@ -427,7 +427,7 @@ body.mgl-market-page {
 }
 
 .mgl-market-price-cell .mgl-market-price {
-    color: #c59d5f;
+    color: var(--ufl-gold);
     font-family: var(--font-display);
     font-size: 18px;
     font-weight: 800;
@@ -451,7 +451,7 @@ body.mgl-market-page {
 }
 
 .mgl-market-club {
-    color: #c59d5f;
+    color: var(--ufl-gold);
     font-weight: 600;
 }
 
@@ -476,9 +476,9 @@ body.mgl-market-page {
     min-width: 92px;
     min-height: 36px;
     padding: 0 12px;
-    border: 1px solid #c59d5f;
+    border: 1px solid var(--ufl-gold);
     border-radius: 8px;
-    color: #c59d5f;
+    color: var(--ufl-gold);
     font-family: var(--font-display);
     font-size: 12px;
     font-weight: 800;
@@ -493,7 +493,7 @@ body.mgl-market-page {
 }
 
 .mgl-market-action:hover {
-    background: rgba(197, 157, 95, 0.12);
+    background: rgba(228, 199, 122, 0.12);
 }
 
 .mgl-market-actions .mgl-inline-form,
@@ -564,7 +564,7 @@ body.mgl-market-page {
 
 .mgl-mk-card h2 {
     margin: 0 0 12px;
-    color: #c59d5f;
+    color: var(--ufl-gold);
     font-family: var(--font-display);
     font-size: 14px;
     letter-spacing: 0.12em;
@@ -575,7 +575,7 @@ body.mgl-market-page {
 }
 
 .mgl-mk-card-head a {
-    color: #c59d5f;
+    color: var(--ufl-gold);
     font-family: var(--font-display);
     font-size: 12px;
     font-weight: 800;
@@ -618,11 +618,11 @@ body.mgl-market-page {
     display: flex;
     align-items: center;
     gap: 8px;
-    color: #c59d5f;
+    color: var(--ufl-gold);
 }
 
 .mgl-mk-deal-meta strong {
-    color: #c59d5f;
+    color: var(--ufl-gold);
 }
 
 .mgl-mk-listings {
@@ -632,7 +632,7 @@ body.mgl-market-page {
     min-height: 42px;
     margin-top: 8px;
     border-radius: 8px;
-    background: #c59d5f;
+    background: var(--ufl-gold);
     color: #111;
     font-family: var(--font-display);
     font-weight: 800;

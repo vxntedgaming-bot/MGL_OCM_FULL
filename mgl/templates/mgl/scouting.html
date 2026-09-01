@@ -10,7 +10,24 @@
 {% block content %}
 <section class="mgl-section mgl-scout-page">
     {% url 'scouting' as scout_url %}
-    {% include "core/includes/mgl_page_header.html" with header_section="MARKET" header_section_url=scout_url header_title="SCOUTING CENTRE" header_icon="radar" header_description="Send one scout at a time. Choose country and position. When the scout returns, the discovered FC26 player joins your squad if you have space." %}
+    {% include "core/includes/mgl_page_header.html" with header_section="MARKET" header_section_url=scout_url header_title="SCOUTING NETWORK" header_icon="radar" header_description="Send one scout at a time. Choose country and position. When the scout returns, the discovered FC26 player joins your squad if you have space." %}
+
+    {% for item in active_scouts %}
+        {% if item.status == "PENDING" %}
+        <section class="ufl-mission">
+            <p class="ufl-mission-kicker">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12h10l-2-2M14 12l-2 2"/><path d="M14 7h6v10h-6"/></svg>
+                ACTIVE MISSION
+            </p>
+            <div class="ufl-mission-stage">
+                <div class="ufl-globe" aria-hidden="true"></div>
+                <h2>SCOUT ON ASSIGNMENT</h2>
+                <p>{{ item.get_tier_display|upper }} SCOUT · {{ item.region_display|default:"ANYWHERE" }}</p>
+                <div class="ufl-lcd" data-scout-end="{{ item.ready_at|date:'c' }}">{{ item.remaining|wait_left }}</div>
+            </div>
+        </section>
+        {% endif %}
+    {% endfor %}
 
     {% if pack %}
         <section class="mgl-sc-pack" id="scout-pack">

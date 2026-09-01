@@ -6,7 +6,7 @@
     margin: 0 0 48px;
     padding: 36px 4px 20px;
     background:
-        linear-gradient(180deg, rgba(197, 157, 95, 0.035), transparent 40%),
+        linear-gradient(180deg, rgba(228, 199, 122, 0.035), transparent 40%),
         repeating-linear-gradient(
             0deg,
             transparent,
@@ -42,7 +42,7 @@
 
 .mgl-press-story-club {
     margin: 8px 0 0;
-    color: var(--mgl-orange, #c59d5f);
+    color: var(--mgl-orange, var(--ufl-gold));
     font-family: "Barlow Condensed", sans-serif;
     font-size: 15px;
     font-weight: 700;
@@ -51,7 +51,7 @@
 
 .mgl-press-story-label {
     margin: 0 0 18px;
-    color: var(--mgl-orange, #c59d5f);
+    color: var(--mgl-orange, var(--ufl-gold));
     font-size: 12px;
     font-weight: 800;
     letter-spacing: 0.18em;
@@ -61,7 +61,7 @@
     margin: 0 0 28px;
     padding: 0 0 0 18px;
     border: 0;
-    border-left: 2px solid var(--mgl-orange, #c59d5f);
+    border-left: 2px solid var(--mgl-orange, var(--ufl-gold));
     background: none;
     color: rgba(230, 230, 230, 0.88);
     font-family: Georgia, "Times New Roman", serif;

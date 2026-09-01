@@ -3,7 +3,7 @@
 body.mgl-auc-page {
     overflow-x: hidden;
     background:
-        radial-gradient(ellipse at 50% 0%, rgba(197, 157, 95, 0.08), transparent 42%),
+        radial-gradient(ellipse at 50% 0%, rgba(228, 199, 122, 0.08), transparent 42%),
         #050505;
 }
 
@@ -28,7 +28,7 @@ body.mgl-auc-page {
 .mgl-auc-crumb-icon {
     width: 16px;
     height: 16px;
-    color: #c59d5f;
+    color: var(--ufl-gold);
 }
 
 .mgl-auc-crumbs a {
@@ -37,7 +37,7 @@ body.mgl-auc-page {
 }
 
 .mgl-auc-crumb-current {
-    color: #c59d5f;
+    color: var(--ufl-gold);
 }
 
 .mgl-auc-head {
@@ -61,9 +61,9 @@ body.mgl-auc-page {
     width: 52px;
     height: 52px;
     border-radius: 50%;
-    border: 1px solid rgba(197, 157, 95, 0.4);
-    background: rgba(197, 157, 95, 0.1);
-    color: #c59d5f;
+    border: 1px solid rgba(228, 199, 122, 0.4);
+    background: rgba(228, 199, 122, 0.1);
+    color: var(--ufl-gold);
     flex-shrink: 0;
 }
 
@@ -104,7 +104,7 @@ body.mgl-auc-page {
 
 .mgl-auc-stats div {
     padding: 12px 10px;
-    border: 1px solid rgba(197, 157, 95, 0.32);
+    border: 1px solid rgba(228, 199, 122, 0.32);
     border-radius: 10px;
     background: #0d1118;
     text-align: center;
@@ -121,14 +121,14 @@ body.mgl-auc-page {
 .mgl-auc-stats strong {
     display: block;
     margin-top: 6px;
-    color: #c59d5f;
+    color: var(--ufl-gold);
     font-family: var(--font-display);
     font-size: 22px;
     line-height: 1;
 }
 
 .mgl-auc-market-link {
-    color: #c59d5f;
+    color: var(--ufl-gold);
     font-family: var(--font-display);
     font-size: 12px;
     font-weight: 800;
@@ -164,7 +164,7 @@ body.mgl-auc-page {
 
 .mgl-auc-toolbar h2 {
     margin: 0;
-    color: #c59d5f;
+    color: var(--ufl-gold);
     font-family: var(--font-display);
     font-size: 16px;
     letter-spacing: 0.12em;
@@ -183,7 +183,7 @@ body.mgl-auc-page {
     min-width: min(260px, 100%);
     min-height: 40px;
     overflow: hidden;
-    border: 1px solid rgba(197, 157, 95, 0.4);
+    border: 1px solid rgba(228, 199, 122, 0.4);
     border-radius: 8px;
     background: #080b10;
 }
@@ -205,7 +205,7 @@ body.mgl-auc-page {
     width: 40px;
     flex-shrink: 0;
     border: 0;
-    background: #c59d5f;
+    background: var(--ufl-gold);
     color: #111;
     cursor: pointer;
 }
@@ -225,7 +225,7 @@ body.mgl-auc-page {
     min-height: 40px;
     padding: 0 14px;
     border-radius: 8px;
-    background: #c59d5f;
+    background: var(--ufl-gold);
     color: #111;
     font-family: var(--font-display);
     font-size: 12px;
@@ -246,7 +246,7 @@ body.mgl-auc-page {
     z-index: 4;
     min-width: 220px;
     padding: 10px;
-    border: 1px solid rgba(197, 157, 95, 0.35);
+    border: 1px solid rgba(228, 199, 122, 0.35);
     border-radius: 8px;
     background: #0d1118;
 }
@@ -255,7 +255,7 @@ body.mgl-auc-page {
 .mgl-auc-dialog-inner label,
 .mgl-auc-card h2,
 .mgl-auc-card-head h2 {
-    color: #c59d5f;
+    color: var(--ufl-gold);
     font-family: var(--font-display);
     font-size: 12px;
     font-weight: 700;
@@ -268,7 +268,7 @@ body.mgl-auc-page {
     width: 100%;
     min-height: 40px;
     padding: 0 12px;
-    border: 1px solid rgba(197, 157, 95, 0.35);
+    border: 1px solid rgba(228, 199, 122, 0.35);
     border-radius: 8px;
     background: #080b10;
     color: #fff;
@@ -277,7 +277,7 @@ body.mgl-auc-page {
 .mgl-auc-board {
     padding: 8px 18px 10px;
     background: #0d1118;
-    border: 1px solid rgba(197, 157, 95, 0.28);
+    border: 1px solid rgba(228, 199, 122, 0.28);
     border-radius: 16px;
     overflow-x: auto;
 }
@@ -305,7 +305,7 @@ body.mgl-auc-page {
 }
 
 .mgl-auc-row:hover {
-    background: rgba(197, 157, 95, 0.04);
+    background: rgba(228, 199, 122, 0.04);
 }
 
 .mgl-auc-name-cell {
@@ -320,7 +320,7 @@ body.mgl-auc-page {
     height: 36px;
     border-radius: 50%;
     object-fit: cover;
-    border: 1px solid rgba(197, 157, 95, 0.28);
+    border: 1px solid rgba(228, 199, 122, 0.28);
     flex-shrink: 0;
 }
 
@@ -332,7 +332,7 @@ body.mgl-auc-page {
 }
 
 .mgl-auc-name:hover {
-    color: #c59d5f;
+    color: var(--ufl-gold);
 }
 
 .mgl-auc-pos {
@@ -373,7 +373,7 @@ body.mgl-auc-page {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    border: 2px solid rgba(197, 157, 95, 0.7);
+    border: 2px solid rgba(228, 199, 122, 0.7);
     color: #fff;
     font-family: var(--font-display);
     font-size: 16px;
@@ -383,7 +383,7 @@ body.mgl-auc-page {
 .mgl-auc-time .mgl-auction-countdown {
     display: block;
     margin: 0;
-    color: #c59d5f;
+    color: var(--ufl-gold);
     font-family: var(--font-display);
     font-size: 15px;
     font-weight: 800;
@@ -407,7 +407,7 @@ body.mgl-auc-page {
 .mgl-auc-tokens svg {
     width: 16px;
     height: 16px;
-    color: #c59d5f;
+    color: var(--ufl-gold);
 }
 
 .mgl-auc-action {
@@ -437,7 +437,7 @@ body.mgl-auc-page {
 .mgl-auc-card {
     padding: 16px;
     background: #0d1118;
-    border: 1px solid rgba(197, 157, 95, 0.28);
+    border: 1px solid rgba(228, 199, 122, 0.28);
     border-radius: 14px;
 }
 
@@ -474,7 +474,7 @@ body.mgl-auc-page {
 .mgl-auc-steps svg {
     width: 18px;
     height: 18px;
-    color: #c59d5f;
+    color: var(--ufl-gold);
     flex-shrink: 0;
     margin-top: 1px;
 }
@@ -505,7 +505,7 @@ body.mgl-auc-page {
 }
 
 .mgl-auc-ended-row strong {
-    color: #c59d5f;
+    color: var(--ufl-gold);
     font-size: 13px;
     white-space: nowrap;
 }
@@ -535,16 +535,16 @@ body.mgl-auc-page {
     min-width: 32px;
     min-height: 32px;
     padding: 0 10px;
-    border: 1px solid rgba(197, 157, 95, 0.35);
+    border: 1px solid rgba(228, 199, 122, 0.35);
     border-radius: 6px;
     color: #fff;
     text-decoration: none;
 }
 
 .mgl-auc-pager span.is-active {
-    background: #c59d5f;
+    background: var(--ufl-gold);
     color: #111;
-    border-color: #c59d5f;
+    border-color: var(--ufl-gold);
 }
 
 .mgl-auc-page-size {
@@ -554,7 +554,7 @@ body.mgl-auc-page {
 .mgl-auc-dialog {
     width: min(520px, calc(100% - 32px));
     padding: 0;
-    border: 1px solid rgba(197, 157, 95, 0.4);
+    border: 1px solid rgba(228, 199, 122, 0.4);
     border-radius: 16px;
     background: #0d1118;
     color: #fff;
@@ -585,10 +585,10 @@ body.mgl-auc-page {
 .mgl-auc-dialog-close {
     width: 36px;
     height: 36px;
-    border: 1px solid rgba(197, 157, 95, 0.35);
+    border: 1px solid rgba(228, 199, 122, 0.35);
     border-radius: 8px;
     background: transparent;
-    color: #c59d5f;
+    color: var(--ufl-gold);
     font-size: 22px;
     cursor: pointer;
 }

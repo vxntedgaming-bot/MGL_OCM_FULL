@@ -33,7 +33,7 @@
 }
 
 .mgl-activity-title span {
-    color: var(--mgl-orange, #c59d5f);
+    color: var(--mgl-orange, var(--ufl-gold));
 }
 
 .mgl-activity-hero p,
@@ -73,9 +73,9 @@
     width: 44px;
     height: 44px;
     flex-shrink: 0;
-    color: var(--mgl-orange, #c59d5f);
-    background: rgba(197, 157, 95, 0.08);
-    border: 1px solid rgba(197, 157, 95, 0.45);
+    color: var(--mgl-orange, var(--ufl-gold));
+    background: rgba(228, 199, 122, 0.08);
+    border: 1px solid rgba(228, 199, 122, 0.45);
     border-radius: 999px;
 }
 
@@ -92,8 +92,8 @@
     display: inline-block;
     margin: 0 0 8px;
     padding: 3px 10px;
-    color: var(--mgl-orange, #c59d5f);
-    background: rgba(197, 157, 95, 0.12);
+    color: var(--mgl-orange, var(--ufl-gold));
+    background: rgba(228, 199, 122, 0.12);
     border-radius: 999px;
     font-size: 11px;
     font-weight: 800;
@@ -113,7 +113,7 @@
 }
 
 .mgl-activity-score {
-    color: var(--mgl-orange, #c59d5f);
+    color: var(--mgl-orange, var(--ufl-gold));
 }
 
 .mgl-activity-managers,
@@ -159,9 +159,9 @@
 }
 
 .mgl-deal-card .mgl-activity-icon {
-    color: var(--mgl-orange, #c59d5f);
-    background: rgba(197, 157, 95, 0.08);
-    border-color: rgba(197, 157, 95, 0.55);
+    color: var(--mgl-orange, var(--ufl-gold));
+    background: rgba(228, 199, 122, 0.08);
+    border-color: rgba(228, 199, 122, 0.55);
 }
 
 .mgl-deal-clubs {
@@ -183,7 +183,7 @@
 }
 
 .mgl-deal-arrow {
-    color: var(--mgl-orange, #c59d5f);
+    color: var(--mgl-orange, var(--ufl-gold));
     font-weight: 800;
     font-size: 1.15em;
     line-height: 1;
@@ -243,11 +243,11 @@
 
 a.mgl-deal-player:hover,
 a.mgl-deal-player:focus-visible {
-    border-color: rgba(197, 157, 95, 0.55);
+    border-color: rgba(228, 199, 122, 0.55);
 }
 
 .mgl-deal-player-name {
-    color: var(--mgl-orange, #c59d5f);
+    color: var(--mgl-orange, var(--ufl-gold));
     font-weight: 700;
     overflow-wrap: anywhere;
 }
@@ -270,7 +270,7 @@ a.mgl-deal-player:focus-visible {
     align-items: center;
     gap: 8px;
     margin: 12px 0 0;
-    color: var(--mgl-orange, #c59d5f);
+    color: var(--mgl-orange, var(--ufl-gold));
     font-size: 14px;
     font-weight: 700;
     overflow-wrap: anywhere;
@@ -282,7 +282,7 @@ a.mgl-deal-player:focus-visible {
     flex-shrink: 0;
     border-radius: 999px;
     background:
-        radial-gradient(circle at 35% 30%, #ffd36a 0 35%, #c59d5f 36% 100%);
+        radial-gradient(circle at 35% 30%, #ffd36a 0 35%, var(--ufl-gold) 36% 100%);
     box-shadow: 0 0 0 2px rgba(255, 154, 26, 0.22);
 }
 

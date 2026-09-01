@@ -4,23 +4,26 @@
 ========================================================= */
 
 :root {
-    --bg: #000000;
-    --bg-soft: #050505;
-    --panel: #0d1118;
-    --panel-hover: #141a24;
-    --border: rgba(197, 157, 95, 0.28);
-    --orange: #c59d5f;
-    --orange-light: #d4b07a;
-    --orange-dark: #a07a3d;
+    --bg: #050505;
+    --bg-soft: #0a0c10;
+    --panel: #12161d;
+    --panel-hover: #181d26;
+    --border: rgba(255, 255, 255, 0.08);
+    --orange: #e4c77a;
+    --orange-light: #f0d89a;
+    --orange-dark: #c4a45a;
     --text: #ffffff;
-    --muted: #a0a0a0;
-    --muted-light: #d4d4d4;
-    --success: #8cff3d;
-    --container: 1240px;
-    --header-h: 72px;
+    --muted: #9aa3ad;
+    --muted-light: #d5dbe4;
+    --success: #3dbe74;
+    --container: 1180px;
+    --header-h: 64px;
     --font-display: "Barlow Condensed", "Arial Narrow", sans-serif;
     --font-body: "Manrope", Arial, Helvetica, sans-serif;
-    --glow: 0 0 18px rgba(197, 157, 95, 0.45);
+    --glow: 0 0 18px rgba(228, 199, 122, 0.22);
+    --ufl-gold: #e4c77a;
+    --ufl-gold-2: #f0d89a;
+    --ufl-gold-ink: #12100a;
 }
 
 * {
@@ -68,24 +71,28 @@ textarea {
 ========================================================= */
 
 .mgl-header {
-    height: var(--header-h);
+    height: auto;
+    min-height: var(--header-h);
     border-bottom: 1px solid var(--border);
-    background: rgba(5, 6, 8, 0.92);
+    background: #050505;
     position: sticky;
     top: 0;
     z-index: 100;
     backdrop-filter: blur(18px);
     overflow: visible;
+    display: flex;
+    flex-direction: column;
 }
 
 .mgl-header-inner {
+    width: 100%;
     max-width: var(--container);
-    height: 100%;
-    margin: auto;
+    height: var(--header-h);
+    margin: 0 auto;
     padding: 0 24px;
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(160px, 1fr) auto minmax(160px, 1fr);
     align-items: center;
-    justify-content: space-between;
     gap: 16px;
     overflow: visible;
     position: relative;
@@ -95,7 +102,8 @@ textarea {
     display: flex;
     align-items: center;
     gap: 12px;
-    min-width: 240px;
+    min-width: 0;
+    justify-self: start;
 }
 
 .mgl-logo-img {
@@ -129,10 +137,11 @@ textarea {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    flex: 1;
+    gap: 4px;
+    flex: none;
     min-width: 0;
     overflow: visible;
+    justify-self: center;
 }
 
 .mgl-nav > a,
@@ -250,7 +259,7 @@ textarea {
     color: var(--orange);
     text-decoration: underline;
     text-underline-offset: 3px;
-    background: rgba(197, 157, 95, 0.08);
+    background: rgba(228, 199, 122, 0.08);
 }
 
 .mgl-nav-item-label {
@@ -300,20 +309,24 @@ textarea {
 .mgl-header-actions {
     display: flex;
     align-items: center;
+    justify-content: flex-end;
     gap: 8px;
+    justify-self: end;
 }
 
 .header-button {
     min-width: 88px;
-    padding: 10px 16px;
-    border: 1px solid rgba(197, 157, 95, .55);
-    color: var(--orange);
+    min-height: 34px;
+    padding: 8px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    color: #fff;
     text-align: center;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 800;
     letter-spacing: 0.14em;
     transition: .2s ease;
     background: transparent;
+    border-radius: 6px;
 }
 
 .header-button-solid {
@@ -332,8 +345,9 @@ button.header-button {
 }
 
 .header-button:hover {
-    background: var(--orange);
-    color: #120800;
+    border-color: var(--orange);
+    color: var(--orange);
+    background: transparent;
 }
 
 .mgl-messages {
@@ -1190,7 +1204,7 @@ button.header-button {
 @media (max-width: 600px) {
 
     .mgl-header {
-        height: 68px;
+        height: auto;
     }
 
     .mgl-header-inner {
@@ -2181,7 +2195,7 @@ textarea {
     position: absolute;
     inset: 0;
     background:
-        radial-gradient(ellipse at 50% 0%, rgba(197, 157, 95, 0.16), transparent 42%),
+        radial-gradient(ellipse at 50% 0%, rgba(228, 199, 122, 0.16), transparent 42%),
         linear-gradient(180deg, rgba(255,255,255,0.02), transparent 30%),
         repeating-linear-gradient(90deg, transparent 0 78px, rgba(255,255,255,0.025) 78px 79px),
         repeating-linear-gradient(0deg, transparent 0 78px, rgba(255,255,255,0.02) 78px 79px);
@@ -2199,7 +2213,7 @@ textarea {
     gap: 8px;
     margin-bottom: 18px;
     padding: 8px 14px;
-    border: 1px solid rgba(197, 157, 95, 0.35);
+    border: 1px solid rgba(228, 199, 122, 0.35);
     border-radius: 999px;
     color: var(--orange);
     font-family: var(--font-display);
@@ -2221,7 +2235,7 @@ textarea {
     height: 108px;
     object-fit: contain;
     margin: 8px auto 18px;
-    filter: drop-shadow(0 0 28px rgba(197, 157, 95, 0.25));
+    filter: drop-shadow(0 0 28px rgba(228, 199, 122, 0.25));
     mix-blend-mode: lighten;
 }
 
@@ -2301,7 +2315,7 @@ textarea {
 .mgl-action-card {
     border: 1px solid var(--border);
     background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-    box-shadow: 0 0 0 1px rgba(197, 157, 95, 0.02);
+    box-shadow: 0 0 0 1px rgba(228, 199, 122, 0.02);
 }
 
 .mgl-step-card {
@@ -2313,7 +2327,7 @@ textarea {
 .mgl-club-card:hover,
 .mgl-action-card:hover {
     transform: translateY(-4px);
-    border-color: rgba(197, 157, 95, 0.35);
+    border-color: rgba(228, 199, 122, 0.35);
 }
 
 .mgl-step-icon {
@@ -2322,7 +2336,7 @@ textarea {
     margin-bottom: 18px;
     display: grid;
     place-items: center;
-    border: 1px solid rgba(197, 157, 95, 0.4);
+    border: 1px solid rgba(228, 199, 122, 0.4);
     color: var(--orange);
     font-family: var(--font-display);
     font-size: 18px;
@@ -2355,9 +2369,9 @@ textarea {
     position: relative;
     height: 240px;
     margin: 20px 0;
-    border: 1px solid rgba(197, 157, 95, 0.2);
+    border: 1px solid rgba(228, 199, 122, 0.2);
     background:
-        radial-gradient(circle at 50% 50%, rgba(197,157,95,0.08), transparent 55%),
+        radial-gradient(circle at 50% 50%, rgba(228, 199, 122,0.08), transparent 55%),
         repeating-linear-gradient(0deg, transparent 0 39px, rgba(255,255,255,0.04) 39px 40px);
 }
 
@@ -2367,7 +2381,7 @@ textarea {
     height: 12px;
     border-radius: 50%;
     background: var(--orange);
-    box-shadow: 0 0 10px rgba(197,157,95,0.6);
+    box-shadow: 0 0 10px rgba(228, 199, 122,0.6);
 }
 
 .mgl-pitch-mock span:nth-child(1) { left: 48%; top: 86%; }
@@ -2436,7 +2450,7 @@ textarea {
     margin: 0 auto 12px;
     display: grid;
     place-items: center;
-    border: 1px solid rgba(197,157,95,0.35);
+    border: 1px solid rgba(228, 199, 122,0.35);
     color: var(--orange);
     font-family: var(--font-display);
     font-size: 16px;
@@ -2461,8 +2475,8 @@ textarea {
     justify-items: center;
     text-align: center;
     gap: 16px;
-    border: 1px solid rgba(197,157,95,0.25);
-    background: radial-gradient(circle at 50% 0%, rgba(197,157,95,0.12), transparent 55%);
+    border: 1px solid rgba(228, 199, 122,0.25);
+    background: radial-gradient(circle at 50% 0%, rgba(228, 199, 122,0.12), transparent 55%);
 }
 
 .mgl-cta h2 {
@@ -2531,7 +2545,7 @@ textarea {
     gap: 6px;
     padding: 40px 24px;
     background:
-        radial-gradient(circle at 50% 0%, rgba(197,157,95,0.08), transparent 58%),
+        radial-gradient(circle at 50% 0%, rgba(228, 199, 122,0.08), transparent 58%),
         var(--bg-soft);
 }
 
@@ -2591,8 +2605,8 @@ textarea {
 }
 
 .mgl-action-card.featured-card {
-    border-color: rgba(197, 157, 95, 0.4);
-    box-shadow: 0 0 24px rgba(197, 157, 95, 0.08);
+    border-color: rgba(228, 199, 122, 0.4);
+    box-shadow: 0 0 24px rgba(228, 199, 122, 0.08);
 }
 
 .card-icon {
@@ -2600,7 +2614,7 @@ textarea {
     height: 44px;
     display: grid;
     place-items: center;
-    border: 1px solid rgba(197, 157, 95, 0.35);
+    border: 1px solid rgba(228, 199, 122, 0.35);
     color: var(--orange);
     font-size: 18px;
 }
@@ -2666,7 +2680,7 @@ textarea {
     padding: 40px 36px;
     text-align: center;
     background:
-        radial-gradient(circle at 50% 0%, rgba(197,157,95,0.12), transparent 55%),
+        radial-gradient(circle at 50% 0%, rgba(228, 199, 122,0.12), transparent 55%),
         linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
 }
 
@@ -3401,7 +3415,7 @@ textarea {
     display: grid;
     place-items: center;
     border-radius: 50%;
-    background: linear-gradient(180deg, #f4c15d, #c59d5f);
+    background: linear-gradient(180deg, #f4c15d, var(--ufl-gold));
     color: #111;
     font-family: var(--font-display);
     font-size: 36px;
@@ -3476,8 +3490,8 @@ textarea {
 }
 
 .mgl-scout-pips i.is-on {
-    background: #c59d5f;
-    border-color: #c59d5f;
+    background: var(--ufl-gold);
+    border-color: var(--ufl-gold);
 }
 
 .mgl-scout-form,

@@ -6,7 +6,7 @@
 
 .mgl-home-kicker {
     margin: 0 0 10px;
-    color: var(--mgl-gold, #c59d5f);
+    color: var(--mgl-gold, var(--ufl-gold));
     font-family: var(--font-display);
     font-size: 13px;
     font-weight: 800;
@@ -62,7 +62,7 @@
 
 .mgl-home-hero-mode {
     margin: 12px 0 0;
-    color: var(--mgl-gold, #c59d5f);
+    color: var(--mgl-gold, var(--ufl-gold));
     font-family: var(--font-display);
     font-size: clamp(22px, 3.4vw, 36px);
     font-weight: 800;
@@ -93,8 +93,8 @@
 }
 
 .mgl-home-stats {
-    border-top: 1px solid var(--mgl-line, rgba(197, 157, 95, 0.28));
-    border-bottom: 1px solid var(--mgl-line, rgba(197, 157, 95, 0.28));
+    border-top: 1px solid var(--mgl-line, rgba(228, 199, 122, 0.28));
+    border-bottom: 1px solid var(--mgl-line, rgba(228, 199, 122, 0.28));
     background: #08090c;
 }
 
@@ -116,7 +116,7 @@
 .mgl-home-stats-inner svg {
     width: 22px;
     height: 22px;
-    color: var(--mgl-gold, #c59d5f);
+    color: var(--mgl-gold, var(--ufl-gold));
 }
 
 .mgl-home-stats-inner strong {
@@ -147,7 +147,7 @@
 
 .mgl-home-card {
     background: #0d1118;
-    border: 1px solid rgba(197, 157, 95, 0.28);
+    border: 1px solid rgba(228, 199, 122, 0.28);
     padding: 22px 22px 24px;
     min-width: 0;
 }
@@ -172,7 +172,7 @@
 }
 
 .mgl-home-card .view-all {
-    color: var(--mgl-gold, #c59d5f);
+    color: var(--mgl-gold, var(--ufl-gold));
     font-family: var(--font-display);
     font-size: 12px;
     letter-spacing: 0.14em;
@@ -181,7 +181,7 @@
 
 .mgl-home-card .mgl-news-row {
     padding: 10px 0;
-    border-bottom: 1px solid rgba(197, 157, 95, 0.14);
+    border-bottom: 1px solid rgba(228, 199, 122, 0.14);
 }
 
 .mgl-home-card .mgl-news-row:last-child {
@@ -194,7 +194,7 @@
 
 .mgl-home-fixture-comp,
 .mgl-home-table-league {
-    color: var(--mgl-gold, #c59d5f);
+    color: var(--mgl-gold, var(--ufl-gold));
     font-family: var(--font-display);
     font-size: 12px;
     letter-spacing: 0.16em;
@@ -221,7 +221,7 @@
 }
 
 .mgl-home-fixture .mgl-vs {
-    color: var(--mgl-gold, #c59d5f);
+    color: var(--mgl-gold, var(--ufl-gold));
     font-family: var(--font-display);
     font-size: 18px;
 }
@@ -257,11 +257,11 @@
     color: #8f8f8f;
     font-family: var(--font-display);
     letter-spacing: 0.12em;
-    border-bottom: 1px solid rgba(197, 157, 95, 0.22);
+    border-bottom: 1px solid rgba(228, 199, 122, 0.22);
 }
 
 .mgl-home-table-row {
-    border-bottom: 1px solid rgba(197, 157, 95, 0.1);
+    border-bottom: 1px solid rgba(228, 199, 122, 0.1);
 }
 
 .mgl-home-table-club {
@@ -295,7 +295,7 @@
 .mgl-home-feature-media {
     min-width: 0;
     background: #050505;
-    border: 1px solid rgba(197, 157, 95, 0.22);
+    border: 1px solid rgba(228, 199, 122, 0.22);
 }
 
 .mgl-home-feature-media img {
@@ -346,14 +346,14 @@
 
 .mgl-home-experience-grid article {
     background: #0d1118;
-    border: 1px solid rgba(197, 157, 95, 0.28);
+    border: 1px solid rgba(228, 199, 122, 0.28);
     padding: 24px 20px 28px;
 }
 
 .mgl-home-experience-grid svg {
     width: 28px;
     height: 28px;
-    color: var(--mgl-gold, #c59d5f);
+    color: var(--mgl-gold, var(--ufl-gold));
     margin-bottom: 16px;
 }
 
@@ -383,12 +383,12 @@
 
 .mgl-home-support article {
     background: #0d1118;
-    border: 1px solid rgba(197, 157, 95, 0.22);
+    border: 1px solid rgba(228, 199, 122, 0.22);
     padding: 22px;
 }
 
 .mgl-home-support h2 {
-    color: var(--mgl-gold, #c59d5f);
+    color: var(--mgl-gold, var(--ufl-gold));
     font-size: 16px;
     margin-bottom: 12px;
 }
@@ -405,7 +405,7 @@
 }
 
 .mgl-home-support a:hover {
-    color: var(--mgl-gold, #c59d5f);
+    color: var(--mgl-gold, var(--ufl-gold));
 }
 
 .mgl-home-cta {

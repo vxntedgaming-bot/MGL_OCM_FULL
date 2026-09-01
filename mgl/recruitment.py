@@ -39,7 +39,17 @@ PACK_MAP = {code: {"label": label, "positions": positions} for code, label, posi
 
 
 def pack_choices():
-    return [{"code": code, "label": label, "positions": positions} for code, label, positions in PACKS]
+    return [
+        {
+            "code": code,
+            "label": label,
+            "positions": positions,
+            "rating_max": RECRUITMENT_MAX_OVR,
+            "remaining": eligible_pool(positions).count(),
+            "cost": RECRUITMENT_COST,
+        }
+        for code, label, positions in PACKS
+    ]
 
 
 def pending_opening_for(manager):

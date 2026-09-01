@@ -2,8 +2,8 @@
 
 body.mgl-xfers-page {
     background:
-        radial-gradient(ellipse at 12% 8%, rgba(197, 157, 95, 0.08), transparent 36%),
-        radial-gradient(ellipse at 88% 18%, rgba(197, 157, 95, 0.05), transparent 32%),
+        radial-gradient(ellipse at 12% 8%, rgba(228, 199, 122, 0.08), transparent 36%),
+        radial-gradient(ellipse at 88% 18%, rgba(228, 199, 122, 0.05), transparent 32%),
         #050505;
 }
 
@@ -30,7 +30,7 @@ body.mgl-xfers-page {
 .mgl-xf-title-icon {
     width: 48px;
     height: 48px;
-    color: #c59d5f;
+    color: var(--ufl-gold);
     flex: 0 0 auto;
 }
 
@@ -52,7 +52,7 @@ body.mgl-xfers-page {
 .mgl-xf-panel {
     padding: 18px 18px 14px;
     background: rgba(13, 17, 24, 0.92);
-    border: 1px solid rgba(197, 157, 95, 0.38);
+    border: 1px solid rgba(228, 199, 122, 0.38);
     border-radius: 14px;
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
 }
@@ -78,7 +78,7 @@ body.mgl-xfers-page {
 .mgl-xf-panel-head h2 svg {
     width: 22px;
     height: 22px;
-    color: #c59d5f;
+    color: var(--ufl-gold);
 }
 
 .mgl-xf-panel-head p {
@@ -91,7 +91,7 @@ body.mgl-xfers-page {
     display: grid;
     gap: 10px;
     padding: 0 4px 8px;
-    color: rgba(197, 157, 95, 0.7);
+    color: rgba(228, 199, 122, 0.7);
     font-size: 11px;
     letter-spacing: 0.12em;
 }
@@ -146,13 +146,13 @@ body.mgl-xfers-page {
     object-fit: cover;
     flex: 0 0 auto;
     background: #161b22;
-    border: 1px solid rgba(197, 157, 95, 0.28);
+    border: 1px solid rgba(228, 199, 122, 0.28);
 }
 
 .mgl-xf-face-fallback {
     display: grid;
     place-items: center;
-    color: #c59d5f;
+    color: var(--ufl-gold);
     font-size: 12px;
     font-weight: 800;
 }
@@ -171,7 +171,7 @@ body.mgl-xfers-page {
 }
 
 .mgl-xf-fee {
-    color: #c59d5f;
+    color: var(--ufl-gold);
     font-family: var(--font-display, "Barlow Condensed", sans-serif);
     font-size: 15px;
     letter-spacing: 0.04em;
@@ -191,8 +191,8 @@ body.mgl-xfers-page {
     display: inline-grid;
     place-items: center;
     border-radius: 50%;
-    background: rgba(197, 157, 95, 0.12);
-    border: 1px solid rgba(197, 157, 95, 0.5);
+    background: rgba(228, 199, 122, 0.12);
+    border: 1px solid rgba(228, 199, 122, 0.5);
 }
 
 .mgl-fa-mark-xs {
@@ -201,7 +201,7 @@ body.mgl-xfers-page {
 }
 
 .mgl-fa-mark-badge {
-    color: #c59d5f;
+    color: var(--ufl-gold);
     font-family: var(--font-display, "Barlow Condensed", sans-serif);
     font-size: 8px;
     font-weight: 800;

@@ -1,31 +1,26 @@
 /* Control Centre only. Public and manager pages are unchanged. */
 
 body.mgl-control-body {
-    --cp-bg: #0b1220;
-    --cp-sidebar: #111827;
-    --cp-panel: #1a2332;
-    --cp-panel-2: #212b3c;
+    --cp-bg: #050505;
+    --cp-sidebar: #0a0c10;
+    --cp-panel: #12161d;
+    --cp-panel-2: #181d26;
     --cp-line: rgba(255, 255, 255, 0.08);
-    --cp-accent: #5ec8d8;
-    --cp-gold: #c9a36a;
-    --cp-accent-dim: rgba(94, 200, 216, 0.16);
-    --cp-glow: 0 0 0 1px rgba(94, 200, 216, 0.28), 0 0 28px rgba(94, 200, 216, 0.08);
+    --cp-accent: #e4c77a;
+    --cp-gold: #e4c77a;
+    --cp-accent-dim: rgba(228, 199, 122, 0.16);
+    --cp-glow: 0 0 0 1px rgba(228, 199, 122, 0.28);
     --cp-approve: #3dbe74;
     --cp-reject: #e25555;
-    --cp-muted: #8b95a5;
-    --cp-radius: 14px;
-    background: #0b1220;
+    --cp-muted: #9aa3ad;
+    --cp-radius: 10px;
+    background: #050505;
     color: #f4f6f8;
-}
-
-body.mgl-control-body .mgl-header,
-body.mgl-control-body .mgl-footer {
-    display: none;
 }
 
 body.mgl-control-body .mgl-main {
     padding: 0;
-    min-height: 100vh;
+    min-height: calc(100vh - 110px);
 }
 
 body.mgl-control-body .mgl-messages {

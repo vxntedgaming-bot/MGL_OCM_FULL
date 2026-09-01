@@ -3,7 +3,7 @@
 body.mgl-team-page {
     overflow-x: hidden;
     background:
-        radial-gradient(ellipse at 50% 0%, rgba(197, 157, 95, 0.08), transparent 42%),
+        radial-gradient(ellipse at 50% 0%, rgba(228, 199, 122, 0.08), transparent 42%),
         #050505;
 }
 
@@ -40,7 +40,7 @@ body.mgl-team-page {
 .mgl-team-crumb-pitch {
     width: 18px;
     height: 18px;
-    color: #c59d5f;
+    color: var(--ufl-gold);
 }
 
 .mgl-team-crumb,
@@ -55,7 +55,7 @@ body.mgl-team-page {
 }
 
 .mgl-team-crumb-club {
-    color: #c59d5f;
+    color: var(--ufl-gold);
 }
 
 .mgl-team-crumb-current {
@@ -70,7 +70,7 @@ body.mgl-team-page {
     margin: 0 0 22px;
     padding: 26px;
     background: #0d1118;
-    border: 1px solid rgba(197, 157, 95, 0.38);
+    border: 1px solid rgba(228, 199, 122, 0.38);
     border-radius: 16px;
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
 }
@@ -113,7 +113,7 @@ body.mgl-team-page {
     min-height: 28px;
     padding: 0 12px;
     border-radius: 999px;
-    background: #c59d5f;
+    background: var(--ufl-gold);
     color: #111;
     font-family: var(--font-display);
     font-size: 12px;
@@ -133,7 +133,7 @@ body.mgl-team-page {
 
 .mgl-team-hero-lines span {
     display: block;
-    color: rgba(197, 157, 95, 0.8);
+    color: rgba(228, 199, 122, 0.8);
     font-family: var(--font-display);
     font-size: 11px;
     letter-spacing: 0.1em;
@@ -142,7 +142,7 @@ body.mgl-team-page {
 .mgl-team-hero-lines strong {
     display: block;
     margin: 6px 0 8px;
-    color: #c59d5f;
+    color: var(--ufl-gold);
     font-family: var(--font-display);
     font-size: 32px;
     line-height: 1;
@@ -151,7 +151,7 @@ body.mgl-team-page {
 .mgl-team-hero-lines svg {
     width: 18px;
     height: 18px;
-    color: #c59d5f;
+    color: var(--ufl-gold);
 }
 
 .mgl-team-hero-count {
@@ -160,8 +160,8 @@ body.mgl-team-page {
     gap: 4px;
     padding: 16px 18px;
     border-radius: 14px;
-    border: 1px solid rgba(197, 157, 95, 0.45);
-    background: rgba(197, 157, 95, 0.08);
+    border: 1px solid rgba(228, 199, 122, 0.45);
+    background: rgba(228, 199, 122, 0.08);
 }
 
 .mgl-team-hero-count strong {
@@ -169,7 +169,7 @@ body.mgl-team-page {
     font-size: 28px;
     letter-spacing: 0.04em;
     line-height: 1;
-    color: #c59d5f;
+    color: var(--ufl-gold);
 }
 
 .mgl-team-hero-count span,
@@ -190,7 +190,7 @@ body.mgl-team-page {
 .mgl-squad-board,
 .mgl-sq-side {
     background: #0d1118;
-    border: 1px solid rgba(197, 157, 95, 0.28);
+    border: 1px solid rgba(228, 199, 122, 0.28);
     border-radius: 16px;
 }
 
@@ -225,7 +225,7 @@ body.mgl-team-page {
 
 .mgl-sq-tabs button.is-active {
     color: #fff;
-    border-bottom-color: #c59d5f;
+    border-bottom-color: var(--ufl-gold);
 }
 
 .mgl-sq-tools {
@@ -240,7 +240,7 @@ body.mgl-team-page {
 .mgl-sq-filters summary {
     min-height: 36px;
     padding: 0 12px;
-    border: 1px solid rgba(197, 157, 95, 0.4);
+    border: 1px solid rgba(228, 199, 122, 0.4);
     border-radius: 6px;
     background: #080b10;
     color: #fff;
@@ -266,7 +266,7 @@ body.mgl-team-page {
 }
 
 .mgl-sq-filters[open] summary {
-    border-color: #c59d5f;
+    border-color: var(--ufl-gold);
 }
 
 .mgl-sq-filters label {
@@ -276,7 +276,7 @@ body.mgl-team-page {
     z-index: 4;
     min-width: 220px;
     padding: 10px;
-    border: 1px solid rgba(197, 157, 95, 0.35);
+    border: 1px solid rgba(228, 199, 122, 0.35);
     border-radius: 8px;
     background: #0d1118;
 }
@@ -322,7 +322,7 @@ body.mgl-team-page {
 }
 
 .mgl-squad-table tbody tr:hover td {
-    background: rgba(197, 157, 95, 0.04);
+    background: rgba(228, 199, 122, 0.04);
 }
 
 .mgl-squad-table [hidden] {
@@ -363,7 +363,7 @@ body.mgl-team-page {
     flex-shrink: 0;
     border-radius: 50%;
     object-fit: cover;
-    border: 1px solid rgba(197, 157, 95, 0.28);
+    border: 1px solid rgba(228, 199, 122, 0.28);
 }
 
 .mgl-sq-num {
@@ -439,9 +439,9 @@ body.mgl-team-page {
     min-width: 36px;
     min-height: 36px;
     padding: 0 10px;
-    border: 1px solid #c59d5f;
+    border: 1px solid var(--ufl-gold);
     border-radius: 6px;
-    color: #c59d5f;
+    color: var(--ufl-gold);
     font-family: var(--font-display);
     font-size: 11px;
     font-weight: 800;
@@ -452,7 +452,7 @@ body.mgl-team-page {
 }
 
 .mgl-card-status {
-    color: #c59d5f;
+    color: var(--ufl-gold);
     font-size: 12px;
     font-weight: 700;
     letter-spacing: 0.04em;
@@ -460,7 +460,7 @@ body.mgl-team-page {
 
 .mgl-squad-action:hover,
 .mgl-sq-view:hover {
-    background: rgba(197, 157, 95, 0.12);
+    background: rgba(228, 199, 122, 0.12);
 }
 
 .mgl-squad-actions form {
@@ -487,16 +487,16 @@ body.mgl-team-page {
 .mgl-sq-pages button {
     min-width: 32px;
     min-height: 32px;
-    border: 1px solid rgba(197, 157, 95, 0.35);
+    border: 1px solid rgba(228, 199, 122, 0.35);
     border-radius: 6px;
     background: transparent;
     color: #fff;
 }
 
 .mgl-sq-pages button.is-active {
-    background: #c59d5f;
+    background: var(--ufl-gold);
     color: #111;
-    border-color: #c59d5f;
+    border-color: var(--ufl-gold);
 }
 
 .mgl-sq-side {
@@ -508,7 +508,7 @@ body.mgl-team-page {
 
 .mgl-sq-side h3 {
     margin: 0 0 10px;
-    color: #c59d5f;
+    color: var(--ufl-gold);
     font-family: var(--font-display);
     font-size: 14px;
     letter-spacing: 0.12em;
@@ -527,7 +527,7 @@ body.mgl-team-page {
     justify-content: center;
     min-height: 44px;
     border-radius: 8px;
-    background: #c59d5f;
+    background: var(--ufl-gold);
     color: #111;
     font-family: var(--font-display);
     font-weight: 800;

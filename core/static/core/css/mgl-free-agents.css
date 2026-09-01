@@ -3,7 +3,7 @@
 body.mgl-fa-page {
     overflow-x: hidden;
     background:
-        radial-gradient(ellipse at 50% 0%, rgba(197, 157, 95, 0.08), transparent 42%),
+        radial-gradient(ellipse at 50% 0%, rgba(228, 199, 122, 0.08), transparent 42%),
         #050505;
 }
 
@@ -28,7 +28,7 @@ body.mgl-fa-page {
 .mgl-fa-crumb-icon {
     width: 16px;
     height: 16px;
-    color: #c59d5f;
+    color: var(--ufl-gold);
 }
 
 .mgl-fa-crumbs a {
@@ -37,7 +37,7 @@ body.mgl-fa-page {
 }
 
 .mgl-fa-crumb-current {
-    color: #c59d5f;
+    color: var(--ufl-gold);
 }
 
 .mgl-fa-page .mgl-fa-head {
@@ -61,9 +61,9 @@ body.mgl-fa-page {
     width: 52px;
     height: 52px;
     border-radius: 50%;
-    border: 1px solid rgba(197, 157, 95, 0.4);
-    background: rgba(197, 157, 95, 0.1);
-    color: #c59d5f;
+    border: 1px solid rgba(228, 199, 122, 0.4);
+    background: rgba(228, 199, 122, 0.1);
+    color: var(--ufl-gold);
     flex-shrink: 0;
 }
 
@@ -97,7 +97,7 @@ body.mgl-fa-page {
 
 .mgl-fa-stats div {
     padding: 12px 10px;
-    border: 1px solid rgba(197, 157, 95, 0.32);
+    border: 1px solid rgba(228, 199, 122, 0.32);
     border-radius: 10px;
     background: #0d1118;
     text-align: center;
@@ -114,7 +114,7 @@ body.mgl-fa-page {
 .mgl-fa-stats strong {
     display: block;
     margin-top: 6px;
-    color: #c59d5f;
+    color: var(--ufl-gold);
     font-family: var(--font-display);
     font-size: 22px;
     line-height: 1;
@@ -178,7 +178,7 @@ body.mgl-fa-page {
 
 .mgl-fa-tab.is-active {
     color: #fff;
-    border-bottom-color: #c59d5f;
+    border-bottom-color: var(--ufl-gold);
 }
 
 .mgl-fa-tools {
@@ -194,7 +194,7 @@ body.mgl-fa-page {
     min-width: min(280px, 100%);
     min-height: 40px;
     overflow: hidden;
-    border: 1px solid rgba(197, 157, 95, 0.4);
+    border: 1px solid rgba(228, 199, 122, 0.4);
     border-radius: 8px;
     background: #080b10;
 }
@@ -220,7 +220,7 @@ body.mgl-fa-page {
     width: 40px;
     flex-shrink: 0;
     border: 0;
-    background: #c59d5f;
+    background: var(--ufl-gold);
     color: #111;
     cursor: pointer;
 }
@@ -244,7 +244,7 @@ body.mgl-fa-page {
     min-height: 40px;
     padding: 0 14px;
     border-radius: 8px;
-    background: #c59d5f;
+    background: var(--ufl-gold);
     color: #111;
     font-family: var(--font-display);
     font-size: 12px;
@@ -265,7 +265,7 @@ body.mgl-fa-page {
     z-index: 4;
     min-width: 220px;
     padding: 10px;
-    border: 1px solid rgba(197, 157, 95, 0.35);
+    border: 1px solid rgba(228, 199, 122, 0.35);
     border-radius: 8px;
     background: #0d1118;
 }
@@ -292,7 +292,7 @@ body.mgl-fa-page {
     width: 100%;
     min-height: 40px;
     padding: 0 12px;
-    border: 1px solid rgba(197, 157, 95, 0.35);
+    border: 1px solid rgba(228, 199, 122, 0.35);
     border-radius: 8px;
     background: #080b10;
     color: #fff;
@@ -301,13 +301,13 @@ body.mgl-fa-page {
 .mgl-fa-card {
     padding: 16px;
     background: #0d1118;
-    border: 1px solid rgba(197, 157, 95, 0.28);
+    border: 1px solid rgba(228, 199, 122, 0.28);
     border-radius: 14px;
 }
 
 .mgl-fa-card h2 {
     margin: 0 0 10px;
-    color: #c59d5f;
+    color: var(--ufl-gold);
     font-family: var(--font-display);
     font-size: 14px;
     letter-spacing: 0.12em;
@@ -354,9 +354,9 @@ body.mgl-fa-page {
     align-items: center;
     justify-content: center;
     min-height: 40px;
-    border: 1px solid #c59d5f;
+    border: 1px solid var(--ufl-gold);
     border-radius: 8px;
-    color: #c59d5f;
+    color: var(--ufl-gold);
     font-family: var(--font-display);
     font-weight: 800;
     letter-spacing: 0.08em;
@@ -386,7 +386,7 @@ body.mgl-fa-page {
 .mgl-fa-board {
     padding: 8px 18px 10px;
     background: #0d1118;
-    border: 1px solid rgba(197, 157, 95, 0.28);
+    border: 1px solid rgba(228, 199, 122, 0.28);
     border-radius: 16px;
     overflow-x: auto;
 }
@@ -414,7 +414,7 @@ body.mgl-fa-page {
 }
 
 .mgl-fa-row:hover {
-    background: rgba(197, 157, 95, 0.04);
+    background: rgba(228, 199, 122, 0.04);
 }
 
 .mgl-fa-index {
@@ -434,7 +434,7 @@ body.mgl-fa-page {
     height: 36px;
     border-radius: 50%;
     object-fit: cover;
-    border: 1px solid rgba(197, 157, 95, 0.28);
+    border: 1px solid rgba(228, 199, 122, 0.28);
     flex-shrink: 0;
 }
 
@@ -446,7 +446,7 @@ body.mgl-fa-page {
 }
 
 .mgl-fa-name:hover {
-    color: #c59d5f;
+    color: var(--ufl-gold);
 }
 
 .mgl-fa-nation {
@@ -512,7 +512,7 @@ body.mgl-fa-page {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    border: 2px solid rgba(197, 157, 95, 0.7);
+    border: 2px solid rgba(228, 199, 122, 0.7);
     color: #fff;
     font-family: var(--font-display);
     font-size: 16px;
@@ -569,16 +569,16 @@ body.mgl-fa-page {
     min-width: 32px;
     min-height: 32px;
     padding: 0 10px;
-    border: 1px solid rgba(197, 157, 95, 0.35);
+    border: 1px solid rgba(228, 199, 122, 0.35);
     border-radius: 6px;
     color: #fff;
     text-decoration: none;
 }
 
 .mgl-fa-pager span.is-active {
-    background: #c59d5f;
+    background: var(--ufl-gold);
     color: #111;
-    border-color: #c59d5f;
+    border-color: var(--ufl-gold);
 }
 
 @media (max-width: 1100px) {
