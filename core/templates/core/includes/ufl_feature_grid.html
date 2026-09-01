@@ -1,0 +1,15 @@
+{% url 'competition_page' 'premier-league' as public_fixtures_url %}
+<section class="uh-modules" aria-labelledby="uh-modules-title">
+    <p class="uh-kicker">THE UFL EXPERIENCE</p>
+    <h2 id="uh-modules-title">MORE THAN JUST PLAYING MATCHES.</h2>
+    <div class="uh-features" aria-label="UFL modules">
+        <a href="{{ public_fixtures_url }}"><span>MATCHDAY</span></a>
+        <a href="{% url 'public_transfers' %}"><span>TRANSFERS</span></a>
+        <a href="{% url 'team_management' %}"><span>SQUAD MANAGEMENT</span></a>
+        <a href="{% url 'leagues_page' %}"><span>LEAGUE TABLE</span></a>
+        <a href="{{ apply_club_url }}"><span>MANAGER CAREER</span></a>
+        <a href="{% url 'historical_tables' %}"><span>CLUB HISTORY</span></a>
+        <a href="{% url 'manager_rewards' %}"><span>TOKENS SYSTEM</span></a>
+        <a href="{% url 'recruitment_drive' %}"><span>RECRUITMENT DRIVE</span></a>
+    </div>
+</section>

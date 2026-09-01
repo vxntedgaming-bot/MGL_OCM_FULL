@@ -3,6 +3,7 @@
     <div class="uh-footer-inner">
         <div class="uh-footer-brand">
             <img src="{% static 'core/img/ufl-logo-chrome.png' %}" alt="UFL">
+            <p class="uh-footer-mark">UFL</p>
             <strong>ULTIMATE FANTASY LEAGUE</strong>
             <p>Online EA FC Career Mode. Real managers. Real competition. Real football.</p>
             <p>{{ footer_description }}</p>
@@ -24,9 +25,6 @@
         <div class="uh-footer-col">
             <h3>NAVIGATION</h3>
             <a href="{% url 'leagues_page' %}">Leagues</a>
-            <a href="{% url 'competition_page' 'premier-league' %}">Premier League</a>
-            <a href="{% url 'competition_page' 'championship' %}">Championship</a>
-            <a href="{% url 'competition_page' 'league-one' %}">League One</a>
             <a href="{% url 'clubs_index' %}">Clubs</a>
             <a href="{% url 'competition_page' 'premier-league' %}">Fixtures</a>
             <a href="{% url 'leagues_page' %}">Tables</a>

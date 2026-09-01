@@ -1,0 +1,19 @@
+{% load static %}
+<div class="uh-cta-row">
+    <article class="uh-cta">
+        <img src="{% static 'core/img/ufl-home-dugout.jpg' %}" alt="" aria-hidden="true">
+        <div>
+            <h3>READY TO TAKE<br>THE DUGOUT?</h3>
+            <p>Clubs are waiting for the next manager.</p>
+            <a href="{{ apply_club_url }}" class="uh-btn uh-btn-gold">VIEW JOB OPENINGS</a>
+        </div>
+    </article>
+    <article class="uh-cta is-account">
+        <img src="{% static 'core/img/ufl-home-contract.jpg' %}" alt="" aria-hidden="true">
+        <div>
+            <h3>CREATE YOUR<br>UFL ACCOUNT</h3>
+            <p>Create your account and begin your journey towards becoming a UFL manager.</p>
+            <a href="{{ join_mgl_url }}" class="uh-btn uh-btn-gold">CREATE ACCOUNT</a>
+        </div>
+    </article>
+</div>

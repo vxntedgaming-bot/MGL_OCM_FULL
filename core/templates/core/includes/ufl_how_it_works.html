@@ -1,0 +1,37 @@
+{% url 'competition_page' 'premier-league' as public_fixtures_url %}
+<section class="uh-how">
+    <p class="uh-kicker">HOW UFL WORKS</p>
+    <h2>YOUR CAREER. YOUR CLUB. YOUR LEGACY.</h2>
+    <ol class="uh-steps">
+        <li>
+            <em>STEP 01</em>
+            <h3>BECOME A MANAGER</h3>
+            <p>Create an account and apply for an available managerial position. Once approved, you receive your club and enter Career Mode.</p>
+            <a href="{{ apply_club_url }}">MANAGER CAREER →</a>
+        </li>
+        <li>
+            <em>STEP 02</em>
+            <h3>BUILD YOUR SQUAD</h3>
+            <p>Take control of your assigned squad. Manage players, formation, tactics and every important squad decision.</p>
+            <a href="#ufl-fc">EA FC →</a>
+        </li>
+        <li>
+            <em>STEP 03</em>
+            <h3>PLAY YOUR FIXTURES</h3>
+            <p>Arrange fixtures with your opponent, play the match in EA FC and submit the result through UFL.</p>
+            <a href="{{ public_fixtures_url }}">FIXTURES →</a>
+        </li>
+        <li>
+            <em>STEP 04</em>
+            <h3>TRANSFER &amp; RECRUIT</h3>
+            <p>Manage your squad through the UFL transfer system, recruitment packs, scouting, auctions and Free Agents.</p>
+            <a href="{% url 'public_transfers' %}">TRANSFERS →</a>
+        </li>
+        <li>
+            <em>STEP 05</em>
+            <h3>BUILD YOUR LEGACY</h3>
+            <p>Results contribute to your league position, manager career, club history and season history.</p>
+            <a href="{{ apply_club_url }}">CAREER MODE →</a>
+        </li>
+    </ol>
+</section>

@@ -1,0 +1,24 @@
+{% load static mgl_ui %}
+{% site_text "home.hero_title" as hero_title %}
+<section class="uh-hero" aria-labelledby="uh-hero-title">
+    <img src="{% static 'core/img/ufl-home-hero-career.jpg' %}" alt="" aria-hidden="true">
+    <div class="uh-hero-copy">
+        <p class="uh-badge">UFL CAREER MODE — SEASON LIVE</p>
+        {% if hero_title %}<p class="uh-cms">{{ hero_title }}</p>{% endif %}
+        <h1 id="uh-hero-title">
+            <span>EA FC</span>
+            <span>ONLINE</span>
+            <span class="uh-gold">CAREER MODE</span>
+        </h1>
+        <p class="uh-lead">
+            Take control of a club. Build your squad.<br>
+            Manage your fixtures. Make the right<br>
+            decisions and build your managerial legacy.
+            {% site_text "home.hero_subtitle" %}
+        </p>
+        <div class="uh-actions">
+            <a href="{{ apply_club_url }}" class="uh-btn uh-btn-gold">VIEW JOB OPENINGS</a>
+            <a href="{% url 'leagues_page' %}" class="uh-btn uh-btn-ghost">VIEW LEAGUE TABLE</a>
+        </div>
+    </div>
+</section>

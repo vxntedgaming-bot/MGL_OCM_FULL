@@ -178,11 +178,35 @@ body.ufl-home .ufl-livebar-all {
     padding: 16px 18px 8px;
 }
 
+.uh-hero-band {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+    gap: 0;
+    border: 1px solid var(--uh-line);
+    background: #000;
+}
+
+.uh-hero-band .uh-hero {
+    min-height: 420px;
+    border: 0;
+    border-right: 1px solid var(--uh-line);
+}
+
+.uh-hero-band .uh-connect {
+    padding: 22px 20px 18px;
+    background: #070707;
+}
+
+.uh-hero-band .uh-connect h2 {
+    font-size: clamp(22px, 2.6vw, 34px);
+}
+
 .uh-grid {
     display: grid;
     grid-template-columns: minmax(0, 1.38fr) minmax(0, 1fr);
     gap: 0 22px;
     align-items: start;
+    margin-top: 22px;
 }
 
 .uh-col-main {
@@ -229,7 +253,6 @@ body.ufl-home .ufl-livebar-all {
     min-height: 268px;
     overflow: hidden;
     background: #000;
-    border: 1px solid var(--uh-line);
 }
 
 .uh-hero > img {
@@ -246,8 +269,8 @@ body.ufl-home .ufl-livebar-all {
     position: absolute;
     inset: 0;
     background:
-        linear-gradient(90deg, rgba(0, 0, 0, 0.86) 0%, rgba(0, 0, 0, 0.5) 48%, rgba(0, 0, 0, 0.2) 100%),
-        linear-gradient(180deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.7));
+        linear-gradient(90deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.62) 46%, rgba(0, 0, 0, 0.28) 100%),
+        linear-gradient(180deg, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.78));
 }
 
 .uh-hero-copy {
@@ -278,8 +301,8 @@ body.ufl-home .ufl-livebar-all {
 
 .uh-hero h1 {
     margin: 0;
-    font-size: clamp(28px, 4vw, 46px);
-    line-height: 0.88;
+    font-size: clamp(40px, 5.4vw, 68px);
+    line-height: 0.86;
     color: #fff;
 }
 
@@ -312,8 +335,9 @@ body.ufl-home .ufl-livebar-all {
 .uh-stats {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    margin-top: 10px;
+    margin-top: 0;
     border: 1px solid var(--uh-line);
+    border-top: 0;
     background: #080808;
 }
 
@@ -321,7 +345,7 @@ body.ufl-home .ufl-livebar-all {
     display: grid;
     justify-items: center;
     gap: 3px;
-    padding: 12px 6px;
+    padding: 18px 8px;
     text-align: center;
     border-right: 1px solid var(--uh-line);
 }
@@ -338,7 +362,7 @@ body.ufl-home .ufl-livebar-all {
 
 .uh-stats strong {
     font-family: var(--font-display);
-    font-size: clamp(18px, 2vw, 24px);
+    font-size: clamp(28px, 3.4vw, 42px);
     color: #fff;
     letter-spacing: 0.04em;
 }
@@ -360,15 +384,15 @@ body.ufl-home .ufl-livebar-all {
     margin: 12px 0 0;
     padding: 0;
     display: grid;
-    gap: 6px;
+    grid-template-columns: 1fr;
+    gap: 8px;
 }
 
 .uh-steps li {
     display: grid;
-    grid-template-columns: 34px minmax(0, 1fr) auto;
-    gap: 10px;
-    align-items: center;
-    padding: 10px 12px;
+    gap: 8px;
+    align-items: start;
+    padding: 16px 16px 14px;
     background: #0a0a0a;
     border: 1px solid var(--uh-line);
 }
@@ -548,6 +572,46 @@ body.ufl-home .ufl-livebar-all {
     letter-spacing: 0.06em;
 }
 
+.uh-board {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    background: #050505;
+}
+
+.uh-pitch {
+    position: relative;
+    min-height: 168px;
+    margin: 22px 10px 0;
+    border: 1px solid rgba(228, 199, 122, 0.35);
+    background:
+        linear-gradient(180deg, rgba(228, 199, 122, 0.05), rgba(0, 0, 0, 0.2)),
+        repeating-linear-gradient(
+            180deg,
+            rgba(228, 199, 122, 0.06) 0 1px,
+            transparent 1px 28px
+        );
+}
+
+.uh-pitch::before {
+    content: "";
+    position: absolute;
+    left: 12%;
+    right: 12%;
+    top: 50%;
+    height: 1px;
+    background: rgba(228, 199, 122, 0.28);
+}
+
+.uh-dot {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    margin: -4px 0 0 -4px;
+    border-radius: 50%;
+    background: var(--uh-gold);
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.65);
+}
+
 .uh-pillars {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -625,14 +689,16 @@ body.ufl-home .ufl-livebar-all {
     grid-template-columns: auto 1fr;
     gap: 12px;
     align-items: center;
-    padding: 16px;
-    background: #5865f2;
+    padding: 20px 16px;
+    background: #0a0a0a;
+    border: 1px solid var(--uh-line);
     color: #fff;
 }
 
 .uh-discord svg {
     width: 36px;
     height: 36px;
+    color: var(--uh-gold);
 }
 
 .uh-discord h2 {
@@ -649,9 +715,9 @@ body.ufl-home .ufl-livebar-all {
     display: inline-flex;
     margin-top: 10px;
     padding: 7px 12px;
-    background: #404eed;
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    color: #fff;
+    background: var(--uh-gold);
+    border: 1px solid var(--uh-gold);
+    color: var(--uh-ink);
     font-family: var(--font-display);
     font-size: 11px;
     font-weight: 800;
@@ -659,8 +725,8 @@ body.ufl-home .ufl-livebar-all {
 }
 
 .uh-discord a:hover {
-    background: #fff;
-    color: #2c2f7a;
+    background: #f0d89a;
+    color: var(--uh-ink);
 }
 
 /* ----- Live feed / legal (compact, not the old homepage board) ----- */
@@ -767,9 +833,18 @@ body.ufl-home .mgl-empty-logo {
     background: #000;
 }
 
+.uh-footer-mark {
+    margin: 8px 0 0;
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    color: var(--uh-gold);
+}
+
 .uh-footer-brand strong {
     display: block;
-    margin-top: 6px;
+    margin-top: 2px;
     font-family: var(--font-display);
     letter-spacing: 0.12em;
     color: var(--uh-gold);
@@ -843,6 +918,14 @@ body.ufl-home .mgl-empty-logo {
 }
 
 @media (max-width: 980px) {
+    .uh-hero-band {
+        grid-template-columns: 1fr;
+    }
+    .uh-hero-band .uh-hero {
+        border-right: 0;
+        border-bottom: 1px solid var(--uh-line);
+        min-height: 360px;
+    }
     .uh-grid {
         grid-template-columns: 1fr;
     }
@@ -880,9 +963,7 @@ body.ufl-home .mgl-empty-logo {
     .uh-stats { grid-template-columns: 1fr 1fr; }
     .uh-stats > div:nth-child(2n) { border-right: 0; }
     .uh-stats > div:nth-child(-n + 2) { border-bottom: 1px solid var(--uh-line); }
-    .uh-steps li { grid-template-columns: 30px minmax(0, 1fr); }
-    .uh-steps a,
-    .uh-steps span { grid-column: 2; }
+    .uh-steps li { grid-template-columns: 1fr; }
     .uh-cta-row,
     .uh-split,
     .uh-feed,

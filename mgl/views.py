@@ -106,6 +106,7 @@ def mgl_index(request):
 
 
 def home(request):
+    from mgl.season1 import UFL_STARTER_CLUB_TOTAL
     from mgl.season_history import current_season_number
 
     if approved_manager(request.user):
@@ -259,6 +260,7 @@ def home(request):
             "top_scorers": top_scorers,
             "league_count": League.objects.filter(is_active=True).count(),
             "club_count": club_qs.count(),
+            "configured_club_total": UFL_STARTER_CLUB_TOTAL,
             "player_count": Player.objects.count(),
             "manager_count": club_qs.filter(manager__isnull=False).count(),
             "matches_played": matches_played_qs.count(),
