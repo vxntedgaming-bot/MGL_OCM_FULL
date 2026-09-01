@@ -4,30 +4,18 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE","config.settings")
 django.setup()
 import discord
 from discord.ext import tasks
+from mgl.discord_channels import parse_channel_map, resolve_channel_id
 from mgl.discord_queue import mark_discord_failed, mark_discord_sent, pending_discord_events
 from mgl.models import NewsPost
 
 TOKEN=os.getenv("DISCORD_TOKEN")
 CHANNEL_RAW=os.getenv("UFL_CHANNELS") or os.getenv("MGL_CHANNELS","")
-CHANNEL_MAP={k:int(v) for k,v in [x.split(":",1) for x in CHANNEL_RAW.split(",") if ":" in x]}
+CHANNEL_MAP=parse_channel_map(CHANNEL_RAW)
 intents=discord.Intents.default()
 bot=discord.Client(intents=intents)
 
 def _channel_id(key):
-    if not key:
-        return CHANNEL_MAP.get("NEWS")
-    if key in CHANNEL_MAP:
-        return CHANNEL_MAP[key]
-    aliases = {
-        "TRANSFER MARKET": ("TRANSFER", "TRANSFER_MARKET"),
-        "TRANSFER": ("TRANSFER MARKET", "TRANSFER_MARKET"),
-        "FREE AGENTS": ("FREE_AGENTS",),
-        "FREE_AGENTS": ("FREE AGENTS",),
-    }
-    for alias in aliases.get(key, ()):
-        if alias in CHANNEL_MAP:
-            return CHANNEL_MAP[alias]
-    return CHANNEL_MAP.get("NEWS")
+    return resolve_channel_id(CHANNEL_MAP, key)
 
 
 @bot.event
@@ -38,6 +26,7 @@ async def on_ready():
 
 @tasks.loop(seconds=10)
 async def publish_queue():
+    """Deliver due DiscordEvent rows only. Never writes football, tokens, or locks."""
     for event in pending_discord_events(10):
         text=(event.payload or {}).get("text") or f"**{(event.payload or {}).get('title','UFL')}**"
         if event.channel_key == "DM":

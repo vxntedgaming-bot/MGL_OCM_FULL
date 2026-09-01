@@ -1255,6 +1255,8 @@ class DiscordEvent(models.Model):
     status = models.CharField(max_length=12, choices=STATUS_CHOICES, default=PENDING, db_index=True)
     attempt_count = models.PositiveSmallIntegerField(default=0)
     last_attempt_at = models.DateTimeField(null=True, blank=True)
+    next_attempt_at = models.DateTimeField(null=True, blank=True, db_index=True)
+    idempotency_key = models.CharField(max_length=200, unique=True, null=True, blank=True)
     error = models.TextField(blank=True)
     sent_at = models.DateTimeField(null=True, blank=True)
     news_post = models.ForeignKey(
@@ -1270,10 +1272,18 @@ class DiscordEvent(models.Model):
         ordering = ["created_at", "id"]
         indexes = [
             models.Index(fields=["status", "created_at"], name="mgl_disco_status_created_idx"),
+            models.Index(fields=["status", "next_attempt_at"], name="mgl_disco_status_next_idx"),
         ]
 
     def __str__(self):
         return f"{self.event_type} {self.status}"
+
+    @property
+    def destination_display(self):
+        """Channel key or personal-DM label. Never includes tokens or secrets."""
+        if (self.channel_key or "").upper() == "DM":
+            return "Personal DM"
+        return self.channel_key or "NEWS"
 
 
 class PlayerReleaseRequest(models.Model):

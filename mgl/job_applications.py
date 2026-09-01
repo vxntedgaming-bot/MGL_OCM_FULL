@@ -20,7 +20,13 @@ GAMES_PER_WEEK_LABELS = {
     "3-5": "3–5",
     "6+": "6+",
 }
-JOBS_DISCORD_INVITE = "https://discord.gg/Jmf29wBafP"
+
+
+def job_centre_discord_invite():
+    """Public invite from Site Management / DISCORD_INVITE_URL. Not a secret."""
+    from mgl.site_cms import resolved_discord_invite
+
+    return resolved_discord_invite()
 
 
 def games_per_week_options():
@@ -200,6 +206,7 @@ def approve_job_application(application, reviewer):
         f"{manager.display_name} appointed",
         f"{manager.display_name} has been appointed as manager of {team.name}.",
         team=team,
+        discord_idempotency_key=f"job.approve:{application.pk}",
     )
     create_appointment_press(user, team)
 

@@ -1,9 +1,10 @@
 """Dedicated Owner/Admin Control Centre pages. Actions stay on existing POST views."""
 
+from django.contrib import messages
 from django.db.models import Count, Q
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.utils import timezone
+from django.views.decorators.http import require_POST
 
 from accounts.models import User
 from auctions.models import PlayerAuction
@@ -20,7 +21,9 @@ from mgl.control_desk import (
     weekly_payout_preview,
 )
 from mgl.market import AUCTION_DURATION_CHOICES
+from mgl.discord_queue import event_payload_preview, retry_discord_event
 from mgl.models import (
+    DiscordEvent,
     ManagerNotification,
     MarketTransaction,
     MonthlyAwardBatch,
@@ -812,3 +815,62 @@ def control_scout_config(request):
     context["levels"] = ScoutLevelConfig.objects.order_by("level")
     context["league_settings"] = get_league_settings()
     return render(request, "mgl/control_scout_config.html", context)
+
+
+def _outbox_queryset(status=""):
+    events = DiscordEvent.objects.select_related("news_post").order_by("-created_at", "-id")
+    status = (status or "").strip().upper()
+    if status in {DiscordEvent.PENDING, DiscordEvent.SENT, DiscordEvent.FAILED}:
+        events = events.filter(status=status)
+    return events
+
+
+@owner_admin_required
+def control_discord_outbox(request):
+    queues = load_queues()
+    status = (request.GET.get("status") or "").strip().upper()
+    events = _outbox_queryset(status)
+    context = control_shell_context(request, "discord_outbox", queues)
+    context.update(
+        {
+            "events": events[:200],
+            "outbox_status": status,
+            "outbox_counts": {
+                "all": DiscordEvent.objects.count(),
+                "PENDING": DiscordEvent.objects.filter(status=DiscordEvent.PENDING).count(),
+                "SENT": DiscordEvent.objects.filter(status=DiscordEvent.SENT).count(),
+                "FAILED": DiscordEvent.objects.filter(status=DiscordEvent.FAILED).count(),
+            },
+        }
+    )
+    return render(request, "mgl/control_discord_outbox.html", context)
+
+
+@owner_admin_required
+def control_discord_outbox_detail(request, event_id):
+    queues = load_queues()
+    event = get_object_or_404(DiscordEvent, pk=event_id)
+    context = control_shell_context(request, "discord_outbox", queues)
+    context.update(
+        {
+            "event": event,
+            "payload_preview": event_payload_preview(event),
+            "can_retry": event.status != DiscordEvent.SENT,
+        }
+    )
+    return render(request, "mgl/control_discord_outbox_detail.html", context)
+
+
+@owner_admin_required
+@require_POST
+def control_discord_outbox_retry(request, event_id):
+    event = get_object_or_404(DiscordEvent, pk=event_id)
+    try:
+        retry_discord_event(event)
+        messages.success(
+            request,
+            f"Discord event {event.pk} queued for retry. No football data was changed.",
+        )
+    except ValueError as exc:
+        messages.error(request, str(exc))
+    return redirect("control_discord_outbox_detail", event_id=event.pk)

@@ -153,6 +153,7 @@ Notification view decorators: `manager_notifications` and related views in `mgl/
 
 | Action | Public | Member | Manager | Admin | Owner | Server-side |
 |---|---|---|---|---|---|---|
+| Inspect / retry Discord outbox | N | N | N | Y | Y | `owner_admin_required` on `/mgl/control/discord/` |
 | Site Management CMS | N | N | 403 | Y | Y | `site_manage_required` |
 | Edit display names / logos / copy | N | N | N | Y | Y | Display-only paths documented in README |
 | Django `/admin/` | N | N | N unless `is_staff` | Only if staff | Only if staff | Django staff. **Phase 1 LOCKED: retain `/admin/`.** |

@@ -527,4 +527,12 @@ def control_dashboard_context(request):
     context["player_count"] = Player.objects.filter(mgl_team__isnull=False).count()
     context["unsigned_count"] = free_agents().count()
     context["current_season_number"] = current_season_number()
+    from mgl.models import DiscordEvent
+
+    context["discord_pending_count"] = DiscordEvent.objects.filter(
+        status=DiscordEvent.PENDING
+    ).count()
+    context["discord_failed_count"] = DiscordEvent.objects.filter(
+        status=DiscordEvent.FAILED
+    ).count()
     return context

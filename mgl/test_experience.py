@@ -1,7 +1,7 @@
 from datetime import timedelta
 from decimal import Decimal
 
-from django.test import Client, TestCase
+from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
@@ -134,13 +134,21 @@ class JobCentreExperienceTests(TestCase):
         self.vacant.refresh_from_db()
         self.assertIsNone(self.vacant.manager_id)
         joined = self.client.get(reverse("job_centre") + "?join_discord=1")
-        self.assertContains(joined, "https://discord.gg/Jmf29wBafP")
+        self.assertContains(joined, "Job application sent")
         self.assertContains(joined, "Job application sent")
         self.assertContains(joined, "mgl-job-status")
         self.assertContains(joined, "YOUR JOB APPLICATION")
         self.assertNotContains(joined, "YOUR APPLICATIONS")
         self.assertNotContains(joined, ">STATUS</h2>")
         self.assertNotContains(joined, 'class="table-row"')
+
+    @override_settings(DISCORD_INVITE_URL="https://discord.gg/ufl-configured")
+    def test_job_centre_join_uses_configured_invite(self):
+        self.client.login(username="applicant", password="test-pass-123")
+        self.client.post(reverse("apply_for_club", args=[self.vacant.id]), JOB_APPLY)
+        joined = self.client.get(reverse("job_centre") + "?join_discord=1")
+        self.assertContains(joined, "https://discord.gg/ufl-configured")
+        self.assertNotContains(joined, "https://discord.gg/Jmf29wBafP")
 
     def test_pending_application_does_not_render_status_bar_for_any_role(self):
         public = self.client.get(reverse("job_centre"))

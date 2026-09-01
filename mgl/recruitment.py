@@ -280,6 +280,7 @@ def open_recruitment_pack(user, pack_code, *, rng=None):
         body=f"{team.name} opened {pack.name} for {cost} TKN.",
         publish=True,
         team=team,
+        discord_idempotency_key=f"recruit.open:{opening.pk}",
     )
     return opening
 
@@ -343,6 +344,7 @@ def choose_recruitment_player(user, opening_id, player_id):
         ),
         publish=True,
         team=team,
+        discord_idempotency_key=f"recruit.result:{opening.pk}",
     )
     return opening
 

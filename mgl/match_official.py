@@ -286,6 +286,7 @@ def approve_match_submission(sub, reviewer, override=False):
         ),
         team=fixture.home_team,
         secondary_team=fixture.away_team,
+        discord_idempotency_key=f"match.approve:{sub.pk}",
     )
     from mgl.press import create_match_press_questions, maybe_create_odd_matchday_interview
 

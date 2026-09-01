@@ -2,7 +2,7 @@
 
 Checklist of the **current** project, not a future roadmap disguised as done work.
 
-Last documentation update: 1 September 2026 — **Phase 5 Discord/YourBot inspection recorded (no implementation, no Season 1 apply)**.
+Last documentation update: 1 September 2026 — **Phase 5.1 Discord outbox hardened (no Season 1 apply, no Discord sends)**.
 
 ---
 
@@ -105,7 +105,7 @@ Implementation of gaps is **not** Phase 1. That is a later, explicit task.
 - Remaining Phase 1 gaps: none of the DEC-041 / immediate-release items remain. Discord/YourBot not connected.
 - Recruitment / scouting / FA / auction economy: **IMPLEMENTED** (Phase 3). Discord/YourBot not connected.
 - Job Application + immediate manager release: **IMPLEMENTED** (Phase 4).
-- Discord / YourBot: **INSPECTED** (`UFL_DISCORD_AUDIT.md`). Outbox + separate bot exist; not connected; no commands. **NOT IMPLEMENTED** as a Phase 5 product.
+- Discord / YourBot: **Phase 5.1 COMPLETE** (idempotency, backoff, Control outbox, TOTW pipeline, configurable Job Centre invite). Bot still not connected. No commands. Phase 5.2 event coverage **NOT STARTED**.
 - Genuine UFL FA population stays empty until an approved process (club release, admin unsigned no-bid auction) runs. Unsigned FC26 rows stay unsigned. Pack/scout rejects stay UNSIGNED.
 
 ---
@@ -137,7 +137,7 @@ Unchanged from the audit. See `UFL_TEST_PLAN.md`. Do not run destructive tests a
 - Token 0.5 increments validated for new pack/scout costs; listing fee 0.1 remains the locked exception
 - Job Application: Discord username + 1–3 / 3–5 / 6+; official accept is atomic — **IMPLEMENTED**
 - Weekly/cup reward table not confirmed as implemented
-- Hardcoded Job Centre Discord invite
+- Job Centre Discord invite uses CMS/env (`resolved_discord_invite`) — Phase 5.1
 - Default DEBUG + insecure secret if production env is wrong
 
 ---
@@ -158,7 +158,8 @@ Unchanged from the audit. See `UFL_TEST_PLAN.md`. Do not run destructive tests a
 | Stats / tables | COMPLETE |
 | Jobs | Rule **LOCKED** (DEC-041). Code **IMPLEMENTED** (Phase 4) |
 | News / Live Activity / Press | COMPLETE |
-| Admin / Owner Control | COMPLETE; Django admin retained |
+| Admin / Owner Control | COMPLETE; Django admin retained; Discord Outbox Owner/Admin only |
+| Discord outbox | Phase 5.1 COMPLETE; not connected; Phase 5.2 coverage open |
 | Starting squads | 30-player generator live; production allocation not applied |
 | League structure | 38-club bootstrap implemented; production still 14 PL test clubs |
 | Youth Academy | NOT STARTED (page only) |

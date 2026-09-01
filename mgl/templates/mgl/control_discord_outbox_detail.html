@@ -1,0 +1,41 @@
+{% extends "mgl/includes/control_page.html" %}
+
+{% block control_title %}Discord Event {{ event.pk }} — UFL Control{% endblock %}
+{% block control_crumb %}CONTROL / DISCORD OUTBOX / {{ event.pk }}{% endblock %}
+{% block control_kicker %}OUTBOX EVENT{% endblock %}
+{% block control_heading %}{{ event.event_type }}{% endblock %}
+{% block control_intro %}Inspect this notification row. Retry only resets queue status. It cannot approve football actions or send from this page.{% endblock %}
+
+{% block control_body %}
+<p><a href="{% url 'control_discord_outbox' %}">← BACK TO OUTBOX</a></p>
+
+<section class="dashboard-panel mgl-cp-panel">
+    <div class="table-row"><strong>Status</strong><span>{{ event.status }}</span></div>
+    <div class="table-row"><strong>Destination</strong><span>{{ event.destination_display }}</span></div>
+    <div class="table-row"><strong>Created</strong><span>{{ event.created_at|date:"d M Y H:i:s" }}</span></div>
+    <div class="table-row"><strong>Attempts</strong><span>{{ event.attempt_count }}</span></div>
+    <div class="table-row"><strong>Last attempt</strong><span>{% if event.last_attempt_at %}{{ event.last_attempt_at|date:"d M Y H:i:s" }}{% else %}—{% endif %}</span></div>
+    <div class="table-row"><strong>Next attempt</strong><span>{% if event.next_attempt_at %}{{ event.next_attempt_at|date:"d M Y H:i:s" }}{% else %}Due now / not scheduled{% endif %}</span></div>
+    <div class="table-row"><strong>Idempotency key</strong><span>{{ event.idempotency_key|default:"—" }}</span></div>
+    <div class="table-row"><strong>News post</strong><span>{% if event.news_post_id %}#{{ event.news_post_id }}{% else %}—{% endif %}</span></div>
+    <div class="table-row"><strong>Error</strong><span>{% if event.error %}{{ event.error }}{% else %}—{% endif %}</span></div>
+</section>
+
+<section class="dashboard-panel mgl-cp-panel">
+    <div class="panel-heading"><span>MESSAGE PREVIEW</span></div>
+    {% if payload_preview.title %}<p><strong>{{ payload_preview.title }}</strong></p>{% endif %}
+    {% if payload_preview.body %}<p>{{ payload_preview.body }}</p>{% endif %}
+    {% if payload_preview.text %}<pre>{{ payload_preview.text }}</pre>{% endif %}
+    {% if payload_preview.news_id %}<p>News #{{ payload_preview.news_id }}</p>{% endif %}
+    {% if not payload_preview.title and not payload_preview.body and not payload_preview.text %}
+        {% include "mgl/includes/empty_state.html" with title="NO PREVIEW TEXT" %}
+    {% endif %}
+</section>
+
+{% if can_retry %}
+<form method="post" action="{% url 'control_discord_outbox_retry' event.pk %}">
+    {% csrf_token %}
+    <button type="submit" class="header-button mgl-cp-review-btn">RETRY EVENT</button>
+</form>
+{% endif %}
+{% endblock %}

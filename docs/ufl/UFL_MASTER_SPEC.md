@@ -416,8 +416,7 @@ See `UFL_DESIGN_SYSTEM.md`. Logged-in header scale: **NEEDS OWNER VISUAL CONFIRM
 **LOCKED / CONFIRMED**
 
 - **Discord bot** (optional, separate process): `DISCORD_TOKEN`, `UFL_CHANNELS` / legacy `MGL_CHANNELS`
-- **Public Discord invite:** `DISCORD_INVITE_URL` (empty hides JOIN DISCORD buttons)
-- **Hardcoded Job Centre invite** in `mgl/job_applications.py`: `JOBS_DISCORD_INVITE = "https://discord.gg/Jmf29wBafP"` (separate from settings)
+- **Public Discord invite:** `DISCORD_INVITE_URL` and Site Management `settings.discord_invite_url` (empty hides JOIN DISCORD buttons). Job Centre uses the same resolved invite.
 - **Sofifa / FC26 faces:** player-face proxy caches PNGs under `media/player_faces/`
 - **FC26 CSV import:** `fc26_players_mgl.csv`, `fc26_players_raw.csv`, management commands
 - **Railway** host + Gunicorn

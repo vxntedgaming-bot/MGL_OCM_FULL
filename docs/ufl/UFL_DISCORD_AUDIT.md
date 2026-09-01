@@ -1,7 +1,9 @@
 # UFL Discord / YourBot Audit
 
-**Status:** Inspection only. 1 September 2026.  
-**No application code, migrations, production data, Discord messages, or Season 1 work were performed for this audit.**
+**Status:** Phase 5.1 outbox hardening implemented 1 September 2026. Phase 5.2 event coverage is **not** started.  
+Inspection findings below remain the baseline. Phase 5.1 changes are recorded in section 17.
+
+**No Season 1, no 38 clubs, no starting squads, no Discord messages sent, no slash/commands.**
 
 Locked rules this audit does **not** change: website/database is the source of truth; Discord is an outbox (DEC-010, DEC-035); Job Application is the single application process (DEC-041); unsigned ≠ Free Agent (DEC-042); Season 1 production bootstrap is not authorised; the current 14 clubs are test production data.
 
@@ -25,13 +27,13 @@ Discord channel text  or  DM (if User.discord_id is numeric)
 
 | Piece | File | Function/class | What it currently does | Reuse? | Change? | Why |
 |---|---|---|---|---|---|---|
-| Official news + outbox side effect | `mgl/services.py` | `create_news` | Writes `NewsPost`, then calls `queue_from_news`. Exceptions from the queue are swallowed so Discord cannot roll back the news row. | **Reuse** | Minor | Correct “DB first” shape. Some callers bypass it (see TOTW). |
-| Official event wrapper | `mgl/events.py` | `emit_official_event` | Calls `create_news` then `queue_from_news` again. Second call is a no-op because `queue_from_news` skips if a `DiscordEvent` already exists for that news row. | **Reuse** | Optional cleanup | Only starting-squad approve uses it today. Double-queue is harmless. |
-| Outbox writer | `mgl/discord_queue.py` | `queue_discord_event` | Inserts `DiscordEvent` PENDING with `event_type`, `channel_key`, JSON `payload`, optional `news_post`. | **Reuse** | Yes later | Needs richer event types and idempotency keys for Phase 5. |
-| News → outbox | `mgl/discord_queue.py` | `queue_from_news` | Builds plain-text payload from title/body (press has a dedicated formatter). Skips unpublished posts and posts that already have any `DiscordEvent`. | **Reuse** | Yes | Text-only; category→channel map is incomplete vs desired Phase 5 events. |
-| Personal DM queue | `mgl/discord_queue.py` | `queue_personal_discord` | Queues `channel_key=DM` only if `User.discord_id` is set and the inbox type matches `PERSONAL_TYPES`. | **Reuse** | Yes | Type allow-list drops REWARD / AWARD / RECRUITMENT. |
-| Consumer | `discord_bot/bot.py` | `publish_queue` | Every 10s: take 10 PENDING rows; `channel.send(text)` or `member.send(text)`; mark SENT/FAILED. | **Reuse** | Yes | No embeds, no slash/buttons, no backoff. |
-| News flag reconcile | `discord_bot/bot.py` | `reconcile_news` | Every 20s: if `NewsPost.discord_sent=False` but a related event is SENT, set the flag. Does **not** enqueue missing events. | **Reuse** | Yes | Does not heal TOTW rows created without `create_news`. |
+| Official news + outbox side effect | `mgl/services.py` | `create_news` | Writes `NewsPost`, then calls `queue_from_news` with optional `discord_idempotency_key`. Exceptions from the queue are swallowed so Discord cannot roll back the news row. | **Reuse** | Phase 5.1 done | TOTW now uses this path. |
+| Official event wrapper | `mgl/events.py` | `emit_official_event` | Calls `create_news` only (queue is inside `create_news`). Accepts `discord_idempotency_key`. | **Reuse** | Phase 5.1 cleanup | Starting-squad approve still the only caller. |
+| Outbox writer | `mgl/discord_queue.py` | `queue_discord_event` | Inserts `DiscordEvent` PENDING with unique `idempotency_key` when provided. Duplicate keys return the existing row. | **Reuse** | Phase 5.1 done | Same table. No second queue. |
+| News → outbox | `mgl/discord_queue.py` | `queue_from_news` | Default key `news:{id}`. Action keys override so retries do not create a second Discord row just because a second news row exists. | **Reuse** | Phase 5.1 done | Text-only; channel taxonomy still incomplete vs desired Phase 5.2 events. |
+| Personal DM queue | `mgl/discord_queue.py` | `queue_personal_discord` | Queues `channel_key=DM` only if `User.discord_id` is set and the inbox type matches `PERSONAL_TYPES`. `notify_user` uses `dm:{source_key}`. | **Reuse** | Phase 5.1 done | Type allow-list still drops REWARD / AWARD / RECRUITMENT (Phase 5.2). |
+| Consumer | `discord_bot/bot.py` | `publish_queue` | Every 10s: take 10 **due** PENDING rows; send text; mark SENT or failed-with-backoff. | **Reuse** | Phase 5.1 backoff | Still no embeds or slash/buttons. |
+| News flag reconcile | `discord_bot/bot.py` | `reconcile_news` | Every 20s: if `NewsPost.discord_sent=False` but a related event is SENT, set the flag. Does **not** enqueue missing historical events. | **Reuse** | Keep | New TOTW rows now enter via `create_news`. |
 | Process entry | `run_mgl_bot.py` | module | Starts the Client if `DISCORD_TOKEN` is set. | **Reuse** | Keep separate from Gunicorn | Matches DEC-010. |
 | Website Discord ID link | `mgl/views.py` | `manager_profile` | Career POST `action=link_discord` stores numeric `User.discord_id`. | **Reuse** | Yes | Website form, not a Discord command. Required for DMs. |
 
@@ -48,7 +50,7 @@ Django / Gunicorn does **not** start the bot. `railway.toml` only sets `releaseC
 | Bot token | Env `DISCORD_TOKEN` | Read in `discord_bot/bot.py`. Empty → process exits. **Not hardcoded.** |
 | Channel map | Env `UFL_CHANNELS` or legacy `MGL_CHANNELS` | `CATEGORY:CHANNEL_ID` CSV parsed at import time into `CHANNEL_MAP`. |
 | Public invite | Env `DISCORD_INVITE_URL` + Site Management `settings.discord_invite_url` | `mgl/site_cms.py` `resolved_discord_invite()`. Empty hides JOIN DISCORD on the public site. |
-| Job Centre invite | `mgl/job_applications.py` `JOBS_DISCORD_INVITE` | **Hardcoded** `https://discord.gg/Jmf29wBafP`. Independent of CMS/env. |
+| Job Centre invite | `mgl/job_applications.py` `job_centre_discord_invite()` | Reuses `resolved_discord_invite()` (CMS `settings.discord_invite_url` or env `DISCORD_INVITE_URL`). Hardcoded invite removed. |
 | Dependency | `requirements-mgl.txt` | `discord.py>=2.6` (optional comment; still listed). |
 | Settings | `config/settings.py` | Only `DISCORD_INVITE_URL`. Token/channels are **not** Django settings. |
 
@@ -67,9 +69,11 @@ Django / Gunicorn does **not** start the bot. `railway.toml` only sets `releaseC
 
 ### Control Centre Discord
 
-**None.** `mgl/control_views.py` has no Discord page. Control Managers **displays** Job Application Discord username (`mgl/templates/mgl/control_managers.html`). That is website data, not a bot control.
+Owner/Admin Discord Outbox at `/mgl/control/discord/` (`control_discord_outbox`). Lists PENDING / SENT / FAILED, inspects a row, and retries FAILED or waiting PENDING. Retry only resets queue timing. It does not send from the website process and does not change football state. Managers and Members are blocked by `owner_admin_required`. Bot tokens are never rendered.
 
-Django admin does **not** register `DiscordEvent`. There is no Control UI to retry FAILED rows.
+Control Managers still **displays** Job Application Discord username. That is website data, not a bot control.
+
+Django admin does **not** register `DiscordEvent`.
 
 ### Channel configuration (expected keys)
 
@@ -149,26 +153,28 @@ Release inbox type is `CLUB`, so a linked manager **does** get a DM on official 
 
 **Statuses**
 
-- PENDING — eligible for the 10s poll
+- PENDING — eligible when `next_attempt_at` is null or due
 - SENT — delivered; related `NewsPost.discord_sent` set true
-- FAILED — `attempt_count >= 20`
+- FAILED — `attempt_count >= 20` after temporary failures
 
-**Retry**
+**Retry / backoff (Phase 5.1)**
 
-- `mark_discord_failed` (`mgl/discord_queue.py`) keeps status PENDING until 20 failures, then FAILED.
-- No backoff. The same row is retried every 10 seconds while PENDING.
-- Unconfigured channel → immediate fail increment (“No Discord channel configured”).
-- Missing `discord_id` on a DM row → fail increment.
+- `mark_discord_failed` keeps status PENDING and sets `next_attempt_at` using 10s, 30s, 60s, 2m, 5m, 10m, 15m, 30m.
+- After 20 failed attempts the row becomes FAILED and is no longer polled.
+- Owner/Admin Control retry sets PENDING and `next_attempt_at=now` without changing attempt history.
+- Unconfigured channel or missing DM id still increments attempts, now with backoff.
+- Bot restart re-reads due PENDING rows. Events are never discarded.
 
 **Failure**
 
-- FAILED rows stay in the table. Nothing resends them. No Control “retry” action.
+- FAILED rows stay in the table for audit. Control can retry them. The website process never sends Discord.
 
-**Duplicate protection / idempotency**
+**Duplicate protection / idempotency (Phase 5.1)**
 
-- `queue_from_news`: one event per `news_post` (exists check, **not** a unique constraint).
-- `queue_discord_event`: always inserts. Personal DMs have no idempotency key.
-- `notify_user` uses `get_or_create(source_key=...)` so a new inbox row is required before a DM is queued.
+- Unique `DiscordEvent.idempotency_key`.
+- `queue_from_news` default key `news:{id}`; callers may pass an action key (`transfer.complete:{id}`, `totw.approve:{id}`, …).
+- `notify_user` DMs use `dm:{source_key}` in addition to inbox `get_or_create`.
+- A second news row with the same action key does not create a second Discord event.
 
 **Who creates events**
 
@@ -206,7 +212,7 @@ Release inbox type is `CLUB`, so a linked manager **does** get a DM on official 
 4. If `run_mgl_bot.py` is running **and** `DISCORD_TOKEN` + channel map are set, the bot posts within ~10 seconds.
 5. If the bot is not running (current documented production state: **not connected**), rows remain PENDING forever.
 
-Public JOIN DISCORD buttons use CMS/env invite. Job Offers after apply opens/hardcodes `JOBS_DISCORD_INVITE`.
+Public JOIN DISCORD buttons and Job Offers after apply both use `resolved_discord_invite()`.
 
 ---
 
@@ -284,7 +290,7 @@ Queued when `notify_user` creates a **new** inbox row and the type matches `PERS
 | Match submitted (pending Admin) | Inbox for Control; **no public Discord**. Correct until official — should stay unpublished. |
 | League table updated | No event. Tables are derived from approved results. |
 | Player statistics updated | No event. |
-| Team of the Week announced | Django admin `approve_selected_totw` uses `NewsPost.objects.create` **bypassing** `create_news` → **no `DiscordEvent`**. Control weekly-award approve uses `notify_user(REWARD)` which is **not** in `PERSONAL_TYPES` and creates **no** news. |
+| Team of the Week announced | **Phase 5.1 fixed for the announcement:** Django admin `approve_selected_totw` now uses `create_news` with `totw.approve:{id}`. Control weekly-award approve still uses `notify_user(REWARD)` which is **not** in `PERSONAL_TYPES` and creates **no** extra news. |
 | Top Scorer / Top Assist reward | Website inbox REWARD only; no outbox; no DM. |
 | Press Conference **reward** (token credit) | Press **publication** is queued; the +0.5 TKN credit is not a separate Discord event. |
 | Cup results | Cups are Coming soon. No news path. |
@@ -300,7 +306,7 @@ Queued when `notify_user` creates a **new** inbox row and the type matches `PERS
 
 | Finding | File | Severity | Notes |
 |---|---|---|---|
-| Hardcoded Discord invite | `mgl/job_applications.py` `JOBS_DISCORD_INVITE` | Medium | Public invite, not a bot token. Rotation requires a code change. Independent of `DISCORD_INVITE_URL`. Already listed in `UFL_SECURITY_RULES.md`. |
+| Hardcoded Discord invite | — | **Resolved in Phase 5.1** | Job Centre uses CMS/env invite. |
 | Hardcoded bot token | — | **None found** | Token is env-only. |
 | Hardcoded channel IDs | — | **None found** | IDs come from `UFL_CHANNELS` / `MGL_CHANNELS`. |
 | Hardcoded guild/server ID | — | **None found** | |
@@ -396,9 +402,9 @@ Queued when `notify_user` creates a **new** inbox row and the type matches `PERS
 - Starting the bot against production while PENDING historical rows exist could dump a backlog of old news.
 - Treating Discord as a second squad/transfer database would violate DEC-010/035.
 - Giving the bot ORM write helpers “for convenience” would bypass approval, tokens, and DEC-042.
-- Hardcoded Job Centre invite can drift from the real server.
-- TOTW already creates website news that never enters the outbox — easy to assume Discord is “broken” after awards.
-- 10-second retry with no backoff can rate-limit the bot if channels are misconfigured.
+- Job Centre invite now follows CMS/env; an empty setting hides the join link.
+- Historical TOTW news created before Phase 5.1 still has no outbox row (`reconcile_news` does not backfill).
+- Connecting the bot with a wrong channel map still posts to the wrong channel.
 - Linking a numeric Discord ID is powerful (inbox DMs) and is not the official Job Application identity (username is).
 - Workspace vs live-app bot files differ; implementing against the wrong tree would ship the old NewsPost poller.
 
@@ -415,4 +421,52 @@ Do **not** execute these steps in this audit.
 5. Only if Owner asks: Discord interactions that wrap existing UFL services.
 6. Never: `mgl_reset`, Season 1 bootstrap `--apply`, squad generate/approve on production, FC26 mass `is_free_agent` edit, deleting the 14 test clubs.
 
-**STOP after this document. Phase 5 is not implemented.**
+**Phase 5.1 (this document’s implementation pass) is complete. Do not start Phase 5.2 here.**
+
+---
+
+## 17. Phase 5.1 — Hardened outbox (implemented)
+
+### Lifecycle
+
+```
+UFL action commits
+    → create_news / notify_user
+    → DiscordEvent PENDING (idempotency_key)
+    → bot publish_queue (due rows only)
+        → SENT
+        or temporary fail → PENDING + next_attempt_at
+        or attempt_count >= 20 → FAILED (auditable)
+Owner/Admin Control retry → PENDING + next_attempt_at=now
+```
+
+Website/database remains the source of truth. The bot still only updates `DiscordEvent` status and `NewsPost.discord_sent`.
+
+### Idempotency
+
+Action keys are preferred (`job.approve:{id}`, `transfer.complete:{id}`, `auction.sold:{id}`, `auction.nobid:{id}`, `release.player:{player}:{club}`, `recruit.result:{id}`, `scout.result:{id}`, `match.approve:{id}`, `totw.approve:{id}`, `dm:{source_key}`). Default news key is `news:{id}`.
+
+### Retry
+
+Backoff after failed attempts: 10s, 30s, 60s, 120s, 300s, 600s, 900s, 1800s. Cap 20 attempts. No silent discard.
+
+### Configuration
+
+`mgl/discord_channels.py` lists canonical keys: NEWS, TRANSFERS, AUCTIONS, RECRUITMENT, SCOUTING, RESULTS, REWARDS, JOBS, ANNOUNCEMENTS. None are required to exist. IDs stay in `UFL_CHANNELS` / `MGL_CHANNELS`. Job Centre invite is `job_centre_discord_invite()` → `resolved_discord_invite()`.
+
+### Control Centre
+
+`/mgl/control/discord/` Owner/Admin only. Inspect + retry. No tokens, no `discord_id` in the UI.
+
+### TOTW
+
+`approve_selected_totw` → `create_news(..., discord_idempotency_key=totw.approve:{pk})`. Selection and 0.20 token rules unchanged.
+
+### Remaining Phase 5.2 work (do not implement now)
+
+- Decide and add missing **channel** coverage: job submitted, job rejected (channel), transfer request submitted, manager auction no-bid return, scout started/ready, weekly/monthly reward DMs or news, Owner announcements.
+- Review `PERSONAL_TYPES` for REWARD / AWARD / RECRUITMENT.
+- Embeds and dedicated channel taxonomy once Owner supplies live IDs.
+- Optional Discord → website commands (last; wrap existing services only).
+- Do not start the bot against production backlog without an Owner connect decision.
+- Never: Season 1 apply, 38 clubs, starting squads, StartingSquadLock, slash commands.

@@ -253,6 +253,17 @@ urlpatterns = [
     path("control/clubs/", views_control.control_clubs, name="control_clubs"),
     path("control/management/clubs/", views_control.control_clubs, name="control_management_clubs"),
     path("control/notifications/", views_control.control_notifications, name="control_notifications"),
+    path("control/discord/", views_control.control_discord_outbox, name="control_discord_outbox"),
+    path(
+        "control/discord/<int:event_id>/",
+        views_control.control_discord_outbox_detail,
+        name="control_discord_outbox_detail",
+    ),
+    path(
+        "control/discord/<int:event_id>/retry/",
+        views_control.control_discord_outbox_retry,
+        name="control_discord_outbox_retry",
+    ),
     path("control/logs/", views_control.control_logs, name="control_logs"),
     path("control/season/history/", views_control.control_season_history, name="control_season_history"),
     path("control/season/controls/", views_control.control_season_controls, name="control_season_controls"),

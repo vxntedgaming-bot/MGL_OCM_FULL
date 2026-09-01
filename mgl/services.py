@@ -201,7 +201,16 @@ def normalise_totw_position(position):
     return mapping.get(position, position)
 
 
-def create_news(category, title, body, publish=True, team=None, secondary_team=None, details=None):
+def create_news(
+    category,
+    title,
+    body,
+    publish=True,
+    team=None,
+    secondary_team=None,
+    details=None,
+    discord_idempotency_key=None,
+):
     """
     Creates a news event for the website and Discord bot queue.
 
@@ -209,6 +218,9 @@ def create_news(category, title, body, publish=True, team=None, secondary_team=N
     club badges from club data rather than guessing names in the copy.
     Optional details stores a snapshot (for example a completed deal)
     so later squad moves do not rewrite history.
+
+    discord_idempotency_key ties the outbox row to the UFL action so
+    retries do not post twice. The football/news write is unchanged.
     """
 
     post = NewsPost.objects.create(
@@ -224,7 +236,7 @@ def create_news(category, title, body, publish=True, team=None, secondary_team=N
     try:
         from mgl.discord_queue import queue_from_news
 
-        queue_from_news(post)
+        queue_from_news(post, idempotency_key=discord_idempotency_key)
     except Exception:
         pass
     return post
@@ -388,6 +400,7 @@ def release_player(player, team, source="MANAGER_RELEASE", reviewer=None):
         f"{player.name} released",
         f"{player.name} has been released by {team.name} and is now a Free Agent.",
         team=team,
+        discord_idempotency_key=f"release.player:{player.pk}:{team.pk}",
     )
     if team.manager_id:
         from mgl.notifications import notify_user
@@ -502,6 +515,7 @@ def sign_free_agent(player, manager):
         f"{signed.name} signed",
         f"{signed.name} has joined {team.name} on a free signing.",
         team=team,
+        discord_idempotency_key=f"signing.fa:{signed.pk}:{team.pk}",
     )
     from mgl.press import maybe_create_signing_press
 

@@ -816,6 +816,7 @@ def approve_proposal(proposal, user, confirm=False):
         "UFL STARTING SQUADS ALLOCATED",
         "Ultimate Fantasy League has officially completed its starting squad allocation.",
         details={"proposal_id": proposal_id, "clubs": len(squads), "players": len(selected_ids)},
+        discord_idempotency_key=f"starting.squads:{proposal_id}",
     )
     return StartingSquadProposal.objects.get(pk=proposal_id)
 

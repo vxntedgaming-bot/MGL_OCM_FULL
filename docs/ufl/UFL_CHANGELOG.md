@@ -6,6 +6,21 @@ This file started with the documentation/audit pass. It does **not** claim that 
 
 ---
 
+## 2026-09-01 — Phase 5.1 harden Discord outbox
+
+Hardened the existing `DiscordEvent` pipeline. Website/database remains the source of truth.
+
+- Unique `idempotency_key` plus action keys on existing news/DM writers. Same UFL action does not create a second Discord row on retry/refresh/double POST.
+- Retry backoff on PENDING (`next_attempt_at`); 20 attempts then FAILED. Control can retry FAILED or waiting PENDING. Bot restart re-reads due rows.
+- Owner/Admin Control Centre Discord Outbox. Managers and Members cannot administer the queue. Bot token is never shown.
+- TOTW admin approve now uses `create_news` so the announcement enters the outbox. TOTW selection and 0.20 tokens unchanged.
+- Job Centre invite uses `resolved_discord_invite()` (CMS / `DISCORD_INVITE_URL`). Hardcoded invite removed.
+- Channel keys centralised in `mgl/discord_channels.py`. IDs stay in env. Extra channels are optional.
+- Migration `mgl.0030_phase51_discord_outbox` — local only, not applied to production.
+- **No Season 1, no 38 clubs, no starting squads, no Discord messages sent, no slash/commands, no Phase 5.2 event catalogue.**
+
+---
+
 ## 2026-09-01 — Phase 5 Discord / YourBot inspection (documentation only)
 
 Read-only audit of the existing Discord outbox and bot. Recorded in `UFL_DISCORD_AUDIT.md`.

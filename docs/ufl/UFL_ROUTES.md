@@ -153,6 +153,9 @@ All **GET pages** below are `owner_admin_required` unless noted. POST approve/re
 | `/mgl/control/clubs/` | `control_clubs` | Clubs desk | Live | Clubs |
 | `/mgl/control/management/clubs/` | alias | Clubs | Alias | Clubs |
 | `/mgl/control/notifications/` | `control_notifications` | Notification desk | Live | Notifications |
+| `/mgl/control/discord/` | `control_discord_outbox` | Discord outbox list | Live | Admin |
+| `/mgl/control/discord/<id>/` | `control_discord_outbox_detail` | Inspect Discord event | Live | Admin |
+| `/mgl/control/discord/<id>/retry/` | `control_discord_outbox_retry` | Re-queue FAILED/PENDING | Live | Admin POST |
 | `/mgl/control/logs/` | `control_logs` | Audit logs | Live | Admin |
 | `/mgl/control/season/history/` | `control_season_history` | Season history | Live | Season |
 | `/mgl/control/season/controls/` | `control_season_controls` | Season controls | Live | Season |

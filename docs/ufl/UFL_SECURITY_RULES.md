@@ -89,7 +89,7 @@ Documented only. **Do not fix in this audit.**
 
 1. **Default DEBUG=True** and shipped `django-insecure-` secret in `config/settings.py`. Safe only if production always sets `DJANGO_DEBUG=false` and a real secret. Misconfiguration would expose debug pages and the fallback key.
 
-2. **Hardcoded Discord invite** `JOBS_DISCORD_INVITE` in `mgl/job_applications.py`, independent of `DISCORD_INVITE_URL`. Invite rotation requires a code change.
+2. **Job Centre Discord invite** now uses `resolved_discord_invite()` (CMS / `DISCORD_INVITE_URL`). The previous hardcoded `JOBS_DISCORD_INVITE` was removed in Phase 5.1.
 
 3. **Transfer window always open.** **Phase 1 LOCKED: this is correct.** Do not add a close period.
 

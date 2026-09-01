@@ -504,6 +504,7 @@ def create_free_agent_auction(player, user, duration_minutes, starting_bid=1):
         NewsPost.AUCTION,
         f"{player.name} is now available in an Admin auction",
         f"{player.name} is now available in an Admin auction.",
+        discord_idempotency_key=f"auction.admin:{auction.pk}",
     )
     return auction
 
@@ -562,6 +563,7 @@ def create_manager_auction(player, manager, duration_minutes, starting_bid=1):
             f"for auction. Listing fee {listing_fee} TKN (not refunded)."
         ),
         team=team,
+        discord_idempotency_key=f"auction.list:{auction.pk}",
     )
     return auction
 
@@ -606,6 +608,7 @@ def _restore_unsold_player(auction):
         NewsPost.FREE_AGENT,
         f"{player.name} is a Free Agent",
         f"{player.name} is now available as a Free Agent after an auction received no bids.",
+        discord_idempotency_key=f"auction.nobid:{auction.pk}",
     )
     return player
 
@@ -900,6 +903,7 @@ def settle_auction(auction, reviewer=None):
         f"{player.name} has joined {club.name} after a winning auction bid.",
         team=club,
         secondary_team=origin,
+        discord_idempotency_key=f"auction.sold:{auction.pk}",
     )
     return auction, f"{player.name} transferred to {club.name}."
 
@@ -978,6 +982,7 @@ def list_player_for_sale(player, manager, asking_price):
         f"{player.name} listed for sale",
         f"{team.name} listed {player.name} for {price} tokens.",
         team=team,
+        discord_idempotency_key=f"listing.live:{listing.pk}",
     )
     return listing
 
@@ -1212,6 +1217,7 @@ def _complete_listing_sale(listing, buyer):
         team=buyer_club,
         secondary_team=selling_team,
         details=deal_details,
+        discord_idempotency_key=f"transfer.complete:{listing.pk}",
     )
     from mgl.press import maybe_create_signing_press
 
@@ -1292,6 +1298,7 @@ def approve_listing(listing, reviewer):
         f"{listing.player.name} listed for sale",
         f"{listing.team.name} listed {listing.player.name} for {listing.asking_price} tokens.",
         team=listing.team,
+        discord_idempotency_key=f"listing.approve:{listing.pk}",
     )
     _notify_listing_outcome(listing)
     from mgl.models import ManagerNotification

@@ -318,10 +318,10 @@ def approve_selected_totw(modeladmin, request, queryset):
                     f"{selection.player.name}"
                 )
 
-            NewsPost.objects.create(
-                category=NewsPost.REWARD,
-                title="UFL TEAM OF THE WEEK",
-                body=(
+            create_news(
+                NewsPost.REWARD,
+                "UFL TEAM OF THE WEEK",
+                (
                     f"Official UFL Team of the Week "
                     f"for week beginning {totw.week_start}.\n\n"
                     f"Formation: 4-2-3-1\n\n"
@@ -330,8 +330,7 @@ def approve_selected_totw(modeladmin, request, queryset):
                     "Selected players earn their club manager "
                     "0.20 tokens each."
                 ),
-                published=True,
-                discord_sent=False,
+                discord_idempotency_key=f"totw.approve:{totw.pk}",
             )
 
             approved += 1
@@ -411,6 +410,7 @@ def approve_selected_motw(modeladmin, request, queryset):
                     f"Reward: 0.50 tokens."
                 ),
                 team=club,
+                discord_idempotency_key=f"motw.approve:{manager_week.pk}",
             )
 
             approved += 1

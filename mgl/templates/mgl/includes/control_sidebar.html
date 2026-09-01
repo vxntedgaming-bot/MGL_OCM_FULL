@@ -16,6 +16,7 @@
         <a href="{% url 'control_league' %}" class="{% if control_section == 'league' %}is-active{% endif %}">League Controls</a>
         <a href="{% url 'control_recruitment' %}" class="{% if control_section == 'recruitment' %}is-active{% endif %}">Recruitment Packs</a>
         <a href="{% url 'control_scout_config' %}" class="{% if control_section == 'scout_config' %}is-active{% endif %}">Scout Settings</a>
+        <a href="{% url 'control_discord_outbox' %}" class="{% if control_section == 'discord_outbox' %}is-active{% endif %}">Discord Outbox</a>
         <a href="{% url 'control_logs' %}" class="{% if control_section == 'logs' or control_section == 'weekly' or control_section == 'monthly' or control_section == 'tokens' %}is-active{% endif %}">History / Audit</a>
     </nav>
     <div class="mgl-cp-league-status">

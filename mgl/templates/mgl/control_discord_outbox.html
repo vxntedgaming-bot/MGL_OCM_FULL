@@ -1,0 +1,49 @@
+{% extends "mgl/includes/control_page.html" %}
+
+{% block control_title %}Discord Outbox — UFL Control{% endblock %}
+{% block control_crumb %}CONTROL / DISCORD OUTBOX{% endblock %}
+{% block control_kicker %}NOTIFICATION QUEUE{% endblock %}
+{% block control_heading %}DISCORD OUTBOX{% endblock %}
+{% block control_intro %}Website and database remain the source of truth. This queue only publishes already-committed UFL events. Retry never changes players, tokens, jobs, transfers, or Season 1.{% endblock %}
+
+{% block control_body %}
+<nav class="mgl-cp-toolbar" aria-label="Outbox filters">
+    <a class="header-button {% if not outbox_status %}is-active{% endif %}" href="{% url 'control_discord_outbox' %}">ALL ({{ outbox_counts.all }})</a>
+    <a class="header-button {% if outbox_status == 'PENDING' %}is-active{% endif %}" href="{% url 'control_discord_outbox' %}?status=PENDING">PENDING ({{ outbox_counts.PENDING }})</a>
+    <a class="header-button {% if outbox_status == 'SENT' %}is-active{% endif %}" href="{% url 'control_discord_outbox' %}?status=SENT">SENT ({{ outbox_counts.SENT }})</a>
+    <a class="header-button {% if outbox_status == 'FAILED' %}is-active{% endif %}" href="{% url 'control_discord_outbox' %}?status=FAILED">FAILED ({{ outbox_counts.FAILED }})</a>
+</nav>
+
+<section class="dashboard-panel mgl-cp-panel mgl-cp-table-wrap">
+    <table class="mgl-cp-table">
+        <thead>
+            <tr>
+                <th>TYPE</th>
+                <th>STATUS</th>
+                <th>DESTINATION</th>
+                <th>CREATED</th>
+                <th>ATTEMPTS</th>
+                <th>LAST ATTEMPT</th>
+                <th>ERROR</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for event in events %}
+                <tr>
+                    <td>{{ event.event_type }}</td>
+                    <td>{{ event.status }}</td>
+                    <td>{{ event.destination_display }}</td>
+                    <td>{{ event.created_at|date:"d M Y H:i" }}</td>
+                    <td>{{ event.attempt_count }}</td>
+                    <td>{% if event.last_attempt_at %}{{ event.last_attempt_at|date:"d M Y H:i" }}{% else %}—{% endif %}</td>
+                    <td>{% if event.error %}{{ event.error|truncatechars:80 }}{% else %}—{% endif %}</td>
+                    <td><a href="{% url 'control_discord_outbox_detail' event.pk %}">INSPECT →</a></td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="8">{% include "mgl/includes/empty_state.html" with title="NO DISCORD EVENTS" %}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}

@@ -53,8 +53,8 @@ from managers.services import STARTING_TOKENS, approve_manager_application, reje
 
 from .job_applications import (
     GAMES_PER_WEEK_CHOICES,
-    JOBS_DISCORD_INVITE,
     approve_job_application,
+    job_centre_discord_invite,
     can_submit_job_application,
     games_per_week_options,
     latest_job_application,
@@ -438,7 +438,7 @@ def job_centre(request):
             "can_apply": can_apply,
             "games_per_week_choices": GAMES_PER_WEEK_CHOICES,
             "games_per_week_options": games_per_week_options(),
-            "jobs_discord_invite": JOBS_DISCORD_INVITE,
+            "jobs_discord_invite": job_centre_discord_invite(),
             "join_discord": request.GET.get("join_discord") == "1",
             "window_open": transfer_window_is_open(),
             "latest_result": _jobs_latest_result(),

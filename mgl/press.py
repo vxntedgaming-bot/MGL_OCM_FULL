@@ -437,7 +437,13 @@ def approve_press_conference(press, reviewer=None):
     press.approved_at = timezone.now()
     press.save(update_fields=["status", "approved_at"])
     title, body = _press_news_copy(press)
-    create_news(NewsPost.PRESS, title, body, team=press.team)
+    create_news(
+        NewsPost.PRESS,
+        title,
+        body,
+        team=press.team,
+        discord_idempotency_key=f"press.approve:{press.pk}",
+    )
     from mgl.services import credit_manager, manager_for_user as reward_manager
     from mgl.ufl_settings import press_reward
 

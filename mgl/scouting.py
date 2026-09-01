@@ -692,6 +692,7 @@ def choose_scout_player(manager, assignment_id, player_id):
         f"{player.name} joins {team.name}",
         f"{team.name} signed {player.name} after a {assignment.get_tier_display()} scouting mission.",
         team=team,
+        discord_idempotency_key=f"scout.result:{assignment.pk}",
     )
     from mgl.notifications import notify_user
 
@@ -994,6 +995,7 @@ def send_scout_to_team(manager, assignment, actor=None):
         f"{player.name} assigned by league office",
         f"{team.name} received {player.name} after an Owner/Admin scouting correction.",
         team=team,
+        discord_idempotency_key=f"scout.admin:{assignment.pk}",
     )
     from mgl.audit import log_ocm_action
 

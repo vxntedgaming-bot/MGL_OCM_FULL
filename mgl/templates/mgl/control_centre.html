@@ -81,6 +81,12 @@
         <span>Active assignments</span>
         <em>VIEW →</em>
     </a>
+    <a class="mgl-cp-stat {% if discord_failed_count %}is-hot{% endif %}" href="{% url 'control_discord_outbox' %}">
+        <p>DISCORD OUTBOX</p>
+        <strong>{{ discord_pending_count|default:0 }}</strong>
+        <span>{% if discord_failed_count %}{{ discord_failed_count }} failed{% else %}Pending notifications{% endif %}</span>
+        <em>VIEW →</em>
+    </a>
 </section>
 
 <section class="dashboard-panel mgl-cp-panel" id="approvals">

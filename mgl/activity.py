@@ -490,7 +490,16 @@ def activity_payloads(posts):
     return items
 
 
-def record_activity(category, title, body, publish=True, team=None, secondary_team=None, details=None):
+def record_activity(
+    category,
+    title,
+    body,
+    publish=True,
+    team=None,
+    secondary_team=None,
+    details=None,
+    discord_idempotency_key=None,
+):
     """Create official live activity. Call only after the existing approval/action."""
     return create_news(
         category,
@@ -500,6 +509,7 @@ def record_activity(category, title, body, publish=True, team=None, secondary_te
         team=team,
         secondary_team=secondary_team,
         details=details,
+        discord_idempotency_key=discord_idempotency_key,
     )
 
 
@@ -513,4 +523,5 @@ def record_manager_departure(user, team):
         f"{name} has left {team.name}",
         f"{name} has left {team.name}. The squad, tokens and club history remain intact.",
         team=team,
+        discord_idempotency_key=f"manager.depart:{team.pk}:{getattr(user, 'pk', 'user')}",
     )

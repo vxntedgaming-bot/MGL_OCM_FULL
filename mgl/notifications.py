@@ -370,7 +370,14 @@ def notify_user(
     if _created:
         from mgl.discord_queue import queue_personal_discord
 
-        queue_personal_discord(user, notification_type, title, message, action_url)
+        queue_personal_discord(
+            user,
+            notification_type,
+            title,
+            message,
+            action_url,
+            idempotency_key=f"dm:{source_key}",
+        )
     return obj
 
 

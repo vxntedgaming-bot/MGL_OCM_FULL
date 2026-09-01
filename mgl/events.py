@@ -5,7 +5,6 @@ Discord queue entries are side effects and must never undo the football
 transaction.
 """
 
-from mgl.discord_queue import queue_from_news
 from mgl.services import create_news as _create_news
 
 
@@ -18,8 +17,9 @@ def emit_official_event(
     team=None,
     secondary_team=None,
     details=None,
+    discord_idempotency_key=None,
 ):
-    post = _create_news(
+    return _create_news(
         category,
         title,
         body,
@@ -27,10 +27,5 @@ def emit_official_event(
         team=team,
         secondary_team=secondary_team,
         details=details,
+        discord_idempotency_key=discord_idempotency_key,
     )
-    try:
-        queue_from_news(post)
-    except Exception:
-        # Discord is a notification layer. Never roll back official state.
-        pass
-    return post

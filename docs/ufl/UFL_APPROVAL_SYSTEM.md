@@ -21,6 +21,8 @@ Opponent or seller “accept” is **not** the same as official league approval.
 
 Do not describe all market activity as requiring approval.
 
+Discord Outbox retry is **not** a football approval. Owner/Admin may re-queue a notification only. It cannot approve transfers, jobs, matches, awards, or Season 1.
+
 ---
 
 ## Who can approve
