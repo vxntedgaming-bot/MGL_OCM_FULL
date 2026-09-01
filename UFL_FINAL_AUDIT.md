@@ -196,3 +196,7 @@ This file is the pre-rebuild snapshot plus the intended fix. Implementation foll
 **NOT READY — FIX REQUIRED**
 
 Must fix before claiming manual-test readiness: design system, public IA, cups honesty, scout level math, Control auction split, token dual-write, dead buttons, hub completeness.
+
+## Post-rebuild
+
+See `UFL_FINAL_REPORT.md`. Local suite: 450 passed. Status: **READY FOR MANUAL TESTING**.
