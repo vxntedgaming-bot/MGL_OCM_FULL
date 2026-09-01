@@ -31,7 +31,7 @@
     <div class="uh-grid">
         <div class="uh-col-main">
             <section class="uh-hero">
-                <img src="{% static 'core/img/mgl-home-hero.jpg' %}" alt="" aria-hidden="true">
+                <img src="{% static 'core/img/ufl-home-match.jpg' %}" alt="" aria-hidden="true">
                 <div class="uh-hero-copy">
                     <p class="uh-badge">● UFL CAREER MODE — SEASON LIVE</p>
                     {% if hero_title %}<p class="uh-cms">{{ hero_title }}</p>{% endif %}
@@ -132,7 +132,7 @@
 
             <div class="uh-cta-row">
                 <article class="uh-cta">
-                    <img src="{% static 'core/img/mgl-stadium-cta.jpg' %}" alt="" aria-hidden="true">
+                    <img src="{% static 'core/img/ufl-home-dugout.jpg' %}" alt="" aria-hidden="true">
                     <div>
                         <h3>READY TO TAKE THE DUGOUT?</h3>
                         <p>Clubs are waiting for their next manager.</p>
@@ -140,6 +140,7 @@
                     </div>
                 </article>
                 <article class="uh-cta is-account">
+                    <img src="{% static 'core/img/ufl-home-contract.jpg' %}" alt="" aria-hidden="true">
                     <div>
                         <h3>CREATE YOUR UFL ACCOUNT</h3>
                         <p>Create your account and begin your journey towards becoming a UFL manager.</p>
@@ -157,7 +158,7 @@
                 <div class="uh-split">
                     <figure>
                         <b>UFL / WEBSITE</b>
-                        <img src="{% static 'core/img/mgl-starting-xi.png' %}" alt="UFL squad on the website">
+                        <img src="{% static 'core/img/ufl-home-squad.jpg' %}" alt="UFL squad on the website">
                         <figcaption>
                             <strong>MY SQUAD</strong>
                             <span>Squad Value</span>
@@ -167,7 +168,7 @@
                     </figure>
                     <figure>
                         <b>EA FC / IN-GAME</b>
-                        <img src="{% static 'core/img/mgl-home-hero.jpg' %}" alt="EA FC in-game">
+                        <img src="{% static 'core/img/ufl-home-match.jpg' %}" alt="EA FC in-game">
                     </figure>
                 </div>
             </section>
@@ -224,6 +225,7 @@
     </div>
 </div>
 
+{% with empty_logo="core/img/ufl-logo-chrome.png" %}
 <section class="uh-feed" aria-label="Live league data">
     <article id="mgl-news">
         <header>
@@ -321,6 +323,7 @@
         <a href="{% url 'competition_page' slug='cups' %}" class="uh-btn uh-btn-ghost">CUP DETAILS</a>
     </article>
 </section>
+{% endwith %}
 
 <section class="uh-legal" id="mgl-support">
     <article id="mgl-faq">

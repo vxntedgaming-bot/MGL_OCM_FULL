@@ -1,6 +1,7 @@
 {% load static %}
+{% firstof empty_logo "core/img/mgl-logo.png" as empty_logo_src %}
 <div class="mgl-empty">
-    <img src="{% static 'core/img/mgl-logo.png' %}" alt="" class="mgl-empty-logo">
+    <img src="{% static empty_logo_src %}" alt="" class="mgl-empty-logo">
     {% if kicker %}<div class="eyebrow">{{ kicker }}</div>{% endif %}
     <h3>{{ title }}</h3>
     {% if body %}<p>{{ body }}</p>{% endif %}
