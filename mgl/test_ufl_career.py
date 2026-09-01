@@ -198,9 +198,10 @@ class UFLCareerModeTests(TestCase):
         )
         self.client.login(username="career-a", password="test-pass-123")
         transfers = self.client.get(reverse("manager_notifications"), {"category": "Transfers"})
-        self.assertContains(transfers, "OFFER RECEIVED")
+        self.assertEqual(len(transfers.context["notifications"]), 1)
+        self.assertEqual(transfers.context["notifications"][0].title, "OFFER RECEIVED")
         press = self.client.get(reverse("manager_notifications"), {"category": "Press"})
-        self.assertNotContains(press, "OFFER RECEIVED")
+        self.assertEqual(list(press.context["notifications"]), [])
 
     def test_owner_can_resolve_scout_exception(self):
         for index in range(27):
