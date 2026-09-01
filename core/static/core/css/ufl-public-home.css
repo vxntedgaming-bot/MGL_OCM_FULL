@@ -76,20 +76,20 @@ body.ufl-home .mgl-home-experience article::before {
     margin-top: 2px;
 }
 
-.uh-nav {
+.uh-header .mgl-nav {
     display: flex;
     justify-content: center;
     gap: 2px;
 }
 
-.uh-nav .mgl-nav-link {
+.uh-header .mgl-nav-link {
     padding: 0 8px;
     font-size: 11px;
     letter-spacing: 0.14em;
     color: #f3f3f3;
 }
 
-.uh-nav .mgl-nav-link.is-active {
+.uh-header .mgl-nav-link.is-active {
     color: var(--uh-gold);
     box-shadow: inset 0 -2px 0 var(--uh-gold);
 }
@@ -812,7 +812,7 @@ body.ufl-home .mgl-home-table-club {
     .uh-header-bar {
         grid-template-columns: auto 1fr auto auto;
     }
-    .uh-burger {
+    .uh-header .mgl-nav-burger {
         display: flex;
     }
 }
