@@ -1,0 +1,44 @@
+{% extends "mgl/includes/control_page.html" %}
+
+{% block control_title %}Scout Settings — UFL Control{% endblock %}
+{% block control_crumb %}CONTROL / SCOUT SETTINGS{% endblock %}
+{% block control_kicker %}SCOUTING{% endblock %}
+{% block control_heading %}SCOUT SETTINGS{% endblock %}
+{% block control_intro %}Owner/Admin configure scout levels 1–4. Managers cannot change these values.{% endblock %}
+
+{% block control_body %}
+<section class="mgl-cp-card">
+    <p class="mgl-cp-kicker">LEAGUE SCOUT RULES</p>
+    <form method="post" class="mgl-cp-form-grid">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="league">
+        <label class="mgl-cp-field">SCOUT CAN RECRUIT
+            <select name="scout_can_recruit">
+                <option value="1"{% if league_settings.scout_can_recruit %} selected{% endif %}>Yes</option>
+                <option value="0"{% if not league_settings.scout_can_recruit %} selected{% endif %}>No — discovery only</option>
+            </select>
+        </label>
+        <label class="mgl-cp-field">RESULT COUNT <input type="number" name="scout_result_count" value="{{ league_settings.scout_result_count }}" min="1"></label>
+        <label class="mgl-cp-field">SELECT COUNT <input type="number" name="scout_select_count" value="{{ league_settings.scout_select_count }}" min="1"></label>
+        <button type="submit" class="header-button mgl-cp-review-btn">SAVE LEAGUE RULES</button>
+    </form>
+</section>
+
+{% for row in levels %}
+<section class="mgl-cp-card">
+    <p class="mgl-cp-kicker">LEVEL {{ row.level }}</p>
+    <form method="post" class="mgl-cp-form-grid">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="level">
+        <input type="hidden" name="level" value="{{ row.level }}">
+        <label class="mgl-cp-field">UPGRADE COST <input type="number" name="upgrade_cost" value="{{ row.upgrade_cost }}" min="0" step="0.5"></label>
+        <label class="mgl-cp-field">EXTRA TIME REDUCTION % <input type="number" name="time_reduction_percent" value="{{ row.time_reduction_percent }}" min="0" max="99.99" step="0.01"></label>
+        <label class="mgl-cp-field">RESULT COUNT <input type="number" name="result_count" value="{{ row.result_count }}" min="1"></label>
+        <label class="mgl-cp-field">SELECT COUNT <input type="number" name="select_count" value="{{ row.select_count }}" min="1"></label>
+        <button type="submit" class="header-button">SAVE LEVEL {{ row.level }}</button>
+    </form>
+</section>
+{% empty %}
+    {% include "mgl/includes/empty_state.html" with title="NO SCOUT LEVELS" %}
+{% endfor %}
+{% endblock %}

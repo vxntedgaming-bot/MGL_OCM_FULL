@@ -2309,10 +2309,20 @@ def recruitment_drive(request):
         {
             "manager": manager,
             "team": team,
-            "packs": pack_choices(),
+            "packs": pack_choices(manager),
             "opening": opening,
             "candidates": players_for_opening(opening),
             "token_balance": token_balance_for_user(request.user),
+            "select_count": (
+                opening.pack.select_count
+                if opening and opening.pack_id
+                else 1
+            ),
+            "result_count": (
+                len(opening.player_ids)
+                if opening
+                else 3
+            ),
         },
     )
 
@@ -2323,8 +2333,13 @@ def open_recruitment_pack(request):
     from mgl.recruitment import open_recruitment_pack as open_pack
 
     try:
-        open_pack(request.user, request.POST.get("pack_code"))
-        messages.success(request, "Pack opened. Choose one of the three players.")
+        opening = open_pack(request.user, request.POST.get("pack_code"))
+        count = len(opening.player_ids)
+        select = opening.pack.select_count if opening.pack_id else 1
+        messages.success(
+            request,
+            f"Pack opened. Choose {select} of the {count} players.",
+        )
     except ValueError as exc:
         messages.error(request, str(exc))
     return redirect("recruitment_drive")
@@ -2360,6 +2375,7 @@ def scouting(request):
         SQUAD_FULL_MESSAGE,
         TIER_RANGES,
         add_to_watchlist,
+        choose_scout_player,
         complete_ready_assignments,
         cooldown_hours,
         dispatch_scout,
@@ -2371,6 +2387,7 @@ def scouting(request):
         manager_scout_level,
         next_upgrade,
         open_scout_pack,
+        players_for_assignment,
         remaining_wait,
         scout_availability_label,
         scout_positions,
@@ -2416,6 +2433,17 @@ def scouting(request):
                     request,
                     f"{assignment.get_tier_display()} scout dispatched. Report ready at {assignment.ready_at}.",
                 )
+            elif action == "choose_scout":
+                chosen = choose_scout_player(
+                    manager,
+                    assignment.id if assignment else request.POST.get("assignment"),
+                    request.POST.get("player_id"),
+                )
+                if chosen.player_id:
+                    messages.success(
+                        request,
+                        f"{chosen.player.name} has joined your club.",
+                    )
             elif action == "open_pack":
                 opened = open_scout_pack(manager, assignment)
                 return redirect(f"{reverse('scouting')}?pack={opened.id}")
@@ -2547,6 +2575,15 @@ def scouting(request):
                 scout_availability_label(pack.player) if pack.player_id else ""
             )
 
+    ready_assignment = (
+        ScoutAssignment.objects.filter(manager=manager, status=ScoutAssignment.READY)
+        .order_by("-ready_at", "-id")
+        .first()
+    )
+    if pack and pack.status == ScoutAssignment.READY:
+        ready_assignment = pack
+    scout_candidates = players_for_assignment(ready_assignment) if ready_assignment else []
+
     region_guide = [
         (group, [(key, label, sorted(REGION_NATIONS.get(key, ()))) for key, label in items])
         for group, items in scout_region_menu()
@@ -2574,6 +2611,8 @@ def scouting(request):
             "active_scouts": active,
             "scout_busy": scout_busy,
             "pack": pack,
+            "ready_assignment": ready_assignment,
+            "scout_candidates": scout_candidates,
             "club": team,
             "roster_count": roster_count,
             "roster_full": roster_full,
@@ -2614,7 +2653,10 @@ def list_player_for_auction(request, player_id):
             request.POST.get("duration"),
             request.POST.get("starting_bid") or 1,
         )
-        messages.success(request, f"{player.name} is now in auction.")
+        messages.success(
+            request,
+            f"{player.name} is now in auction. Listing fee 0.1 TKN charged (not refunded).",
+        )
     except ValueError as exc:
         messages.error(request, str(exc))
     return redirect("team_management")

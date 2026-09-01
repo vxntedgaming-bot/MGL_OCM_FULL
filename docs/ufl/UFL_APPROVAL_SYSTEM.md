@@ -54,7 +54,7 @@ Generic `ApprovalRequest` model exists. Current queues mostly use **domain statu
 | Press answer | `PressConference` PENDING | Not published/rewarded until approved |
 | Club application | `ClubApplication` PENDING | Not appointed |
 | Club auction (if allowed) | `PlayerAuction` | Live/pending per auction rules |
-| Recruitment pack / scout | Domain rows | Scout recruit may assign immediately when due |
+| Recruitment pack / scout | Domain rows | Pack/scout **choice** writes club ownership immediately. Unselected stay UNSIGNED. No extra approval queue. Owner/Admin configure packs and scout levels. |
 
 ---
 

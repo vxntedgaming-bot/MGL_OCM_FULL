@@ -169,6 +169,7 @@ Exact debit/credit category strings: inspect `_complete_listing_sale` at change 
 
 - `PlayerAuction` + `AuctionBid` (`auctions` app).
 - Manager club auctions allowed if `LeagueSettings.allow_manager_auctions` (default True).
+- Manager listing fee = **0.1 TKN**, charged once through `RewardTransaction`, **not refunded** on no-bid or cancel. This is the locked exception to 0.5 increments.
 - Durations 30/60/90/120 minutes (configurable).
 - Max **3** club auctions / 24h.
 - Only Owner/Admin can move **UNSIGNED** FC26 players → auction. Managers receive 403 on the unassigned-release POST.
@@ -203,6 +204,14 @@ Roster: `assert_roster_space` uses `effective_roster_limit`.
 See `UFL_ROLES_PERMISSIONS.md`. Market POSTs are `@login_required` plus `approved_manager()` inside the view (not always `@career_required`). Services still enforce club ownership.
 
 ---
+
+## Recruitment / Scouting / Auction economy (Phase 3)
+
+- Packs: configurable by Owner/Admin. Default **3 results / choose 1**. Unselected → UNSIGNED.
+- Scouts: levels 1–4, server duration, default **4 results / choose 1**. Unselected → UNSIGNED.
+- Genuine FA sign = **0 TKN**. Unsigned and legacy `is_free_agent=True` do not appear on the FA page.
+- Manager no-bid → original club. Admin unsigned no-bid → possible genuine FA.
+- UNSIGNED remains separate from Free Agent (DEC-042). Do not mass-edit FC26 flags.
 
 ## NOT IMPLEMENTED / GAPS
 

@@ -321,6 +321,49 @@ class PackReward(models.Model):
     assigned_team=models.ForeignKey("teams.Team",on_delete=models.SET_NULL,null=True,blank=True,related_name="pack_rewards")
 
 
+class RecruitmentPack(models.Model):
+    """Owner/Admin configurable Recruitment Drive catalogue (DEC-027 / DEC-028)."""
+
+    code = models.SlugField(max_length=20, unique=True)
+    name = models.CharField(max_length=80)
+    pack_type = models.CharField(max_length=20, default="POSITION", blank=True)
+    active = models.BooleanField(default=True)
+    token_cost = models.DecimalField(max_digits=8, decimal_places=2, default=1)
+    result_count = models.PositiveSmallIntegerField(default=3)
+    select_count = models.PositiveSmallIntegerField(default=1)
+    min_ovr = models.PositiveSmallIntegerField(null=True, blank=True)
+    max_ovr = models.PositiveSmallIntegerField(null=True, blank=True)
+    positions = models.JSONField(default=list, blank=True)
+    opening_limit = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        help_text="Max openings per manager for this pack. Blank = unlimited.",
+    )
+    sort_order = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ["sort_order", "name", "id"]
+
+    def __str__(self):
+        return self.name
+
+
+class ScoutLevelConfig(models.Model):
+    """Owner/Admin scout level 1–4: upgrade cost and optional extra time cut."""
+
+    level = models.PositiveSmallIntegerField(unique=True)
+    upgrade_cost = models.DecimalField(max_digits=8, decimal_places=2, default=0)
+    time_reduction_percent = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    result_count = models.PositiveSmallIntegerField(default=4)
+    select_count = models.PositiveSmallIntegerField(default=1)
+
+    class Meta:
+        ordering = ["level"]
+
+    def __str__(self):
+        return f"Scout level {self.level}"
+
+
 class RecruitmentOpening(models.Model):
     """One Recruitment Drive pack. Token is taken when opened; one player may be signed."""
 
@@ -343,7 +386,14 @@ class RecruitmentOpening(models.Model):
         on_delete=models.CASCADE,
         related_name="recruitment_openings",
     )
-    pack_code = models.CharField(max_length=12)
+    pack = models.ForeignKey(
+        RecruitmentPack,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="openings",
+    )
+    pack_code = models.CharField(max_length=20)
     player_ids = models.JSONField(default=list)
     chosen_player = models.ForeignKey(
         "players.Player",
@@ -655,6 +705,7 @@ class ScoutAssignment(models.Model):
         blank=True,
         related_name="scout_assignments",
     )
+    player_ids = models.JSONField(default=list, blank=True)
     club = models.ForeignKey(
         "teams.Team",
         on_delete=models.SET_NULL,
@@ -1151,6 +1202,8 @@ class LeagueSettings(models.Model):
         help_text="UFL scouting recruits into the manager squad when the scout returns.",
     )
     scout_requires_tokens = models.BooleanField(default=False)
+    scout_result_count = models.PositiveSmallIntegerField(default=4)
+    scout_select_count = models.PositiveSmallIntegerField(default=1)
     max_scouts_per_club = models.PositiveSmallIntegerField(default=1)
     auction_durations = models.CharField(
         max_length=80,

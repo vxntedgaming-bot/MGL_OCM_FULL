@@ -108,13 +108,19 @@ def debit_manager(
     created_by=None,
     reverses=None,
     allow_negative=False,
+    allow_listing_fee=False,
 ):
     """
     Remove tokens safely and permanently record the transaction.
     If reference is set, the same open manager/category/reference debits only once.
     """
 
-    amount = Decimal(str(amount))
+    from mgl.tokens import validate_token_amount
+
+    if allow_listing_fee:
+        amount = validate_token_amount(amount, allow_listing_fee=True)
+    else:
+        amount = Decimal(str(amount))
     reference = (reference or "").strip()
 
     manager = (

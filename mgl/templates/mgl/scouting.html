@@ -10,7 +10,7 @@
 {% block content %}
 <section class="mgl-section mgl-scout-page">
     {% url 'scouting' as scout_url %}
-    {% include "core/includes/mgl_page_header.html" with header_section="MARKET" header_section_url=scout_url header_title="SCOUTING NETWORK" header_icon="radar" header_description="Send one scout at a time. Choose country and position. When the scout returns, the discovered FC26 player joins your squad if you have space." %}
+    {% include "core/includes/mgl_page_header.html" with header_section="MARKET" header_section_url=scout_url header_title="SCOUTING NETWORK" header_icon="radar" header_description="Send one scout at a time. When the server timer completes, the scout returns four unsigned players. Choose one. The other three stay UNSIGNED." %}
 
     {% for item in active_scouts %}
         {% if item.status == "PENDING" %}
@@ -22,71 +22,38 @@
             <div class="ufl-mission-stage">
                 <div class="ufl-globe" aria-hidden="true"></div>
                 <h2>SCOUT ON ASSIGNMENT</h2>
-                <p>{{ item.get_tier_display|upper }} SCOUT · {{ item.region_display|default:"ANYWHERE" }}</p>
+                <p>{{ item.get_tier_display|upper }} SCOUT · LEVEL {{ item.level }} · {{ item.region_display|default:"ANYWHERE" }}</p>
+                <p>Started {{ item.started_at|date:"d M Y H:i" }} · Ready {{ item.ready_at|date:"d M Y H:i" }}</p>
                 <div class="ufl-lcd" data-scout-end="{{ item.ready_at|date:'c' }}">{{ item.remaining|wait_left }}</div>
             </div>
         </section>
         {% endif %}
     {% endfor %}
 
-    {% if pack %}
-        <section class="mgl-sc-pack" id="scout-pack">
-            <p class="mgl-sc-kicker">UFL SCOUT REPORT</p>
-            <h2>{{ pack.get_tier_display|upper }} SCOUT</h2>
-            <p class="mgl-sc-pack-meta">
-                <span>REGION {{ pack.region_display|default:"Anywhere" }}</span>
-                <span>POSITION {{ pack.position|default:"Any Position" }}</span>
-            </p>
-            {% if pack.status == "READY" %}
-                <div class="mgl-sc-pack-sealed" aria-hidden="true">
-                    <strong>UFL</strong>
-                    <span>SCOUT REPORT</span>
-                </div>
-                <form method="post">
-                    {% csrf_token %}
-                    <input type="hidden" name="action" value="open_pack">
-                    <input type="hidden" name="assignment" value="{{ pack.id }}">
-                    <button type="submit" class="primary-button">OPEN REPORT</button>
-                </form>
-            {% else %}
-                <div class="mgl-sc-reveal">
-                    {% player_face_url pack.player "small" as pack_face %}
-                    {% if pack_face %}
-                        <img src="{{ pack_face }}" alt="" class="mgl-sc-reveal-face" loading="lazy" onerror="this.style.display='none'">
-                    {% endif %}
-                    <h3>{{ pack.player|card_name }}</h3>
-                    <p>
-                        {{ pack.player.position }} · OVR {{ pack.player.overall }}
-                        {% if pack.player|player_age %} · AGE {{ pack.player|player_age }}{% endif %}
-                        {% if pack.player.nationality %} · {{ pack.player.nationality }}{% endif %}
-                        {% if pack.player.preferred_foot %} · {{ pack.player.preferred_foot }}{% endif %}
-                    </p>
-                    <a href="{% url 'player_profile' pack.player.id %}" class="secondary-button">VIEW PLAYER</a>
-                    {% if pack.confidence %}<p>Scout confidence {{ pack.confidence }}%</p>{% endif %}
-                    {% if pack.availability_label %}<p class="mgl-sc-muted">{{ pack.availability_label }}</p>{% endif %}
-                    {% if pack.player.mgl_team %}
-                        <p class="mgl-sc-muted">{{ pack.player|card_name }} has been assigned to {{ pack.player.mgl_team.name }}.</p>
-                    {% else %}
-                        <p class="mgl-sc-muted">Scout report filed. If your squad is already at 30, the league office must resolve the exception.</p>
-                    {% endif %}
-                </div>
-                <div class="mgl-sc-pack-actions">
-                    <form method="post">
-                        {% csrf_token %}
-                        <input type="hidden" name="action" value="file_report">
-                        <input type="hidden" name="assignment" value="{{ pack.id }}">
-                        <button type="submit" class="secondary-button">FILE REPORT</button>
-                    </form>
-                    {% if can_admin_assign_scout %}
-                    <form method="post">
-                        {% csrf_token %}
-                        <input type="hidden" name="action" value="send_to_team">
-                        <input type="hidden" name="assignment" value="{{ pack.id }}">
-                        <button type="submit" class="secondary-button">ADMIN: ASSIGN TO CLUB</button>
-                    </form>
-                    {% endif %}
-                </div>
-            {% endif %}
+    {% if ready_assignment and scout_candidates %}
+        <section class="ufl-rd-board" id="scout-results">
+            <div class="ufl-rd-board-head">
+                <h2>SCOUT RESULTS READY</h2>
+                <em>CHOOSE ONE</em>
+            </div>
+            <p>{{ ready_assignment.get_tier_display|upper }} scout · Level {{ ready_assignment.level }} · started {{ ready_assignment.started_at|date:"d M Y H:i" }} · completed {{ ready_assignment.ready_at|date:"d M Y H:i" }}. Choose one unsigned player. The others stay UNSIGNED.</p>
+            <div class="mgl-player-card-grid">
+                {% for player in scout_candidates %}
+                    <article class="mgl-club-card">
+                        {% player_card player "small" %}
+                        <strong>{{ player|card_name }}</strong>
+                        <span>{{ player.position }} · {{ player.overall }} OVR</span>
+                        <span>UNSIGNED</span>
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="choose_scout">
+                            <input type="hidden" name="assignment" value="{{ ready_assignment.id }}">
+                            <input type="hidden" name="player_id" value="{{ player.id }}">
+                            <button type="submit" class="primary-button">SIGN THIS PLAYER</button>
+                        </form>
+                    </article>
+                {% endfor %}
+            </div>
         </section>
     {% endif %}
 
@@ -200,7 +167,7 @@
                 {% else %}
                     <p>Bronze 8h · Silver 16h · Gold 32h · Elite 48h. Level 4 halves Gold and Elite.</p>
                 {% endif %}
-                <p class="mgl-sc-muted">One active scout only. A successful discovery joins your squad automatically, subject to the 30-player limit.</p>
+                <p class="mgl-sc-muted">One active scout only. When the server timer ends, the scout returns four unsigned players. You choose one. The other three stay UNSIGNED.</p>
                 <p class="mgl-sc-muted">You keep your scout level even if you leave a club.</p>
                 {% if club %}
                     <p class="mgl-sc-muted">Squad {{ roster_count }} / {{ roster_limit }} · {{ club.name }}</p>
@@ -302,7 +269,7 @@
                             · {{ report.tier }}
                             · {{ report.position|default:"Any Position" }}
                             · {{ report.region_display|default:"Anywhere" }}
-                            · {% if report.recruited %}ASSIGNED BY LEAGUE OFFICE{% else %}DISCOVERED{% endif %}
+                            · {% if report.recruited %}RECRUITED{% else %}DISCOVERED{% endif %}
                         </p>
                     </div>
                     <time datetime="{{ report.discovered_at|date:'c' }}">{{ report.discovered_at|date:"d M Y" }}</time>

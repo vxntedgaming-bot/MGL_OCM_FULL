@@ -1,0 +1,65 @@
+{% extends "mgl/includes/control_page.html" %}
+
+{% block control_title %}Recruitment Packs — UFL Control{% endblock %}
+{% block control_crumb %}CONTROL / RECRUITMENT PACKS{% endblock %}
+{% block control_kicker %}RECRUITMENT{% endblock %}
+{% block control_heading %}RECRUITMENT PACKS{% endblock %}
+{% block control_intro %}Create, edit and disable Recruitment Drive packs. Managers cannot change these settings.{% endblock %}
+
+{% block control_body %}
+<section class="mgl-cp-card">
+    <p class="mgl-cp-kicker">NEW PACK</p>
+    <form method="post" class="mgl-cp-form-grid">
+        {% csrf_token %}
+        <label class="mgl-cp-field">CODE <input type="text" name="code" required maxlength="20"></label>
+        <label class="mgl-cp-field">NAME <input type="text" name="name" required></label>
+        <label class="mgl-cp-field">TYPE <input type="text" name="pack_type" value="POSITION"></label>
+        <label class="mgl-cp-field">TOKEN COST <input type="number" name="token_cost" value="1" min="0" step="0.5" required></label>
+        <label class="mgl-cp-field">RESULTS <input type="number" name="result_count" value="3" min="1" required></label>
+        <label class="mgl-cp-field">SELECT <input type="number" name="select_count" value="1" min="1" required></label>
+        <label class="mgl-cp-field">MIN OVR <input type="number" name="min_ovr" min="1" max="99"></label>
+        <label class="mgl-cp-field">MAX OVR <input type="number" name="max_ovr" min="1" max="99" value="74"></label>
+        <label class="mgl-cp-field">POSITIONS <input type="text" name="positions" placeholder="ST CF"></label>
+        <label class="mgl-cp-field">OPENING LIMIT <input type="number" name="opening_limit" min="1" placeholder="blank = unlimited"></label>
+        <label class="mgl-cp-field">SORT <input type="number" name="sort_order" value="0"></label>
+        <label class="mgl-cp-field">ACTIVE
+            <select name="active">
+                <option value="1" selected>Yes</option>
+                <option value="0">No</option>
+            </select>
+        </label>
+        <button type="submit" class="header-button mgl-cp-review-btn">CREATE PACK</button>
+    </form>
+</section>
+
+{% for pack in packs %}
+<section class="mgl-cp-card">
+    <p class="mgl-cp-kicker">{{ pack.code }} · {% if pack.active %}ACTIVE{% else %}INACTIVE{% endif %}</p>
+    <h2>{{ pack.name }}</h2>
+    <form method="post" class="mgl-cp-form-grid">
+        {% csrf_token %}
+        <input type="hidden" name="pack_id" value="{{ pack.id }}">
+        <label class="mgl-cp-field">CODE <input type="text" name="code" value="{{ pack.code }}" required></label>
+        <label class="mgl-cp-field">NAME <input type="text" name="name" value="{{ pack.name }}" required></label>
+        <label class="mgl-cp-field">TYPE <input type="text" name="pack_type" value="{{ pack.pack_type }}"></label>
+        <label class="mgl-cp-field">TOKEN COST <input type="number" name="token_cost" value="{{ pack.token_cost }}" min="0" step="0.5" required></label>
+        <label class="mgl-cp-field">RESULTS <input type="number" name="result_count" value="{{ pack.result_count }}" min="1" required></label>
+        <label class="mgl-cp-field">SELECT <input type="number" name="select_count" value="{{ pack.select_count }}" min="1" required></label>
+        <label class="mgl-cp-field">MIN OVR <input type="number" name="min_ovr" value="{{ pack.min_ovr|default_if_none:'' }}"></label>
+        <label class="mgl-cp-field">MAX OVR <input type="number" name="max_ovr" value="{{ pack.max_ovr|default_if_none:'' }}"></label>
+        <label class="mgl-cp-field">POSITIONS <input type="text" name="positions" value="{{ pack.positions|join:' ' }}"></label>
+        <label class="mgl-cp-field">OPENING LIMIT <input type="number" name="opening_limit" value="{{ pack.opening_limit|default_if_none:'' }}"></label>
+        <label class="mgl-cp-field">SORT <input type="number" name="sort_order" value="{{ pack.sort_order }}"></label>
+        <label class="mgl-cp-field">ACTIVE
+            <select name="active">
+                <option value="1"{% if pack.active %} selected{% endif %}>Yes</option>
+                <option value="0"{% if not pack.active %} selected{% endif %}>No</option>
+            </select>
+        </label>
+        <button type="submit" class="header-button">SAVE PACK</button>
+    </form>
+</section>
+{% empty %}
+    {% include "mgl/includes/empty_state.html" with title="NO PACKS" %}
+{% endfor %}
+{% endblock %}

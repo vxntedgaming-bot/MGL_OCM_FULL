@@ -207,10 +207,10 @@ Do **not** add Academy / Head To Head / Propose Transfer **cards** on the hub bo
 
 ## Scouting, recruitment, youth
 
-- Scouting: manager-wide HQ, one active mission, recruit into current club, exceptions to Control if squad full.
-- Recruitment Drive: existing pack open + choose one. **Phase 1:** Admin/Owner control pack availability and per-pack opening limits (not fully in code yet).
+- Scouting: manager-wide HQ, one active mission, levels 1–4. When the **server** timer ends, the scout returns **4 UNSIGNED** players. The manager chooses **1**. The other 3 stay UNSIGNED and do not become Free Agents. Owner/Admin configure upgrade cost, extra time-reduction %, and result counts. `LeagueSettings.scout_can_recruit` is enforced.
+- Recruitment Drive: Owner/Admin catalogue (`RecruitmentPack`). Default pack returns **3 UNSIGNED** players; the manager chooses **1**. Unselected stay UNSIGNED. Per-pack opening limits and 0.5 token costs are enforced in the database.
 - Youth Academy: placeholder only.
-- `scout_can_recruit()` currently ignores `LeagueSettings` (**GAP** vs Phase 1).
+- Free Agent signing remains **0 tokens**. Manager auction listing fee is **0.1 tokens** (not refunded).
 
 ---
 

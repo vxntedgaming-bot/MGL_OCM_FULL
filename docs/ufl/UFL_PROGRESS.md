@@ -2,7 +2,7 @@
 
 Checklist of the **current** project, not a future roadmap disguised as done work.
 
-Last documentation update: 1 September 2026 — **DEC-042 generator + genuine Free Agent status implemented (no production apply)**.
+Last documentation update: 1 September 2026 — **Phase 3 recruitment / scouting / FA / auction economy implemented (no Season 1 apply)**.
 
 ---
 
@@ -29,7 +29,7 @@ Locked:
 - Job applications require Admin acceptance
 - **Job Application is the single application process (DEC-041) — LOCKED**
 - Django `/admin/` remains
-- Scout setting must enforce (locked as intent; code still hard-codes True)
+- Scout setting must enforce (now reads `LeagueSettings.scout_can_recruit`)
 
 Still in Phase 1 as confirmation, not as missing Owner rules:
 
@@ -102,9 +102,9 @@ Implementation of gaps is **not** Phase 1. That is a later, explicit task.
 - REST API
 - Stored MEMBER role
 - **Apply Season 1 bootstrap + generate/approve 30-player squads on production** — Owner must authorise later
-- Remaining Phase 1 gaps: release without Control, scout setting enforcement, per-pack opening limits, 0.5 validators, **DEC-041 single Job Application**
-- Recruitment Pack / Scouting catalogue and token-upgrade economy — not implemented in this pass
-- Genuine UFL FA population is empty until an approved process (pack/scout reject, admin no-bid auction, club release) runs. Unsigned FC26 rows stay unsigned.
+- Remaining Phase 1 gaps: release without Control, **DEC-041 single Job Application**
+- Recruitment / scouting / FA / auction economy: **IMPLEMENTED** (Phase 3). Discord/YourBot not connected.
+- Genuine UFL FA population stays empty until an approved process (club release, admin unsigned no-bid auction) runs. Unsigned FC26 rows stay unsigned. Pack/scout rejects stay UNSIGNED.
 
 ---
 
@@ -131,9 +131,8 @@ Unchanged from the audit. See `UFL_TEST_PLAN.md`. Do not run destructive tests a
 - Production still has 14 PL test clubs / mixed squads; 38-club + 30-player apply not executed
 - Code starting shape and roster limit are 30; production data is not yet that structure
 - Releases still require Control vs locked no-approval
-- `scout_can_recruit()` ignores LeagueSettings
-- Pack per-opening limits not confirmed in the Pack model
-- Token 0.5 increments not validated
+- Recruitment packs, scout choose-1, FA 0 TKN, manager auction 0.1 fee: **implemented**
+- Token 0.5 increments validated for new pack/scout costs; listing fee 0.1 remains the locked exception
 - Job form: games-per-week and Discord ID vs Phase 1 username + 1–3 / 3–5 / 6+
 - Extra manager-application step vs DEC-041 single Job Application — **NEEDS IMPLEMENTATION**
 - Weekly/cup reward table not confirmed as implemented
@@ -153,7 +152,7 @@ Unchanged from the audit. See `UFL_TEST_PLAN.md`. Do not run destructive tests a
 | Auth | COMPLETE (no reset) |
 | Career Mode core | COMPLETE (data protected) |
 | Transfers | COMPLETE in code; Phase 1 listings match; releases GAP |
-| Tokens | COMPLETE ledger; 0.5 rule locked, not enforced |
+| Tokens | COMPLETE ledger; 0.5 rule enforced on new pack/scout costs; listing fee 0.1 exception |
 | Fixtures / results | COMPLETE |
 | Stats / tables | COMPLETE |
 | Jobs | Rule **LOCKED** (DEC-041). Code **NEEDS IMPLEMENTATION** |

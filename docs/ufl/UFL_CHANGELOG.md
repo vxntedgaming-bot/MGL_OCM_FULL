@@ -6,6 +6,17 @@ This file started with the documentation/audit pass. It does **not** claim that 
 
 ---
 
+## 2026-09-01 — Phase 3 recruitment, scouting, Free Agents and auction economy
+
+Implemented the UFL player recruitment economy on top of locked DEC-042 status.
+
+- Recruitment packs are Owner/Admin configurable (`RecruitmentPack`). Default result is **3 UNSIGNED / choose 1**. Unselected stay UNSIGNED.
+- Per-pack opening limits, 0.5 token costs, OVR/position filters, and reserved results are enforced in the database.
+- Scouting returns **4 UNSIGNED / choose 1**. Levels 1–4 and extra time-reduction % are Owner/Admin configurable. `scout_can_recruit` is enforced.
+- Genuine UFL Free Agent signing remains **0 TKN**. Unsigned and legacy `is_free_agent=True` do not appear on the FA page.
+- Manager auction listing fee is **0.1 TKN**, charged once, not refunded. Manager no-bid returns to the original club. Admin unsigned no-bid may become a genuine FA.
+- Migration `mgl.0028_recruitment_economy`. No Season 1 bootstrap, no FC26 mass edit, no Discord/YourBot connection, no production data writes.
+
 ## 2026-09-01 — DEC-042 generator and genuine Free Agent status
 
 Implemented the locked Season 1 player-pool rules and stopped the public Free Agents page from listing the unused FC26 set.

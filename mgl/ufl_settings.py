@@ -84,6 +84,8 @@ class SettingsProxy:
     allow_manager_auctions = True
     scout_can_recruit = True
     scout_requires_tokens = False
+    scout_result_count = 4
+    scout_select_count = 1
     max_scouts_per_club = 1
     auction_durations = "30,60,90,120"
     scout_durations = "1,3,6,12,24,48,72"
@@ -151,7 +153,15 @@ def allow_manager_auctions():
 
 
 def scout_can_recruit():
-    return True
+    return bool(getattr(get_league_settings(), "scout_can_recruit", True))
+
+
+def scout_result_count():
+    return int(getattr(get_league_settings(), "scout_result_count", 4) or 4)
+
+
+def scout_select_count():
+    return int(getattr(get_league_settings(), "scout_select_count", 1) or 1)
 
 
 def auction_listings_per_24h():

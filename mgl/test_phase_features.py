@@ -312,13 +312,13 @@ class AuctionWorkflowTests(TestCase):
         self.mgr_b.refresh_from_db()
         self.assertEqual(self.owned.mgl_team_id, self.team_b.id)
         self.assertFalse(self.owned.is_free_agent)
-        self.assertEqual(self.mgr_a.tokens, Decimal("25.00"))
+        self.assertEqual(self.mgr_a.tokens, Decimal("24.90"))
         self.assertEqual(self.mgr_b.tokens, Decimal("15.00"))
         self.assertEqual(Player.objects.filter(pk=self.owned.id).count(), 1)
         again, message = settle_auction(auction)
         self.assertIn("no longer live", message)
         self.mgr_a.refresh_from_db()
-        self.assertEqual(self.mgr_a.tokens, Decimal("25.00"))
+        self.assertEqual(self.mgr_a.tokens, Decimal("24.90"))
 
     def test_unsold_club_player_returns_home(self):
         auction = create_manager_auction(self.owned, self.mgr_a, 30)

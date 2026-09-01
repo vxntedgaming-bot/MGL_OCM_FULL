@@ -12,7 +12,8 @@ from players.models import Player
 from teams.models import Team
 
 from .models import MarketTransaction, NewsPost, PlayerListing, PlayerOwnershipHistory
-from .services import assign_player, create_news, manager_for_user
+from .services import assign_player, create_news, debit_manager, manager_for_user
+from .tokens import MANAGER_AUCTION_LISTING_FEE
 
 
 def auction_duration_choice_tuples():
@@ -514,11 +515,21 @@ def create_manager_auction(player, manager, duration_minutes, starting_bid=1):
     if not team:
         raise ValueError("You must manage a club to auction a player.")
     player = Player.objects.select_for_update().get(pk=player.pk)
-    if player.mgl_team_id != team.id or player.is_free_agent:
+    if player.mgl_team_id != team.id:
+        raise ValueError("You can only auction a player who currently belongs to your club.")
+    from mgl.player_state import is_ufl_free_agent, is_unassigned
+
+    if is_unassigned(player) or is_ufl_free_agent(player):
         raise ValueError("You can only auction a player who currently belongs to your club.")
     _assert_no_live_auction(player)
     assert_club_listing_capacity(team)
     assert_auction_listing_frequency(manager)
+    manager = lock_manager(manager)
+    listing_fee = MANAGER_AUCTION_LISTING_FEE
+    if Decimal(manager.tokens) < listing_fee:
+        raise ValueError(
+            f"Listing a player costs {listing_fee} tokens. You have {Decimal(manager.tokens)}."
+        )
     bid = parse_auction_starting_bid(starting_bid)
     now = timezone.now()
     auction = PlayerAuction.objects.create(
@@ -534,11 +545,22 @@ def create_manager_auction(player, manager, duration_minutes, starting_bid=1):
         origin_team=team,
         duration_minutes=minutes,
     )
+    debit_manager(
+        manager,
+        listing_fee,
+        f"Auction listing fee for {player.name}",
+        category="MARKET",
+        reference=f"auction:list:{auction.pk}",
+        allow_listing_fee=True,
+    )
     _detach_player_for_club_auction(player)
     create_news(
         NewsPost.AUCTION,
         f"{player.name} is live at auction",
-        f"{team.name} listed {player.name} ({player.position}, {player.overall} OVR) for auction.",
+        (
+            f"{team.name} listed {player.name} ({player.position}, {player.overall} OVR) "
+            f"for auction. Listing fee {listing_fee} TKN (not refunded)."
+        ),
         team=team,
     )
     return auction

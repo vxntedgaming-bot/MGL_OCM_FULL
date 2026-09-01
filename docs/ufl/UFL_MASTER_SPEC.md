@@ -69,7 +69,17 @@ An FC26 player with no UFL club is **UNSIGNED**, not a UFL Free Agent. Do not ma
 
 ### Scouting / packs / recruitment
 
-Admin/Owner control which packs are available. Packs may be added, removed, released, replaced, changed, made temporarily available, or made unavailable (regular rating, high rating, lower rating, random position, drops, future types). Each pack can have its **own** configurable maximum number of openings (example: Pack A = 1, Pack B = 2). The system must eventually enforce that limit. Pack/recruitment **token costs use 0.5 increments only** (0, 0.5, 1, 1.5, …). Invalid: 0.25, 0.75, 1.25, 1.75. The existing scout safety/recruitment setting (`LeagueSettings.scout_can_recruit`) **should actually enforce** configured restrictions. Managers may spend tokens to upgrade scouting (shorter hours). Catalogue remains Owner/Admin-controlled.
+Admin/Owner control which packs are available. Packs may be added, removed, released, replaced, changed, made temporarily available, or made unavailable (regular rating, high rating, lower rating, random position, drops, future types). Each pack can have its **own** configurable maximum number of openings (example: Pack A = 1, Pack B = 2). Pack/recruitment **token costs use 0.5 increments only** (0, 0.5, 1, 1.5, …). Invalid: 0.25, 0.75, 1.25, 1.75. The existing scout safety/recruitment setting (`LeagueSettings.scout_can_recruit`) **enforces** configured restrictions. Managers may spend tokens to upgrade scouting (shorter hours). Catalogue remains Owner/Admin-controlled.
+
+**CURRENT CODE (Phase 3):**
+
+- Default Recruitment Drive pack: **3 unsigned results, choose 1**. Unselected stay **UNSIGNED**. They do not become Free Agents.
+- Default scout return: **4 unsigned results, choose 1**. Unselected stay **UNSIGNED**.
+- Scout levels **1–4**. Upgrade cost and extra time-reduction % are Owner/Admin configurable (`ScoutLevelConfig`). Duration is server-side.
+- Free Agent signing = **0 tokens**.
+- Manager auction listing fee = **0.1 tokens** (locked exception; not refunded). Manager no-bid → original club.
+- Admin unsigned no-bid → may become a genuine UFL Free Agent.
+- UNSIGNED remains separate from Free Agent (DEC-042).
 
 ### Starting squad (official, every new season / reset)
 

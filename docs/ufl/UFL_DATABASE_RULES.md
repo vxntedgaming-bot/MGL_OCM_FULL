@@ -103,8 +103,10 @@ Commands that assign starting squads or import FC26 must be dry-run first. `popu
 | `WeeklyAwardBatch`, `MonthlyAwardBatch` | Award cycles |
 | `TeamOfTheWeek`, `TOTWSelection`, `ManagerWeek` | TOTW / MOTW |
 | `NewsPost` | Published activity; categories RESULTS, TRANSFER, AUCTION, FREE_AGENT, REWARD, PRESS, MANAGER, SIGNING, SCOUTING |
-| `Pack`, `PackOpening`, `PackReward` | Pack types |
-| `RecruitmentOpening` | Recruitment Drive pack + chosen player |
+| `Pack`, `PackOpening`, `PackReward` | Legacy pack types (not the UFL Recruitment Drive) |
+| `RecruitmentPack` | Owner/Admin Recruitment Drive catalogue (cost, OVR, positions, opening limit) |
+| `RecruitmentOpening` | Recruitment Drive pack + reserved unsigned results + chosen player |
+| `ScoutLevelConfig` | Scout levels 1–4: upgrade cost, extra time-reduction %, result/select counts |
 | `ApprovalRequest` | Generic kind/object_id queue |
 | `PlayerOwnershipHistory` | Assignment log |
 | `ManagerCareerStat` | Wins/draws/losses etc. |

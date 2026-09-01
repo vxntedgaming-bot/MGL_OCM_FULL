@@ -14,6 +14,8 @@
         <a href="{% url 'control_starting_squads' %}" class="{% if control_section == 'starting_squads' %}is-active{% endif %}">Starting Squads</a>
         <a href="{% url 'control_season_controls' %}" class="{% if control_section == 'season_controls' %}is-active{% endif %}">Season Controls</a>
         <a href="{% url 'control_league' %}" class="{% if control_section == 'league' %}is-active{% endif %}">League Controls</a>
+        <a href="{% url 'control_recruitment' %}" class="{% if control_section == 'recruitment' %}is-active{% endif %}">Recruitment Packs</a>
+        <a href="{% url 'control_scout_config' %}" class="{% if control_section == 'scout_config' %}is-active{% endif %}">Scout Settings</a>
         <a href="{% url 'control_logs' %}" class="{% if control_section == 'logs' or control_section == 'weekly' or control_section == 'monthly' or control_section == 'tokens' %}is-active{% endif %}">History / Audit</a>
     </nav>
     <div class="mgl-cp-league-status">

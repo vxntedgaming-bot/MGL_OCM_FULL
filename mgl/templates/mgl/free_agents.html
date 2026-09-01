@@ -10,7 +10,7 @@
 {% block content %}
 <section class="mgl-section mgl-fa-page">
     {% url 'transfer_market' as market_url %}
-    {% include "core/includes/mgl_page_header.html" with header_section="MARKET" header_section_url=market_url header_title="FREE AGENTS" header_icon="users" header_description="Players who currently have no club." %}
+    {% include "core/includes/mgl_page_header.html" with header_section="MARKET" header_section_url=market_url header_title="FREE AGENTS" header_icon="users" header_description="Genuine UFL Free Agents only. Unsigned FC26 players and legacy is_free_agent flags do not appear here. Signing cost: 0 TOKENS." %}
 
     <header class="mgl-fa-head">
         <div class="mgl-fa-hero">
@@ -19,7 +19,7 @@
             </div>
             <div>
                 <h1>FREE AGENTS</h1>
-                <p>Search and sign available players who are not currently contracted to any club.</p>
+                <p>Sign a genuine UFL Free Agent for 0 TOKENS. Unsigned recruitment players are not listed here.</p>
             </div>
         </div>
         <div class="mgl-fa-stats">

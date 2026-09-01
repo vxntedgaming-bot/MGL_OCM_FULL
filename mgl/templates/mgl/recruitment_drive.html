@@ -6,7 +6,7 @@
 {% block content %}
 <section class="mgl-section">
     {% url 'transfer_market' as market_url %}
-    {% include "core/includes/mgl_page_header.html" with header_section="MARKET" header_section_url=market_url header_title="RECRUITMENT DRIVES" header_icon="pack" header_description="Spend 1 token to open a three-player unsigned pack. Choose one. The other two stay in the unsigned pool. Maximum OVR 74." %}
+    {% include "core/includes/mgl_page_header.html" with header_section="MARKET" header_section_url=market_url header_title="RECRUITMENT DRIVES" header_icon="pack" header_description="Open an Owner/Admin recruitment pack from the unsigned pool. Choose the configured number of players. Unselected results stay UNSIGNED and do not become Free Agents." %}
 
     <div class="ufl-rd-title-row">
         <span></span>
@@ -17,15 +17,16 @@
         <section class="ufl-rd-board">
             <div class="ufl-rd-board-head">
                 <h2>OPEN PACK</h2>
-                <em>CHOOSE ONE</em>
+                <em>CHOOSE {{ select_count }} OF {{ result_count }}</em>
             </div>
-            <p>These three players were generated server-side. Submitting a different player ID will fail.</p>
+            <p>These {{ result_count }} unsigned players are reserved for you. Choose {{ select_count }}. The others return to the UNSIGNED pool. They do not become Free Agents.</p>
             <div class="mgl-player-card-grid">
                 {% for player in candidates %}
                     <article class="mgl-club-card">
                         {% player_card player "small" %}
                         <strong>{{ player|card_name }}</strong>
                         <span>{{ player.position }} · {{ player.overall }} OVR</span>
+                        <span>UNSIGNED</span>
                         <form method="post" action="{% url 'choose_recruitment_player' opening.id %}">
                             {% csrf_token %}
                             <input type="hidden" name="player_id" value="{{ player.id }}">
@@ -50,8 +51,10 @@
                         <tr>
                             <th>TYPE</th>
                             <th>RATING RANGE</th>
+                            <th>RESULTS</th>
                             <th>COST</th>
-                            <th>REMAINING</th>
+                            <th>OPENINGS</th>
+                            <th>POOL</th>
                             <th>ACTION</th>
                         </tr>
                     </thead>
@@ -59,20 +62,35 @@
                         {% for pack in packs %}
                             <tr>
                                 <td>{{ pack.label }}</td>
-                                <td><span class="ufl-rd-range">≤ {{ pack.rating_max }}</span></td>
+                                <td>
+                                    <span class="ufl-rd-range">
+                                        {% if pack.rating_min and pack.rating_max %}{{ pack.rating_min }}–{{ pack.rating_max }}
+                                        {% elif pack.rating_min %}≥ {{ pack.rating_min }}
+                                        {% elif pack.rating_max %}≤ {{ pack.rating_max }}
+                                        {% else %}ANY OVR{% endif %}
+                                    </span>
+                                </td>
+                                <td>{{ pack.result_count }} / choose {{ pack.select_count }}</td>
                                 <td class="mgl-rd-cost">{{ pack.cost }} TOKENS</td>
+                                <td>
+                                    {% if pack.opening_limit %}
+                                        {{ pack.openings_left }} / {{ pack.opening_limit }} left
+                                    {% else %}
+                                        UNLIMITED
+                                    {% endif %}
+                                </td>
                                 <td>{{ pack.remaining }} left</td>
                                 <td>
                                     <form method="post" action="{% url 'open_recruitment_pack' %}">
                                         {% csrf_token %}
                                         <input type="hidden" name="pack_code" value="{{ pack.code }}">
-                                        <button type="submit" class="mgl-rd-use"{% if pack.remaining < 3 %} disabled{% endif %}>USE</button>
+                                        <button type="submit" class="mgl-rd-use"{% if not pack.can_open %} disabled{% endif %}>USE</button>
                                     </form>
                                 </td>
                             </tr>
                         {% empty %}
                             <tr>
-                                <td colspan="5">No recruitment packs are available.</td>
+                                <td colspan="7">No recruitment packs are available.</td>
                             </tr>
                         {% endfor %}
                     </tbody>

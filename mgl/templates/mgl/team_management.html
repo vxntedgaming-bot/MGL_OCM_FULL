@@ -343,6 +343,7 @@
             <div class="eyebrow">MARKET</div>
             <h2>LIST PLAYER FOR AUCTION</h2>
             <p>{{ listing_player.name }} · {{ listing_player.position }} · {{ listing_player.overall }} OVR · {{ team.name }}</p>
+            <p>Listing fee: <strong>0.1 TOKENS</strong>. The fee is charged once and is not refunded if the player does not sell.</p>
             {% player_card listing_player "small" %}
             <form method="post" action="{% url 'list_player_for_auction' listing_player.id %}" class="mgl-modal-form">
                 {% csrf_token %}

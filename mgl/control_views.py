@@ -714,3 +714,97 @@ def control_starting_squads(request):
         }
     )
     return render(request, "mgl/control_starting_squads.html", context)
+
+
+@owner_admin_required
+def control_recruitment(request):
+    from django.contrib import messages
+    from django.shortcuts import redirect
+
+    from mgl.models import RecruitmentPack
+    from mgl.recruitment import ensure_default_packs, save_recruitment_pack
+
+    ensure_default_packs()
+    if request.method == "POST":
+        pack_id = request.POST.get("pack_id")
+        pack = None
+        if pack_id and str(pack_id).isdigit():
+            pack = RecruitmentPack.objects.filter(pk=int(pack_id)).first()
+        try:
+            save_recruitment_pack(
+                actor=request.user,
+                pack=pack,
+                code=request.POST.get("code"),
+                name=request.POST.get("name"),
+                pack_type=request.POST.get("pack_type") or "POSITION",
+                active=request.POST.get("active") == "1",
+                token_cost=request.POST.get("token_cost"),
+                result_count=request.POST.get("result_count"),
+                select_count=request.POST.get("select_count"),
+                min_ovr=request.POST.get("min_ovr"),
+                max_ovr=request.POST.get("max_ovr"),
+                positions=request.POST.get("positions"),
+                opening_limit=request.POST.get("opening_limit"),
+                sort_order=request.POST.get("sort_order") or 0,
+            )
+            messages.success(request, "Recruitment pack saved.")
+        except ValueError as exc:
+            messages.error(request, str(exc))
+        return redirect("control_recruitment")
+
+    queues = load_queues()
+    context = control_shell_context(request, "recruitment", queues)
+    context["packs"] = RecruitmentPack.objects.order_by("sort_order", "name", "id")
+    return render(request, "mgl/control_recruitment.html", context)
+
+
+@owner_admin_required
+def control_scout_config(request):
+    from django.contrib import messages
+    from django.shortcuts import redirect
+
+    from mgl.models import LeagueSettings, ScoutLevelConfig
+    from mgl.scouting import ensure_default_scout_levels, save_scout_level_config
+    from mgl.ufl_settings import get_league_settings
+
+    ensure_default_scout_levels()
+    if request.method == "POST":
+        action = request.POST.get("action")
+        try:
+            if action == "league":
+                if not request.user.role in (User.OWNER, User.ADMIN):
+                    raise ValueError("Only the Owner or Admin can edit scout settings.")
+                settings = get_league_settings()
+                if isinstance(settings, LeagueSettings):
+                    settings.scout_can_recruit = request.POST.get("scout_can_recruit") == "1"
+                    settings.scout_result_count = int(request.POST.get("scout_result_count") or 4)
+                    settings.scout_select_count = int(request.POST.get("scout_select_count") or 1)
+                    settings.updated_by = request.user
+                    settings.save(
+                        update_fields=[
+                            "scout_can_recruit",
+                            "scout_result_count",
+                            "scout_select_count",
+                            "updated_by",
+                        ]
+                    )
+                messages.success(request, "Scout league settings saved.")
+            else:
+                save_scout_level_config(
+                    actor=request.user,
+                    level=request.POST.get("level"),
+                    upgrade_cost=request.POST.get("upgrade_cost"),
+                    time_reduction_percent=request.POST.get("time_reduction_percent"),
+                    result_count=request.POST.get("result_count"),
+                    select_count=request.POST.get("select_count"),
+                )
+                messages.success(request, "Scout level saved.")
+        except ValueError as exc:
+            messages.error(request, str(exc))
+        return redirect("control_scout_config")
+
+    queues = load_queues()
+    context = control_shell_context(request, "scout_config", queues)
+    context["levels"] = ScoutLevelConfig.objects.order_by("level")
+    context["league_settings"] = get_league_settings()
+    return render(request, "mgl/control_scout_config.html", context)
