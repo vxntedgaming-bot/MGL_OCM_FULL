@@ -785,6 +785,19 @@ body.ufl-home .mgl-main { width: 100%; max-width: none; padding: 0; }
 .uh-dot { position: absolute; width: 8px; height: 8px; border-radius: 50%; background: #fff; transform: translate(-50%, -50%); }
 .uh-board figcaption { display: grid; gap: 4px; color: var(--ufl-muted); font-size: 13px; }
 .uh-copy { color: var(--ufl-muted); font-size: 15px; }
+.mgl-home-table { display: grid; gap: 0; }
+.mgl-home-table-head,
+.mgl-home-table-row {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr) 36px 36px 40px;
+    gap: 8px;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-size: 13px;
+}
+.mgl-home-table-head { color: var(--ufl-muted); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; }
+.mgl-home-table-club { display: flex; align-items: center; gap: 8px; min-width: 0; }
 
 /* ----- Jobs ----- */
 .mgl-jobs-page { padding: 0 0 24px; }
