@@ -15,4 +15,11 @@
         <strong>SEASON {{ current_season_number }}</strong>
         <span>CURRENT SEASON</span>
     </div>
+    <p class="uh-divisions">
+        <a href="{% url 'competition_page' 'premier-league' %}">Premier League</a>
+        <span aria-hidden="true">·</span>
+        <a href="{% url 'competition_page' 'championship' %}">Championship</a>
+        <span aria-hidden="true">·</span>
+        <a href="{% url 'competition_page' 'league-one' %}">League One</a>
+    </p>
 </section>

@@ -55,6 +55,9 @@ class PublicHomePageTests(TestCase):
         self.assertContains(page, "MATCHES PLAYED")
         self.assertContains(page, "ACTIVE CLUBS")
         self.assertContains(page, f"SEASON {current_season_number()}")
+        self.assertContains(page, "Premier League")
+        self.assertContains(page, "Championship")
+        self.assertContains(page, "League One")
 
     def test_jobs_and_tables_and_register_buttons(self):
         page = self.client.get("/")

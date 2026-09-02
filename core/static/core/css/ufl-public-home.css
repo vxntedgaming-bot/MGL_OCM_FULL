@@ -374,6 +374,29 @@ body.ufl-home .ufl-livebar-all {
     letter-spacing: 0.12em;
 }
 
+.uh-divisions {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 8px 12px;
+    margin: 0;
+    padding: 10px 12px 12px;
+    border-top: 1px solid var(--uh-line);
+    color: var(--uh-muted);
+    font-size: 12px;
+}
+
+.uh-divisions a {
+    color: #fff;
+    letter-spacing: 0.04em;
+}
+
+.uh-divisions a:hover {
+    color: var(--uh-gold);
+}
+
 /* ----- Steps ----- */
 .uh-how {
     margin-top: 18px;
@@ -963,6 +986,7 @@ body.ufl-home .mgl-empty-logo {
     .uh-stats { grid-template-columns: 1fr 1fr; }
     .uh-stats > div:nth-child(2n) { border-right: 0; }
     .uh-stats > div:nth-child(-n + 2) { border-bottom: 1px solid var(--uh-line); }
+    .uh-divisions { border-top: 1px solid var(--uh-line); }
     .uh-steps li { grid-template-columns: 1fr; }
     .uh-cta-row,
     .uh-split,
