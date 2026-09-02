@@ -235,7 +235,7 @@
         <div class="mgl-report-list">
             {% for item in watchlist %}
                 <article class="mgl-sc-report">
-                    <span class="mgl-sc-ovr">{{ item.row.player.overall }}</span>
+                    <span class="mgl-sc-ovr ufl-ovr-{{ item.row.player.overall|ovr_band }}">{{ item.row.player.overall }}</span>
                     <div>
                         <h3><a href="{% url 'player_profile' item.row.player.id %}">{{ item.row.player.name }}</a></h3>
                         <p>
@@ -261,7 +261,7 @@
         <div class="mgl-report-list">
             {% for report in reports %}
                 <article class="mgl-sc-report">
-                    <span class="mgl-sc-ovr">{{ report.player.overall }}</span>
+                    <span class="mgl-sc-ovr ufl-ovr-{{ report.player.overall|ovr_band }}">{{ report.player.overall }}</span>
                     <div>
                         <h3><a href="{% url 'player_profile' report.player.id %}">{{ report.player.name }}</a></h3>
                         <p>

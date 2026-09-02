@@ -315,6 +315,37 @@ def ovr_band(value):
     return "low"
 
 
+@register.filter
+def ovr_band_label(value):
+    return {"high": "HIGH", "mid": "MID", "low": "LOW"}.get(ovr_band(value), "LOW")
+
+
+@register.filter
+def cup_art(slug):
+    files = {
+        "champions-league": "core/img/cups/champions-league.jpg",
+        "europa-league": "core/img/cups/europa-league.jpg",
+        "conference-league": "core/img/cups/conference-league.jpg",
+        "phantom-cup": "core/img/cups/phantom-cup.jpg",
+    }
+    return files.get(slug or "", f"core/img/cups/{slug}.jpg")
+
+
 @register.inclusion_tag("mgl/includes/ufl_coin.html")
 def ufl_coin(amount, size="sm"):
     return {"amount": amount, "size": size or "sm"}
+
+
+@register.inclusion_tag("mgl/includes/ufl_rating.html")
+def ufl_rating(player_or_value):
+    if hasattr(player_or_value, "overall"):
+        overall = getattr(player_or_value, "overall", 0) or 0
+    else:
+        overall = player_or_value or 0
+    try:
+        overall = int(overall)
+    except (TypeError, ValueError):
+        overall = 0
+    band = "high" if overall >= 78 else "mid" if overall >= 65 else "low"
+    label = {"high": "HIGH", "mid": "MID", "low": "LOW"}[band]
+    return {"overall": overall, "band": band, "label": label}

@@ -164,6 +164,8 @@ HISTORY_MENU = {
     },
     "items": (
         {"label": "Hall of Fame", "url_name": "hall_of_fame"},
+        {"label": "Club History", "url_name": "historical_tables", "divider": True},
+        {"label": "Season History", "url_name": "historical_tables"},
         {"label": "Clubs", "url_name": "clubs_index", "divider": True},
         {"label": "Club Profiles", "url_name": "clubs_index"},
         {"label": "Manager Search", "url_name": "manager_search", "divider": True},
@@ -182,11 +184,15 @@ CAREER_MENU = {
         "submit_match",
         "fixture_stats",
         "fixture_detail",
+        "manager_verification",
+        "manager_notifications",
     },
     "items": (
         {"label": "Dashboard", "url_name": "manager_hub"},
         {"label": "Team Management", "url_name": "team_management", "divider": True},
         {"label": "Fixtures", "url_name": "fixture_list", "divider": True},
+        {"label": "Notifications", "url_name": "manager_notifications", "divider": True},
+        {"label": "Manager Verification", "url_name": "manager_verification"},
     ),
 }
 
@@ -196,10 +202,12 @@ PROFILE_MENU = {
     "current": {
         "manager_profile",
         "manager_rewards",
+        "manager_verification",
     },
     "items": (
         {"label": "Career Profile", "url_name": "manager_profile"},
-        {"label": "Token History", "url_name": "manager_rewards", "divider": True},
+        {"label": "Manager Verification", "url_name": "manager_verification", "divider": True},
+        {"label": "UFL Coin History", "url_name": "manager_rewards", "divider": True},
     ),
 }
 

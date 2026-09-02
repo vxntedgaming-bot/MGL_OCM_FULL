@@ -162,7 +162,7 @@
                                     {% endif %}
                                 </td>
                                 <td class="mgl-squad-ovr" data-label="OVR">
-                                    <span class="ufl-ovr">{{ player.overall }}</span>
+                                    <span class="ufl-ovr ufl-ovr-{{ player.overall|ovr_band }}" title="{{ player.overall }} {{ player.overall|ovr_band_label }}">{{ player.overall }}</span>
                                 </td>
                                 <td class="mgl-squad-age" data-label="AGE">{{ player|player_age }}</td>
                                 <td class="mgl-squad-list" data-label="TRANSFER LIST">

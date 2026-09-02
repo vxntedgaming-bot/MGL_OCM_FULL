@@ -373,7 +373,35 @@ def manager_notifications(request):
     from mgl.notifications import NOTIFICATION_CATEGORIES, inbox_for_user
 
     selected_category = (request.GET.get("category") or "").strip()
-    inbox = inbox_for_user(request.user, category=selected_category)
+    selected_tab = (request.GET.get("tab") or "").strip().lower()
+    category_for_inbox = selected_category
+    tab_map = {
+        "transfers": "Transfers",
+        "fixtures": "Matches",
+        "club": "Club",
+        "manager": "Career",
+        "system": "Admin",
+    }
+    if not category_for_inbox and selected_tab in tab_map:
+        category_for_inbox = tab_map[selected_tab]
+    inbox = inbox_for_user(request.user, category=category_for_inbox)
+    if selected_tab == "unread":
+        inbox = [item for item in inbox if getattr(item, "is_unread", False)]
+    for item in inbox:
+        label = (getattr(item, "status_label", "") or "").upper()
+        ntype = (getattr(item, "notification_type", "") or "").upper()
+        if label in {"ACCEPTED", "APPROVED", "COMPLETED"}:
+            item.tone = "success"
+        elif label in {"REJECTED", "DECLINED", "FAILED"}:
+            item.tone = "danger"
+        elif label == "PENDING":
+            item.tone = "warning"
+        elif "TRANSFER" in ntype:
+            item.tone = "info"
+        elif "ADMIN" in ntype:
+            item.tone = "special"
+        else:
+            item.tone = "info"
     return render(
         request,
         "mgl/notifications.html",
@@ -382,6 +410,32 @@ def manager_notifications(request):
             "notifications": inbox,
             "notification_categories": NOTIFICATION_CATEGORIES,
             "selected_category": selected_category,
+            "selected_tab": selected_tab,
+            "inbox_tabs": (
+                ("", "ALL"),
+                ("unread", "UNREAD"),
+                ("transfers", "TRANSFERS"),
+                ("fixtures", "FIXTURES"),
+                ("club", "CLUB"),
+                ("manager", "MANAGER"),
+                ("system", "SYSTEM"),
+            ),
+        },
+    )
+
+
+@login_required
+def manager_verification(request):
+    from mgl.verification import verification_snapshot
+
+    snapshot = verification_snapshot(request.user)
+    return render(
+        request,
+        "mgl/manager_verification.html",
+        {
+            "verification": snapshot,
+            "manager": snapshot.get("identity"),
+            "team": snapshot.get("club"),
         },
     )
 

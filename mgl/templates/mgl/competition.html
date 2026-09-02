@@ -88,7 +88,7 @@
             </p>
         </div>
         <div class="ufl-cup-hero-art ufl-cup-art ufl-cup-card-{{ competition_slug }}" aria-hidden="true">
-            <img src="{% static 'core/img/cups/' %}{{ competition_slug }}.jpg" alt="{{ competition_name }}">
+            <img src="{% static competition_slug|cup_art %}" alt="{{ competition_name }}">
         </div>
     </div>
     <nav class="ufl-subtabs" aria-label="Competition sections">

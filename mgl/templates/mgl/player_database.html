@@ -44,7 +44,7 @@
                             {% endif %}
                         </div>
                         <span class="mgl-pdb-age">{% if player|player_age %}{{ player|player_age }}{% endif %}</span>
-                        <span class="mgl-pdb-ovr">{{ player.overall }}</span>
+                        <span class="mgl-pdb-ovr ufl-ovr-{{ player.overall|ovr_band }}" title="{{ player.overall }} {{ player.overall|ovr_band_label }}">{{ player.overall }}</span>
                         <a href="{% url 'player_profile' player.id %}" class="mgl-pdb-arrow" aria-label="Open {{ player.name }} profile">›</a>
                     </article>
                 {% empty %}

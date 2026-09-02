@@ -535,4 +535,11 @@ def control_dashboard_context(request):
     context["discord_failed_count"] = DiscordEvent.objects.filter(
         status=DiscordEvent.FAILED
     ).count()
+    context["verified_manager_count"] = context["manager_count"]
+    context["pending_job_count"] = ClubApplication.objects.filter(
+        status=ApprovalStatus.PENDING
+    ).count()
+    context["admin_unread_count"] = ManagerNotification.objects.filter(
+        recipient=request.user, read_at__isnull=True
+    ).count()
     return context

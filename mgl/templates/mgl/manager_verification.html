@@ -1,0 +1,58 @@
+{% extends "core/base.html" %}
+{% load static mgl_ui %}
+
+{% block title %}Manager Verification — UFL{% endblock %}
+
+{% block content %}
+<section class="mgl-section">
+    {% url 'manager_hub' as hub_url %}
+    {% include "core/includes/mgl_page_header.html" with header_section="MY TEAM" header_section_url=hub_url header_title="UFL MANAGER VERIFICATION" header_icon="shield" header_description="Your account, job application and club status from the existing UFL records. Registering does not assign a club." %}
+
+    <p>
+        <span class="ufl-verify-status is-{{ verification.status_slug }}">{{ verification.status }}</span>
+    </p>
+
+    <div class="ufl-verify">
+        <div class="ufl-verify-steps">
+            <article>
+                <strong>{% if verification.account_created %}✓{% else %}–{% endif %}</strong>
+                <div>
+                    <span>ACCOUNT</span>
+                    <p>{% if verification.account_created %}Account created{% else %}Sign in to start verification.{% endif %}</p>
+                </div>
+            </article>
+            <article>
+                <strong>{% if verification.application_submitted %}✓{% else %}–{% endif %}</strong>
+                <div>
+                    <span>APPLICATION</span>
+                    <p>{% if verification.job %}{{ verification.job.get_status_display }}{% elif verification.application_submitted %}Submitted{% else %}Apply for a vacant club in Job Offers.{% endif %}</p>
+                </div>
+            </article>
+            <article>
+                <strong>{% if verification.club %}✓{% else %}–{% endif %}</strong>
+                <div>
+                    <span>CLUB</span>
+                    <p>{% if verification.club %}{{ verification.club.name }}{% elif verification.club_name %}{{ verification.club_name }}{% else %}No club assigned{% endif %}</p>
+                </div>
+            </article>
+            <article>
+                <strong>{% if verification.is_verified %}✓{% else %}–{% endif %}</strong>
+                <div>
+                    <span>VERIFICATION</span>
+                    <p>{{ verification.status }}</p>
+                </div>
+            </article>
+            <article>
+                <strong>{% if verification.account_status == "ACTIVE" %}✓{% else %}–{% endif %}</strong>
+                <div>
+                    <span>ACCOUNT STATUS</span>
+                    <p>{{ verification.account_status }}</p>
+                </div>
+            </article>
+        </div>
+        {% if not verification.is_verified %}
+            <p><a href="{% url 'job_centre' %}" class="primary-button">VIEW JOB OFFERS</a></p>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

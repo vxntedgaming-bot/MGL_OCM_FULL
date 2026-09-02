@@ -205,7 +205,7 @@
                 <h2>MARKET SUMMARY</h2>
                 <p><span>Players listed</span><strong>{{ listings|length }}</strong></p>
                 <p><span>Clubs listed</span><strong>{{ listed_clubs|length }}</strong></p>
-                <p><span>Tokens in market</span><strong>{{ listed_tokens }}</strong></p>
+                <p><span>UFL Coin in market</span><strong>{{ listed_tokens }}</strong></p>
                 {% if team %}
                     <a href="{% url 'team_management' %}" class="mgl-mk-listings">VIEW MY LISTINGS</a>
                 {% endif %}
@@ -213,7 +213,7 @@
         </aside>
     </div>
 
-    <p class="mgl-mk-note">All transfers are subject to admin approval. Tokens will be deducted when a deal is completed.</p>
+    <p class="mgl-mk-note">All transfers are subject to admin approval. UFL Coin will be deducted when a deal is completed.</p>
 </section>
 {% endblock %}
 

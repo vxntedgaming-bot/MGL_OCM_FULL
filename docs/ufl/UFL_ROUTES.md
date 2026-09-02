@@ -81,6 +81,7 @@ Competition slugs in `COMPETITIONS`: `premier-league`, `championship`, `league-o
 |---|---|---|---|---|---|---|---|
 | `/mgl/` | `mgl_index` | Career index | Career | Approved / OA | Inspect view — treated as career entry | Live | Career |
 | `/mgl/hub/` | `manager_hub` | Manager Dashboard | Career | Approved / OA | `career_required` | Live | Career |
+| `/mgl/verification/` | `manager_verification` | Manager verification status from existing account / job / club records | Signed-in | User | `@login_required` | Live | Verification |
 | `/mgl/notifications/` | `manager_notifications` | Inbox | Career | Recipient | Career views | Live | Notifications |
 | `/mgl/notifications/panel/` | `notification_panel` | Header panel fragment | Career | Recipient | Career views | Live | Notifications |
 | `/mgl/notifications/read-all/` | `notification_mark_all_read` | Mark all read | Career POST | Recipient | Career views | Live | Notifications |

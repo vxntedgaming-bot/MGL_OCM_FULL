@@ -5,19 +5,34 @@
         <img src="{% static 'core/img/ufl-logo-chrome.png' %}" alt="UFL">
         <p class="mgl-cp-sidebar-title">UFL<small>CONTROL CENTRE</small></p>
     </div>
-    <nav aria-label="Control panel">
+    <nav aria-label="Control panel" class="mgl-cp-groups">
+        <p>OVERVIEW</p>
         <a href="{% url 'control_centre' %}" class="{% if control_section == 'dashboard' %}is-active{% endif %}">Dashboard</a>
+        <p>MANAGER MANAGEMENT</p>
         <a href="{% url 'control_pending' %}" class="{% if control_section == 'pending' or control_section == 'scores' or control_section == 'transfers' or control_section == 'press' or control_section == 'managers' %}is-active{% endif %}">
             Approvals{% if pending_counts.approvals %}<span class="mgl-cp-badge">{{ pending_counts.approvals }}</span>{% endif %}
         </a>
+        <a href="{% url 'control_managers' %}" class="{% if control_section == 'managers' %}is-active{% endif %}">Verification</a>
+        <p>CLUB MANAGEMENT</p>
         <a href="{% url 'control_clubs' %}" class="{% if control_section == 'clubs' %}is-active{% endif %}">Clubs &amp; Managers</a>
         <a href="{% url 'control_starting_squads' %}" class="{% if control_section == 'starting_squads' %}is-active{% endif %}">Starting Squads</a>
+        <p>MATCH MANAGEMENT</p>
+        <a href="{% url 'control_scores' %}" class="{% if control_section == 'scores' %}is-active{% endif %}">Submitted results</a>
+        <p>TRANSFERS</p>
+        <a href="{% url 'control_transfers' %}" class="{% if control_section == 'transfers' %}is-active{% endif %}">Transfer requests</a>
+        <a href="{% url 'control_auctions' %}" class="{% if control_section == 'auctions' %}is-active{% endif %}">Auctions</a>
+        <p>NEWS / ACTIVITY</p>
+        <a href="{% url 'control_press' %}" class="{% if control_section == 'press' %}is-active{% endif %}">Pressroom</a>
+        <a href="{% url 'live_activity' %}">Activity</a>
+        <p>SYSTEM</p>
+        <a href="{% url 'control_notifications' %}" class="{% if control_section == 'notifications' %}is-active{% endif %}">Admin notifications</a>
+        <a href="{% url 'control_logs' %}" class="{% if control_section == 'logs' or control_section == 'weekly' or control_section == 'monthly' or control_section == 'tokens' %}is-active{% endif %}">History / Audit</a>
         <a href="{% url 'control_season_controls' %}" class="{% if control_section == 'season_controls' %}is-active{% endif %}">Season Controls</a>
         <a href="{% url 'control_league' %}" class="{% if control_section == 'league' %}is-active{% endif %}">League Controls</a>
         <a href="{% url 'control_recruitment' %}" class="{% if control_section == 'recruitment' %}is-active{% endif %}">Recruitment Packs</a>
         <a href="{% url 'control_scout_config' %}" class="{% if control_section == 'scout_config' %}is-active{% endif %}">Scout Settings</a>
         <a href="{% url 'control_discord_outbox' %}" class="{% if control_section == 'discord_outbox' %}is-active{% endif %}">Discord Outbox</a>
-        <a href="{% url 'control_logs' %}" class="{% if control_section == 'logs' or control_section == 'weekly' or control_section == 'monthly' or control_section == 'tokens' %}is-active{% endif %}">History / Audit</a>
+        <a href="{% url 'site_management' %}">System settings</a>
     </nav>
     <div class="mgl-cp-league-status">
         <p>STATUS <strong>{{ league_status|default:"ACTIVE" }}</strong></p>

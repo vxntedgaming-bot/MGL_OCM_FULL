@@ -28,7 +28,7 @@
         {% if live_listing %}<span class="mgl-card-status">LISTED</span>{% endif %}
         <p>
             {{ player.position }}
-            · {{ player.overall }} OVR
+            · {% ufl_rating player %}
             {% if player_age_value %} · AGE {{ player_age_value }}{% endif %}
             · {% if player.mgl_team %}{{ player.mgl_team.name }}{% else %}{{ player|market_status_label }}{% endif %}
         </p>

@@ -26,6 +26,11 @@ urlpatterns = [
         name="manager_notifications",
     ),
     path(
+        "verification/",
+        views.manager_verification,
+        name="manager_verification",
+    ),
+    path(
         "notifications/panel/",
         views.notification_panel,
         name="notification_panel",

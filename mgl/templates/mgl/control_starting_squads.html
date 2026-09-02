@@ -1,5 +1,5 @@
 {% extends "mgl/includes/control_page.html" %}
-{% load static %}
+{% load static mgl_ui %}
 
 {% block control_title %}Starting Squad Generator — UFL Control{% endblock %}
 {% block control_crumb %}CONTROL / SEASON / STARTING SQUADS{% endblock %}
@@ -150,7 +150,7 @@
                 <h3>{{ slot.code }} {{ slot.have }} / {{ slot.required }}</h3>
                 {% for player in slot.players %}
                     <p>
-                        <span class="mgl-ss-ovr">{{ player.overall }}</span>
+                        <span class="mgl-ss-ovr ufl-ovr-{{ player.overall|ovr_band }}">{{ player.overall }}</span>
                         <strong>{{ player.name }}</strong>
                         <small>FC26 {{ player.fc27_id|default:"—" }}</small>
                     </p>

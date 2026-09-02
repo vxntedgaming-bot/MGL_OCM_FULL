@@ -136,7 +136,7 @@
                                 </div>
                                 <div>
                                     <span class="mgl-fa-mobile-label">OVR</span>
-                                    <span class="mgl-fa-ovr">{{ p.overall }}</span>
+                                    <span class="mgl-fa-ovr ufl-ovr-{{ p.overall|ovr_band }}" title="{{ p.overall }} {{ p.overall|ovr_band_label }}">{{ p.overall }}</span>
                                 </div>
                                 <div>
                                     <span class="mgl-fa-mobile-label">PREF. FOOT</span>

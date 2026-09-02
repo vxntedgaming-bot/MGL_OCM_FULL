@@ -6,6 +6,22 @@ This file started with the documentation/audit pass. It does **not** claim that 
 
 ---
 
+## 2026-09-02 — Final website completion pass
+
+Site-wide teal/cyan finish, notification centre, manager verification and Control Centre presentation. Existing data, Market, Job Centre, ratings values, balances and fixtures are unchanged.
+
+- Design tokens: black + deep teal + cyan. Gold is heritage only. Approve = green, Decline/Suspend/Delete = red, Pending = amber, Review/Edit = cyan.
+- Player OVR presentation: 99–78 blue, 77–65 green, 64–0 red. Stored ratings not edited.
+- UFL Notifications centre with ALL / UNREAD / TRANSFERS / FIXTURES / CLUB / MANAGER / SYSTEM tabs over the existing inbox.
+- Manager Verification page reads User + ManagerApplication + ClubApplication + club assignment. Registering does not assign a club.
+- Control Centre grouped as Overview / Manager / Club / Match / Transfers / News / System. Same approval routes.
+- Official UFL cup artwork on Champions League, Europa League, Conference League and Phantom Cup.
+- HISTORY: Hall of Fame, Club History, Season History, Clubs, Club Profiles.
+- User-facing copy says UFL Coin. Notification ticker overflow fixed. News rows can show face + club logos together.
+- **No Season 1, no Discord sends, no token writes, no production migrations, no database reset.**
+
+---
+
 ## 2026-09-02 — Master website UI, navigation and visual theme
 
 Presentation, navigation and branding only. Existing Market, Job Centre, recruitment, scouting, auctions, Discord outbox and `/mgl/` routes remain the source of truth.

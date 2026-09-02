@@ -14,6 +14,29 @@
     · <a href="{% url 'site_management_teams' %}" class="mgl-cp-link">TEAMS →</a>
 </p>
 
+<section class="mgl-cp-stats" aria-label="UFL overview">
+    <a class="mgl-cp-stat" href="{% url 'control_managers' %}">
+        <p>MANAGERS</p>
+        <strong>{{ manager_count }}</strong>
+        <span>{{ verified_manager_count }} verified</span>
+    </a>
+    <a class="mgl-cp-stat {% if pending_job_count %}is-hot{% endif %}" href="{% url 'control_managers' %}">
+        <p>PENDING APPLICATIONS</p>
+        <strong>{{ pending_job_count }}</strong>
+        <span>Job applications to review</span>
+    </a>
+    <a class="mgl-cp-stat" href="{% url 'control_clubs' %}">
+        <p>ACTIVE CLUBS</p>
+        <strong>{{ club_count }}</strong>
+        <span>Existing UFL clubs</span>
+    </a>
+    <a class="mgl-cp-stat {% if admin_unread_count %}is-hot{% endif %}" href="{% url 'control_notifications' %}">
+        <p>ADMIN NOTIFICATIONS</p>
+        <strong>{{ admin_unread_count }}</strong>
+        <span>Unread office notices</span>
+    </a>
+</section>
+
 <section class="sm-hub-grid">
     <a class="sm-hub-card" href="{% url 'site_management' %}">
         <div class="eyebrow">OWNER / ADMIN</div>

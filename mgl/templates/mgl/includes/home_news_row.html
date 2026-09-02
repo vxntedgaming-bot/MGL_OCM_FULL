@@ -2,14 +2,17 @@
 <div class="mgl-news-row">
     <div class="mgl-news-logos" aria-hidden="true">
         {% if post.is_press %}
-            <span class="mgl-news-press">
+            <span class="mgl-news-press" title="Press conference">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="9" y="3.5" width="6" height="10" rx="3"/><path d="M7 11a5 5 0 0 0 10 0M12 16v3M9 20h6"/></svg>
             </span>
-        {% elif post.news_player %}
-            {% player_face_url post.news_player "small" as news_face %}
-            {% if news_face %}
-                <img src="{{ news_face }}" alt="" class="mgl-news-face" loading="lazy" onerror="this.style.display='none'">
-            {% elif post.logo_from and post.logo_to %}
+        {% else %}
+            {% if post.news_player %}
+                {% player_face_url post.news_player "small" as news_face %}
+                {% if news_face %}
+                    <img src="{{ news_face }}" alt="" class="mgl-news-face" loading="lazy" onerror="this.style.display='none'">
+                {% endif %}
+            {% endif %}
+            {% if post.logo_from and post.logo_to %}
                 <span class="mgl-news-logo-pair">
                     {% team_logo post.logo_from "sm" %}
                     <span class="mgl-news-logo-arrow">{% if post.logo_kind == "result" %}VS{% else %}→{% endif %}</span>
@@ -17,17 +20,9 @@
                 </span>
             {% elif post.logo_single %}
                 {% team_logo post.logo_single "sm" %}
+            {% elif not post.news_player %}
+                <div class="mgl-news-thumb"></div>
             {% endif %}
-        {% elif post.logo_from and post.logo_to %}
-            <span class="mgl-news-logo-pair">
-                {% team_logo post.logo_from "sm" %}
-                <span class="mgl-news-logo-arrow">{% if post.logo_kind == "result" %}VS{% else %}→{% endif %}</span>
-                {% team_logo post.logo_to "sm" %}
-            </span>
-        {% elif post.logo_single %}
-            {% team_logo post.logo_single "sm" %}
-        {% else %}
-            <div class="mgl-news-thumb"></div>
         {% endif %}
     </div>
     <div>

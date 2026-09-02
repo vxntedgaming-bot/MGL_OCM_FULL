@@ -91,7 +91,7 @@
                     <td>{{ player.overall }}</td>
                     <td>Unsigned</td>
                     <td>Free Agent</td>
-                    <td><span class="mgl-cp-gold">Tokens</span></td>
+                    <td><span>UFL Coin</span></td>
                     <td>
                         <form method="post" action="{% url 'auction_free_agent' player.id %}" class="mgl-inline-form" data-confirm="Release {{ player.name }} to the auction market? This uses the existing auction system." data-confirm-title="RELEASE TO AUCTION" data-confirm-ok="CONFIRM RELEASE">
                             {% csrf_token %}

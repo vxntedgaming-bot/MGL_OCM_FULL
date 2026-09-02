@@ -588,6 +588,29 @@ class NotificationAndPressroomTests(TestCase):
         self.client.post(reverse("notification_mark_all_read"))
         self.assertEqual(unread_count_for_user(self.user_a), 0)
 
+    def test_notification_centre_tabs_and_unread_filter(self):
+        notify_user(
+            self.user_a,
+            source_key="xfer-note-1",
+            notification_type="TRANSFER",
+            title="TRANSFER APPROVED",
+            message="Achraf Hakimi has joined Bayer Leverkusen.",
+        )
+        self.client.login(username="kai", password="test-pass-123")
+        inbox = self.client.get(reverse("manager_notifications"))
+        self.assertContains(inbox, "UFL NOTIFICATIONS")
+        self.assertContains(inbox, "UNREAD")
+        self.assertContains(inbox, "TRANSFERS")
+        self.assertContains(inbox, "FIXTURES")
+        self.assertContains(inbox, "MANAGER")
+        self.assertContains(inbox, "SYSTEM")
+        unread = self.client.get(reverse("manager_notifications"), {"tab": "unread"})
+        self.assertContains(unread, "TRANSFER APPROVED")
+        transfers = self.client.get(reverse("manager_notifications"), {"tab": "transfers"})
+        self.assertContains(transfers, "TRANSFER APPROVED")
+        fixtures = self.client.get(reverse("manager_notifications"), {"tab": "fixtures"})
+        self.assertNotContains(fixtures, "TRANSFER APPROVED")
+
     def test_duplicate_notification_keys_are_not_repeated(self):
         press = create_press_question(
             manager=self.user_a,

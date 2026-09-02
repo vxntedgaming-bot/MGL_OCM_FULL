@@ -40,7 +40,7 @@
                 </div>
                 <div>
                     <span>OVR</span>
-                    <strong>{{ player.overall }}</strong>
+                    <strong class="ufl-ovr-{{ player.overall|ovr_band }}">{{ player.overall }}</strong>
                 </div>
                 <div>
                     <span>ASKING PRICE</span>
@@ -78,7 +78,7 @@
                     <li class="mgl-purchase-player{% if row.id == player.id %} is-target{% endif %}">
                         <span class="mgl-purchase-player-name">{{ row.name }}</span>
                         <span class="mgl-pos-badge">{{ row.position }}</span>
-                        <span class="mgl-ovr-badge">{{ row.overall }}</span>
+                        <span class="mgl-ovr-badge ufl-ovr-{{ row.overall|ovr_band }}">{{ row.overall }}</span>
                         {% if row.id == player.id %}
                             <span class="mgl-purchase-lock">REQUESTED</span>
                         {% endif %}
@@ -107,7 +107,7 @@
                             <input type="checkbox" name="offered_players" value="{{ row.id }}" {% if row.swap_locked %}disabled{% endif %}>
                             <span class="mgl-purchase-player-name">{{ row.name }}</span>
                             <span class="mgl-pos-badge">{{ row.position }}</span>
-                            <span class="mgl-ovr-badge">{{ row.overall }}</span>
+                            <span class="mgl-ovr-badge ufl-ovr-{{ row.overall|ovr_band }}">{{ row.overall }}</span>
                             {% if row.swap_locked %}
                                 <span class="mgl-purchase-lock">LOCKED</span>
                             {% endif %}

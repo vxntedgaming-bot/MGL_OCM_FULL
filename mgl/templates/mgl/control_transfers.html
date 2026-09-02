@@ -12,7 +12,7 @@
     <article class="mgl-cp-review">
         <p class="mgl-cp-kicker">{{ listing.deal.transfer_type|default:"TRANSFER" }} · <span class="mgl-cp-status is-warn">PENDING</span></p>
         <h2>{{ listing.deal.player|default:listing.player.name }}</h2>
-        <p>{{ listing.player.position }} · {{ listing.player.overall }} OVR</p>
+        <p>{{ listing.player.position }} · <span class="ufl-ovr-{{ listing.player.overall|ovr_band }}">{{ listing.player.overall }}</span> OVR</p>
         <div class="mgl-cp-transfer">
             <div>
                 <p class="mgl-cp-kicker">FROM</p>
@@ -29,7 +29,7 @@
         </div>
         <div class="mgl-cp-form-grid">
             <p>Transfer type: {{ listing.deal.transfer_type|default:"Permanent" }}</p>
-            <p>Transfer fee: <strong class="mgl-cp-gold">{{ listing.deal.amount|default:listing.asking_price }} Tokens</strong></p>
+            <p>Transfer fee: <strong>{% ufl_coin listing.deal.amount|default:listing.asking_price "sm" %}</strong></p>
             <p>Submitted by: {{ listing.reserved_buyer.display_name }}</p>
             <p>Date submitted: {{ listing.created_at|timesince|default:"—" }} ago</p>
         </div>

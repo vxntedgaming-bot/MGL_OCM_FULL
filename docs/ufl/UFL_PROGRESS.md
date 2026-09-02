@@ -2,7 +2,7 @@
 
 Checklist of the **current** project, not a future roadmap disguised as done work.
 
-Last documentation update: 2 September 2026 — **Master website UI / teal-cyan theme + public Jobs and Transfer Market (no Season 1, no Discord sends)**.
+Last documentation update: 2 September 2026 — **Final website completion pass: teal/cyan finish, notifications, verification, Control Centre (no Season 1, no Discord sends)**.
 
 ---
 

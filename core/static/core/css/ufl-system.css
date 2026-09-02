@@ -1,36 +1,48 @@
 /* =========================================================
    UFL DESIGN SYSTEM
-   Light gold on near-black. Loaded globally. ufl-pages.css
-   loads after page CSS so inner components share this language.
+   Black + deep teal + cyan. Gold is heritage only.
+   Loaded globally. ufl-pages.css then ufl-finish.css follow.
 ========================================================= */
 
 :root {
-    --ufl-bg: #041016;
-    --ufl-bg-mid: #061820;
-    --ufl-surface: #0b1f28;
-    --ufl-surface-2: #0e2833;
-    --ufl-graphite: #12303b;
-    --ufl-gold: #e4c77a;
-    --ufl-gold-2: #f0d89a;
+    --ufl-black: #050708;
+    --ufl-background: #080d10;
+    --ufl-bg: #080d10;
+    --ufl-bg-mid: #0a1216;
+    --ufl-surface: #0c1418;
+    --ufl-surface-2: #111d22;
+    --ufl-surface-light: #111d22;
+    --ufl-surface-hover: #16252b;
+    --ufl-graphite: #16252b;
+    --ufl-gold: #c9a74a;
+    --ufl-gold-2: #e4c77a;
     --ufl-gold-ink: #12100a;
-    --ufl-gold-soft: rgba(228, 199, 122, 0.12);
-    --ufl-gold-line: rgba(228, 199, 122, 0.32);
-    --ufl-cyan: #2ee6d6;
-    --ufl-cyan-2: #7af0e6;
+    --ufl-gold-soft: rgba(201, 167, 74, 0.12);
+    --ufl-gold-line: rgba(201, 167, 74, 0.28);
+    --ufl-cyan: #16d9d2;
+    --ufl-cyan-2: #5ee8e2;
     --ufl-cyan-ink: #042022;
-    --ufl-cyan-soft: rgba(46, 230, 214, 0.14);
-    --ufl-cyan-line: rgba(46, 230, 214, 0.38);
-    --ufl-text: #ffffff;
-    --ufl-text-soft: #d5e4e6;
-    --ufl-muted: #8aa3a8;
-    --ufl-line: rgba(46, 230, 214, 0.12);
-    --ufl-success: #10b981;
-    --ufl-danger: #ef4444;
-    --ufl-warning: #e8a23a;
-    --ufl-info: #2ee6d6;
-    --ufl-rating-high: #3b82f6;
-    --ufl-rating-mid: #22c55e;
-    --ufl-rating-low: #134e4a;
+    --ufl-cyan-soft: rgba(22, 217, 210, 0.12);
+    --ufl-cyan-line: rgba(22, 217, 210, 0.38);
+    --ufl-text: #f5f7f8;
+    --ufl-text-soft: #c5d0d3;
+    --ufl-white: #f5f7f8;
+    --ufl-grey: #98a5aa;
+    --ufl-muted: #98a5aa;
+    --ufl-dark-grey: #566168;
+    --ufl-line: rgba(22, 217, 210, 0.12);
+    --ufl-success: #32d47c;
+    --ufl-green: #32d47c;
+    --ufl-danger: #ef5350;
+    --ufl-red: #ef5350;
+    --ufl-warning: #f0a83a;
+    --ufl-orange: #f0a83a;
+    --ufl-info: #16d9d2;
+    --ufl-blue: #3298ff;
+    --ufl-purple: #9a63ff;
+    --ufl-rating-high: #3298ff;
+    --ufl-rating-mid: #32d47c;
+    --ufl-rating-low: #ef5350;
     --ufl-cup-cl: #3b82f6;
     --ufl-cup-el: #e4c77a;
     --ufl-cup-ecl: #10b981;
@@ -61,15 +73,15 @@
     --mgl-gold: var(--ufl-gold);
     --mgl-gold-2: var(--ufl-gold-2);
     --mgl-gold-border: var(--ufl-gold-line);
-    --mgl-orange: var(--ufl-gold);
-    --mgl-orange-2: var(--ufl-gold-2);
-    --mgl-glow: 0 0 18px rgba(46, 230, 214, 0.12);
+    --mgl-orange: var(--ufl-warning);
+    --mgl-orange-2: var(--ufl-orange);
+    --mgl-glow: 0 0 18px rgba(22, 217, 210, 0.12);
     --status-unassigned: var(--ufl-muted);
-    --status-free-agent: var(--ufl-gold);
+    --status-free-agent: var(--ufl-cyan);
     --status-auction: var(--ufl-warning);
     --status-club: var(--ufl-text);
-    --orange: var(--ufl-gold);
-    --orange-light: var(--ufl-gold-2);
+    --orange: var(--ufl-warning);
+    --orange-light: var(--ufl-orange);
     --panel: var(--ufl-surface);
     --bg: var(--ufl-bg);
     --container: 1180px;

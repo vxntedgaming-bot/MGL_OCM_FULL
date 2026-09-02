@@ -2,7 +2,7 @@
 
 **Status:** Current visual system only. Do not redesign from this document.
 
-Sources: `core/static/core/css/ufl-system.css`, `ufl-pages.css`, `ufl-public-home.css`, `mgl-theme.css`, `mgl.css`, `mgl-hub.css`, `core/templates/core/base.html`, Public Home templates.
+Sources: `core/static/core/css/ufl-system.css`, `ufl-pages.css`, `ufl-finish.css`, `ufl-public-home.css`, `mgl-theme.css`, `mgl.css`, `mgl-hub.css`, `core/templates/core/base.html`, Public Home templates.
 
 ---
 
@@ -12,7 +12,7 @@ Sources: `core/static/core/css/ufl-system.css`, `ufl-pages.css`, `ufl-public-hom
 - Global structure: **UFL Header → UFL Live Activity → Page Header → Page Content.**
 - **One global UFL Header** on every page (`base.html` → `.mgl-header.ufl-header`). Public Home uses the same chrome.
 - **One UFL visual identity:** deep teal + cyan/turquoise, Barlow Condensed + Manrope. Gold is a sparse premium accent.
-- **Player OVR colours:** 99–78 blue, 77–65 green, 64–0 dark teal. Accent the badge only.
+- **Player OVR colours:** 99–78 blue, 77–65 green, 64–0 red. Accent the badge only. Stored ratings are never changed.
 - **Global LIVE ACTIVITY bar** on Public Home and inner chrome (`live_activity_bar.html`, `.ufl-livebar`).
 - **Common Page Header** include: `core/includes/mgl_page_header.html`.
 - **Site-wide styling** via `ufl-system.css` then page CSS then `ufl-pages.css`.
@@ -24,22 +24,22 @@ Sources: `core/static/core/css/ufl-system.css`, `ufl-pages.css`, `ufl-public-hom
 
 | Token | Value |
 |---|---|
-| `--ufl-bg` | `#041016` |
-| `--ufl-bg-mid` | `#061820` |
-| `--ufl-surface` | `#0b1f28` |
-| `--ufl-surface-2` | `#0e2833` |
-| `--ufl-graphite` | `#12303b` |
-| `--ufl-gold` | `#e4c77a` (sparse premium only) |
-| `--ufl-cyan` | `#2ee6d6` (primary accent) |
-| `--ufl-text` | `#ffffff` |
-| `--ufl-text-soft` | `#d5e4e6` |
-| `--ufl-muted` | `#8aa3a8` |
-| `--ufl-line` | `rgba(46, 230, 214, 0.12)` |
-| `--ufl-success` | `#10b981` |
-| `--ufl-danger` | `#ef4444` |
-| `--ufl-rating-high` | `#3b82f6` (OVR 78–99) |
-| `--ufl-rating-mid` | `#22c55e` (OVR 65–77) |
-| `--ufl-rating-low` | `#134e4a` (OVR 0–64) |
+| `--ufl-bg` | `#080d10` |
+| `--ufl-bg-mid` | `#0a1216` |
+| `--ufl-surface` | `#0c1418` |
+| `--ufl-surface-2` | `#111d22` |
+| `--ufl-graphite` | `#16252b` |
+| `--ufl-gold` | `#c9a74a` (heritage accent only) |
+| `--ufl-cyan` | `#16d9d2` (primary accent) |
+| `--ufl-text` | `#f5f7f8` |
+| `--ufl-text-soft` | `#c5d0d3` |
+| `--ufl-muted` | `#98a5aa` |
+| `--ufl-line` | `rgba(22, 217, 210, 0.12)` |
+| `--ufl-success` | `#32d47c` |
+| `--ufl-danger` | `#ef5350` |
+| `--ufl-rating-high` | `#3298ff` (OVR 78–99) |
+| `--ufl-rating-mid` | `#32d47c` (OVR 65–77) |
+| `--ufl-rating-low` | `#ef5350` (OVR 0–64) |
 | `--ufl-warning` | `#e8a23a` |
 | `--ufl-radius` | `10px` / `--ufl-radius-sm` `8px` |
 | `--header-h` | `52px` |
