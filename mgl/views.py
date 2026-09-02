@@ -213,7 +213,7 @@ def home(request):
             {
                 "kind": "TRANSFER",
                 "title": row.player.name if row.player_id else "Token movement",
-                "detail": f"{frm} → {to} · {row.amount} TKN",
+                "detail": f"{frm} → {to} · {row.amount} UFL Coin",
                 "when": row.created_at,
             }
         )
