@@ -509,7 +509,7 @@ class PlayerSearchAndCardNameTests(TestCase):
 
     def test_free_agents_page_uses_table_layout_and_group_filters(self):
         public = self.client.get(reverse("free_agents"))
-        self.assertContains(public, "core/css/mgl-free-agents.css")
+        self.assertContains(public, "core/css/ufl.css")
         self.assertContains(public, "DEFENDERS")
         self.assertContains(public, "MIDFIELDERS")
         self.assertContains(public, "ATTACKERS")

@@ -95,7 +95,7 @@ class JobCentreExperienceTests(TestCase):
         self.assertContains(response, self.vacant.name)
         self.assertNotContains(response, "50.00 TKN")
         self.assertNotContains(response, "APPLY & JOIN DISCORD")
-        self.assertContains(response, "mgl-jobs.css")
+        self.assertContains(response, "core/css/ufl.css")
         self.assertNotContains(response, "<details")
         self.assertContains(response, "APPLY FOR")
         self.assertNotContains(response, reverse("apply_for_club", args=[self.occupied.id]))

@@ -128,7 +128,7 @@ class NewsSectionTests(TestCase):
         room = self.client.get(reverse("pressroom"))
         self.assertEqual(room.status_code, 200)
         self.assertContains(room, reverse("live_activity"))
-        self.assertContains(room, "mgl-pressroom.css")
+        self.assertContains(room, "core/css/ufl.css")
         self.assertContains(room, "PRESS ROOM")
         self.assertContains(room, "Approved press answers")
         self.assertContains(room, "NO PRESSROOM STORIES YET")

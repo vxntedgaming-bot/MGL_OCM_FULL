@@ -81,7 +81,7 @@ class ManagerHubDashboardTests(TestCase):
         self.client.login(username="dashmgr", password="test-pass-123")
         response = self.client.get(reverse("manager_hub"))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "mgl-hub.css")
+        self.assertContains(response, "core/css/ufl.css")
         self.assertContains(response, "Dash United")
         self.assertContains(response, "@dashmgr")
         self.assertContains(response, "PREMIER LEAGUE")

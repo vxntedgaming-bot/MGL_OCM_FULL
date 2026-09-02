@@ -133,7 +133,7 @@ class InboxActionWorkflowTests(TestCase):
         self.client.login(username="rival", password="test-pass-123")
         inbox = self.client.get(reverse("manager_notifications"))
         self.assertEqual(inbox.status_code, 200)
-        self.assertContains(inbox, "mgl-notify-cards.css")
+        self.assertContains(inbox, "core/css/ufl.css")
         self.assertContains(inbox, "mgl-ncard")
         self.assertContains(inbox, "Match Result Submitted")
         self.assertContains(inbox, "Arsenal Test vs Chelsea Test")
