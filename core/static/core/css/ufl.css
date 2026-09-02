@@ -1265,6 +1265,82 @@ body.ufl-home .mgl-main { width: 100%; max-width: none; padding: 0; }
 .mgl-press-brief-head { display: flex; gap: 12px; align-items: center; }
 .mgl-press-brief-cta { display: inline-flex; height: 40px; align-items: center; padding: 0 16px; background: #fff; color: #111; border-radius: 8px; font-size: 13px; font-weight: 700; }
 
+/* Cups / news / stats / profile */
+.ufl-cup-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+.ufl-cup-card {
+    display: grid;
+    gap: 8px;
+    padding: 16px;
+    background: var(--ufl-card);
+    border: 1px solid var(--ufl-line);
+    border-radius: var(--ufl-radius);
+}
+.ufl-cup-card h3 { font-size: 16px; margin: 0; }
+.ufl-cup-card p { margin: 0; color: var(--ufl-muted); font-size: 13px; }
+.ufl-cup-status { font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ufl-muted); }
+.ufl-cup-band { margin-bottom: 24px; }
+.ufl-cup-band-head { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.ufl-cup-band-head svg { width: 20px; height: 20px; }
+.ufl-cup-band-head h2 { font-size: 18px; margin: 0; }
+.mgl-league-tabs { display: flex; gap: 16px; border-bottom: 1px solid var(--ufl-line); margin-bottom: 16px; overflow-x: auto; }
+.mgl-league-tab { padding: 10px 0; color: var(--ufl-muted); font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.mgl-league-tab.is-active { color: #fff; box-shadow: inset 0 -2px 0 #fff; }
+.mgl-activity-feed { display: grid; gap: 12px; }
+.mgl-activity-card {
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr);
+    gap: 12px;
+    padding: 16px;
+    background: var(--ufl-card);
+    border: 1px solid var(--ufl-line);
+    border-radius: var(--ufl-radius);
+}
+.mgl-activity-icon svg { width: 20px; height: 20px; }
+.mgl-activity-headline { font-size: 16px; margin: 4px 0; }
+.mgl-activity-pill { font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ufl-muted); }
+.mgl-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.dashboard-panel { padding: 16px; }
+.scorer-row {
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.scorer-copy span { display: block; color: var(--ufl-muted); font-size: 12px; }
+.mgl-profile-header { margin-bottom: 16px; }
+.mgl-profile-layout { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 16px; }
+.mgl-info-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.mgl-info-box { padding: 12px; background: #111; border: 1px solid var(--ufl-line); border-radius: 8px; }
+.mgl-info-box span { display: block; font-size: 11px; color: var(--ufl-muted); letter-spacing: 0.08em; }
+.mgl-info-box strong { font-size: 14px; }
+.ufl-rating { display: inline-flex; align-items: baseline; gap: 4px; }
+.ufl-rating-high { color: var(--ufl-rating-high); }
+.ufl-rating-mid { color: var(--ufl-rating-mid); }
+.ufl-rating-low { color: var(--ufl-rating-low); }
+.mgl-team-logo { display: inline-flex; width: 28px; height: 28px; }
+.mgl-team-logo img { width: 100%; height: 100%; object-fit: contain; }
+.mgl-team-logo-fallback { display: none; }
+.ufl-subtabs { display: flex; gap: 16px; border-bottom: 1px solid var(--ufl-line); margin: 16px 0; overflow-x: auto; }
+.ufl-subtabs a { padding: 10px 0; color: var(--ufl-muted); font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.ufl-subtabs a.is-active { color: #fff; box-shadow: inset 0 -2px 0 #fff; }
+.ufl-league-leaders,
+.ufl-cup-empty-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+.ufl-cup-hero { display: grid; grid-template-columns: 1fr 220px; gap: 16px; align-items: center; margin-bottom: 16px; }
+.ufl-cup-hero-art { max-height: 180px; }
+
+@media (max-width: 800px) {
+    .ufl-cup-grid,
+    .mgl-stats-grid,
+    .mgl-profile-layout,
+    .mgl-info-grid { grid-template-columns: 1fr; }
+}
+
 /* Mobile */
 @media (max-width: 1100px) {
     .mgl-header-inner {

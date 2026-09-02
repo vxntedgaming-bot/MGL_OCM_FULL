@@ -17,6 +17,7 @@ Replaced the leftover gold/cyan chrome with one compact UFL design system. Backe
 - Homepage order: hero → stats → news / fixtures / leagues / market / cups → how UFL works
 - Job Centre, market, fixtures, notifications, verification and Control Centre use compact grids/tables
 - No database reset, ownership change, Season 1 start, or Discord send
+- Tests: 587 / 587 passed on the isolated suite
 
 ---
 
