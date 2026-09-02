@@ -560,7 +560,7 @@ def create_manager_auction(player, manager, duration_minutes, starting_bid=1):
         f"{player.name} is live at auction",
         (
             f"{team.name} listed {player.name} ({player.position}, {player.overall} OVR) "
-            f"for auction. Listing fee {listing_fee} TKN (not refunded)."
+            f"for auction. Listing fee {listing_fee} (not refunded)."
         ),
         team=team,
         discord_idempotency_key=f"auction.list:{auction.pk}",
@@ -881,7 +881,7 @@ def settle_auction(auction, reviewer=None):
         source_key=f"auction-won-{auction.pk}",
         notification_type="TRANSFER",
         title="AUCTION WON",
-        message=f"{player.name} has joined {club.name} after your winning bid of {highest.amount} TKN.",
+        message=f"{player.name} has joined {club.name} after your winning bid of {highest.amount}.",
         actor="UFL Auctions",
         team=club,
         player=player,
@@ -892,7 +892,7 @@ def settle_auction(auction, reviewer=None):
             source_key=f"auction-sold-{auction.pk}",
             notification_type="TRANSFER",
             title="PLAYER SOLD AT AUCTION",
-            message=f"{player.name} was sold to {club.name} for {highest.amount} TKN.",
+            message=f"{player.name} was sold to {club.name} for {highest.amount}.",
             actor="UFL Auctions",
             team=origin,
             player=player,
@@ -1007,7 +1007,7 @@ def _notify_control_of_sale_listing(listing):
             title="TRANSFER REQUEST",
             message=(
                 f"{listing.team.name} accepted a transfer request for "
-                f"{listing.player.name} at {listing.asking_price} TKN."
+                f"{listing.player.name} at {listing.asking_price}."
             ),
             actor=listing.seller.display_name,
             action_url=reverse("control_transfers"),
@@ -1077,7 +1077,7 @@ def _notify_listing_outcome(listing, *, buyer=None, rejected=False):
         title="LISTING APPROVED",
         message=(
             f"{listing.player.name} is now live on the transfer market "
-            f"for {listing.asking_price} TKN."
+            f"for {listing.asking_price}."
         ),
         actor="UFL Admin",
         action_url=reverse("transfer_market"),
@@ -1208,7 +1208,7 @@ def _complete_listing_sale(listing, buyer):
         news_body = (
             f"{listing.player.name} has joined {buyer_club.name} from {selling_team.name} "
             f"in exchange for {swap_names}"
-            f"{f' and {price} TKN' if price > 0 else ''}."
+            f"{f' and {price}' if price > 0 else ''}."
         )
     create_news(
         NewsPost.TRANSFER,
@@ -1406,7 +1406,7 @@ def _notify_seller_of_transfer_offer(listing, buyer_club):
         message = (
             f"{buyer_club.name} has submitted a transfer request for {player.name}, "
             f"offering {swap_names}"
-            f"{f' and {listing.asking_price} TKN' if listing.asking_price > 0 else ''}."
+            f"{f' and {listing.asking_price}' if listing.asking_price > 0 else ''}."
         )
     else:
         message = (

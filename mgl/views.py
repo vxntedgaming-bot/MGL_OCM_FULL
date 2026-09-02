@@ -2742,7 +2742,7 @@ def list_player_for_auction(request, player_id):
         )
         messages.success(
             request,
-            f"{player.name} is now in auction. Listing fee 0.1 TKN charged (not refunded).",
+            f"{player.name} is now in auction. Listing fee 0.1 charged (not refunded).",
         )
     except ValueError as exc:
         messages.error(request, str(exc))

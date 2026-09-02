@@ -137,7 +137,7 @@ class PurchaseSwapWorkflowTests(TestCase):
         inbox = self.client.get(reverse("manager_notifications"))
         self.assertContains(inbox, "Transfer Request")
         self.assertContains(inbox, "Ola Solbakken")
-        self.assertContains(inbox, 'class="ufl-coin-amt">2.00</span>')
+        self.assertContains(inbox, ">2.00</dd>")
         accepted = self.client.post(
             reverse("manager_notification_respond", args=[notice.id]),
             {"action": "accept"},

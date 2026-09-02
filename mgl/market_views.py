@@ -238,7 +238,7 @@ def request_player_transfer(request, player_id):
         messages.success(
             request,
             f"Transfer request sent for {player.name} "
-            f"({listing.asking_price} TKN). The current club manager must respond, "
+            f"({listing.asking_price}). The current club manager must respond, "
             "and Owner/Admin approval is still required.",
         )
     except ValueError as exc:

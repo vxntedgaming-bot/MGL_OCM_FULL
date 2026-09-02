@@ -467,7 +467,7 @@ def approve_press_conference(press, reviewer=None):
                 source_key=f"press-reward-{press.pk}",
                 notification_type="REWARD",
                 title="PRESS CONFERENCE APPROVED",
-                message=f"+{reward} TOKENS have been added to your balance.",
+                message=f"+{reward} have been added to your balance.",
                 actor="UFL Press Room",
                 team=press.team,
             )

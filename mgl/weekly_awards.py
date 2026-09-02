@@ -375,7 +375,7 @@ def approve_weekly_awards(batch, reviewer):
                 manager.user,
                 f"totw-{week_start.isoformat()}-{manager.id}",
                 "UFL WEEKLY AWARDS",
-                f"Team of the Week: {names} — +{amount} TOKENS.",
+                f"Team of the Week: {names} — +{amount}.",
                 team=team,
             )
 

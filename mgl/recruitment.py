@@ -277,7 +277,7 @@ def open_recruitment_pack(user, pack_code, *, rng=None):
     create_news(
         category="SIGNING",
         title=f"{team.name} opened a recruitment pack",
-        body=f"{team.name} opened {pack.name} for {cost} TKN.",
+        body=f"{team.name} opened {pack.name} for {cost}.",
         publish=True,
         team=team,
         discord_idempotency_key=f"recruit.open:{opening.pk}",
