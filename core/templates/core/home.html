@@ -14,24 +14,14 @@
 {% url 'competition_page' 'premier-league' as public_fixtures_url %}
 
 <div class="uh">
-    <div class="uh-hero-band">
-        {% include "core/includes/ufl_career_hero.html" %}
-        {% include "core/includes/ufl_fc_connection.html" %}
-    </div>
-
+    {% include "core/includes/ufl_career_hero.html" %}
     {% include "core/includes/ufl_stats_strip.html" %}
-
-    <div class="uh-grid">
-        <div class="uh-col-main">
-            {% include "core/includes/ufl_how_it_works.html" %}
-            {% include "core/includes/ufl_career_cta.html" %}
-        </div>
-        <aside class="uh-col-side">
-            {% include "core/includes/ufl_experience.html" %}
-            {% include "core/includes/ufl_feature_grid.html" %}
-            {% include "core/includes/ufl_discord_cta.html" %}
-        </aside>
-    </div>
+    {% include "core/includes/ufl_how_it_works.html" %}
+    {% include "core/includes/ufl_experience.html" %}
+    {% include "core/includes/ufl_feature_grid.html" %}
+    {% include "core/includes/ufl_career_cta.html" %}
+    {% include "core/includes/ufl_fc_connection.html" %}
+    {% include "core/includes/ufl_discord_cta.html" %}
 </div>
 
 {% with empty_logo="core/img/ufl-logo-chrome.png" %}

@@ -2572,7 +2572,7 @@ def scouting(request):
 
     _ready, notices = complete_ready_assignments(manager)
     for notice in notices:
-        if notice == SQUAD_FULL_MESSAGE or "enough tokens" in notice.lower():
+        if notice == SQUAD_FULL_MESSAGE or "enough tokens" in notice.lower() or "enough ufl coins" in notice.lower():
             messages.error(request, notice)
         elif notice.lower().startswith("no available") or "must manage a club" in notice.lower():
             messages.warning(request, notice)

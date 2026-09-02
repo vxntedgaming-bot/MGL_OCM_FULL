@@ -31,5 +31,5 @@ def validate_token_amount(amount, *, allow_listing_fee=False):
     if allow_listing_fee and is_listing_fee(value):
         return value
     if not is_half_step(value):
-        raise ValueError("Token amounts must use 0.5 increments (0, 0.5, 1, 1.5, …).")
+        raise ValueError("UFL Coin amounts must use 0.5 increments (0, 0.5, 1, 1.5, …).")
     return value

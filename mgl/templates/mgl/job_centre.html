@@ -42,7 +42,14 @@
     </div>
 
     <div class="mgl-jobs-shell">
-        {% include "core/includes/mgl_page_header.html" with header_section="JOB OFFERS" header_title="JOB OFFERS" header_icon="briefcase" header_description="Available managerial vacancies. Apply for a club. Anonymous visitors land here when a Career Mode page is restricted." %}
+        <div class="ufl-page-hero">
+            <img src="{% static 'core/img/library/jobs-hero.jpg' %}" alt="" aria-hidden="true">
+            <div class="ufl-page-hero-copy">
+                <h1>JOB CENTRE</h1>
+                <p>Find your next challenge. Lead. Build. Legacy.</p>
+            </div>
+        </div>
+        {% include "core/includes/mgl_page_header.html" with header_section="JOB OFFERS" header_title="JOB OFFERS" header_icon="briefcase" header_description="Browse management opportunities around the world and take the next step in your coaching career." %}
         <div class="mgl-jobs-hero">
             <div class="mgl-jobs-hero-copy">
                 <div class="mgl-jobs-openings">

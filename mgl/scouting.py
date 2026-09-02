@@ -485,9 +485,9 @@ def upgrade_scout(manager):
             reference=f"scout:upgrade:{manager.id}:{nxt}",
         )
     except ValueError as exc:
-        if "enough tokens" in str(exc).lower():
+        if "enough tokens" in str(exc).lower() or "enough ufl coins" in str(exc).lower():
             raise ValueError(
-                f"You do not have enough tokens. Level {nxt} costs {cost} tokens."
+                f"You do not have enough UFL Coins. Level {nxt} costs {cost}."
             ) from exc
         raise
     profile.scout_level = nxt
@@ -877,9 +877,9 @@ def dispatch_scout(manager, tier, region="", position="", duration_hours=None, c
         try:
             debit_manager_tokens(manager, cost, f"Scouting mission {tier} {int(wait)}h")
         except ValueError as exc:
-            if "enough tokens" in str(exc).lower():
+            if "enough tokens" in str(exc).lower() or "enough ufl coins" in str(exc).lower():
                 raise ValueError(
-                    f"You do not have enough tokens. This mission costs {cost} tokens."
+                    f"You do not have enough UFL Coins. This mission costs {cost}."
                 ) from exc
             raise
     try:

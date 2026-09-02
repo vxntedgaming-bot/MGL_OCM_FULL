@@ -5,11 +5,24 @@
 {% block body_class %}mgl-auth-body{% endblock %}
 
 {% block content %}
-<section class="mgl-section">
+<section class="ufl-auth">
+    <div class="mgl-auth-card">
+        <p class="ufl-auth-kicker">UFL MANAGER</p>
+        <h1>REGISTRATION</h1>
+        <p>Create your UFL Manager account and build your legacy.</p>
+        <div class="ufl-auth-note">
+            <span aria-hidden="true">i</span>
+            <p>Creating an account does not automatically assign a club. You will be able to apply or create a club after logging in.</p>
+        </div>
+        <a href="{% url 'manager_register' %}" class="primary-button">CREATE ACCOUNT</a>
+        <p class="mgl-help">Need a career? <a href="{% url 'manager_register' %}">Sign up</a>.</p>
+    </div>
     <div class="mgl-auth-card">
         <img src="{% static 'core/img/ufl-logo-chrome.png' %}" alt="UFL" class="mgl-auth-logo">
+        <p class="ufl-auth-kicker">UFL MANAGER</p>
         <div class="eyebrow">UFL ACCESS</div>
-        <h1>MANAGER LOGIN</h1>
+        <h1>LOGIN</h1>
+        <p>Welcome back, Manager. Sign in to continue.</p>
         <p>Sign in to your UFL Career Mode hub, squad and transfer market.</p>
 
         <form method="post" class="mgl-form">
@@ -20,6 +33,7 @@
             <label for="id_password">Password</label>
             {{ form.password }}
             <input type="hidden" name="next" value="{{ next }}">
+            <button type="submit" class="primary-button">SIGN IN</button>
             <button type="submit" class="primary-button">LOGIN</button>
         </form>
 
@@ -28,6 +42,7 @@
         {% endif %}
 
         <p class="mgl-help">Need a career? <a href="{% url 'manager_register' %}">Sign up</a>.</p>
+        <a href="{% url 'job_centre' %}" class="secondary-button">CONTINUE AS GUEST</a>
     </div>
 </section>
 {% endblock %}

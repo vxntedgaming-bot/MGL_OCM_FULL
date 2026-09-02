@@ -16,8 +16,8 @@
         {% if manager %}
             <div class="mgl-mk-stat">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v8M9.5 10.5h5a2 2 0 0 1 0 4h-5"/></svg>
-                <strong>{{ token_balance }}</strong>
-                <span>UFL COIN</span>
+                <strong>{% ufl_coin token_balance "sm" %}</strong>
+                <span>BALANCE</span>
             </div>
         {% else %}
             <div class="mgl-mk-stat">

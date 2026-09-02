@@ -84,7 +84,7 @@ def listing_warnings(listing):
     if not transfer_window_is_open():
         warnings.append("Transfer window is closed.")
     if buyer and listing.asking_price and buyer.tokens < listing.asking_price:
-        warnings.append("Buyer does not have enough tokens.")
+        warnings.append("Buyer does not have enough UFL Coins.")
     if listing.status != PlayerListing.PENDING:
         warnings.append("This listing is not waiting for approval.")
     return warnings

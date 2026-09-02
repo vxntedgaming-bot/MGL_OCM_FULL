@@ -8,14 +8,11 @@
     <title>{% block title %}UFL – Ultimate Fantasy League{% endblock %}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'core/css/mgl.css' %}">
-    <link rel="stylesheet" href="{% static 'core/css/mgl-theme.css' %}">
-    <link rel="stylesheet" href="{% static 'core/css/ufl-system.css' %}">
+    <link rel="stylesheet" href="{% static 'core/css/ufl.css' %}">
     {% block extra_css %}{% endblock %}
-    <link rel="stylesheet" href="{% static 'core/css/ufl-pages.css' %}">
     {% block extra_css_late %}{% endblock %}
-    <link rel="stylesheet" href="{% static 'core/css/ufl-finish.css' %}">
     {% block favicon %}
     <link rel="icon" href="{% static 'core/img/ufl-logo-chrome.png' %}">
     {% endblock %}
@@ -28,10 +25,7 @@
             {% block header_logo %}
             <img src="{% static 'core/img/ufl-logo-chrome.png' %}" alt="Ultimate Fantasy League" class="mgl-logo-img">
             {% endblock %}
-            <span class="mgl-logo-text">
-                ULTIMATE FANTASY LEAGUE
-                <span>CAREER MODE</span>
-            </span>
+            <span class="mgl-logo-text">UFL</span>
         </a>
 
         <input type="checkbox" id="mgl-nav-toggle" class="mgl-nav-checkbox">
@@ -123,26 +117,32 @@
     <div class="mgl-footer-inner">
         <div class="mgl-footer-brand">
             <img src="{% static 'core/img/ufl-logo-chrome.png' %}" alt="Ultimate Fantasy League" class="mgl-logo-img">
-            <strong>ULTIMATE FANTASY LEAGUE</strong>
-            <p>Online EA FC Career Mode. Real managers. Real competition.</p>
+            <strong>UFL — ULTIMATE FANTASY LEAGUE</strong>
+            <p>Fantasy online football career mode. Fair to play. Built to win.</p>
             <p>{{ footer_description|default:"Build your club. Manage your squad. Compete in Ultimate Fantasy League." }}</p>
+            <div class="ufl-footer-social" aria-label="Social">
+                <a href="{{ discord_invite_url|default:'https://discord.gg/rhKg6gmE8K' }}" target="_blank" rel="noopener">DC</a>
+                {% if social_x_url %}<a href="{{ social_x_url }}" target="_blank" rel="noopener">X</a>{% endif %}
+                {% if social_instagram_url %}<a href="{{ social_instagram_url }}" target="_blank" rel="noopener">IG</a>{% endif %}
+                {% if social_youtube_url %}<a href="{{ social_youtube_url }}" target="_blank" rel="noopener">YT</a>{% endif %}
+            </div>
         </div>
         <div class="mgl-footer-col">
-            <h3>UFL</h3>
-            <a href="{% url 'home' %}">Ultimate Fantasy League</a>
-            <a href="{% url 'ufl_rules' %}">Online Career Mode</a>
-            <a href="{% url 'home' %}#mgl-faq">FAQ</a>
-        </div>
-        <div class="mgl-footer-col">
-            <h3>NAVIGATION</h3>
+            <h3>GAME</h3>
             <a href="{% url 'home' %}">Home</a>
             <a href="{% url 'leagues_page' %}">Leagues</a>
-            <a href="{% url 'clubs_index' %}">Clubs</a>
             <a href="{% url 'competition_page' 'premier-league' %}">Fixtures</a>
-            <a href="{% url 'leagues_page' %}">Tables</a>
             <a href="{% url 'league_stats' 'premier-league' %}">Statistics</a>
-            <a href="{% url 'job_centre' %}">Jobs</a>
             <a href="{% url 'competition_page' 'cups' %}">Cups</a>
+            <a href="{% url 'ufl_rules' %}">How to Play</a>
+        </div>
+        <div class="mgl-footer-col">
+            <h3>MANAGER</h3>
+            <a href="{% url 'job_centre' %}">Job Centre</a>
+            <a href="{% url 'clubs_index' %}">Clubs</a>
+            <a href="{% url 'manager_hub' %}">My Team</a>
+            <a href="{% url 'manager_verification' %}">Verification</a>
+            <a href="{% url 'manager_profile' %}">Profile</a>
         </div>
         <div class="mgl-footer-col">
             <h3>COMMUNITY</h3>
@@ -150,18 +150,22 @@
             <a href="{% url 'live_activity' %}">Activity</a>
             <a href="{% url 'news_centre' %}">News</a>
             <a href="{% url 'pressroom' %}">Pressroom</a>
+            <a href="{% url 'historical_tables' %}">History</a>
         </div>
         <div class="mgl-footer-col">
-            <h3>ACCOUNT</h3>
+            <h3>LEGAL</h3>
+            <a href="{% url 'home' %}#mgl-terms">Terms of Service</a>
+            <a href="{% url 'home' %}#mgl-privacy">Privacy Policy</a>
+            <a href="{% url 'home' %}#mgl-faq">Help</a>
+            <a href="{% url 'home' %}#mgl-contact">Contact Us</a>
             <a href="{% url 'manager_login' %}">Login</a>
             <a href="{% url 'manager_register' %}">Register</a>
-            <a href="{% url 'manager_hub' %}">Manager Career</a>
-            <a href="{% url 'manager_verification' %}">Verification</a>
         </div>
     </div>
     <div class="mgl-footer-copy">
-        <span>© Ultimate Fantasy League. All rights reserved.</span>
-        <span>EA FC Career Mode | UFL</span>
+        <span>© 2026 UFL. All rights reserved.</span>
+        <span class="ufl-server-online">Server Status: ● Online</span>
+        <span>Language: English</span>
     </div>
 </footer>
 {% endblock %}

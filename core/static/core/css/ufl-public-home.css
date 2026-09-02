@@ -1,12 +1,12 @@
 /* Isolated public Home page. Loaded last. All rules scoped to body.ufl-home. */
 
 body.ufl-home {
-    --uh-gold: #2ee6d6;
+    --uh-gold: #00e5ff;
     --uh-ink: #042022;
-    --uh-line: rgba(46, 230, 214, 0.22);
-    --uh-muted: #8aa3a8;
-    --uh-max: 1180px;
-    background: var(--ufl-bg, #041016);
+    --uh-line: rgba(0, 229, 255, 0.22);
+    --uh-muted: #b0bec5;
+    --uh-max: 1200px;
+    background: #0d0d0d;
     color: #fff;
 }
 
@@ -129,7 +129,7 @@ body.ufl-home .mgl-home-experience article::before {
 }
 
 .uh-btn-gold:hover {
-    background: #f0d89a;
+    background: #5ef2ff;
     color: var(--uh-ink);
 }
 
@@ -180,17 +180,90 @@ body.ufl-home .ufl-livebar-all {
 }
 
 .uh-hero-band {
-    display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
-    gap: 0;
+    display: block;
     border: 1px solid var(--uh-line);
     background: #000;
 }
 
 .uh-hero-band .uh-hero {
-    min-height: 420px;
+    min-height: 520px;
     border: 0;
-    border-right: 1px solid var(--uh-line);
+}
+
+.uh-brand {
+    margin: 0 0 6px;
+    font-family: var(--font-display);
+    font-size: clamp(42px, 7vw, 88px);
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    line-height: 0.85;
+}
+
+.uh-steps {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 12px;
+    padding: 0;
+    margin: 18px 0 0;
+    list-style: none;
+}
+
+.uh-steps li {
+    background: #121212;
+    border: 1px solid var(--uh-line);
+    border-radius: 8px;
+    overflow: hidden;
+    display: grid;
+    align-content: start;
+}
+
+.uh-steps img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+}
+
+.uh-steps em,
+.uh-steps h3,
+.uh-steps p,
+.uh-steps a {
+    padding: 0 12px;
+}
+
+.uh-steps em {
+    color: var(--uh-gold);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    margin-top: 10px;
+}
+
+.uh-steps h3 {
+    margin: 4px 0;
+    font-size: 16px;
+}
+
+.uh-steps p {
+    color: var(--uh-muted);
+    font-size: 13px;
+}
+
+.uh-steps a {
+    color: var(--uh-gold);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    margin: 8px 0 14px;
+}
+
+@media (max-width: 980px) {
+    .uh-steps {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .uh-steps {
+        grid-template-columns: 1fr;
+    }
 }
 
 .uh-hero-band .uh-connect {
@@ -398,27 +471,13 @@ body.ufl-home .ufl-livebar-all {
     color: var(--uh-gold);
 }
 
-/* ----- Steps ----- */
+/* ----- Steps (Canva 5-card journey; earlier rules win layout) ----- */
 .uh-how {
     margin-top: 18px;
 }
 
-.uh-steps {
-    list-style: none;
-    margin: 12px 0 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 8px;
-}
-
-.uh-steps li {
-    display: grid;
-    gap: 8px;
-    align-items: start;
-    padding: 16px 16px 14px;
-    background: #0a0a0a;
-    border: 1px solid var(--uh-line);
+.uh-steps li:hover {
+    border-color: var(--uh-gold);
 }
 
 .uh-steps li:hover {

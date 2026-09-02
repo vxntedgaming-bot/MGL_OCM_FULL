@@ -66,8 +66,8 @@ def debit_manager_tokens(manager, amount, reason, auction=None):
             category="MARKET",
         )
     except ValueError as exc:
-        if "enough tokens" in str(exc).lower():
-            raise ValueError("You do not have enough tokens.") from exc
+        if "enough tokens" in str(exc).lower() or "enough ufl coins" in str(exc).lower():
+            raise ValueError("You do not have enough UFL Coins.") from exc
         raise
     manager = lock_manager(manager)
     record_token_transaction(
@@ -110,7 +110,7 @@ def debit_team_tokens(team, amount):
     team = lock_team(team)
     amount = Decimal(str(amount))
     if team.tokens < amount:
-        raise ValueError("This club does not have enough tokens.")
+        raise ValueError("This club does not have enough UFL Coins.")
     team.tokens = Decimal(team.tokens) - amount
     team.save(update_fields=["tokens"])
     return team
@@ -377,9 +377,9 @@ def parse_offer_amount(value, *, allow_zero=False):
     except Exception as exc:
         raise ValueError("Enter a valid token amount.") from exc
     if price < 0:
-        raise ValueError("Token offer cannot be negative.")
+        raise ValueError("UFL Coin offer cannot be negative.")
     if price == 0 and not allow_zero:
-        raise ValueError("Token offer must be greater than zero.")
+        raise ValueError("UFL Coin offer must be greater than zero.")
     return price
 
 
@@ -1368,7 +1368,7 @@ def assert_can_create_transfer_offer(
     if seller.id == buyer.id:
         raise ValueError("You cannot buy your own player.")
     if require_tokens and buyer.tokens < Decimal("0.01"):
-        raise ValueError("You do not have enough tokens.")
+        raise ValueError("You do not have enough UFL Coins.")
     if check_roster:
         assert_roster_space(buyer_club)
     _assert_player_unlocked(player, exclude_listing_id=exclude_listing_id)
@@ -1381,7 +1381,7 @@ def create_transfer_offer(player, buyer, asking_price):
     buyer_club, selling_team, seller = assert_can_create_transfer_offer(player, buyer)
     price = parse_asking_price(asking_price)
     if buyer.tokens < price:
-        raise ValueError("You do not have enough tokens.")
+        raise ValueError("You do not have enough UFL Coins.")
     listing = PlayerListing.objects.create(
         player=player,
         team=selling_team,
@@ -1465,7 +1465,7 @@ def create_listed_purchase_offer(
     if not offered and price <= 0:
         raise ValueError("Offer tokens or include a player from your squad.")
     if buyer.tokens < price:
-        raise ValueError("You do not have enough tokens.")
+        raise ValueError("You do not have enough UFL Coins.")
     assert_swap_roster_space(buyer_club, selling_team, len(offered))
     listing.reserved_buyer = buyer
     listing.asking_price = price

@@ -7,7 +7,7 @@ from .services import player_tier,assign_player
 
 @transaction.atomic
 def open_pack(manager,pack,team):
-    if manager.tokens < pack.cost: raise ValueError("Not enough tokens")
+    if manager.tokens < pack.cost: raise ValueError("Not enough UFL Coins")
     needed = 7 if pack.pack_type == "ELITE" else 1
     assert_roster_space(team, extra=needed)
     owned=set(Player.objects.filter(mgl_team=team).values_list("id",flat=True))

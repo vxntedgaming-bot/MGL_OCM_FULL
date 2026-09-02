@@ -13,67 +13,6 @@
 <img src="{% static 'core/img/ufl-logo-chrome.png' %}" alt="Ultimate Fantasy League" class="mgl-logo-img">
 {% endblock %}
 
-{% block footer %}
-<footer class="ud-footer">
-    <div class="ud-footer-inner">
-        <div class="ud-footer-brand">
-            <img src="{% static 'core/img/ufl-logo-chrome.png' %}" alt="UFL">
-            <strong>ULTIMATE FANTASY LEAGUE</strong>
-            <p>Online EA FC Career Mode. Real managers. Real competition. Real football.</p>
-            <div class="ud-social" aria-label="Social">
-                {% if discord_invite_url %}
-                    <a href="{{ discord_invite_url }}" target="_blank" rel="noopener">Discord</a>
-                {% endif %}
-                {% if social_x_url %}<a href="{{ social_x_url }}" target="_blank" rel="noopener">X</a>{% endif %}
-                {% if social_youtube_url %}<a href="{{ social_youtube_url }}" target="_blank" rel="noopener">YouTube</a>{% endif %}
-                {% if social_instagram_url %}<a href="{{ social_instagram_url }}" target="_blank" rel="noopener">Instagram</a>{% endif %}
-            </div>
-        </div>
-        <div class="ud-footer-col">
-            <h3>NAVIGATION</h3>
-            <a href="{% url 'manager_hub' %}">Dashboard</a>
-            <a href="{% url 'team_management' %}">Squad</a>
-            <a href="{% url 'fixture_list' %}">Fixtures</a>
-            <a href="{% url 'leagues_page' %}">Table</a>
-            <a href="{% url 'transfer_market' %}">Transfers</a>
-            <a href="{% url 'scouting' %}">Recruitment</a>
-            <a href="{% url 'stats_page' %}">Stats</a>
-        </div>
-        <div class="ud-footer-col">
-            <h3>COMMUNITY</h3>
-            {% if discord_invite_url %}
-                <a href="{{ discord_invite_url }}" target="_blank" rel="noopener">Discord</a>
-            {% endif %}
-            <a href="{% url 'pressroom' %}">Pressroom</a>
-            <a href="{% url 'live_activity' %}">Live Activity</a>
-            <a href="{% url 'historical_tables' %}">History</a>
-        </div>
-        <div class="ud-footer-col">
-            <h3>ACCOUNT</h3>
-            <a href="{% url 'manager_profile' %}">Profile</a>
-            <a href="{% url 'manager_notifications' %}">Notifications</a>
-            <a href="{% url 'manager_rewards' %}">Token History</a>
-            <form method="post" action="{% url 'manager_logout' %}">
-                {% csrf_token %}
-                <button type="submit">Logout</button>
-            </form>
-        </div>
-    </div>
-    <div class="ud-footer-copy">
-        <span>© 2026 Ultimate Fantasy League (UFL). All rights reserved.</span>
-        <span>
-            <a href="{% url 'home' %}#mgl-privacy">Privacy Policy</a>
-            <a href="{% url 'home' %}#mgl-terms">Terms of Service</a>
-            <a href="{% url 'ufl_rules' %}">Rules</a>
-        </span>
-    </div>
-    <svg class="ud-ball" viewBox="0 0 200 200" aria-hidden="true">
-        <circle cx="100" cy="100" r="78" fill="none" stroke="currentColor" stroke-width="2"/>
-        <path d="M100 22 122 62 100 78 78 62Z M122 62 178 78 148 118 100 78Z M78 62 22 78 52 118 100 78Z M52 118 40 168 88 148 100 78Z M148 118 160 168 112 148 100 78Z M88 148 100 178 112 148" fill="none" stroke="currentColor" stroke-width="2"/>
-    </svg>
-</footer>
-{% endblock %}
-
 {% block content %}
 <div class="ud">
     <section class="ud-hero">

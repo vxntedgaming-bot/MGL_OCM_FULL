@@ -237,7 +237,7 @@ def open_recruitment_pack(user, pack_code, *, rng=None):
     if pack.opening_limit is not None and openings_used(manager, pack) >= pack.opening_limit:
         raise ValueError("You have reached the opening limit for this pack.")
     if manager.tokens < cost:
-        raise ValueError("Manager does not have enough tokens.")
+        raise ValueError("Manager does not have enough UFL Coins.")
 
     limit = effective_roster_limit(team)
     if roster_occupancy(team) >= limit:

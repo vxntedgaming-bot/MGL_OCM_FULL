@@ -111,7 +111,7 @@
         <div class="eyebrow">ACCOUNT</div>
         <h2>RESIGN FROM CLUB?</h2>
         <p>Are you sure you want to resign from {{ team.name }}?</p>
-        <p>Your manager account and personal token balance will be kept. You will no longer manage this club. The squad stays with {{ team.name }}.</p>
+        <p>Your manager account and personal UFL Coin balance will be kept. You will no longer manage this club. The squad stays with {{ team.name }}.</p>
         <form method="post" action="{% url 'resign_from_club' %}" class="mgl-modal-form">
             {% csrf_token %}
             <div class="mgl-modal-actions">

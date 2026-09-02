@@ -134,7 +134,7 @@ def debit_manager(
         return existing
 
     if not allow_negative and manager.tokens < amount:
-        raise ValueError("Manager does not have enough tokens.")
+        raise ValueError("Manager does not have enough UFL Coins.")
 
     before = Decimal(manager.tokens)
     manager.tokens = before - amount

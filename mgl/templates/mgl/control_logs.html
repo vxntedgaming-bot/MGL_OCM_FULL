@@ -4,7 +4,7 @@
 {% block control_crumb %}CONTROL / HISTORY{% endblock %}
 {% block control_kicker %}SYSTEM{% endblock %}
 {% block control_heading %}HISTORY / AUDIT{% endblock %}
-{% block control_intro %}League activity, admin actions, owner actions and the token ledger. Filters do not change balances.{% endblock %}
+{% block control_intro %}League activity, admin actions, owner actions and the UFL Coin ledger. Filters do not change balances.{% endblock %}
 
 {% block control_body %}
 <form method="get" class="mgl-cp-toolbar">
@@ -23,7 +23,7 @@
     </select>
     <select name="kind">
         <option value="">All kinds</option>
-        <option value="TOKEN" {% if log_kind == "TOKEN" %}selected{% endif %}>Token activity</option>
+        <option value="TOKEN" {% if log_kind == "TOKEN" %}selected{% endif %}>UFL Coin activity</option>
         <option value="ADMIN" {% if log_kind == "ADMIN" %}selected{% endif %}>Admin</option>
         <option value="OWNER" {% if log_kind == "OWNER" %}selected{% endif %}>Owner</option>
         <option value="MANAGER" {% if log_kind == "MANAGER" %}selected{% endif %}>Manager</option>
@@ -80,7 +80,7 @@
                     <td>{{ row.reason }}</td>
                 </tr>
             {% empty %}
-                <tr><td colspan="5">{% include "mgl/includes/empty_state.html" with title="NO TOKEN ACTIVITY" body="No token ledger rows yet." %}</td></tr>
+                <tr><td colspan="5">{% include "mgl/includes/empty_state.html" with title="NO UFL COIN ACTIVITY" body="No UFL Coin ledger rows yet." %}</td></tr>
             {% endfor %}
         </tbody>
     </table>

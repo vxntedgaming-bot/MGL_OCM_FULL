@@ -14,7 +14,7 @@
         <label class="mgl-cp-field">CODE <input type="text" name="code" required maxlength="20"></label>
         <label class="mgl-cp-field">NAME <input type="text" name="name" required></label>
         <label class="mgl-cp-field">TYPE <input type="text" name="pack_type" value="POSITION"></label>
-        <label class="mgl-cp-field">TOKEN COST <input type="number" name="token_cost" value="1" min="0" step="0.5" required></label>
+        <label class="mgl-cp-field">UFL COIN COST <input type="number" name="token_cost" value="1" min="0" step="0.5" required></label>
         <label class="mgl-cp-field">RESULTS <input type="number" name="result_count" value="3" min="1" required></label>
         <label class="mgl-cp-field">SELECT <input type="number" name="select_count" value="1" min="1" required></label>
         <label class="mgl-cp-field">MIN OVR <input type="number" name="min_ovr" min="1" max="99"></label>
@@ -42,7 +42,7 @@
         <label class="mgl-cp-field">CODE <input type="text" name="code" value="{{ pack.code }}" required></label>
         <label class="mgl-cp-field">NAME <input type="text" name="name" value="{{ pack.name }}" required></label>
         <label class="mgl-cp-field">TYPE <input type="text" name="pack_type" value="{{ pack.pack_type }}"></label>
-        <label class="mgl-cp-field">TOKEN COST <input type="number" name="token_cost" value="{{ pack.token_cost }}" min="0" step="0.5" required></label>
+        <label class="mgl-cp-field">UFL COIN COST <input type="number" name="token_cost" value="{{ pack.token_cost }}" min="0" step="0.5" required></label>
         <label class="mgl-cp-field">RESULTS <input type="number" name="result_count" value="{{ pack.result_count }}" min="1" required></label>
         <label class="mgl-cp-field">SELECT <input type="number" name="select_count" value="{{ pack.select_count }}" min="1" required></label>
         <label class="mgl-cp-field">MIN OVR <input type="number" name="min_ovr" value="{{ pack.min_ovr|default_if_none:'' }}"></label>

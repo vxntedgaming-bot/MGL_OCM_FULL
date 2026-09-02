@@ -1,29 +1,31 @@
 /* =========================================================
-   MGL — METAGAMINGLEAGUE
-   DARK / GOLD UI
+   UFL — structural layout
+   Colour tokens live in ufl.css (Canva design system).
 ========================================================= */
 
 :root {
-    --bg: #050505;
-    --bg-soft: #0a0c10;
-    --panel: #12161d;
-    --panel-hover: #181d26;
-    --border: rgba(255, 255, 255, 0.08);
-    --orange: #e4c77a;
-    --orange-light: #f0d89a;
-    --orange-dark: #c4a45a;
+    --bg: #0d0d0d;
+    --bg-soft: #121212;
+    --panel: #1a1a1a;
+    --panel-hover: #222b2e;
+    --border: rgba(0, 229, 255, 0.14);
+    --orange: #00e5ff;
+    --orange-light: #5ef2ff;
+    --orange-dark: #00838f;
     --text: #ffffff;
-    --muted: #9aa3ad;
-    --muted-light: #d5dbe4;
-    --success: #3dbe74;
-    --container: 1180px;
+    --muted: #b0bec5;
+    --muted-light: #cfd8dc;
+    --success: #4caf50;
+    --container: 1200px;
     --header-h: 64px;
     --font-display: "Barlow Condensed", "Arial Narrow", sans-serif;
-    --font-body: "Manrope", Arial, Helvetica, sans-serif;
-    --glow: 0 0 18px rgba(228, 199, 122, 0.22);
-    --ufl-gold: #e4c77a;
-    --ufl-gold-2: #f0d89a;
-    --ufl-gold-ink: #12100a;
+    --font-body: "Inter", "Manrope", "Segoe UI", sans-serif;
+    --glow: 0 0 18px rgba(0, 229, 255, 0.16);
+    --ufl-gold: #00e5ff;
+    --ufl-gold-2: #5ef2ff;
+    --ufl-gold-ink: #042022;
+    --ufl-coin-gold: #ffd600;
+    --ufl-coin-gold-2: #ffe566;
 }
 
 * {

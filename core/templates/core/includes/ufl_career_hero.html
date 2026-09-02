@@ -1,24 +1,29 @@
 {% load static mgl_ui %}
 {% site_text "home.hero_title" as hero_title %}
 <section class="uh-hero" aria-labelledby="uh-hero-title">
-    <img src="{% static 'core/img/ufl-home-hero-career.jpg' %}" alt="" aria-hidden="true">
+    <img src="{% static 'core/img/library/hero-huddle.jpg' %}" alt="" aria-hidden="true">
     <div class="uh-hero-copy">
         <p class="uh-badge">UFL CAREER MODE — SEASON LIVE</p>
         {% if hero_title %}<p class="uh-cms">{{ hero_title }}</p>{% endif %}
+        <p class="uh-brand">UFL</p>
         <h1 id="uh-hero-title">
+            <span class="uh-gold">ULTIMATE FANTASY LEAGUE</span>
             <span>EA FC</span>
             <span>ONLINE</span>
-            <span class="uh-gold">CAREER MODE</span>
+            <span>CAREER MODE</span>
         </h1>
         <p class="uh-lead">
+            Fantasy Online Football Career Mode.
             Take control of a club. Build your squad.<br>
             Manage your fixtures. Make the right<br>
             decisions and build your managerial legacy.
             {% site_text "home.hero_subtitle" %}
         </p>
         <div class="uh-actions">
+            <a href="{{ apply_club_url }}" class="uh-btn uh-btn-gold">BECOME A MANAGER</a>
             <a href="{{ apply_club_url }}" class="uh-btn uh-btn-gold">VIEW JOB OPENINGS</a>
             <a href="{% url 'leagues_page' %}" class="uh-btn uh-btn-ghost">VIEW LEAGUE TABLE</a>
+            <a href="{% url 'leagues_page' %}" class="uh-btn uh-btn-ghost">EXPLORE UFL</a>
         </div>
     </div>
 </section>

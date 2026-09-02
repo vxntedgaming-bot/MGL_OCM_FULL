@@ -594,7 +594,7 @@ def control_approve_weekly_awards(request, batch_id):
     batch = get_object_or_404(WeeklyAwardBatch, pk=batch_id)
     try:
         approve_weekly_awards(batch, request.user)
-        messages.success(request, "Weekly awards approved. Token rewards released once.")
+        messages.success(request, "Weekly awards approved. UFL Coin rewards released once.")
     except ValueError as exc:
         messages.error(request, str(exc))
     return control_centre_redirect(request, default="control_weekly_awards")
@@ -607,7 +607,7 @@ def control_reject_weekly_awards(request, batch_id):
 
     batch = get_object_or_404(WeeklyAwardBatch, pk=batch_id)
     reject_weekly_awards(batch, request.user)
-    messages.success(request, "Weekly awards rejected. Tokens were not released.")
+    messages.success(request, "Weekly awards rejected. UFL Coins were not released.")
     return control_centre_redirect(request, default="control_weekly_awards")
 
 
@@ -632,7 +632,7 @@ def control_approve_monthly_awards(request, batch_id):
 
     batch = get_object_or_404(MonthlyAwardBatch, pk=batch_id)
     approve_monthly_awards(batch, request.user)
-    messages.success(request, "Monthly awards approved. Token rewards released once.")
+    messages.success(request, "Monthly awards approved. UFL Coin rewards released once.")
     return control_centre_redirect(request, default="control_monthly_awards")
 
 
@@ -782,7 +782,7 @@ def control_approve_job(request, application_id):
     messages.success(
         request,
         f"{application.manager.display_name} is now manager of {application.team.name}. "
-        "Token balance stays with the manager.",
+        "UFL Coin balance stays with the manager.",
     )
     return control_centre_redirect(request, default="control_managers")
 
