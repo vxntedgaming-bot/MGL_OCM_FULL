@@ -60,6 +60,8 @@
     --uh-line: var(--ufl-line);
     --uh-muted: var(--ufl-muted);
     --uh-max: var(--ufl-max);
+    --ufl-cyan: #ffffff;
+    --ufl-teal: #ffffff;
 }
 
 *,
@@ -872,6 +874,14 @@ body.ufl-home .mgl-main { width: 100%; max-width: none; padding: 0; }
 .mgl-jobs-card-stats svg { width: 14px; height: 14px; }
 .mgl-jobs-card-stats dd { margin: 0; font-size: 13px; font-weight: 700; }
 .mgl-jobs-card-actions { display: grid; gap: 8px; }
+.mgl-jobs-select,
+.mgl-jobs-submit,
+.mgl-jobs-card-actions .primary-button {
+    background: #fff;
+    border-color: #fff;
+    color: #111;
+    box-shadow: none;
+}
 .mgl-jobs-panel {
     padding: 16px;
     background: var(--ufl-card);
