@@ -16,6 +16,7 @@ Controlled presentation pass. Backend, approvals, routes and stored data are unc
 - League tables show GF / GA from existing standings rows
 - Job application still uses the locked 1–3 / 3–5 / 6+ dropdown and Owner/Admin approval
 - Activity ticker still reads published NewsPost records only
+- Tests: 587 / 587 passed on the isolated suite
 
 ---
 
