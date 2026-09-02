@@ -14,16 +14,17 @@
         </h1>
         <p class="uh-lead">
             Fantasy Online Football Career Mode.
-            Take control of a club. Build your squad.<br>
-            Manage your fixtures. Make the right<br>
+            Take control of a club. Build your squad.
+            Manage your fixtures. Make the right
             decisions and build your managerial legacy.
             {% site_text "home.hero_subtitle" %}
         </p>
         <div class="uh-actions">
-            <a href="{{ apply_club_url }}" class="uh-btn uh-btn-gold">BECOME A MANAGER</a>
-            <a href="{{ apply_club_url }}" class="uh-btn uh-btn-gold">VIEW JOB OPENINGS</a>
+            <a href="{% url 'leagues_page' %}" class="uh-btn uh-btn-gold">VIEW LEAGUES</a>
+            <a href="{{ join_mgl_url }}" class="uh-btn uh-btn-gold">JOIN UFL</a>
+            <a href="{{ apply_club_url }}" class="uh-btn uh-btn-ghost">BECOME A MANAGER</a>
+            <a href="{{ apply_club_url }}" class="uh-btn uh-btn-ghost">VIEW JOB OPENINGS</a>
             <a href="{% url 'leagues_page' %}" class="uh-btn uh-btn-ghost">VIEW LEAGUE TABLE</a>
-            <a href="{% url 'leagues_page' %}" class="uh-btn uh-btn-ghost">EXPLORE UFL</a>
         </div>
     </div>
 </section>

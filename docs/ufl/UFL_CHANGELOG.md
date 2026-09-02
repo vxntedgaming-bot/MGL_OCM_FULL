@@ -6,6 +6,20 @@ This file started with the documentation/audit pass. It does **not** claim that 
 
 ---
 
+## 2026-09-02 — Compact black / white frontend
+
+Replaced the leftover gold/cyan chrome with one compact UFL design system. Backend, database, models, permissions, URLs and economy rules are unchanged.
+
+- `ufl.css` is still the only loaded stylesheet
+- Palette: black / dark charcoal / white. Gold is UFL Coins only. Blue is high OVR only
+- Compact type and spacing (32px page titles, 38–42px buttons, 1200px container)
+- News ticker under the header rotates existing published news every 1.5s
+- Homepage order: hero → stats → news / fixtures / leagues / market / cups → how UFL works
+- Job Centre, market, fixtures, notifications, verification and Control Centre use compact grids/tables
+- No database reset, ownership change, Season 1 start, or Discord send
+
+---
+
 ## 2026-09-02 — Complete frontend reset (one system)
 
 Removed the stacked frontend. The site now loads only `core/static/core/css/ufl.css`.

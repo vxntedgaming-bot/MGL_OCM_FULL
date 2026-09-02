@@ -225,4 +225,44 @@
     });
     document.querySelectorAll("[data-notify-dropdown].is-open").forEach(positionNotify);
   });
+
+  (function initUflTicker() {
+    const root = document.querySelector("[data-ufl-ticker]");
+    if (!root) return;
+    const items = Array.prototype.slice.call(root.querySelectorAll(".ufl-ticker-item"));
+    if (items.length <= 1) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) {
+      items.forEach(function (el, index) {
+        el.classList.toggle("is-active", index === 0);
+      });
+      return;
+    }
+    let index = 0;
+    let timer = null;
+    function show(next) {
+      items.forEach(function (el, itemIndex) {
+        el.classList.toggle("is-active", itemIndex === next);
+      });
+    }
+    function tick() {
+      index = (index + 1) % items.length;
+      show(index);
+    }
+    function start() {
+      if (!timer) timer = window.setInterval(tick, 1500);
+    }
+    function stop() {
+      if (timer) {
+        window.clearInterval(timer);
+        timer = null;
+      }
+    }
+    const bar = document.querySelector("[data-ufl-ticker-root]") || root;
+    bar.addEventListener("mouseenter", stop);
+    bar.addEventListener("mouseleave", start);
+    bar.addEventListener("focusin", stop);
+    bar.addEventListener("focusout", start);
+    start();
+  })();
 })();

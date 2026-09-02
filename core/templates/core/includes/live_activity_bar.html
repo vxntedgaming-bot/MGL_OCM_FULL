@@ -1,30 +1,16 @@
-<div class="ufl-livebar" role="region" aria-label="Live activity">
-    <div class="ufl-livebar-window">
-        <span class="ufl-live-pill is-live">
-            ● LIVE
-        </span>
-    </div>
-    <div class="ufl-livebar-track">
-        <strong class="ufl-livebar-label">UFL LIVE ACTIVITY</strong>
-        {% if mgl_live_items %}
-            <div class="ufl-livebar-marquee">
-                <div class="ufl-livebar-scroll">
-                    {% for item in mgl_live_items %}
-                        <a href="{{ item.url }}">{{ item.emoji }} {{ item.title }}</a>
-                    {% endfor %}
-                    {% for item in mgl_live_items %}
-                        <a href="{{ item.url }}" aria-hidden="true">{{ item.emoji }} {{ item.title }}</a>
-                    {% endfor %}
-                </div>
-            </div>
-        {% else %}
-            <p class="ufl-livebar-empty">No recent league activity.</p>
-        {% endif %}
-    </div>
-    <div class="ufl-livebar-meta">
-        {% if mgl_live_latest %}
-            <span class="ufl-livebar-ago">{{ mgl_live_latest|timesince }} ago</span>
-        {% endif %}
-        <a href="{% url 'live_activity' %}" class="ufl-livebar-all">ALL ACTIVITY →</a>
+<div class="ufl-ticker" role="region" aria-label="Latest news" data-ufl-ticker-root>
+    <div class="ufl-ticker-inner">
+        <strong class="ufl-ticker-label">📰 LATEST NEWS</strong>
+        <span class="visually-hidden">UFL LIVE ACTIVITY</span>
+        <div class="ufl-ticker-viewport" data-ufl-ticker>
+            {% if mgl_live_items %}
+                {% for item in mgl_live_items %}
+                    <a href="{{ item.url }}" class="ufl-ticker-item{% if forloop.first %} is-active{% endif %}">{{ item.title }}</a>
+                {% endfor %}
+            {% else %}
+                <p class="ufl-ticker-item ufl-ticker-empty is-active">No latest news available</p>
+            {% endif %}
+        </div>
+        <a href="{% url 'live_activity' %}" class="ufl-ticker-all">ALL ACTIVITY →</a>
     </div>
 </div>

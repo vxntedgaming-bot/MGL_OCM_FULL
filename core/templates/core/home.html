@@ -14,19 +14,13 @@
 <div class="uh">
     {% include "core/includes/ufl_career_hero.html" %}
     {% include "core/includes/ufl_stats_strip.html" %}
-    {% include "core/includes/ufl_how_it_works.html" %}
-    {% include "core/includes/ufl_experience.html" %}
-    {% include "core/includes/ufl_feature_grid.html" %}
-    {% include "core/includes/ufl_career_cta.html" %}
-    {% include "core/includes/ufl_fc_connection.html" %}
-    {% include "core/includes/ufl_discord_cta.html" %}
 </div>
 
 {% with empty_logo="core/img/ufl-logo-chrome.png" %}
-<section class="uh-feed" aria-label="Live league data">
+<section class="uh uh-feed" aria-label="Live league data">
     <article id="mgl-news">
         <header>
-            <h2>LATEST NEWS</h2>
+            <h2>📰 LATEST NEWS</h2>
             <a href="{% url 'news_centre' %}">VIEW ALL →</a>
         </header>
         {% for post in news %}
@@ -36,7 +30,7 @@
         {% endfor %}
     </article>
     <article>
-        <header><h2>NEXT FIXTURE</h2></header>
+        <header><h2>⚽ UPCOMING FIXTURES</h2></header>
         {% if next_fixture %}
             <div class="uh-fixture">
                 <p>
@@ -57,7 +51,7 @@
     </article>
     <article>
         <header>
-            <h2>LEAGUE TABLE</h2>
+            <h2>🏆 LEAGUES</h2>
             <a href="{% url 'leagues_page' %}">VIEW FULL TABLE →</a>
         </header>
         <p class="uh-table-league">{% if active_league %}{{ active_league|league_label|upper }}{% else %}PREMIER LEAGUE{% endif %}</p>
@@ -77,7 +71,7 @@
     </article>
     <article>
         <header>
-            <h2>LATEST TRANSFERS</h2>
+            <h2>💰 TRANSFER MARKET</h2>
             <a href="{% url 'public_transfers' %}">VIEW ALL →</a>
         </header>
         {% for row in recent_transfers %}
@@ -114,13 +108,23 @@
         {% endfor %}
     </article>
     <article>
-        <header><h2>THE UFL CUP</h2></header>
+        <header><h2>🏆 FEATURED CUPS</h2></header>
+        <h3>THE UFL CUP</h3>
         <p>Knockout football. When the competition goes live.</p>
         <span class="ufl-coming-soon">Coming soon</span>
         <a href="{% url 'competition_page' slug='cups' %}" class="uh-btn uh-btn-ghost">CUP DETAILS</a>
     </article>
 </section>
 {% endwith %}
+
+<div class="uh">
+    {% include "core/includes/ufl_how_it_works.html" %}
+    {% include "core/includes/ufl_experience.html" %}
+    {% include "core/includes/ufl_feature_grid.html" %}
+    {% include "core/includes/ufl_career_cta.html" %}
+    {% include "core/includes/ufl_fc_connection.html" %}
+    {% include "core/includes/ufl_discord_cta.html" %}
+</div>
 
 <section class="uh-legal" id="mgl-support">
     <article id="mgl-faq">

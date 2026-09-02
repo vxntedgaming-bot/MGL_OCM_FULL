@@ -2,7 +2,7 @@
 
 Checklist of the **current** project, not a future roadmap disguised as done work.
 
-Last documentation update: 2 September 2026 — **Canva front-end replacement: one `ufl.css` design system, old overlay theme retired (no Season 1, no Discord sends)**.
+Last documentation update: 2 September 2026 — **Compact black/white UFL frontend: one `ufl.css` system, news ticker, no Season 1, no Discord sends**.
 
 ---
 
