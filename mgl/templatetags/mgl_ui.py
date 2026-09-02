@@ -308,7 +308,7 @@ def ovr_band(value):
         overall = int(value or 0)
     except (TypeError, ValueError):
         overall = 0
-    if overall >= 78:
+    if overall >= 80:
         return "high"
     if overall >= 65:
         return "mid"
@@ -346,6 +346,6 @@ def ufl_rating(player_or_value):
         overall = int(overall)
     except (TypeError, ValueError):
         overall = 0
-    band = "high" if overall >= 78 else "mid" if overall >= 65 else "low"
+    band = "high" if overall >= 80 else "mid" if overall >= 65 else "low"
     label = {"high": "HIGH", "mid": "MID", "low": "LOW"}[band]
     return {"overall": overall, "band": band, "label": label}

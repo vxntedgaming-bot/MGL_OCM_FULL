@@ -369,7 +369,7 @@ class FreeAgentEconomyTests(TestCase):
         page = self.client.get(reverse("free_agents"))
         self.assertContains(page, "GENUINE FA")
         self.assertNotContains(page, "Pool Unsigned")
-        self.assertContains(page, "0 TOKENS")
+        self.assertContains(page, 'class="ufl-coin-amt">0</span>')
 
     def test_sign_costs_zero_and_removes_from_pool(self):
         before = self.manager.tokens

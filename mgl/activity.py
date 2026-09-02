@@ -521,7 +521,7 @@ def record_manager_departure(user, team):
     return create_news(
         NewsPost.MANAGER,
         f"{name} has left {team.name}",
-        f"{name} has left {team.name}. The squad, tokens and club history remain intact.",
+        f"{name} has left {team.name}. The squad, balance and club history remain intact.",
         team=team,
         discord_idempotency_key=f"manager.depart:{team.pk}:{getattr(user, 'pk', 'user')}",
     )

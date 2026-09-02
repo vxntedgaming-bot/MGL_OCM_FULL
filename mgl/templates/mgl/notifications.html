@@ -23,13 +23,6 @@
             <a href="{% url 'manager_notifications' %}{% if tab_id %}?tab={{ tab_id }}{% endif %}" class="{% if selected_tab == tab_id %}is-active{% endif %}">{{ tab_label }}</a>
         {% endfor %}
     </nav>
-    <nav class="mgl-inbox-filters" aria-label="Notification categories">
-        <a href="{% url 'manager_notifications' %}" class="{% if not selected_category %}is-active{% endif %}">ALL</a>
-        {% for category in notification_categories %}
-            <a href="{% url 'manager_notifications' %}?category={{ category }}" class="{% if selected_category == category %}is-active{% endif %}">{{ category|upper }}</a>
-        {% endfor %}
-    </nav>
-
     <div class="mgl-inbox">
         {% for item in notifications %}
             {% if item.is_press_brief %}

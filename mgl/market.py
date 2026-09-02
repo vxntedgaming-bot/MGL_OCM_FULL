@@ -418,11 +418,11 @@ def transfer_offer_details(listing, buyer_club=None, extra=None):
     if offered:
         seller_bits = [_player_deal_line(player) for player in offered]
         if amount and amount > 0:
-            seller_bits.append(f"{amount} UFL Coin")
+            seller_bits.append(str(amount))
         details["offered_player"] = ", ".join(_player_deal_line(player) for player in offered)
         details["seller_receives"] = " + ".join(seller_bits)
     elif amount is not None:
-        details["seller_receives"] = f"{amount} UFL Coin"
+        details["seller_receives"] = str(amount)
     if extra:
         details.update(extra)
     return details
@@ -980,7 +980,7 @@ def list_player_for_sale(player, manager, asking_price):
     create_news(
         NewsPost.TRANSFER,
         f"{player.name} listed for sale",
-        f"{team.name} listed {player.name} for {price} tokens.",
+        f"{team.name} listed {player.name} for {price}.",
         team=team,
         discord_idempotency_key=f"listing.live:{listing.pk}",
     )
@@ -1296,7 +1296,7 @@ def approve_listing(listing, reviewer):
     create_news(
         NewsPost.TRANSFER,
         f"{listing.player.name} listed for sale",
-        f"{listing.team.name} listed {listing.player.name} for {listing.asking_price} tokens.",
+        f"{listing.team.name} listed {listing.player.name} for {listing.asking_price}.",
         team=listing.team,
         discord_idempotency_key=f"listing.approve:{listing.pk}",
     )

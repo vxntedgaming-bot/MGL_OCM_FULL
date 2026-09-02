@@ -142,8 +142,8 @@ class ManagerVerificationTests(TestCase):
 class RatingBandTests(TestCase):
     def test_ovr_bands_match_spec(self):
         self.assertEqual(ovr_band(99), "high")
-        self.assertEqual(ovr_band(78), "high")
-        self.assertEqual(ovr_band(77), "mid")
+        self.assertEqual(ovr_band(80), "high")
+        self.assertEqual(ovr_band(79), "mid")
         self.assertEqual(ovr_band(65), "mid")
         self.assertEqual(ovr_band(64), "low")
         self.assertEqual(ovr_band(0), "low")

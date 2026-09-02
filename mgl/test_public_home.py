@@ -36,7 +36,7 @@ class PublicHomePageTests(TestCase):
         self.assertContains(page, "CREATE ACCOUNT")
         self.assertContains(page, "THE UFL EXPERIENCE")
         self.assertContains(page, "RECRUITMENT DRIVE")
-        self.assertContains(page, "TOKENS SYSTEM")
+        self.assertContains(page, "THE COIN")
         self.assertContains(page, "YOUR CLUB.")
         self.assertNotContains(page, reverse("recruitment_drive"))
         self.assertNotContains(page, reverse("manager_rewards"))

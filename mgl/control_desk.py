@@ -239,7 +239,7 @@ def attention_items(queues, limit=8):
                 "meta": (
                     f"{deal.get('current_club') or listing.team.name} → "
                     f"{deal.get('requesting_club') or listing.reserved_buyer.display_name}"
-                    f" · {deal.get('amount') or listing.asking_price} UFL Coin"
+                    f" · {deal.get('amount') or listing.asking_price}"
                     f" · SELLER RECEIVES {deal.get('seller_receives') or listing.asking_price}"
                     f" · BUYER RECEIVES {deal.get('buyer_receives') or listing.player.name}"
                     f" · BUYER {deal.get('buyer_manager') or listing.reserved_buyer.display_name}"

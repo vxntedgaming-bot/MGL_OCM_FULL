@@ -35,7 +35,7 @@
                         {% endif %}
                         <span>Squad Size: {{ squad_size }}/{{ roster_limit }}</span>
                     </p>
-                    <span class="mgl-team-token-pill">{{ token_balance }} TOKENS</span>
+                    <span class="mgl-team-token-pill">{% ufl_coin token_balance "sm" %}</span>
                 </div>
             </div>
             <div class="mgl-team-hero-lines">
@@ -325,14 +325,14 @@
         {% if listing_action == "transfer" %}
             <div class="eyebrow">MARKET</div>
             <h2>LIST PLAYER FOR TRANSFER</h2>
-            <p>{{ listing_player.name }} · {{ listing_player.position }} · {{ listing_player.overall }} OVR · {{ team.name }}</p>
+            <p>{{ listing_player.name }} · {{ listing_player.position }} · <span class="ufl-ovr-{{ listing_player.overall|ovr_band }}">{{ listing_player.overall }}</span> OVR · {{ team.name }}</p>
             {% player_card listing_player "small" %}
             <form method="post" action="{% url 'sell_player' listing_player.id %}" class="mgl-modal-form">
                 {% csrf_token %}
                 <label>
                     STARTING PRICE
                     <input type="number" name="asking_price" min="0.01" step="0.01" placeholder="5.00" required>
-                    <span>TOKENS</span>
+                    {% ufl_coin "" "sm" %}
                 </label>
                 <div class="mgl-modal-actions">
                     <a href="{% url 'team_management' %}" class="secondary-button">CANCEL</a>
@@ -342,15 +342,15 @@
         {% elif listing_action == "auction" %}
             <div class="eyebrow">MARKET</div>
             <h2>LIST PLAYER FOR AUCTION</h2>
-            <p>{{ listing_player.name }} · {{ listing_player.position }} · {{ listing_player.overall }} OVR · {{ team.name }}</p>
-            <p>Listing fee: <strong>0.1 TOKENS</strong>. The fee is charged once and is not refunded if the player does not sell.</p>
+            <p>{{ listing_player.name }} · {{ listing_player.position }} · <span class="ufl-ovr-{{ listing_player.overall|ovr_band }}">{{ listing_player.overall }}</span> OVR · {{ team.name }}</p>
+            <p>Listing fee: <strong>{% ufl_coin "0.1" "sm" %}</strong>. The fee is charged once and is not refunded if the player does not sell.</p>
             {% player_card listing_player "small" %}
             <form method="post" action="{% url 'list_player_for_auction' listing_player.id %}" class="mgl-modal-form">
                 {% csrf_token %}
                 <label>
                     STARTING BID
                     <input type="number" name="starting_bid" min="0" max="10" step="1" value="1" required>
-                    <span>TOKENS (0–10)</span>
+                    <span>{% ufl_coin "" "sm" %} (0–10)</span>
                 </label>
                 <label>
                     AUCTION DURATION
@@ -368,7 +368,7 @@
         {% else %}
             <div class="eyebrow">SQUAD</div>
             <h2>RELEASE PLAYER</h2>
-            <p>This is not an auction. Releasing this player removes them from your squad immediately and makes them a genuine UFL Free Agent. Other managers can SIGN FOR 0 TOKENS. This does not charge a release fee.</p>
+            <p>This is not an auction. Releasing this player removes them from your squad immediately and makes them a genuine UFL Free Agent. Other managers can SIGN FOR {% ufl_coin 0 "sm" %}. This does not charge a release fee.</p>
             {% player_card listing_player "small" %}
             <form method="post" action="{% url 'release_my_player' listing_player.id %}" class="mgl-modal-form">
                 {% csrf_token %}

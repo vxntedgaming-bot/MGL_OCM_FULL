@@ -328,7 +328,7 @@ def approve_selected_totw(modeladmin, request, queryset):
                     + "\n".join(lines)
                     + "\n\n"
                     "Selected players earn their club manager "
-                    "0.20 tokens each."
+                    "0.20 each."
                 ),
                 discord_idempotency_key=f"totw.approve:{totw.pk}",
             )
@@ -407,7 +407,7 @@ def approve_selected_motw(modeladmin, request, queryset):
                     f"UFL Manager of the Week.\n\n"
                     f"Wins this week: "
                     f"{manager_week.wins}\n\n"
-                    f"Reward: 0.50 tokens."
+                    f"Reward: 0.50."
                 ),
                 team=club,
                 discord_idempotency_key=f"motw.approve:{manager_week.pk}",

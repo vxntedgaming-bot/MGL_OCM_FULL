@@ -13,7 +13,7 @@
     {% for auction in manager_auctions %}
         <div class="table-row mgl-cp-row">
             <strong>{{ auction.player.name }}</strong>
-            <span>{{ auction.player.position }} · {{ auction.player.overall }} OVR · {% ufl_coin auction.winning_bid "sm" %}{% if auction.winning_manager %} · {{ auction.winning_manager.display_name }}{% endif %}</span>
+            <span>{{ auction.player.position }} · <span class="ufl-ovr-{{ auction.player.overall|ovr_band }}">{{ auction.player.overall }}</span> OVR · {% ufl_coin auction.winning_bid "sm" %}{% if auction.winning_manager %} · {{ auction.winning_manager.display_name }}{% endif %}</span>
             <small>{{ auction.ends_at|date:"d M Y H:i" }} · {{ auction.status }} · Manager listing</small>
             <div class="mgl-cp-actions is-row">
                 <form method="post" action="{% url 'control_close_auction' auction.id %}">{% csrf_token %}<input type="hidden" name="next_page" value="control_auctions"><button class="header-button mgl-cp-approve" type="submit">CLOSE</button></form>
@@ -31,7 +31,7 @@
     {% for auction in office_auctions %}
         <div class="table-row mgl-cp-row">
             <strong>{{ auction.player.name }}</strong>
-            <span>{{ auction.player.position }} · {{ auction.player.overall }} OVR · {% ufl_coin auction.winning_bid "sm" %}{% if auction.winning_manager %} · {{ auction.winning_manager.display_name }}{% endif %}</span>
+            <span>{{ auction.player.position }} · <span class="ufl-ovr-{{ auction.player.overall|ovr_band }}">{{ auction.player.overall }}</span> OVR · {% ufl_coin auction.winning_bid "sm" %}{% if auction.winning_manager %} · {{ auction.winning_manager.display_name }}{% endif %}</span>
             <small>{{ auction.ends_at|date:"d M Y H:i" }} · {{ auction.status }} · League office</small>
             <div class="mgl-cp-actions is-row">
                 <form method="post" action="{% url 'control_close_auction' auction.id %}">{% csrf_token %}<input type="hidden" name="next_page" value="control_auctions"><button class="header-button mgl-cp-approve" type="submit">CLOSE</button></form>
@@ -88,10 +88,10 @@
                 <tr class="mgl-cp-player-row" data-player-name="{{ player.name }}" data-position="{{ player.position }}" data-club="Unsigned">
                     <td><strong>{{ player.name }}</strong></td>
                     <td>{{ player.position }}</td>
-                    <td>{{ player.overall }}</td>
+                    <td><span class="ufl-ovr-{{ player.overall|ovr_band }}">{{ player.overall }}</span></td>
                     <td>Unsigned</td>
                     <td>Free Agent</td>
-                    <td><span>UFL Coin</span></td>
+                    <td>{% ufl_coin "" "sm" %}</td>
                     <td>
                         <form method="post" action="{% url 'auction_free_agent' player.id %}" class="mgl-inline-form" data-confirm="Release {{ player.name }} to the auction market? This uses the existing auction system." data-confirm-title="RELEASE TO AUCTION" data-confirm-ok="CONFIRM RELEASE">
                             {% csrf_token %}

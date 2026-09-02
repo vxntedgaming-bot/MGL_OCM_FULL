@@ -1,4 +1,5 @@
 {% extends "mgl/includes/control_page.html" %}
+{% load mgl_ui %}
 
 {% block control_title %}Scouting History — UFL Control{% endblock %}
 {% block control_kicker %}MANAGEMENT{% endblock %}
@@ -12,7 +13,7 @@
         <article class="mgl-cp-review">
             <p class="mgl-cp-kicker">SCOUT RETURN · SQUAD FULL</p>
             <h2>{{ exception.player.name }}</h2>
-            <p>{{ exception.player.position }} · {{ exception.player.overall }} OVR · {{ exception.club.name }}</p>
+            <p>{{ exception.player.position }} · <span class="ufl-ovr-{{ exception.player.overall|ovr_band }}">{{ exception.player.overall }}</span> OVR · {{ exception.club.name }}</p>
             <p>Manager {{ exception.manager.display_name }} already has a 30-player squad. The discovered player was not discarded.</p>
             <div class="mgl-cp-actions">
                 <form method="post" action="{% url 'control_resolve_scout_exception' exception.id %}">

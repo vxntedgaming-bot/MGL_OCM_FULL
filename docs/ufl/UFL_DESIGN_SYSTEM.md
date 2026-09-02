@@ -11,8 +11,8 @@ Sources: `core/static/core/css/ufl-system.css`, `ufl-pages.css`, `ufl-finish.css
 - **One unified UFL identity.**
 - Global structure: **UFL Header → UFL Live Activity → Page Header → Page Content.**
 - **One global UFL Header** on every page (`base.html` → `.mgl-header.ufl-header`). Public Home uses the same chrome.
-- **One UFL visual identity:** deep teal + cyan/turquoise, Barlow Condensed + Manrope. Gold is a sparse premium accent.
-- **Player OVR colours:** 99–78 blue, 77–65 green, 64–0 red. Accent the badge only. Stored ratings are never changed.
+- **One UFL visual identity:** black + deep teal + cyan, Barlow Condensed + Manrope. Gold is only for the UFL Coin and Europa League identity.
+- **Player OVR colours:** 99–80 blue / HIGH, 79–65 green / MID, 64–0 red / LOW. Accent the badge only. Stored ratings are never changed.
 - **Global LIVE ACTIVITY bar** on Public Home and inner chrome (`live_activity_bar.html`, `.ufl-livebar`).
 - **Common Page Header** include: `core/includes/mgl_page_header.html`.
 - **Site-wide styling** via `ufl-system.css` then page CSS then `ufl-pages.css`.
@@ -29,7 +29,7 @@ Sources: `core/static/core/css/ufl-system.css`, `ufl-pages.css`, `ufl-finish.css
 | `--ufl-surface` | `#0c1418` |
 | `--ufl-surface-2` | `#111d22` |
 | `--ufl-graphite` | `#16252b` |
-| `--ufl-gold` | `#c9a74a` (heritage accent only) |
+| `--ufl-gold` | remapped to cyan globally; gold kept only for the coin and Europa League |
 | `--ufl-cyan` | `#16d9d2` (primary accent) |
 | `--ufl-text` | `#f5f7f8` |
 | `--ufl-text-soft` | `#c5d0d3` |
@@ -37,9 +37,10 @@ Sources: `core/static/core/css/ufl-system.css`, `ufl-pages.css`, `ufl-finish.css
 | `--ufl-line` | `rgba(22, 217, 210, 0.12)` |
 | `--ufl-success` | `#32d47c` |
 | `--ufl-danger` | `#ef5350` |
-| `--ufl-rating-high` | `#3298ff` (OVR 78–99) |
-| `--ufl-rating-mid` | `#32d47c` (OVR 65–77) |
+| `--ufl-rating-high` | `#3298ff` (OVR 80–99) |
+| `--ufl-rating-mid` | `#32d47c` (OVR 65–79) |
 | `--ufl-rating-low` | `#ef5350` (OVR 0–64) |
+| `--ufl-coin-gold` | `#c9a74a` (currency icon only) |
 | `--ufl-warning` | `#e8a23a` |
 | `--ufl-radius` | `10px` / `--ufl-radius-sm` `8px` |
 | `--header-h` | `52px` |

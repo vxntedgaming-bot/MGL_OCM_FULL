@@ -15,7 +15,7 @@
                 <th>CLUB</th>
                 <th>MANAGER</th>
                 <th>LEAGUE</th>
-                <th>TOKENS</th>
+                <th></th>
                 <th>STATUS</th>
                 <th>ACTION</th>
             </tr>
@@ -29,7 +29,7 @@
                     </td>
                     <td>{% if team.manager %}{{ team.manager.username }}{% else %}VACANT{% endif %}</td>
                     <td>{{ team.league.name|default:team.league.short_name|default:"—" }}</td>
-                    <td class="mgl-cp-gold">{{ team.tokens }}</td>
+                    <td>{% ufl_coin team.tokens "sm" %}</td>
                     <td><span class="mgl-cp-status is-ok">ACTIVE</span></td>
                     <td>
                         <a href="{% url 'club_page' team.short_name %}" class="header-button">View</a>

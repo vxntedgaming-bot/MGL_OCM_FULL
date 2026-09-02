@@ -1,9 +1,10 @@
 {% extends "mgl/includes/control_page.html" %}
+{% load mgl_ui %}
 
 {% block control_title %}Weekly Rewards History — UFL Control{% endblock %}
 {% block control_kicker %}HISTORY{% endblock %}
 {% block control_heading %}WEEKLY REWARDS HISTORY{% endblock %}
-{% block control_intro %}History of weekly rewards and token distribution{% endblock %}
+{% block control_intro %}History of weekly rewards and distribution{% endblock %}
 
 {% block control_body %}
 <form method="get" class="mgl-cp-toolbar">
@@ -17,7 +18,7 @@
     </label>
     <input type="search" name="q" value="{{ search }}" placeholder="Search manager or award">
     <button class="header-button mgl-cp-review-btn" type="submit">FILTER</button>
-    <p>Total tokens awarded <strong class="mgl-cp-gold">{{ total_tokens|default:"0" }}</strong></p>
+    <p>Total awarded {% ufl_coin total_tokens "sm" %}</p>
 </form>
 
 <section class="dashboard-panel mgl-cp-panel mgl-cp-table-wrap">
@@ -28,7 +29,7 @@
                 <th>MANAGER</th>
                 <th>CLUB</th>
                 <th>AWARD</th>
-                <th>TOKENS</th>
+                <th></th>
                 <th>DATE</th>
             </tr>
         </thead>
@@ -39,7 +40,7 @@
                     <td>{{ row.manager }}</td>
                     <td>{{ row.club }}</td>
                     <td>{{ row.award }}</td>
-                    <td class="mgl-cp-gold">{{ row.tokens }}</td>
+                    <td>{% ufl_coin row.tokens "sm" %}</td>
                     <td>{{ row.date }}</td>
                 </tr>
             {% empty %}

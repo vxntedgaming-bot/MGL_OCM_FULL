@@ -250,7 +250,7 @@ class AuctionWorkflowTests(TestCase):
         self.assertNotContains(response, "LEGACY UNSIGNED")
         self.assertNotContains(response, "RELEASE TO AUCTION")
         self.assertContains(response, "SIGN FOR")
-        self.assertContains(response, "0 UFL Coin")
+        self.assertContains(response, 'class="ufl-coin-amt">0</span>')
         self.assertNotContains(response, ">BUY</button>")
         self.client.logout()
         self.client.login(username="owner", password="test-pass-123")
@@ -356,7 +356,7 @@ class AuctionWorkflowTests(TestCase):
         page = self.client.get(reverse("free_agents"))
         self.assertContains(page, "UNASSIGNED Z")
         self.assertContains(page, "SIGN FOR")
-        self.assertContains(page, "0 UFL Coin")
+        self.assertContains(page, 'class="ufl-coin-amt">0</span>')
         self.assertNotContains(page, ">BUY</button>")
 
     def test_winning_unassigned_auction_assigns_club_not_free_agent(self):
@@ -416,7 +416,7 @@ class AuctionWorkflowTests(TestCase):
         page = self.client.get(reverse("free_agents"))
         self.assertContains(page, "CLUB PLAYER")
         self.assertContains(page, "SIGN FOR")
-        self.assertContains(page, "0 UFL Coin")
+        self.assertContains(page, 'class="ufl-coin-amt">0</span>')
         self.assertNotContains(page, ">BUY</button>")
 
     def test_manager_cannot_release_other_club_or_unassigned_player(self):

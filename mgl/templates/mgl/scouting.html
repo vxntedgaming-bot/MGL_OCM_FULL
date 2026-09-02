@@ -42,7 +42,7 @@
                     <article class="mgl-club-card">
                         {% player_card player "small" %}
                         <strong>{{ player.name }}</strong>
-                        <span>{{ player.position }} · {{ player.overall }} OVR</span>
+                        <span>{{ player.position }} · <span class="ufl-ovr-{{ player.overall|ovr_band }}">{{ player.overall }}</span> OVR</span>
                         <span>UNSIGNED</span>
                         <form method="post">
                             {% csrf_token %}
@@ -180,12 +180,12 @@
                     <form method="post" class="mgl-scout-upgrade">
                         {% csrf_token %}
                         <input type="hidden" name="action" value="upgrade">
-                        <button type="submit" class="secondary-button">UPGRADE ({{ upgrade.cost_label }} TOKENS)</button>
+                        <button type="submit" class="secondary-button">UPGRADE ({% ufl_coin upgrade.cost_label "sm" %})</button>
                     </form>
-                    <p class="mgl-sc-tokens">You have <strong>{{ token_balance }}</strong> tokens available.</p>
+                    <p class="mgl-sc-tokens">You have {% ufl_coin token_balance "sm" %} available.</p>
                 {% else %}
                     <p>LEVEL {{ scout_level }} / {{ max_level }}</p>
-                    <p class="mgl-sc-tokens">You have <strong>{{ token_balance }}</strong> tokens available.</p>
+                    <p class="mgl-sc-tokens">You have {% ufl_coin token_balance "sm" %} available.</p>
                 {% endif %}
             </div>
         </div>
@@ -240,7 +240,7 @@
                         <h3><a href="{% url 'player_profile' item.row.player.id %}">{{ item.row.player.name }}</a></h3>
                         <p>
                             {{ item.row.player.position }}
-                            · {{ item.row.player.overall }} OVR
+                            · <span class="ufl-ovr-{{ item.row.player.overall|ovr_band }}">{{ item.row.player.overall }}</span> OVR
                             · {{ item.row.player.fc27_club|default:"FC26 club unknown" }}
                             · Added {{ item.row.created_at|date:"d M Y" }}
                             {% if item.availability %} · {{ item.availability }}{% endif %}

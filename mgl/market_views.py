@@ -197,7 +197,7 @@ def sell_player(request, player_id):
         listing = list_player_for_sale(player, manager, request.POST.get("asking_price"))
         messages.success(
             request,
-            f"{player.name} is now listed for {listing.asking_price} tokens.",
+            f"{player.name} is now listed for {listing.asking_price}.",
         )
     except ValueError as exc:
         messages.error(request, str(exc))
@@ -496,7 +496,7 @@ def control_approve_manager(request, application_id):
         approve_manager_application(application, request.user)
         messages.success(
             request,
-            f"{application.display_name} is now an approved manager and starts with {STARTING_TOKENS} tokens.",
+            f"{application.display_name} is now an approved manager and starts with {STARTING_TOKENS}.",
         )
     except ValueError as exc:
         messages.error(request, str(exc))
@@ -646,10 +646,10 @@ def control_adjust_tokens(request):
     try:
         amount = Decimal(str(request.POST.get("amount") or "0"))
     except (InvalidOperation, TypeError, ValueError):
-        messages.error(request, "Enter a valid token amount.")
+        messages.error(request, "Enter a valid amount.")
         return control_centre_redirect(request, default="control_tokens")
     if amount == 0:
-        messages.error(request, "Token adjustments must be a non-zero amount.")
+        messages.error(request, "Adjustments must be a non-zero amount.")
         return control_centre_redirect(request, default="control_tokens")
     direction = (request.POST.get("direction") or "").strip().lower()
     if direction in {"remove", "debit"}:
@@ -657,7 +657,7 @@ def control_adjust_tokens(request):
     elif direction in {"add", "award", "credit"}:
         amount = abs(amount)
     if not reason:
-        messages.error(request, "Record a reason for every token adjustment.")
+        messages.error(request, "Record a reason for every adjustment.")
         return control_centre_redirect(request, default="control_tokens")
     manager = get_object_or_404(ManagerApplication, pk=request.POST.get("manager_id"))
     reference = f"admin:{request.user.id}:{uuid.uuid4().hex[:12]}"
@@ -694,7 +694,7 @@ def control_adjust_tokens(request):
     )
     messages.success(
         request,
-        f"{manager.display_name}: {before} → {manager.tokens} tokens.",
+        f"{manager.display_name}: {before} → {manager.tokens}.",
     )
     return control_centre_redirect(request, default="control_tokens")
 

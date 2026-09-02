@@ -339,7 +339,7 @@ def _pay_leader(week_start, data):
             data["title"],
             (
                 f"Your player {winner['player_name']} recorded the most "
-                f"{data['related_name']} this week. Reward: {amount} TOKENS."
+                f"{data['related_name']} this week. Reward: {amount}."
             ),
             team=team,
         )
@@ -417,7 +417,7 @@ def approve_weekly_awards(batch, reviewer):
                 row.manager.user,
                 f"motw-{week_start.isoformat()}",
                 "UFL MANAGER OF THE WEEK",
-                f"Congratulations {row.manager.display_name}. Reward: 1.00 TOKEN.",
+                f"Congratulations {row.manager.display_name}. Reward: 1.00.",
             )
 
     batch.status = WeeklyAwardBatch.APPROVED

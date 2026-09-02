@@ -23,7 +23,7 @@
             <h1>BUY {{ player.name|upper }}</h1>
             <p class="mgl-purchase-hero-copy">Submit a transfer request to {{ selling_team.name }}. Their manager must accept it, and Owner/Admin approval is still required.</p>
         </div>
-        <span class="mgl-purchase-token-pill">{{ token_balance }} TOKENS</span>
+        <span class="mgl-purchase-token-pill">{% ufl_coin token_balance "sm" %}</span>
     </header>
 
     <article class="mgl-purchase-target">
@@ -99,7 +99,7 @@
                         <p>{{ manager.display_name }} · {{ buyer_squad|length }} players</p>
                     </div>
                 </div>
-                <p class="mgl-purchase-note">Select any number of your own eligible players to include in the deal, or leave them unchecked for tokens only.</p>
+                <p class="mgl-purchase-note">Select any number of your own eligible players to include in the deal, or leave them unchecked for the coin only.</p>
                 <ul class="mgl-purchase-squad">
                     {% for row in buyer_squad %}
                     <li class="mgl-purchase-player is-choice{% if row.swap_locked %} is-locked{% endif %}">
@@ -124,12 +124,12 @@
 
         <section class="mgl-purchase-offer">
             <div class="eyebrow">YOUR OFFER</div>
-            <h2>TOKENS AND SWAP</h2>
-            <p>BUYER IS OFFERING any selected squad players plus the token amount below FOR {{ player.name }}. Leave the amount at 0 only if you are offering players and no tokens. SEND OFFER creates a request only — nothing moves until the seller and Owner/Admin approve.</p>
+            <h2>OFFER AND SWAP</h2>
+            <p>BUYER IS OFFERING any selected squad players plus the amount below FOR {{ player.name }}. Leave the amount at 0 only if you are offering players and no coin. SEND OFFER creates a request only — nothing moves until the seller and Owner/Admin approve.</p>
             <label class="mgl-purchase-amount">
                 OFFER AMOUNT
                 <input type="number" name="asking_price" min="0" step="0.01" value="{{ listing.asking_price }}" required>
-                <span>UFL Coin</span>
+                {% ufl_coin "" "sm" %}
             </label>
             <div class="mgl-purchase-actions">
                 <button type="submit" class="mgl-purchase-action">SEND OFFER</button>

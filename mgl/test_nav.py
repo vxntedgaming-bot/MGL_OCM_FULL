@@ -539,7 +539,7 @@ class PlayerSearchAndCardNameTests(TestCase):
         )
         signed_in = self.client.get(reverse("free_agents"))
         self.assertContains(signed_in, "SIGN FOR")
-        self.assertContains(signed_in, "0 UFL Coin")
+        self.assertContains(signed_in, 'class="ufl-coin-amt">0</span>')
         self.assertNotContains(signed_in, ">BUY</button>")
         self.assertContains(signed_in, reverse("sign_free_agent", args=[self.vvd.id]))
 

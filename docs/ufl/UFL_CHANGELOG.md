@@ -6,6 +6,18 @@ This file started with the documentation/audit pass. It does **not** claim that 
 
 ---
 
+## 2026-09-02 — Final QA / polish pass
+
+Presentation cleanup only. No database reset, no ownership, assignment, balance, fixture, rating, Season 1, Discord send, or production migration.
+
+- User-facing TKN / Tokens / UFL Coin labels removed. Currency shows the gold UFL Coin icon and the amount only.
+- Player OVR bands: 99–80 blue / HIGH, 79–65 green / MID, 64–0 red / LOW. Stored ratings unchanged.
+- Old hidden notification category row removed. New ALL / UNREAD / TRANSFERS / FIXTURES / CLUB / MANAGER / SYSTEM tabs remain.
+- Generic gold remapped to cyan. Gold remains only on the UFL Coin and Europa League artwork.
+- Session QA added for manager hub / inbox / verification and owner Control Centre approve/reject buttons.
+
+---
+
 ## 2026-09-02 — Final website completion pass
 
 Site-wide teal/cyan finish, notification centre, manager verification and Control Centre presentation. Existing data, Market, Job Centre, ratings values, balances and fixtures are unchanged.

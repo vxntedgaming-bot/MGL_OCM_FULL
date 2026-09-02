@@ -79,7 +79,7 @@ class OcmEndToEndTests(TestCase):
 
         register = self._register("alice", "Alice", "AlicePSN")
         self.assertEqual(register.status_code, 200)
-        self.assertContains(register, "20 tokens")
+        self.assertContains(register, "20")
 
         user_a = User.objects.get(username="alice")
         self.assertTrue(user_a.is_active)
@@ -102,7 +102,7 @@ class OcmEndToEndTests(TestCase):
         self.assertEqual(control.status_code, 200)
         self.assertContains(control, "Alice")
         self.assertContains(control, "Alpha FC")
-        self.assertContains(control, "50.00 UFL Coin")
+        self.assertContains(control, 'class="ufl-coin-amt">50.00</span>')
         self.client.post(reverse("control_approve_manager", args=[application_a.id]))
         application_a.refresh_from_db()
         user_a.refresh_from_db()

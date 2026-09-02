@@ -212,8 +212,8 @@ def home(request):
         activity.append(
             {
                 "kind": "TRANSFER",
-                "title": row.player.name if row.player_id else "Token movement",
-                "detail": f"{frm} → {to} · {row.amount} UFL Coin",
+                "title": row.player.name if row.player_id else "Balance movement",
+                "detail": f"{frm} → {to} · {row.amount}",
                 "when": row.created_at,
             }
         )
@@ -1170,7 +1170,7 @@ def release_my_player(request, player_id):
 
     messages.success(
         request,
-        f"{player.name} has been released and is now a genuine UFL Free Agent. Signing cost: 0 TOKENS.",
+        f"{player.name} has been released and is now a genuine UFL Free Agent. Signing cost: 0.",
     )
     return redirect("team_management")
 
@@ -1284,7 +1284,7 @@ def sign_free_agent_view(request, player_id):
         sign_free_agent(player, manager)
         messages.success(
             request,
-            f"{player.name} signed for 0 TKN.",
+            f"{player.name} signed for 0.",
         )
     except ValueError as exc:
         messages.error(request, str(exc))
@@ -1424,7 +1424,7 @@ def resign_from_club(request):
         return redirect(next_page)
     messages.success(
         request,
-        f"You have resigned from {team.name}. Your personal token balance is unchanged.",
+        f"You have resigned from {team.name}. Your personal balance is unchanged.",
     )
     record_manager_departure(request.user, team)
     return redirect(next_page)
@@ -1869,7 +1869,7 @@ def remove_club_manager(request, team_id):
     messages.success(
         request,
         f"{old_manager.username} has left {team.name}. "
-        f"The club remains intact and the manager keeps their token balance.",
+        f"The club remains intact and the manager keeps their balance.",
     )
     record_manager_departure(old_manager, team)
     return redirect("club_management_admin")
@@ -2506,7 +2506,7 @@ def scouting(request):
                 profile, level, cost = upgrade_scout(manager)
                 messages.success(
                     request,
-                    f"Scouting network upgraded to Level {level} for {cost} tokens.",
+                    f"Scouting network upgraded to Level {level} for {cost}.",
                 )
             elif action == "dispatch":
                 assignment = dispatch_scout(

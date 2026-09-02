@@ -1,9 +1,10 @@
 {% extends "mgl/includes/control_page.html" %}
+{% load mgl_ui %}
 
-{% block control_title %}Token Rewards — UFL Control{% endblock %}
+{% block control_title %}Rewards — UFL Control{% endblock %}
 {% block control_kicker %}MANAGEMENT{% endblock %}
-{% block control_heading %}TOKEN REWARDS{% endblock %}
-{% block control_intro %}Every add, remove or award is written to the existing token ledger.{% endblock %}
+{% block control_heading %}REWARDS{% endblock %}
+{% block control_intro %}Every add, remove or award is written to the existing ledger.{% endblock %}
 
 {% block control_body %}
 <section class="dashboard-panel mgl-cp-panel">
@@ -19,7 +20,7 @@
         <button class="header-button" type="submit">OPEN LEDGER</button>
     </form>
     {% if selected_manager %}
-        <p class="mgl-cp-kicker">{{ selected_manager.display_name }} · CURRENT BALANCE <span class="mgl-cp-gold">{{ selected_manager.tokens }}</span></p>
+        <p class="mgl-cp-kicker">{{ selected_manager.display_name }} · CURRENT BALANCE {% ufl_coin selected_manager.tokens "sm" %}</p>
     {% endif %}
 </section>
 
@@ -36,8 +37,8 @@
         </select>
         <input type="number" name="amount" step="0.01" required placeholder="Amount">
         <input type="text" name="reason" maxlength="255" required placeholder="Reason">
-        <button class="header-button mgl-cp-approve" type="submit" name="direction" value="add">ADD TOKENS</button>
-        <button class="header-button mgl-cp-reject" type="submit" name="direction" value="remove">REMOVE TOKENS</button>
+        <button class="header-button mgl-cp-approve" type="submit" name="direction" value="add">ADD</button>
+        <button class="header-button mgl-cp-reject" type="submit" name="direction" value="remove">REMOVE</button>
         <button class="header-button mgl-cp-approve" type="submit" name="direction" value="award">AWARD REWARD</button>
     </form>
 </section>
@@ -57,7 +58,7 @@
             {% for row in recent_rewards %}
                 <tr>
                     <td>{{ row.manager.display_name }}</td>
-                    <td class="mgl-cp-gold">{{ row.amount }}</td>
+                    <td>{% ufl_coin row.amount "sm" %}</td>
                     <td>{{ row.category }}</td>
                     <td>{{ row.reason }}</td>
                     <td>{{ row.created_at|date:"d M Y H:i" }}</td>

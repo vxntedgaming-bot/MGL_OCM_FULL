@@ -24,7 +24,7 @@
                 <div class="mgl-xf-player">
                     <div>
                         <a href="{% url 'player_profile' listing.player_id %}">{{ listing.player.name }}</a>
-                        <p>{{ listing.player.position }} · {{ listing.player.overall }} · {{ listing.get_status_display }}</p>
+                        <p>{{ listing.player.position }} · <span class="ufl-ovr-{{ listing.player.overall|ovr_band }}">{{ listing.player.overall }}</span> · {{ listing.get_status_display }}</p>
                         <p>{% ufl_coin listing.asking_price "sm" %}{% if listing.offered_player %} + {{ listing.offered_player.name }}{% endif %}</p>
                     </div>
                 </div>
@@ -33,7 +33,7 @@
                     {% csrf_token %}
                     <button name="action" value="accept" type="submit">ACCEPT</button>
                     <button name="action" value="reject" type="submit">REJECT</button>
-                    <input type="text" name="asking_price" value="{{ listing.asking_price }}" aria-label="Counter tokens">
+                    <input type="text" name="asking_price" value="{{ listing.asking_price }}" aria-label="Counter amount">
                     <input type="text" name="message" placeholder="Counter message">
                     <button name="action" value="counter" type="submit">COUNTER</button>
                 </form>
@@ -90,7 +90,7 @@
                         {% endif %}
                         <p>
                             {% if row.player %}{{ row.player.position }}{% endif %}
-                            {% if row.player and row.player.overall %} · {{ row.player.overall }}{% endif %}
+                            {% if row.player and row.player.overall %} · <span class="ufl-ovr-{{ row.player.overall|ovr_band }}">{{ row.player.overall }}</span>{% endif %}
                             {% if row.player|player_age %} · {{ row.player|player_age }}{% endif %}
                         </p>
                     </div>
@@ -114,7 +114,7 @@
                         <span>—</span>
                     {% endif %}
                 </div>
-                <strong class="mgl-xf-fee">{{ row.fee_label }} TOKENS</strong>
+                <strong class="mgl-xf-fee">{% ufl_coin row.amount "sm" %}</strong>
                 <time>{% if row.completed_at %}{{ row.completed_at|date:"d M Y" }}{% else %}{{ row.created_at|date:"d M Y" }}{% endif %}</time>
             </article>
         {% empty %}

@@ -277,7 +277,7 @@ class TransferRequestsPageTests(TestCase):
         self.assertContains(page, "UFL | TRANSFERS")
         self.assertContains(page, "COMPLETED TRANSFERS")
         self.assertContains(page, "Completed Striker")
-        self.assertContains(page, "9 TOKENS")
+        self.assertContains(page, 'class="ufl-coin-amt">9.00</span>')
         self.assertContains(page, "Chelsea Test")
         self.assertContains(page, "Arsenal Test")
         self.assertNotContains(page, "INCOMING REQUESTS")
@@ -379,7 +379,7 @@ class AuctionTransferHistoryTests(TestCase):
         self.assertContains(page, "Pool Striker")
         self.assertContains(page, "FREE AGENT")
         self.assertContains(page, "Winning FC")
-        self.assertContains(page, "7 TOKENS")
+        self.assertContains(page, 'class="ufl-coin-amt">7.00</span>')
         self.assertContains(page, "mgl-fa-mark")
         self.assertEqual(extract_page_main(page.content.decode()).count("Pool Striker"), 1)
         self.assertEqual(
@@ -424,7 +424,7 @@ class AuctionTransferHistoryTests(TestCase):
         self.assertContains(page, "Club Defender")
         self.assertContains(page, "Origin FC")
         self.assertContains(page, "Winning FC")
-        self.assertContains(page, "9 TOKENS")
+        self.assertContains(page, 'class="ufl-coin-amt">9.00</span>')
         self.assertNotContains(page, "FREE AGENT")
         row = completed_transfers_for(None, all_clubs=True)[0]
         self.assertEqual(row.from_team_id, self.team_a.id)
@@ -482,7 +482,7 @@ class AuctionTransferHistoryTests(TestCase):
         self.assertContains(page, "Walk On Winger")
         self.assertContains(page, "FREE AGENT")
         self.assertContains(page, "Origin FC")
-        self.assertContains(page, "0 TOKENS")
+        self.assertContains(page, 'class="ufl-coin-amt">0.00</span>')
         self.assertEqual(
             MarketTransaction.objects.filter(
                 player=signed,

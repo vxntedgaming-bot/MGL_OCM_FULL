@@ -105,14 +105,14 @@ CONTENT_FIELDS = (
         "market",
         "Transfer Market Introduction",
         "long",
-        "Auctions, listed club players and Free Agents. Unassigned FC26 players are a separate admin-only pool. All deals use UFL tokens.",
+        "Auctions, listed club players and Free Agents. Unassigned FC26 players are a separate admin-only pool. All deals use the coin.",
     ),
     ContentField(
         "market.free_agents_intro",
         "market",
         "Free Agents Introduction",
         "long",
-        "Players who went unsold at auction, or were released by a club manager. Eligible managers can sign them for 0 TKN. Unassigned FC26 players are a separate pool and are not listed here.",
+        "Players who went unsold at auction, or were released by a club manager. Eligible managers can sign them for 0. Unassigned FC26 players are a separate pool and are not listed here.",
     ),
     ContentField(
         "market.auctions_intro",

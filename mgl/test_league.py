@@ -174,7 +174,7 @@ class SuperLeagueOneTests(TestCase):
         self.assertContains(response, "PREMIER LEAGUE")
         self.assertContains(response, "HFC")
         self.assertContains(response, "PERSONAL BALANCE")
-        self.assertContains(response, "20.00 UFL Coin")
+        self.assertContains(response, 'class="ufl-coin-amt">20.00</span>')
         self.assertNotContains(response, "50.00 TKN")
         self.assertEqual(self.client.get(reverse("control_centre")).status_code, 302)
         self.assertEqual(

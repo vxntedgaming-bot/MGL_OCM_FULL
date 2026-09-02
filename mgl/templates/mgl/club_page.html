@@ -38,7 +38,7 @@
             {% endif %}
             <dl class="ufl-club-meta">
                 <div><dt>SQUAD</dt><dd>{{ players|length }}</dd></div>
-                <div><dt>OVR</dt><dd>{% if avg_overall %}{{ avg_overall }}{% else %}—{% endif %}</dd></div>
+                <div><dt>OVR</dt><dd>{% if avg_overall %}<span class="ufl-ovr-{{ avg_overall|ovr_band }}">{{ avg_overall }}</span>{% else %}—{% endif %}</dd></div>
                 <div><dt>FORMATION</dt><dd>—</dd></div>
                 <div><dt>SQUAD VALUE</dt><dd>—</dd></div>
             </dl>

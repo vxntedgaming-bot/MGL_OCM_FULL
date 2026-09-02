@@ -207,7 +207,7 @@ PROFILE_MENU = {
     "items": (
         {"label": "Career Profile", "url_name": "manager_profile"},
         {"label": "Manager Verification", "url_name": "manager_verification", "divider": True},
-        {"label": "UFL Coin History", "url_name": "manager_rewards", "divider": True},
+        {"label": "History", "url_name": "manager_rewards", "divider": True},
     ),
 }
 

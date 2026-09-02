@@ -239,7 +239,7 @@ class InboxActionWorkflowTests(TestCase):
         self.assertContains(inbox, "Transfer Request")
         self.assertContains(inbox, "Blue Midfielder")
         self.assertContains(inbox, "Arsenal Test has submitted a transfer request")
-        self.assertContains(inbox, "8.00 UFL Coin")
+        self.assertContains(inbox, 'class="ufl-coin-amt">8.00</span>')
         self.assertContains(inbox, "ACCEPT")
         self.assertContains(inbox, "REJECT")
         self.assertNotContains(inbox, "REVIEW REQUEST")

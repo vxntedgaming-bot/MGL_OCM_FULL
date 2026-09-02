@@ -31,7 +31,18 @@
     --ufl-rating-mid: #32d47c;
     --ufl-rating-low: #ef5350;
     --ufl-purple: #9a63ff;
-    --ufl-gold: #c9a74a;
+    --ufl-gold: var(--ufl-cyan);
+    --ufl-gold-2: var(--ufl-cyan-2);
+    --ufl-gold-ink: var(--ufl-cyan-ink);
+    --ufl-gold-soft: var(--ufl-cyan-soft);
+    --ufl-gold-line: var(--ufl-cyan-line);
+    --ufl-coin-gold: #c9a74a;
+    --ufl-coin-gold-2: #e4c77a;
+    --mgl-gold: var(--ufl-cyan);
+    --mgl-gold-2: var(--ufl-cyan-2);
+    --mgl-gold-border: var(--ufl-cyan-line);
+    --ud-gold: var(--ufl-cyan);
+    --ud-gold-2: var(--ufl-cyan-2);
     --ufl-display: clamp(2.4rem, 5vw, 4.2rem);
     --ufl-h1: clamp(1.8rem, 3vw, 2.6rem);
     --ufl-h2: 1.35rem;
@@ -54,6 +65,21 @@ html, body {
 body.mgl-hub-page .is-gold,
 body.mgl-control-body .is-gold {
     color: var(--ufl-cyan) !important;
+}
+
+.ufl-coin,
+.ufl-coin-amt,
+.mgl-gold .ufl-coin-amt,
+.is-gold .ufl-coin-amt,
+.mgl-cp-gold .ufl-coin-amt,
+.mgl-team-token-pill .ufl-coin-amt,
+.mgl-purchase-token-pill .ufl-coin-amt,
+.mgl-rd-tokens .ufl-coin-amt {
+    color: var(--ufl-coin-gold-2) !important;
+}
+
+.ufl-coin img {
+    object-fit: contain;
 }
 
 body.mgl-hub-page {
@@ -220,6 +246,7 @@ table,
     min-width: 0;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 10px;
 }
 
@@ -346,6 +373,11 @@ body.mgl-hub-page {
 .ufl-cup-card-europa-league {
     --ufl-gold: #c9a74a;
     --cup-accent: #c9a74a;
+}
+
+.mgl-pdb-page .mgl-pos-badge[data-pos="GK"] {
+    background: var(--ufl-cyan);
+    color: var(--ufl-cyan-ink);
 }
 
 .ufl-cup-card-champions-league { --cup-accent: #3298ff; }

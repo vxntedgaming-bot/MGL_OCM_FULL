@@ -2,7 +2,7 @@
 
 Checklist of the **current** project, not a future roadmap disguised as done work.
 
-Last documentation update: 2 September 2026 — **Final website completion pass: teal/cyan finish, notifications, verification, Control Centre (no Season 1, no Discord sends)**.
+Last documentation update: 2 September 2026 — **Final QA / polish pass: gold coin currency, 80/65/0 OVR bands, obsolete inbox category row removed (no Season 1, no Discord sends)**.
 
 ---
 

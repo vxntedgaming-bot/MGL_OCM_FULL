@@ -232,7 +232,7 @@ def approve_monthly_awards(batch, reviewer):
                 manager.user,
                 f"motm-{month.isoformat()}",
                 "UFL MANAGER OF THE MONTH",
-                f"Congratulations {manager.display_name}. Reward: 6.00 TOKENS.",
+                f"Congratulations {manager.display_name}. Reward: 6.00.",
             )
     potm = payload.get("potm") or {}
     winner = potm.get("winner") if not potm.get("tied") else None
@@ -256,7 +256,7 @@ def approve_monthly_awards(batch, reviewer):
                 "UFL PLAYER OF THE MONTH",
                 (
                     f"Your player {winner['player_name']} is Player of the Month. "
-                    "Reward: 3.00 TOKENS."
+                    "Reward: 3.00."
                 ),
                 team=team,
             )

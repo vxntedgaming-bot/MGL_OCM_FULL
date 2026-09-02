@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="UFL Coin">
-  <circle cx="32" cy="32" r="30" fill="#0b1f28" stroke="#2ee6d6" stroke-width="3"/>
-  <circle cx="32" cy="32" r="24" fill="#12303b" stroke="#7af0e6" stroke-width="1.5"/>
-  <text x="32" y="38" text-anchor="middle" font-family="Arial Black, Barlow Condensed, sans-serif" font-size="16" font-weight="800" fill="#2ee6d6">UFL</text>
+  <circle cx="32" cy="32" r="30" fill="#3d2e0c" stroke="#c9a74a" stroke-width="3"/>
+  <circle cx="32" cy="32" r="24" fill="#5a4314" stroke="#e4c77a" stroke-width="1.5"/>
+  <text x="32" y="38" text-anchor="middle" font-family="Arial Black, Barlow Condensed, sans-serif" font-size="16" font-weight="800" fill="#f0d89a">UFL</text>
 </svg>
