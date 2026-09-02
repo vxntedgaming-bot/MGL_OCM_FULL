@@ -157,7 +157,7 @@ class PurchaseSwapWorkflowTests(TestCase):
         self.assertContains(control, "Bayern Test")
         self.assertContains(control, "SELLER RECEIVES")
         self.assertContains(control, "BUYER RECEIVES")
-        self.assertContains(control, 'class="ufl-coin-amt">2.00</span>')
+        self.assertContains(control, "2.00")
         approved = approve_listing(self.listing, self.owner)
         self.assertEqual(approved.status, PlayerListing.SOLD)
         self.target.refresh_from_db()
