@@ -15,7 +15,7 @@
             <div class="panel-heading"><span>PENDING INCOMING</span></div>
             {% for listing in incoming_offers %}
                 <div class="table-row">
-                    <strong>{{ listing.player.name }}</strong>
+                    <strong>{% if listing.player %}<a href="{% url 'player_profile' listing.player.id %}">{{ listing.player.name }}</a>{% else %}Listing{% endif %}</strong>
                     <span>{{ listing.asking_price }} TKN · {{ listing.get_status_display }}</span>
                     <a href="{% url 'transfer_requests' %}" class="secondary-button">NEGOTIATE</a>
                 </div>
@@ -27,7 +27,7 @@
             <div class="panel-heading"><span>PENDING OUTGOING</span></div>
             {% for listing in outgoing_offers %}
                 <div class="table-row">
-                    <strong>{{ listing.player.name }}</strong>
+                    <strong>{% if listing.player %}<a href="{% url 'player_profile' listing.player.id %}">{{ listing.player.name }}</a>{% else %}Listing{% endif %}</strong>
                     <span>{{ listing.asking_price }} TKN · {{ listing.get_status_display }}</span>
                     <a href="{% url 'transfer_requests' %}" class="secondary-button">VIEW</a>
                 </div>
@@ -39,11 +39,11 @@
             <div class="panel-heading"><span>COMPLETED</span></div>
             {% for row in completed_transfers %}
                 <div class="table-row">
-                    <strong>{% if row.player %}{{ row.player.name }}{% else %}Transfer{% endif %}</strong>
+                    <strong>{% if row.player %}<a href="{% url 'player_profile' row.player.id %}">{{ row.player.name }}</a>{% else %}Transfer{% endif %}</strong>
                     <span>
-                        {% if row.from_team %}{{ row.from_team.short_name }}{% else %}FA{% endif %}
+                        {% if row.from_team %}<a href="{% club_url row.from_team %}">{{ row.from_team.short_name }}</a>{% else %}FA{% endif %}
                         →
-                        {% if row.to_team %}{{ row.to_team.short_name }}{% else %}—{% endif %}
+                        {% if row.to_team %}<a href="{% club_url row.to_team %}">{{ row.to_team.short_name }}</a>{% else %}—{% endif %}
                         · {{ row.amount }} TKN
                     </span>
                 </div>

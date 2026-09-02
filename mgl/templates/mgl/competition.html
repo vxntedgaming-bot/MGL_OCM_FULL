@@ -80,16 +80,30 @@
         </div>
     </div>
     <nav class="ufl-subtabs" aria-label="Competition sections">
-        <a href="?tab=overview" class="{% if cup_tab == 'overview' %}is-active{% endif %}">OVERVIEW</a>
-        {% if cup_copy.has_groups %}
-            <a href="?tab=groups" class="{% if cup_tab == 'groups' %}is-active{% endif %}">GROUP STAGE</a>
-        {% endif %}
-        <a href="?tab=fixtures" class="{% if cup_tab == 'fixtures' %}is-active{% endif %}">FIXTURES</a>
-        <a href="?tab=bracket" class="{% if cup_tab == 'bracket' %}is-active{% endif %}">KNOCKOUT</a>
-        <a href="?tab=stats" class="{% if cup_tab == 'stats' %}is-active{% endif %}">STATS</a>
-        <a href="?tab=history" class="{% if cup_tab == 'history' %}is-active{% endif %}">HISTORY</a>
+        {% for tab_id, tab_label in cup_tabs %}
+            <a href="?tab={{ tab_id }}" class="{% if cup_tab == tab_id %}is-active{% endif %}">{{ tab_label }}</a>
+        {% empty %}
+            <a href="?tab=overview" class="{% if cup_tab == 'overview' %}is-active{% endif %}">OVERVIEW</a>
+            <a href="?tab=stats" class="{% if cup_tab == 'stats' %}is-active{% endif %}">STATS</a>
+            <a href="?tab=history" class="{% if cup_tab == 'history' %}is-active{% endif %}">HISTORY</a>
+        {% endfor %}
     </nav>
     {% include "mgl/includes/empty_state.html" with kicker="COMING SOON" title="NO LIVE COMPETITION DATA" body="This competition structure is published. Live fixtures, brackets and results will appear here when the league office starts it. Nothing on this page is a fake score." %}
+    {% if cup_tab == "groups" %}
+        {% include "mgl/includes/empty_state.html" with kicker="GROUP STAGE" title="NO GROUPS DRAWN" body="Groups appear here when the office draws this competition. Competition not started." %}
+    {% elif cup_tab == "fixtures" %}
+        {% include "mgl/includes/empty_state.html" with kicker="FIXTURES" title="NO FIXTURES YET" body="Cup fixtures are published when the office starts this competition." %}
+    {% elif cup_tab == "bracket" %}
+        {% include "mgl/includes/empty_state.html" with kicker="KNOCKOUT" title="NO BRACKET YET" body="The knockout bracket appears here when the office starts this competition." %}
+    {% elif cup_tab == "table" %}
+        {% include "mgl/includes/empty_state.html" with kicker="TABLE" title="COMPETITION NOT STARTED" body="No live table until this cup begins." %}
+    {% elif cup_tab == "clubs" %}
+        {% include "mgl/includes/empty_state.html" with kicker="CLUBS" title="NO CLUBS ASSIGNED YET" body="Qualified clubs appear here when the office confirms the field." %}
+    {% elif cup_tab == "stats" %}
+        {% include "mgl/includes/empty_state.html" with kicker="STATS" title="NO STATISTICS AVAILABLE" body="Cup scorers and assists come from the same player records once matches are approved." %}
+    {% elif cup_tab == "history" %}
+        {% include "mgl/includes/empty_state.html" with kicker="HISTORY" title="NO COMPETITION HISTORY YET" body="Winners are recorded here after a completed cup. Nothing on this page is invented." %}
+    {% else %}
     <div class="ufl-cup-empty-grid">
         <article class="dashboard-panel">
             <div class="panel-heading"><span>GROUPS</span></div>
@@ -100,7 +114,7 @@
             {% include "mgl/includes/empty_state.html" with title="NO BRACKET YET" %}
         </article>
         <article class="dashboard-panel">
-            <div class="panel-heading"><span>RECENT RESULTS</span></div>
+            <div class="panel-heading"><span>RESULTS</span></div>
             {% include "mgl/includes/empty_state.html" with title="NO RESULTS YET" %}
         </article>
         <article class="dashboard-panel">
@@ -116,6 +130,7 @@
             {% include "mgl/includes/empty_state.html" with title="NO WINNER RECORDED" %}
         </article>
     </div>
+    {% endif %}
     <p><a href="{% url 'competition_page' 'cups' %}" class="secondary-button">← BACK TO CUPS</a></p>
 </section>
 {% else %}

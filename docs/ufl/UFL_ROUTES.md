@@ -24,10 +24,15 @@ Status values: **Live** (implemented page), **Coming soon** (placeholder), **Red
 | URL | Name | Purpose | Access | Role | Protection | Status | System |
 |---|---|---|---|---|---|---|---|
 | `/` | `home` | Public Home; approved managers → hub | Public | — | Redirect if `approved_manager` | Live | Public Home |
-| `/leagues/` | `leagues_page` | All league tables | Public | — | None | Live | Leagues |
+| `/leagues/` | `leagues_page` | All league cards + per-division tables | Public | — | None | Live | Leagues |
+| `/leagues/all/` | `leagues_all` | Same view as `/leagues/` | Public | — | None | Live | Leagues |
 | `/leagues/<slug>/` | `competition_page` | Division or cup page | Public | — | None | Live / Coming soon for cup slugs | Leagues/Cups |
+| `/cups/` | `cups_hub` | Cups hub (same view as `/leagues/cups/`) | Public | — | None | Live | Cups |
+| `/cups/<slug>/` | `cups_detail` | Cup competition page (same view as `/leagues/<slug>/`) | Public | — | None | Live / Coming soon | Cups |
 | `/clubs/` | `clubs_index` | Club directory | Public | — | None | Live | Clubs |
-| `/clubs/<slug>/` | `club_page` | Club profile + squad | Public | — | None | Live | Clubs |
+| `/clubs/<slug>/` | `club_page_clubs` | Club profile (legacy path, same view) | Public | — | None | Live | Clubs |
+| `/teams/<slug>/` | `club_page` | Canonical club / team destination | Public | — | None | Live | Clubs |
+| `/players/<id>/` | `player_profile` | Canonical player profile destination | Public | — | None | Live | Players |
 | `/news/` | `news_centre` | Redirect to activity (or pressroom `?tab=`) | Public | — | Redirect | Redirect | News |
 | `/news/activity/` | `live_activity` | UFL Live Activity / Newsroom | Public | — | None | Live | News |
 | `/news/pressroom/` | `pressroom` | Press Conference list | Public | — | None | Live | Press |
@@ -51,6 +56,8 @@ Status values: **Live** (implemented page), **Coming soon** (placeholder), **Red
 | `/market/recruitment/` | `recruitment_drive` | Recruitment Drive | Career | Approved / OA | `career_required` | Live | Recruitment |
 | `/market/recruitment/open/` | `open_recruitment_pack` | Open pack | Career POST | Approved / OA | `career_required` | Live | Recruitment |
 | `/market/recruitment/<id>/choose/` | `choose_recruitment_player` | Pick pack player | Career POST | Approved / OA | `career_required` | Live | Recruitment |
+| `/market/players/` | `market_players_alias` | Same view as player database | Career | Approved / OA | `career_required` | Live | Players |
+| `/market/free-agents/` | `market_free_agents_alias` | Same view as free agents | Career | Approved / OA | `career_required` | Live | Market |
 | `/matches/` | — | Redirect to fixture list | — | — | Redirect | Redirect | Fixtures |
 | `/auctions/history/` | — | Redirect `/auctions/?tab=history` | — | — | Redirect | Redirect | Auctions |
 | `/mgl/` | include | Career + Control | Mixed | Mixed | Per-route | Live | Career |
@@ -89,7 +96,7 @@ Competition slugs in `COMPETITIONS`: `premier-league`, `championship`, `league-o
 | `/mgl/team/sell/<player_id>/` | `sell_player` | List for sale | Login POST | Approved manager | `@login_required` + `approved_manager` | Live | Transfers |
 | `/mgl/players/` | `player_database` | Player DB | Career | Approved / OA | `career_required` | Live | Players |
 | `/mgl/players/<id>/face/` | `player_face_image` | Face proxy | Public GET | — | None (image fetch) | Live | Players |
-| `/mgl/players/<id>/` | `player_profile` | Player profile | Career | Approved / OA | `career_required` | Live | Players |
+| `/mgl/players/<id>/` | `player_profile_mgl` | Player profile (legacy `/mgl/` path, same view) | Public | — | None | Live | Players |
 | `/mgl/players/<id>/request-transfer/` | `request_player_transfer` | BUY request | Login POST | Approved manager | `@login_required` + `approved_manager` | Live | Transfers |
 | `/mgl/unassigned/` | `unassigned_players` | Unassigned pool | Career | Approved / OA | `career_required` | Live | Players |
 | `/mgl/free-agents/` | `free_agents` | Free agents | Career | Approved / OA | `career_required` | Live | Players |

@@ -622,7 +622,8 @@ class NewsAndTablePublicTests(TestCase):
         self.assertContains(tables, "ALL LEAGUES")
         arsenal = Team.objects.get(short_name="ARS")
         self.assertContains(tables, club_page_url(arsenal))
-        self.assertContains(tables, "/clubs/arsenal/")
+        self.assertContains(tables, "/teams/arsenal/")
+        self.assertEqual(self.client.get("/clubs/arsenal/").status_code, 200)
         self.assertNotContains(tables, "MANAGER VACANT")
         self.assertNotContains(tables, "50.00 TKN")
 

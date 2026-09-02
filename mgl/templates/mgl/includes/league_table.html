@@ -26,9 +26,9 @@
             <span>
                 <a href="{% club_url row.team %}">{{ row.team.name }}</a>
                 {% if row.manager %}
-                    <em>{{ row.manager.username }}</em>
+                    <em><a href="{% url 'manager_public_profile' row.manager.username %}">{{ row.manager.username }}</a></em>
                 {% elif row.team.manager %}
-                    <em>{{ row.team.manager.username }}</em>
+                    <em><a href="{% url 'manager_public_profile' row.team.manager.username %}">{{ row.team.manager.username }}</a></em>
                 {% endif %}
             </span>
         </strong>

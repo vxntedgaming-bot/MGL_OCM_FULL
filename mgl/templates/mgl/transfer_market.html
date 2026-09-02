@@ -186,10 +186,10 @@
                             {% if row.from_is_free_agent %}
                                 {% include "mgl/includes/free_agent_mark.html" with size="xs" %}
                             {% elif row.from_team %}
-                                {% team_logo row.from_team "xs" %}
+                                <a href="{% club_url row.from_team %}">{% team_logo row.from_team "xs" %}</a>
                             {% endif %}
                             <span aria-hidden="true">→</span>
-                            {% if row.to_team %}{% team_logo row.to_team "xs" %}{% endif %}
+                            {% if row.to_team %}<a href="{% club_url row.to_team %}">{% team_logo row.to_team "xs" %}</a>{% endif %}
                         </div>
                         <div class="mgl-mk-deal-meta">
                             <strong>{{ row.amount }} TKN</strong>

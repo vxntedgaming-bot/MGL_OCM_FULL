@@ -64,11 +64,17 @@
                     <div class="mgl-tr-clubs">
                         {% if row.from_is_free_agent %}
                             <span class="mgl-tr-club">{% include "mgl/includes/free_agent_mark.html" with size="xs" %} FREE AGENT</span>
+                        {% elif row.from_team %}
+                            <a href="{% club_url row.from_team %}" class="mgl-tr-club">{% team_logo row.from_team "xs" %} {{ row.from_team.short_name|default:"—" }}</a>
                         {% else %}
-                            <span class="mgl-tr-club">{% team_logo row.from_team "xs" %} {{ row.from_team.short_name|default:"—" }}</span>
+                            <span class="mgl-tr-club">—</span>
                         {% endif %}
                         <span class="mgl-tr-arrow" aria-hidden="true">→</span>
-                        <span class="mgl-tr-club">{% team_logo row.to_team "xs" %} {{ row.to_team.short_name|default:"—" }}</span>
+                        {% if row.to_team %}
+                            <a href="{% club_url row.to_team %}" class="mgl-tr-club">{% team_logo row.to_team "xs" %} {{ row.to_team.short_name|default:"—" }}</a>
+                        {% else %}
+                            <span class="mgl-tr-club">—</span>
+                        {% endif %}
                     </div>
                 </div>
                 <span class="mgl-tr-public-date">{{ row.created_at|date:"j M Y" }}</span>

@@ -45,7 +45,7 @@
             <a href="{% url 'home' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'home' or request.resolver_match.url_name == 'manager_hub' %}is-active{% endif %}">HOME</a>
             {% for menu in mgl_nav_dropdowns %}
                 {% if menu.id == "control" %}
-                {% elif menu.id == "cups" %}
+                {% elif menu.id == "leagues" %}
                     {% include "core/includes/nav_dropdown.html" %}
                     <a href="{% url 'job_centre' %}" class="mgl-nav-link {% if request.resolver_match.url_name == 'job_centre' or request.resolver_match.url_name == 'job_offers' %}is-active{% endif %}">JOB CENTRE</a>
                 {% else %}

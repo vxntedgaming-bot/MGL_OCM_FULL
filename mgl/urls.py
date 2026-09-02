@@ -108,7 +108,7 @@ urlpatterns = [
     path(
         "players/<int:player_id>/",
         views.player_profile,
-        name="player_profile",
+        name="player_profile_mgl",
     ),
 
     path(

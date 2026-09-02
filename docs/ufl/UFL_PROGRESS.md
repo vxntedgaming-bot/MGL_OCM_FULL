@@ -2,7 +2,7 @@
 
 Checklist of the **current** project, not a future roadmap disguised as done work.
 
-Last documentation update: 2 September 2026 — **Connected league/cup/club/player pages (no Season 1, no Discord sends)**.
+Last documentation update: 2 September 2026 — **Master pages navigation + public `/players/` and `/teams/` destinations (no Season 1, no Discord sends)**.
 
 ---
 
@@ -76,6 +76,8 @@ Implementation of gaps is **not** Phase 1. That is a later, explicit task.
 - Discord event queue + separate bot
 - Public Home Career Mode redesign (black/gold, live activity, real stats, existing routes)
 - Connected league, cup, club and player destination pages (existing Market/Jobs kept)
+- Signed-in header order HOME / MY TEAM / MARKET / LEAGUES / JOB CENTRE / STATS / HISTORY / CUPS
+- Canonical `/players/<id>/` and `/teams/<slug>/` destinations; Discord `page_links` use the same routes
 - Shared inner UFL header + LIVE ACTIVITY bar + page header
 - Youth Academy Coming Soon route
 - Cup catalogue Coming Soon pages

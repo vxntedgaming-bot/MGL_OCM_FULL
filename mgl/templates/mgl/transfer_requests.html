@@ -101,7 +101,7 @@
                         <span>FREE AGENT</span>
                     {% elif row.from_team %}
                         {% team_logo row.from_team "xs" %}
-                        <span>{{ row.from_team.name }}</span>
+                        <a href="{% club_url row.from_team %}">{{ row.from_team.name }}</a>
                     {% else %}
                         <span>—</span>
                     {% endif %}
@@ -109,7 +109,7 @@
                 <div class="mgl-xf-club">
                     {% if row.to_team %}
                         {% team_logo row.to_team "xs" %}
-                        <span>{{ row.to_team.name }}</span>
+                        <a href="{% club_url row.to_team %}">{{ row.to_team.name }}</a>
                     {% else %}
                         <span>—</span>
                     {% endif %}

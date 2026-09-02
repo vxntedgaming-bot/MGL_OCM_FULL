@@ -43,7 +43,7 @@ from .market import (
     create_manager_auction,
     token_balance_for_user,
 )
-from .nav import COMPETITIONS, LIVE_COMPETITION_SLUGS, live_competition_choices
+from .nav import COMPETITIONS, CUP_TABS, LIVE_COMPETITION_SLUGS, live_competition_choices
 from .permissions import approved_manager, career_required, is_owner_or_admin, owner_admin_required
 from .player_state import (
     AUCTION,
@@ -1943,8 +1943,19 @@ def competition_page(request, slug):
         "europa-league",
         "conference-league",
     }
+    cup_tabs = CUP_TABS.get(slug, ())
+    allowed_tabs = {item[0] for item in cup_tabs} or {
+        "overview",
+        "groups",
+        "fixtures",
+        "bracket",
+        "table",
+        "clubs",
+        "stats",
+        "history",
+    }
     cup_tab = (request.GET.get("tab") or "overview").strip().lower()
-    if cup_tab not in {"overview", "groups", "fixtures", "bracket", "stats", "history"}:
+    if cup_tab not in allowed_tabs:
         cup_tab = "overview"
     cup_catalog = (
         {
@@ -2036,6 +2047,7 @@ def competition_page(request, slug):
             "selector_label": "League tables",
             "coming_soon": coming_soon,
             "cup_tab": cup_tab,
+            "cup_tabs": cup_tabs,
             "cup_copy": {
                 "phantom-cup": {
                     "description": "Knockout stages. Draws, fixtures and results appear when the office starts the cup.",

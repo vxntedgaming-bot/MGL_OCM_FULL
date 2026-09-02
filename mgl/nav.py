@@ -11,18 +11,18 @@ LEAGUE_MENU = {
     "label": "LEAGUES",
     "current": {
         "leagues_page",
+        "leagues_all",
         "competition_page",
         "clubs_index",
         "club_page",
+        "club_page_clubs",
     },
     "current_slugs": {"premier-league", "championship", "league-one"},
     "items": (
-        {"label": "All Leagues", "url_name": "leagues_page"},
         {
             "label": "Premier League",
             "url_name": "competition_page",
             "url_kwargs": {"slug": "premier-league"},
-            "divider": True,
         },
         {
             "label": "Championship",
@@ -36,6 +36,7 @@ LEAGUE_MENU = {
             "url_kwargs": {"slug": "league-one"},
             "style": "sub",
         },
+        {"label": "All Leagues", "url_name": "leagues_page", "divider": True},
         {
             "label": "Cups",
             "url_name": "competition_page",
@@ -50,7 +51,7 @@ LEAGUE_MENU = {
 CUPS_MENU = {
     "id": "cups",
     "label": "CUPS",
-    "current": {"competition_page"},
+    "current": {"competition_page", "cups_hub", "cups_detail"},
     "current_slugs": {
         "cups",
         "phantom-cup",
@@ -95,8 +96,12 @@ MARKET_MENU = {
         "request_player_transfer",
         "purchase_listing",
         "free_agents",
-        "player_database",
         "player_profile",
+        "player_profile_mgl",
+        "player_database",
+        "market_players_alias",
+        "market_free_agents_alias",
+        "market_auctions_alias",
         "recruitment_drive",
         "open_recruitment_pack",
         "choose_recruitment_player",
@@ -247,11 +252,44 @@ SIGNED_IN_NAV_DROPDOWNS = (
     CAREER_MENU,
     MARKET_MENU,
     LEAGUE_MENU,
-    CUPS_MENU,
     STATS_MENU,
     HISTORY_MENU,
+    CUPS_MENU,
     CONTROL_MENU,
 )
+
+# Per-competition public tabs. Empty states only — no invented scores.
+CUP_TABS = {
+    "champions-league": (
+        ("overview", "OVERVIEW"),
+        ("groups", "GROUP STAGE"),
+        ("bracket", "KNOCKOUT"),
+        ("stats", "STATS"),
+        ("history", "HISTORY"),
+    ),
+    "europa-league": (
+        ("overview", "OVERVIEW"),
+        ("groups", "GROUP STAGE"),
+        ("bracket", "KNOCKOUT"),
+        ("stats", "STATS"),
+        ("history", "HISTORY"),
+    ),
+    "conference-league": (
+        ("overview", "OVERVIEW"),
+        ("fixtures", "FIXTURES"),
+        ("table", "TABLE"),
+        ("stats", "STATS"),
+        ("clubs", "CLUBS"),
+        ("history", "HISTORY"),
+    ),
+    "phantom-cup": (
+        ("overview", "OVERVIEW"),
+        ("fixtures", "FIXTURES"),
+        ("bracket", "BRACKET"),
+        ("stats", "STATS"),
+        ("history", "HISTORY"),
+    ),
+}
 
 COMPETITIONS = {
     "premier-league": "Premier League",

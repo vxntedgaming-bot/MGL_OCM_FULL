@@ -29,13 +29,13 @@ def league_url(league=None, slug=""):
     for competition_slug, code in LIVE_COMPETITION_SLUGS.items():
         if code == short:
             return reverse("competition_page", kwargs={"slug": competition_slug})
-    return reverse("leagues_page")
+    return reverse("leagues_all")
 
 
 def cup_url(slug):
-    if slug in COMPETITIONS:
-        return reverse("competition_page", kwargs={"slug": slug})
-    return reverse("competition_page", kwargs={"slug": "cups"})
+    if slug in COMPETITIONS and slug != "cups":
+        return reverse("cups_detail", kwargs={"slug": slug})
+    return reverse("cups_hub")
 
 
 def job_url():

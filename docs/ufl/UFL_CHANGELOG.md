@@ -6,6 +6,21 @@ This file started with the documentation/audit pass. It does **not** claim that 
 
 ---
 
+## 2026-09-02 — Master pages navigation, destinations, Discord page_links
+
+Extension of the existing UFL site. Market, Job Centre, recruitment, scouting, auctions and the Discord outbox remain the source of truth.
+
+- Signed-in header order: HOME, MY TEAM, MARKET, LEAGUES, JOB CENTRE, STATS, HISTORY, CUPS. STATS and HISTORY stay separate dropdowns.
+- LEAGUES dropdown: Premier League, Championship, League One, All Leagues, Cups (Clubs kept).
+- Canonical destinations: `/players/<id>/` and `/teams/<slug>/` serve the existing views. `/clubs/<slug>/` and `/mgl/players/<id>/` still work.
+- `/leagues/all/`, `/cups/`, `/cups/<slug>/`, `/market/players/` serve the existing pages (200), not a second system.
+- Cup tabs match each competition. Empty states only. No invented scores.
+- Transfer rows link players and clubs through the same destination URLs.
+- Discord outbox `page_links` now point at those same routes. No messages sent.
+- **No Season 1, no squad generation, no token writes, no production migrations, no database reset.**
+
+---
+
 ## 2026-09-02 — Connected league, cup, club, player and market pages
 
 Presentation and routing only. Existing Market, Job Centre, recruitment, scouting, auctions and Discord outbox remain the source of truth.
