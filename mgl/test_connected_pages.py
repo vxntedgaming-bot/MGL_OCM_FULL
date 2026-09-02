@@ -59,7 +59,7 @@ class ConnectedPagesTests(TestCase):
         self.assertContains(cl, "NO LIVE COMPETITION DATA")
         self.assertContains(cl, "GROUP STAGE")
         self.assertContains(cl, "KNOCKOUT")
-        self.assertNotContains(cl, ">FIXTURES</a>")
+        self.assertNotContains(cl, 'href="?tab=fixtures"')
         conference = self.client.get("/cups/conference-league/")
         self.assertContains(conference, ">TABLE</a>")
         self.assertContains(conference, ">CLUBS</a>")

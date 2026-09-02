@@ -418,11 +418,11 @@ def transfer_offer_details(listing, buyer_club=None, extra=None):
     if offered:
         seller_bits = [_player_deal_line(player) for player in offered]
         if amount and amount > 0:
-            seller_bits.append(f"{amount} TKN")
+            seller_bits.append(f"{amount} UFL Coin")
         details["offered_player"] = ", ".join(_player_deal_line(player) for player in offered)
         details["seller_receives"] = " + ".join(seller_bits)
     elif amount is not None:
-        details["seller_receives"] = f"{amount} TKN"
+        details["seller_receives"] = f"{amount} UFL Coin"
     if extra:
         details.update(extra)
     return details

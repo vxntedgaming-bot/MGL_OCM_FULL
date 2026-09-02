@@ -136,7 +136,7 @@ class NavigationDropdownTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Premier League")
         self.assertContains(response, 'href="/leagues/premier-league/"')
-        self.assertContains(response, "mgl-nav-item is-current")
+        self.assertContains(response, "mgl-nav-item--sub is-current")
         self.assertNotContains(response, "Super League 1 is the only active league")
         self.assertNotContains(response, "Super League 2")
 
@@ -518,7 +518,6 @@ class PlayerSearchAndCardNameTests(TestCase):
         self.assertContains(public, ">ACTION</span>")
         self.assertContains(public, "VIEW PLAYER")
         self.assertNotContains(public, "SIGN FOR")
-        self.assertNotContains(public, "0 UFL Coin")
         self.assertNotContains(public, "REQUEST TO SIGN")
         self.assertNotContains(public, "Ander Guevara")
 

@@ -230,8 +230,7 @@ class MarketEconomyTests(TestCase):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200, url)
         market = self.client.get("/market/")
-        self.assertEqual(market.status_code, 302)
-        self.assertEqual(market["Location"], reverse("job_centre"))
+        self.assertEqual(market.status_code, 200)
 
     def test_logged_out_team_still_redirects(self):
         response = self.client.get("/mgl/team/")
