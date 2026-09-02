@@ -32,9 +32,34 @@ from mgl.views import (
 urlpatterns = [
     path("", home, name="home"),
     path("leagues/", leagues_page, name="leagues_page"),
+    path(
+        "leagues/all/",
+        RedirectView.as_view(pattern_name="leagues_page", permanent=False),
+        name="leagues_all",
+    ),
     path("leagues/<slug:slug>/", competition_page, name="competition_page"),
+    path(
+        "cups/",
+        RedirectView.as_view(url="/leagues/cups/", permanent=False),
+        name="cups_hub",
+    ),
+    path(
+        "cups/<slug:slug>/",
+        RedirectView.as_view(url="/leagues/%(slug)s/", permanent=False),
+        name="cups_detail",
+    ),
     path("clubs/", clubs_index, name="clubs_index"),
     path("clubs/<str:slug>/", club_page, name="club_page"),
+    path(
+        "teams/<str:slug>/",
+        RedirectView.as_view(pattern_name="club_page", permanent=False),
+        name="public_team_alias",
+    ),
+    path(
+        "players/<int:player_id>/",
+        RedirectView.as_view(pattern_name="player_profile", permanent=False),
+        name="public_player_alias",
+    ),
     path("news/", news_centre, name="news_centre"),
     path("news/activity/", live_activity, name="live_activity"),
     path("news/pressroom/", pressroom, name="pressroom"),
@@ -61,6 +86,21 @@ urlpatterns = [
         "market/recruitment/<int:opening_id>/choose/",
         choose_recruitment_player,
         name="choose_recruitment_player",
+    ),
+    path(
+        "market/players/",
+        RedirectView.as_view(pattern_name="player_database", permanent=False),
+        name="market_players_alias",
+    ),
+    path(
+        "market/free-agents/",
+        RedirectView.as_view(pattern_name="free_agents", permanent=False),
+        name="market_free_agents_alias",
+    ),
+    path(
+        "market/auctions/",
+        RedirectView.as_view(pattern_name="live_auctions", permanent=False),
+        name="market_auctions_alias",
     ),
     path("matches/", RedirectView.as_view(pattern_name="fixture_list", permanent=False)),
     path("auctions/history/", RedirectView.as_view(url="/auctions/?tab=history", permanent=False)),

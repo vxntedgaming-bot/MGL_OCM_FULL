@@ -36,6 +36,12 @@ LEAGUE_MENU = {
             "url_kwargs": {"slug": "league-one"},
             "style": "sub",
         },
+        {
+            "label": "Cups",
+            "url_name": "competition_page",
+            "url_kwargs": {"slug": "cups"},
+            "divider": True,
+        },
         {"label": "Clubs", "url_name": "clubs_index", "divider": True},
         {"label": "Club Profiles", "url_name": "clubs_index"},
     ),
@@ -108,7 +114,8 @@ MARKET_MENU = {
         {"label": "Scouting", "url_name": "scouting", "divider": True},
         {"label": "Youth Academy", "url_name": "youth_academy", "divider": True},
         {"label": "Auctions", "url_name": "live_auctions", "divider": True},
-        {"label": "Player Database", "url_name": "player_database", "divider": True},
+        {"label": "All Players", "url_name": "player_database", "divider": True},
+        {"label": "Player Database", "url_name": "player_database"},
     ),
 }
 

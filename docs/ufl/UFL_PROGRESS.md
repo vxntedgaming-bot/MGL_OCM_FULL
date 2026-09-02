@@ -2,7 +2,7 @@
 
 Checklist of the **current** project, not a future roadmap disguised as done work.
 
-Last documentation update: 1 September 2026 — **Public Home Page Career Mode redesign (presentation only)**.
+Last documentation update: 2 September 2026 — **Connected league/cup/club/player pages (no Season 1, no Discord sends)**.
 
 ---
 

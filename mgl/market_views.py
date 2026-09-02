@@ -424,6 +424,11 @@ def job_centre(request):
         if team.league_id and team.league_id not in seen_leagues:
             seen_leagues.add(team.league_id)
             job_leagues.append(team.league)
+    recently_filled = (
+        ClubApplication.objects.filter(status=ApprovalStatus.APPROVED)
+        .select_related("manager", "team", "team__league")
+        .order_by("-reviewed_at", "-created_at")[:8]
+    )
     return render(
         request,
         "mgl/job_centre.html",
@@ -442,6 +447,7 @@ def job_centre(request):
             "join_discord": request.GET.get("join_discord") == "1",
             "window_open": transfer_window_is_open(),
             "latest_result": _jobs_latest_result(),
+            "recently_filled": recently_filled,
         },
     )
 

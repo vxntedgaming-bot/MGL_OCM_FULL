@@ -10,10 +10,15 @@
 {% block content %}
 <section class="mgl-section mgl-profile">
     <nav class="mgl-pp-crumbs ufl-crumbs" aria-label="Player profile location">
-        <a href="{% url 'manager_hub' %}" class="ufl-crumb-pill">MANAGER HUB</a>
+        <a href="{% url 'home' %}" class="ufl-crumb-pill">HOME</a>
         <span class="ufl-crumb-sep" aria-hidden="true">›</span>
-        <a href="{% url 'player_database' %}" class="ufl-crumb-pill">PLAYERS</a>
-        <span class="ufl-crumb-sep" aria-hidden="true">›</span>
+        {% if player.mgl_team %}
+            <a href="{% club_url player.mgl_team %}" class="ufl-crumb-pill">{{ player.mgl_team.short_name }}</a>
+            <span class="ufl-crumb-sep" aria-hidden="true">›</span>
+        {% elif mgl_signed_in_nav %}
+            <a href="{% url 'player_database' %}" class="ufl-crumb-pill">PLAYERS</a>
+            <span class="ufl-crumb-sep" aria-hidden="true">›</span>
+        {% endif %}
         <span class="ufl-crumb-pill is-current">{{ player|card_name }}</span>
     </nav>
 
@@ -190,6 +195,11 @@
 
     {% player_stats_panel player %}
 
+    <div class="mgl-history">
+        <div class="eyebrow">SEASON STATISTICS</div>
+        <p>{{ player.goals|default:0 }} goals · {{ player.assists|default:0 }} assists in the current UFL record.</p>
+    </div>
+
     {% if live_listing or live_auction %}
     <div class="mgl-history">
         <div class="eyebrow">TRANSFER INFORMATION</div>
@@ -209,12 +219,12 @@
     {% endif %}
 
     <div class="mgl-history">
-        <div class="eyebrow">UFL OWNERSHIP HISTORY</div>
+        <div class="eyebrow">TRANSFER HISTORY</div>
         {% for history in ownership_history %}
             <div class="mgl-history-row">
                 <strong class="mgl-info-club">
                     {% team_logo history.team "xs" %}
-                    {% if history.team %}{{ history.team.name }}{% else %}FREE AGENT{% endif %}
+                    {% if history.team %}<a href="{% club_url history.team %}">{{ history.team.name }}</a>{% else %}FREE AGENT{% endif %}
                 </strong>
                 <span>{{ history.source }} · {{ history.created_at|date:"d M Y" }}</span>
             </div>
@@ -233,6 +243,15 @@
         {% empty %}
             {% include "mgl/includes/empty_state.html" with title="NO TEAM OF THE WEEK SELECTIONS YET" %}
         {% endfor %}
+    </div>
+
+    <div class="mgl-history">
+        <div class="eyebrow">MANAGER STATISTICS</div>
+        {% if club_manager %}
+            <p>{% if club_manager.user %}<a href="{% url 'manager_public_profile' club_manager.user.username %}">{{ club_manager.display_name }}</a>{% else %}{{ club_manager.display_name }}{% endif %} currently manages this player’s club.</p>
+        {% else %}
+            {% include "mgl/includes/empty_state.html" with title="NO MANAGER STATISTICS YET" %}
+        {% endif %}
     </div>
 
     {% if can_request_transfer or open_transfer_offer %}
@@ -257,27 +276,18 @@
     </div>
     {% endif %}
 
-    <div class="mgl-history">
-        <div class="eyebrow">RECENT RESULTS</div>
-        {% for fixture in recent_results %}
-            <div class="mgl-history-row">
-                <strong>{{ fixture.home_team.name }} {{ fixture.home_goals }}–{{ fixture.away_goals }} {{ fixture.away_team.name }}</strong>
-                <span class="mgl-dash-form-mark mgl-wdl-{{ fixture.outcome|lower }}">{{ fixture.outcome }}</span>
-            </div>
-        {% empty %}
-            {% include "mgl/includes/empty_state.html" with title="NO DATA YET" %}
-        {% endfor %}
-    </div>
-
-    <div class="mgl-history">
-        <div class="eyebrow">TOP MANAGERS BY GOALS</div>
-        {% include "mgl/includes/empty_state.html" with title="NO DATA YET" %}
-        <div class="eyebrow">TOP MANAGERS BY ASSISTS</div>
-        {% include "mgl/includes/empty_state.html" with title="NO DATA YET" %}
-    </div>
-
+    {% if mgl_signed_in_nav %}
     <a href="{% url 'player_database' %}" class="secondary-button" style="display:inline-flex;margin-top:30px;">
         ← BACK TO PLAYER DATABASE
     </a>
+    {% elif player.mgl_team %}
+    <a href="{% club_url player.mgl_team %}" class="secondary-button" style="display:inline-flex;margin-top:30px;">
+        ← BACK TO CLUB
+    </a>
+    {% else %}
+    <a href="{% url 'home' %}" class="secondary-button" style="display:inline-flex;margin-top:30px;">
+        ← BACK TO HOME
+    </a>
+    {% endif %}
 </section>
 {% endblock %}

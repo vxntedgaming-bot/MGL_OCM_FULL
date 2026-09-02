@@ -342,7 +342,7 @@ def player_profile(request, player_id):
             "totw_selections": totw_selections,
             "auction_requests": auction_requests,
             "attribute_groups": attribute_groups_for_player(player),
-            "recent_results": _recent_results_for_team(player.mgl_team) if player.mgl_team_id else [],
+            "recent_results": [],
             **transfer_offer_context_for(request.user, player),
         },
     )
@@ -1997,8 +1997,11 @@ def competition_page(request, slug):
         },
     )
     league_fixtures = []
+    top_scorers = []
+    top_assists = []
     if league:
         from mgl.fixture_display import fixture_score
+        from players.models import Player as LeaguePlayer
 
         league_fixtures = list(
             Fixture.objects.filter(league=league, is_released=True)
@@ -2010,6 +2013,15 @@ def competition_page(request, slug):
             home_goals, away_goals = fixture_score(row)
             row.public_home_goals = home_goals
             row.public_away_goals = away_goals
+        league_players = LeaguePlayer.objects.filter(
+            mgl_team__league=league
+        ).select_related("mgl_team")
+        top_scorers = list(
+            league_players.filter(goals__gt=0).order_by("-goals", "name")[:8]
+        )
+        top_assists = list(
+            league_players.filter(assists__gt=0).order_by("-assists", "name")[:8]
+        )
     return render(
         request,
         "mgl/competition.html",
@@ -2047,6 +2059,8 @@ def competition_page(request, slug):
                 },
             }.get(slug, {}),
             "league_fixtures": league_fixtures,
+            "top_scorers": top_scorers,
+            "top_assists": top_assists,
             "live_cups": [cup for cup in cup_catalog if cup["status"] == "live"],
             "won_cups": [cup for cup in cup_catalog if cup["status"] == "complete"],
             "upcoming_cups": [cup for cup in cup_catalog if cup["status"] == "upcoming"],
@@ -2074,7 +2088,7 @@ def hall_of_fame(request):
 def youth_academy(request):
     return render(
         request,
-        "mgl/coming_soon.html",
+        "mgl/youth_academy.html",
         {
             "page_title": "Youth Academy — UFL",
             "section": "MARKET",

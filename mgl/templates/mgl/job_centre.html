@@ -271,6 +271,29 @@
         {% else %}
             {% include "mgl/includes/empty_state.html" with kicker="VACANCIES" title="NO VACANT CLUBS" %}
         {% endif %}
+
+        <section class="mgl-jobs-history" aria-label="Recently filled jobs">
+            <h2>RECENTLY FILLED</h2>
+            {% for app in recently_filled %}
+                <p>
+                    <a href="{% club_url app.team %}">{{ app.team.name }}</a>
+                    · {{ app.manager.display_name }}
+                    {% if app.team.league %} · {{ app.team.league|league_label }}{% endif %}
+                </p>
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with title="NO APPOINTMENTS YET" %}
+            {% endfor %}
+        </section>
+
+        <section class="mgl-jobs-how" aria-label="How Job Centre works">
+            <h2>HOW IT WORKS</h2>
+            <ol>
+                <li>Create a UFL account. Registration does not assign a club.</li>
+                <li>Apply for one vacant club. Games per week, Discord username and new-gen confirmation are required.</li>
+                <li>Wait for Owner/Admin review. A pending application blocks a second application.</li>
+                <li>Accept appoints you as manager. Reject leaves you a Member so you can apply again.</li>
+            </ol>
+        </section>
     </div>
 </section>
 {% endwith %}

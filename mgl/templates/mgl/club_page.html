@@ -2,11 +2,14 @@
 {% load static mgl_ui %}
 
 {% block title %}{{ team.name }} — UFL{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/mgl-leagues.css' %}">
+{% endblock %}
 
 {% block content %}
-<section class="mgl-section">
+<section class="mgl-section ufl-club-page">
     {% url 'clubs_index' as clubs_url %}
-    {% include "core/includes/mgl_page_header.html" with header_section="CLUBS" header_section_url=clubs_url header_title=team.name header_icon="stadium" header_description="Club profile, squad, fixtures and results." %}
+    {% include "core/includes/mgl_page_header.html" with header_section="CLUBS" header_section_url=clubs_url header_title=team.name header_icon="stadium" header_description="Club profile, squad, fixtures, transfers, stats and history." %}
     <div class="mgl-club-hero">
         {% team_logo team "lg" %}
         <div>
@@ -15,30 +18,68 @@
             <p>
                 {{ team.short_name }}
                 ·
-                {% if team.manager %}Manager: {{ team.manager.username }}{% else %}VACANT{% endif %}
+                {% if club_manager %}
+                    Manager:
+                    {% if club_manager.user %}
+                        <a href="{% url 'manager_public_profile' club_manager.user.username %}">{{ club_manager.display_name }}</a>
+                    {% else %}
+                        {{ club_manager.display_name }}
+                    {% endif %}
+                {% elif team.manager %}
+                    Manager: {{ team.manager.username }}
+                {% else %}
+                    VACANT
+                {% endif %}
                 {% if league_position %} · {{ league_position|stringformat:"02d" }}th{% endif %}
                 · {{ players|length }}/{{ team|ufl_roster_cap }} players
             </p>
             {% if team.description %}
                 <p>{{ team.description }}</p>
             {% endif %}
+            <dl class="ufl-club-meta">
+                <div><dt>SQUAD</dt><dd>{{ players|length }}</dd></div>
+                <div><dt>OVR</dt><dd>{% if avg_overall %}{{ avg_overall }}{% else %}—{% endif %}</dd></div>
+                <div><dt>FORMATION</dt><dd>—</dd></div>
+                <div><dt>SQUAD VALUE</dt><dd>—</dd></div>
+            </dl>
             <div class="mgl-hub-links">
-                <a href="{% url 'leagues_page' %}">League table</a>
-                <a href="#fixtures">Fixtures</a>
+                <a href="{{ league_href }}">League table</a>
+                <a href="?tab=fixtures">Fixtures</a>
                 {% if is_own_club %}<a href="{% url 'team_management' %}">Manage squad</a>{% endif %}
             </div>
         </div>
     </div>
+    <nav class="ufl-subtabs" aria-label="Club sections">
+        <a href="?tab=overview" class="{% if club_tab == 'overview' %}is-active{% endif %}">OVERVIEW</a>
+        <a href="?tab=squad" class="{% if club_tab == 'squad' %}is-active{% endif %}">SQUAD</a>
+        <a href="?tab=fixtures" class="{% if club_tab == 'fixtures' %}is-active{% endif %}">FIXTURES</a>
+        <a href="?tab=transfers" class="{% if club_tab == 'transfers' %}is-active{% endif %}">TRANSFERS</a>
+        <a href="?tab=stats" class="{% if club_tab == 'stats' %}is-active{% endif %}">STATS</a>
+        <a href="?tab=history" class="{% if club_tab == 'history' %}is-active{% endif %}">HISTORY</a>
+    </nav>
 </section>
 
+{% if club_tab == 'overview' or club_tab == 'squad' %}
 <section class="mgl-section" id="squad">
     <div class="section-heading">
         <div>
             <div class="eyebrow">SQUAD</div>
-            <h2>CURRENT PLAYERS</h2>
+            <h2>{% if club_tab == 'overview' %}TOP PLAYERS{% else %}CURRENT PLAYERS{% endif %}</h2>
         </div>
     </div>
-    {% if players %}
+    {% if club_tab == 'overview' %}
+        <div class="ufl-club-xi dashboard-panel">
+            <div class="panel-heading"><span>STARTING XI</span></div>
+            {% include "mgl/includes/empty_state.html" with title="NO OFFICIAL LINEUP" body="UFL does not invent a starting XI. The squad below is the live club list." %}
+        </div>
+        {% if top_players %}
+        <div class="mgl-player-card-grid">
+            {% for player in top_players %}
+                {% player_card player "small" %}
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% elif players %}
     <div class="mgl-player-card-grid">
         {% for player in players %}
             {% player_card player "small" %}
@@ -47,8 +88,13 @@
     {% else %}
         {% include "mgl/includes/empty_state.html" with title="NO PLAYERS" body="This club currently has no players assigned." %}
     {% endif %}
+    {% if club_tab == 'overview' and not players %}
+        {% include "mgl/includes/empty_state.html" with title="NO PLAYERS" body="This club currently has no players assigned." %}
+    {% endif %}
 </section>
+{% endif %}
 
+{% if club_tab == 'overview' or club_tab == 'fixtures' %}
 <section class="mgl-section" id="fixtures">
         <div class="dashboard-panel">
             <div class="panel-heading"><span>FIXTURES</span></div>
@@ -76,6 +122,57 @@
                 {% include "mgl/includes/empty_state.html" with title="NO RESULTS YET" %}
             {% endfor %}
         </div>
+</section>
+{% endif %}
+
+{% if club_tab == 'transfers' %}
+<section class="mgl-section">
+    <div class="dashboard-panel">
+        <div class="panel-heading"><span>TRANSFERS</span></div>
+        {% for row in club_transfers %}
+            <p>
+                {% if row.player %}<a href="{% url 'player_profile' row.player_id %}">{{ row.player.name }}</a>{% else %}Player{% endif %}
+                ·
+                {% if row.from_team %}<a href="{% club_url row.from_team %}">{{ row.from_team.short_name }}</a>{% else %}FA{% endif %}
+                →
+                {% if row.to_team %}<a href="{% club_url row.to_team %}">{{ row.to_team.short_name }}</a>{% else %}—{% endif %}
+                · {{ row.amount }} TKN
+            </p>
+        {% empty %}
+            {% include "mgl/includes/empty_state.html" with title="NO TRANSFERS YET" %}
+        {% endfor %}
     </div>
 </section>
+{% endif %}
+
+{% if club_tab == 'stats' %}
+<section class="mgl-section">
+    <div class="dashboard-panel">
+        <div class="panel-heading"><span>SQUAD STATS</span></div>
+        {% for player in players %}
+            {% if player.goals or player.assists %}
+            <p>
+                <a href="{% url 'player_profile' player.id %}">{{ player.name }}</a>
+                · {{ player.goals|default:0 }} G · {{ player.assists|default:0 }} A
+            </p>
+            {% endif %}
+        {% endfor %}
+        {% if not players %}
+            {% include "mgl/includes/empty_state.html" with title="NO STATISTICS YET" %}
+        {% endif %}
+    </div>
+</section>
+{% endif %}
+
+{% if club_tab == 'history' %}
+<section class="mgl-section">
+    <div class="dashboard-panel">
+        <div class="panel-heading"><span>CLUB HISTORY</span></div>
+        {% include "mgl/includes/empty_state.html" with title="NO CLUB HISTORY RECORDED YET" body="Season trophies and historical tables appear here when the league office records them." %}
+        {% if league_position %}
+            <p>Current league position: {{ league_position }}</p>
+        {% endif %}
+    </div>
+</section>
+{% endif %}
 {% endblock %}

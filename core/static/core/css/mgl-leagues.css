@@ -215,9 +215,50 @@
     font-weight: 800;
 }
 
+.ufl-league-leaders {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.ufl-cup-empty-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.ufl-club-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin: 12px 0 0;
+}
+
+.ufl-club-meta dt {
+    color: var(--ufl-gold);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+}
+
+.ufl-club-meta dd {
+    margin: 2px 0 0;
+    font-weight: 800;
+}
+
+.ufl-league-index-copy {
+    width: 100%;
+    margin: 0;
+    color: var(--ufl-muted);
+    font-size: 13px;
+}
+
 @media (max-width: 900px) {
     .ufl-cup-grid,
-    .ufl-cup-hero {
+    .ufl-cup-hero,
+    .ufl-league-leaders,
+    .ufl-cup-empty-grid {
         grid-template-columns: 1fr;
     }
 

@@ -136,10 +136,20 @@ def queue_from_news(post, idempotency_key=None):
             "body": body,
             "text": text,
             "news_id": post.pk,
+            "page_links": _page_links_for_post(post),
         },
         news_post=post,
         idempotency_key=key,
     )
+
+
+def _page_links_for_post(post):
+    try:
+        from mgl.page_links import page_links_for_news
+
+        return page_links_for_news(post)
+    except Exception:
+        return []
 
 
 def format_press_discord(post):
@@ -230,7 +240,7 @@ def event_payload_preview(event):
     """Safe fields for Control Centre. Never includes discord_id or credentials."""
     payload = event.payload or {}
     preview = {}
-    for key in ("title", "body", "text", "news_id"):
+    for key in ("title", "body", "text", "news_id", "page_links"):
         if key in payload:
             preview[key] = payload[key]
     return preview

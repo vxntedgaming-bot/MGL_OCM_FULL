@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 
 from leagues.services import active_divisions, active_league
 from mgl.activity import activity_payloads, published_football_activity
@@ -61,7 +62,7 @@ def clubs_index(request):
 
 def club_page(request, slug):
     team = resolve_club(slug)
-    players = (
+    players = list(
         team.players.select_related("mgl_team")
         .order_by("position", "-overall", "name")
     )
@@ -83,6 +84,7 @@ def club_page(request, slug):
         request.user.is_authenticated and team.manager_id == request.user.id
     )
     from mgl.market import club_for_user
+    from mgl.models import MarketTransaction
     from mgl.permissions import approved_manager
 
     viewer_manager = approved_manager(request.user) if request.user.is_authenticated else None
@@ -93,6 +95,20 @@ def club_page(request, slug):
         and not is_own_club
         and team.manager_id
     )
+    overalls = [player.overall or 0 for player in players]
+    avg_overall = round(sum(overalls) / len(overalls)) if overalls else None
+    top_players = sorted(players, key=lambda row: (-(row.overall or 0), row.name))[:6]
+    club_transfers = (
+        MarketTransaction.objects.filter(status=MarketTransaction.COMPLETED)
+        .filter(Q(from_team=team) | Q(to_team=team))
+        .select_related("player", "from_team", "to_team")
+        .order_by("-created_at")[:12]
+    )
+    club_tab = (request.GET.get("tab") or "overview").strip().lower()
+    if club_tab not in {"overview", "squad", "fixtures", "transfers", "stats", "history"}:
+        club_tab = "overview"
+    from mgl.page_links import league_url
+
     return render(
         request,
         "mgl/club_page.html",
@@ -106,6 +122,12 @@ def club_page(request, slug):
             "is_own_club": is_own_club,
             "can_buy_from_club": can_buy_from_club,
             "viewer_manager": viewer_manager,
+            "avg_overall": avg_overall,
+            "top_players": top_players,
+            "club_transfers": club_transfers,
+            "club_tab": club_tab,
+            "club_manager": manager_for_user(team.manager) if team.manager_id else None,
+            "league_href": league_url(team.league) if team.league_id else reverse("leagues_page"),
         },
     )
 

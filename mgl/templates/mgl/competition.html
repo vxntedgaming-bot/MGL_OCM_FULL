@@ -55,7 +55,7 @@
         </div>
     </section>
 </section>
-{% elif coming_soon or not is_live %}
+{% elif coming_soon %}
 <section class="mgl-section ufl-cup-detail">
     {% include "core/includes/mgl_page_header.html" with header_section="CUPS" header_section_url=cups_index header_title=competition_name header_icon="trophy" header_description=cup_copy.description header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
     <div class="ufl-cup-hero">
@@ -82,31 +82,57 @@
     <nav class="ufl-subtabs" aria-label="Competition sections">
         <a href="?tab=overview" class="{% if cup_tab == 'overview' %}is-active{% endif %}">OVERVIEW</a>
         {% if cup_copy.has_groups %}
-            <a href="?tab=groups" class="{% if cup_tab == 'groups' %}is-active{% endif %}">GROUPS</a>
+            <a href="?tab=groups" class="{% if cup_tab == 'groups' %}is-active{% endif %}">GROUP STAGE</a>
         {% endif %}
         <a href="?tab=fixtures" class="{% if cup_tab == 'fixtures' %}is-active{% endif %}">FIXTURES</a>
-        <a href="?tab=bracket" class="{% if cup_tab == 'bracket' %}is-active{% endif %}">KNOCKOUTS</a>
-        <a href="?tab=stats" class="{% if cup_tab == 'stats' %}is-active{% endif %}">RESULTS</a>
-        <a href="?tab=history" class="{% if cup_tab == 'history' %}is-active{% endif %}">FINAL</a>
+        <a href="?tab=bracket" class="{% if cup_tab == 'bracket' %}is-active{% endif %}">KNOCKOUT</a>
+        <a href="?tab=stats" class="{% if cup_tab == 'stats' %}is-active{% endif %}">STATS</a>
+        <a href="?tab=history" class="{% if cup_tab == 'history' %}is-active{% endif %}">HISTORY</a>
     </nav>
     {% include "mgl/includes/empty_state.html" with kicker="COMING SOON" title="NO LIVE COMPETITION DATA" body="This competition structure is published. Live fixtures, brackets and results will appear here when the league office starts it. Nothing on this page is a fake score." %}
+    <div class="ufl-cup-empty-grid">
+        <article class="dashboard-panel">
+            <div class="panel-heading"><span>GROUPS</span></div>
+            {% include "mgl/includes/empty_state.html" with title="NO GROUPS DRAWN" %}
+        </article>
+        <article class="dashboard-panel">
+            <div class="panel-heading"><span>KNOCKOUT BRACKET</span></div>
+            {% include "mgl/includes/empty_state.html" with title="NO BRACKET YET" %}
+        </article>
+        <article class="dashboard-panel">
+            <div class="panel-heading"><span>RECENT RESULTS</span></div>
+            {% include "mgl/includes/empty_state.html" with title="NO RESULTS YET" %}
+        </article>
+        <article class="dashboard-panel">
+            <div class="panel-heading"><span>TOP SCORER</span></div>
+            {% include "mgl/includes/empty_state.html" with title="NO STATISTICS YET" %}
+        </article>
+        <article class="dashboard-panel">
+            <div class="panel-heading"><span>TOP ASSIST PROVIDER</span></div>
+            {% include "mgl/includes/empty_state.html" with title="NO STATISTICS YET" %}
+        </article>
+        <article class="dashboard-panel">
+            <div class="panel-heading"><span>TITLE HOLDER</span></div>
+            {% include "mgl/includes/empty_state.html" with title="NO WINNER RECORDED" %}
+        </article>
+    </div>
     <p><a href="{% url 'competition_page' 'cups' %}" class="secondary-button">← BACK TO CUPS</a></p>
 </section>
 {% else %}
 <section class="mgl-section ufl-league-page">
     {% if competition_slug == "premier-league" %}
-        {% include "core/includes/mgl_page_header.html" with header_section="LEAGUE TABLES" header_section_url=leagues_index header_title="LEAGUE TABLES" header_icon="trophy" header_description="The top active UFL competition." header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
+        {% include "core/includes/mgl_page_header.html" with header_section="LEAGUES" header_section_url=leagues_index header_title="PREMIER LEAGUE" header_icon="trophy" header_description="The top active UFL competition. Live table, form and player leaders." header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
     {% elif competition_slug == "championship" %}
-        {% include "core/includes/mgl_page_header.html" with header_section="LEAGUE TABLES" header_section_url=leagues_index header_title="LEAGUE TABLES" header_icon="trophy" header_description="Second UFL division." header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
+        {% include "core/includes/mgl_page_header.html" with header_section="LEAGUES" header_section_url=leagues_index header_title="CHAMPIONSHIP" header_icon="trophy" header_description="Second UFL division. Live table, form and player leaders." header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
     {% elif competition_slug == "league-one" %}
-        {% include "core/includes/mgl_page_header.html" with header_section="LEAGUE TABLES" header_section_url=leagues_index header_title="LEAGUE TABLES" header_icon="trophy" header_description="Third UFL division." header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
+        {% include "core/includes/mgl_page_header.html" with header_section="LEAGUES" header_section_url=leagues_index header_title="LEAGUE ONE" header_icon="trophy" header_description="Third UFL division. Live table, form and player leaders." header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
     {% else %}
-        {% include "core/includes/mgl_page_header.html" with header_section="LEAGUE TABLES" header_section_url=leagues_index header_title=competition_name header_icon="trophy" header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
+        {% include "core/includes/mgl_page_header.html" with header_section="LEAGUES" header_section_url=leagues_index header_title=competition_name header_icon="trophy" header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
     {% endif %}
     <div class="ufl-league-title">
-        <h2>LEAGUE TABLES <span class="is-gold">{{ competition_name|upper }}</span></h2>
+        <h2>{{ competition_name|upper }}</h2>
         {% if league.season %}
-            <p>SEASON: {{ competition_name|upper }} - SEASON {{ league.season }}</p>
+            <p>SEASON {{ league.season }}</p>
         {% endif %}
     </div>
     {% include "mgl/includes/competition_selector.html" %}
@@ -118,6 +144,44 @@
     </nav>
     <div id="table" class="dashboard-panel ufl-table-panel">
         {% include "mgl/includes/league_table.html" with table=table league=league %}
+    </div>
+    <div class="ufl-league-leaders">
+        <article class="dashboard-panel" id="goals">
+            <div class="panel-heading"><span>TOP SCORERS</span></div>
+            {% for player in top_scorers %}
+                <div class="scorer-row">
+                    <span class="rank">{{ forloop.counter|stringformat:"02d" }}</span>
+                    <div class="scorer-copy">
+                        <strong><a href="{% url 'player_profile' player.id %}">{{ player.name }}</a></strong>
+                        <span>{{ player.position }}{% if player.mgl_team %} · <a href="{% club_url player.mgl_team %}">{{ player.mgl_team.short_name }}</a>{% endif %}</span>
+                    </div>
+                    <div class="scorer-stat">
+                        <b>{{ player.goals }}</b>
+                        <small>GOALS</small>
+                    </div>
+                </div>
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with title="NO GOALS RECORDED YET" %}
+            {% endfor %}
+        </article>
+        <article class="dashboard-panel" id="assists">
+            <div class="panel-heading"><span>TOP ASSISTS</span></div>
+            {% for player in top_assists %}
+                <div class="scorer-row">
+                    <span class="rank">{{ forloop.counter|stringformat:"02d" }}</span>
+                    <div class="scorer-copy">
+                        <strong><a href="{% url 'player_profile' player.id %}">{{ player.name }}</a></strong>
+                        <span>{{ player.position }}{% if player.mgl_team %} · <a href="{% club_url player.mgl_team %}">{{ player.mgl_team.short_name }}</a>{% endif %}</span>
+                    </div>
+                    <div class="scorer-stat">
+                        <b>{{ player.assists }}</b>
+                        <small>ASSISTS</small>
+                    </div>
+                </div>
+            {% empty %}
+                {% include "mgl/includes/empty_state.html" with title="NO ASSISTS RECORDED YET" %}
+            {% endfor %}
+        </article>
     </div>
     <section id="fixtures" class="ufl-league-fixtures">
         <h3>FIXTURES &amp; RESULTS</h3>

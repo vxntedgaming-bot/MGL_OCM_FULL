@@ -6,6 +6,20 @@ This file started with the documentation/audit pass. It does **not** claim that 
 
 ---
 
+## 2026-09-02 — Connected league, cup, club, player and market pages
+
+Presentation and routing only. Existing Market, Job Centre, recruitment, scouting, auctions and Discord outbox remain the source of truth.
+
+- League pages show live tables plus top scorers/assists from the same player records. All Leagues keeps three separate division cards.
+- Cup hub and four cup pages stay Coming soon / empty until the office starts them. No fake scores.
+- Club pages use Overview / Squad / Fixtures / Transfers / Stats / History tabs. Players stay clickable cards.
+- Player profiles remain public destination pages. Recent Results removed.
+- Existing `/mgl/` and `/market/` URLs kept. Aliases added for `/leagues/all/`, `/cups/`, `/players/<id>/`, `/teams/<slug>/`.
+- Discord outbox payloads now include `page_links` to those pages. No messages sent.
+- **No Season 1, no squad generation, no token writes, no production migrations.**
+
+---
+
 ## 2026-09-01 — Public Home Page Career Mode redesign
 
 Presentation-only rewrite of the public Home (`/`) to the Career Mode / EA FC reference.
