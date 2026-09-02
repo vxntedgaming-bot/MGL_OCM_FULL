@@ -137,7 +137,7 @@ class PurchaseSwapWorkflowTests(TestCase):
         inbox = self.client.get(reverse("manager_notifications"))
         self.assertContains(inbox, "Transfer Request")
         self.assertContains(inbox, "Ola Solbakken")
-        self.assertContains(inbox, "2.00 TKN")
+        self.assertContains(inbox, "2.00 UFL Coin")
         accepted = self.client.post(
             reverse("manager_notification_respond", args=[notice.id]),
             {"action": "accept"},
@@ -157,7 +157,7 @@ class PurchaseSwapWorkflowTests(TestCase):
         self.assertContains(control, "Bayern Test")
         self.assertContains(control, "SELLER RECEIVES")
         self.assertContains(control, "BUYER RECEIVES")
-        self.assertContains(control, "2.00 TKN")
+        self.assertContains(control, "2.00 UFL Coin")
         approved = approve_listing(self.listing, self.owner)
         self.assertEqual(approved.status, PlayerListing.SOLD)
         self.target.refresh_from_db()

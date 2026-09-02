@@ -44,7 +44,7 @@
                 </div>
                 <div>
                     <span>ASKING PRICE</span>
-                    <strong>{{ listing.asking_price }} TKN</strong>
+                    <strong>{% ufl_coin listing.asking_price "md" %}</strong>
                 </div>
                 <div>
                     <span>CLUB</span>
@@ -129,7 +129,7 @@
             <label class="mgl-purchase-amount">
                 OFFER AMOUNT
                 <input type="number" name="asking_price" min="0" step="0.01" value="{{ listing.asking_price }}" required>
-                <span>TKN</span>
+                <span>UFL Coin</span>
             </label>
             <div class="mgl-purchase-actions">
                 <button type="submit" class="mgl-purchase-action">SEND OFFER</button>

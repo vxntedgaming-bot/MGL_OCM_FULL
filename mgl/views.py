@@ -82,7 +82,15 @@ def _attach_news_logos(posts):
         post.logo_from = None
         post.logo_to = None
         post.logo_single = None
+        post.news_player = None
+        post.is_press = post.category == NewsPost.PRESS
         post.logo_kind = "single"
+        details = getattr(post, "details", None) or {}
+        player_id = details.get("player_id") or details.get("player")
+        if player_id and str(player_id).isdigit():
+            from players.models import Player as NewsPlayer
+
+            post.news_player = NewsPlayer.objects.filter(pk=int(player_id)).first()
         if post.category == NewsPost.RESULTS and primary and secondary:
             post.logo_from = primary
             post.logo_to = secondary
@@ -242,12 +250,8 @@ def home(request):
     featured_players = list(top_scorers)
 
     jobs_url = reverse("job_centre")
-    if request.user.is_authenticated:
-        apply_club_url = jobs_url
-        join_mgl_url = jobs_url
-    else:
-        apply_club_url = f"{reverse('manager_login')}?next={jobs_url}"
-        join_mgl_url = reverse("manager_register")
+    apply_club_url = jobs_url
+    join_mgl_url = reverse("manager_register")
 
     return render(
         request,
@@ -1959,52 +1963,52 @@ def competition_page(request, slug):
         cup_tab = "overview"
     cup_catalog = (
         {
-            "slug": "phantom-cup",
-            "name": COMPETITIONS["phantom-cup"],
-            "description": "Knockout stages. Draws and results appear when the office starts the cup.",
-            "status": "upcoming",
-            "status_label": "UPCOMING",
-            "format": "Knockout",
-            "team_count": None,
-            "winner": None,
-            "season": None,
-            "action_label": "VIEW DETAILS →",
-        },
-        {
             "slug": "champions-league",
             "name": COMPETITIONS["champions-league"],
             "description": "16 teams. 4 groups of 4. 8 teams qualify for the knockout stages.",
-            "status": "upcoming",
-            "status_label": "UPCOMING",
+            "status": "published",
+            "status_label": "UFL CUP",
             "format": "Groups + knockout",
             "team_count": 16,
             "winner": None,
             "season": None,
-            "action_label": "VIEW DETAILS →",
+            "action_label": "VIEW COMPETITION →",
         },
         {
             "slug": "europa-league",
             "name": COMPETITIONS["europa-league"],
             "description": "8 teams. 2 groups of 4. 4 teams qualify for the knockout stages.",
-            "status": "upcoming",
-            "status_label": "UPCOMING",
+            "status": "published",
+            "status_label": "UFL CUP",
             "format": "Groups + knockout",
             "team_count": 8,
             "winner": None,
             "season": None,
-            "action_label": "VIEW DETAILS →",
+            "action_label": "VIEW COMPETITION →",
         },
         {
             "slug": "conference-league",
             "name": COMPETITIONS["conference-league"],
             "description": "8 teams. 2 groups of 4. 4 teams qualify for the knockout stages.",
-            "status": "upcoming",
-            "status_label": "UPCOMING",
+            "status": "published",
+            "status_label": "UFL CUP",
             "format": "Groups + knockout",
             "team_count": 8,
             "winner": None,
             "season": None,
-            "action_label": "VIEW DETAILS →",
+            "action_label": "VIEW COMPETITION →",
+        },
+        {
+            "slug": "phantom-cup",
+            "name": COMPETITIONS["phantom-cup"],
+            "description": "Knockout stages. Draws and results appear when the office starts the cup.",
+            "status": "published",
+            "status_label": "UFL CUP",
+            "format": "Knockout",
+            "team_count": None,
+            "winner": None,
+            "season": None,
+            "action_label": "VIEW COMPETITION →",
         },
     )
     league_fixtures = []
@@ -2073,6 +2077,7 @@ def competition_page(request, slug):
             "league_fixtures": league_fixtures,
             "top_scorers": top_scorers,
             "top_assists": top_assists,
+            "official_cups": cup_catalog,
             "live_cups": [cup for cup in cup_catalog if cup["status"] == "live"],
             "won_cups": [cup for cup in cup_catalog if cup["status"] == "complete"],
             "upcoming_cups": [cup for cup in cup_catalog if cup["status"] == "upcoming"],

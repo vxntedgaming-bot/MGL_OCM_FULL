@@ -300,3 +300,21 @@ def pos_line(position):
     if pos:
         return "mid"
     return ""
+
+
+@register.filter
+def ovr_band(value):
+    try:
+        overall = int(value or 0)
+    except (TypeError, ValueError):
+        overall = 0
+    if overall >= 78:
+        return "high"
+    if overall >= 65:
+        return "mid"
+    return "low"
+
+
+@register.inclusion_tag("mgl/includes/ufl_coin.html")
+def ufl_coin(amount, size="sm"):
+    return {"amount": amount, "size": size or "sm"}

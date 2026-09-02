@@ -83,7 +83,7 @@
             </div>
             <p class="mgl-deal-tokens">
                 <span class="mgl-deal-token-icon" aria-hidden="true"></span>
-                {{ item.deal.payer }} paid {{ item.deal.amount_display }} TKN
+                {{ item.deal.payer }} paid {% ufl_coin item.deal.amount_display "sm" %}
             </p>
             {% if item.subtitle %}<p class="mgl-deal-status">{{ item.subtitle }}</p>{% endif %}
         {% elif item.kind == "transfer" %}

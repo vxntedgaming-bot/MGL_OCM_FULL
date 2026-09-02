@@ -62,7 +62,8 @@ class PublicHomePageTests(TestCase):
     def test_jobs_and_tables_and_register_buttons(self):
         page = self.client.get("/")
         html = page.content.decode()
-        self.assertIn(f'href="{reverse("manager_login")}?next={reverse("job_centre")}"', html)
+        self.assertIn(f'href="{reverse("job_centre")}"', html)
+        self.assertNotIn(f'href="{reverse("manager_login")}?next={reverse("job_centre")}"', html)
         self.assertIn(f'href="{reverse("leagues_page")}"', html)
         self.assertIn(f'href="{reverse("manager_register")}"', html)
 
@@ -73,9 +74,10 @@ class PublicHomePageTests(TestCase):
         self.assertContains(page, "JOIN DISCORD")
 
     @override_settings(DISCORD_INVITE_URL="")
-    def test_empty_discord_hides_join_button(self):
+    def test_empty_discord_uses_official_invite(self):
         page = self.client.get("/")
-        self.assertNotContains(page, "JOIN DISCORD")
+        self.assertContains(page, "JOIN DISCORD")
+        self.assertContains(page, "https://discord.gg/rhKg6gmE8K")
 
     def test_anonymous_user_does_not_see_manager_chrome(self):
         page = self.client.get("/")

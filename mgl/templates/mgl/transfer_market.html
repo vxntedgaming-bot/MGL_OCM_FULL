@@ -17,7 +17,7 @@
             <div class="mgl-mk-stat">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v8M9.5 10.5h5a2 2 0 0 1 0 4h-5"/></svg>
                 <strong>{{ token_balance }}</strong>
-                <span>YOUR TOKENS</span>
+                <span>UFL COIN</span>
             </div>
         {% else %}
             <div class="mgl-mk-stat">
@@ -128,7 +128,7 @@
                             </div>
                             <div class="mgl-market-price-cell">
                                 <span class="mgl-market-mobile-label">ASKING PRICE</span>
-                                <div class="mgl-market-price">{{ listing.asking_price }} TKN</div>
+                                <div class="mgl-market-price">{% ufl_coin listing.asking_price "sm" %}</div>
                                 <p class="mgl-market-price-note">Starting price · {{ listing.status }}</p>
                             </div>
                             <div class="mgl-market-club">
@@ -192,7 +192,7 @@
                             {% if row.to_team %}<a href="{% club_url row.to_team %}">{% team_logo row.to_team "xs" %}</a>{% endif %}
                         </div>
                         <div class="mgl-mk-deal-meta">
-                            <strong>{{ row.amount }} TKN</strong>
+                            <strong>{% ufl_coin row.amount "sm" %}</strong>
                             <span>{{ row.completed_at|default:row.created_at|date:"j M Y" }}</span>
                         </div>
                     </article>

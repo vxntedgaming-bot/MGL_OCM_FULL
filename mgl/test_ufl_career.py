@@ -56,7 +56,8 @@ class UFLCareerModeTests(TestCase):
         for name in ("home", "leagues_page", "clubs_index", "pressroom", "ufl_rules"):
             response = self.client.get(reverse(name))
             self.assertEqual(response.status_code, 200, name)
-        for name in ("player_database", "transfer_market", "live_auctions"):
+        self.assertEqual(self.client.get(reverse("transfer_market")).status_code, 200)
+        for name in ("player_database", "live_auctions"):
             response = self.client.get(reverse(name))
             self.assertEqual(response.status_code, 302, name)
             self.assertEqual(response["Location"], reverse("job_centre"), name)

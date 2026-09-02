@@ -583,7 +583,7 @@ def _detail_rows(item):
         value = details.get(key)
         if value not in (None, ""):
             if key == "amount":
-                rows.append((label, f"{value} TKN"))
+                rows.append((label, f"{value} UFL Coin"))
             else:
                 rows.append((label, value))
     if item.team_id and not details.get("current_club"):

@@ -9,7 +9,7 @@
 {% block content %}
 <section class="mgl-section ufl-league-page">
     {% url 'leagues_page' as leagues_index %}
-    {% include "core/includes/mgl_page_header.html" with header_section="LEAGUES" header_title="ALL LEAGUES" header_icon="trophy" header_description="Official UFL standings. Each division is shown separately. Click a club crest or name to open that club’s existing team page." %}
+    {% include "core/includes/mgl_page_header.html" with hide_crumbs=1 header_title="ALL LEAGUES" header_icon="trophy" header_description="Official UFL standings. Each division is shown separately. Click a club crest or name to open that club’s existing team page." %}
     {% include "mgl/includes/competition_selector.html" %}
     {% if competition_choices %}
     <nav class="ufl-league-index" aria-label="UFL leagues">

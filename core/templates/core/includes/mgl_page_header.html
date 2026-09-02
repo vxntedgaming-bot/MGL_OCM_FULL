@@ -12,6 +12,8 @@
     {% firstof header_root_label "HOME" as header_root_text %}
 {% endif %}
 <header class="ufl-page-head">
+    {% if hide_crumbs %}
+    {% else %}
     <nav class="ufl-crumbs" aria-label="Location">
         <a href="{{ header_root_url }}" class="ufl-crumb-pill">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10.5V20h11V10.5"/></svg>
@@ -29,6 +31,7 @@
         <span class="ufl-crumb-sep" aria-hidden="true">→</span>
         <span class="ufl-crumb-pill is-current">{{ header_title }}</span>
     </nav>
+    {% endif %}
     <div class="ufl-page-title">
         <span class="ufl-page-icon" aria-hidden="true">
             {% if header_icon == "gavel" %}

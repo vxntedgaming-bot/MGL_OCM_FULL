@@ -1,4 +1,5 @@
 {% extends "mgl/includes/control_page.html" %}
+{% load mgl_ui %}
 
 {% block control_title %}Auctions & Release Players — UFL Control{% endblock %}
 {% block control_kicker %}MANAGEMENT{% endblock %}
@@ -12,7 +13,7 @@
     {% for auction in manager_auctions %}
         <div class="table-row mgl-cp-row">
             <strong>{{ auction.player.name }}</strong>
-            <span>{{ auction.player.position }} · {{ auction.player.overall }} OVR · {{ auction.winning_bid }} TKN{% if auction.winning_manager %} · {{ auction.winning_manager.display_name }}{% endif %}</span>
+            <span>{{ auction.player.position }} · {{ auction.player.overall }} OVR · {% ufl_coin auction.winning_bid "sm" %}{% if auction.winning_manager %} · {{ auction.winning_manager.display_name }}{% endif %}</span>
             <small>{{ auction.ends_at|date:"d M Y H:i" }} · {{ auction.status }} · Manager listing</small>
             <div class="mgl-cp-actions is-row">
                 <form method="post" action="{% url 'control_close_auction' auction.id %}">{% csrf_token %}<input type="hidden" name="next_page" value="control_auctions"><button class="header-button mgl-cp-approve" type="submit">CLOSE</button></form>
@@ -30,7 +31,7 @@
     {% for auction in office_auctions %}
         <div class="table-row mgl-cp-row">
             <strong>{{ auction.player.name }}</strong>
-            <span>{{ auction.player.position }} · {{ auction.player.overall }} OVR · {{ auction.winning_bid }} TKN{% if auction.winning_manager %} · {{ auction.winning_manager.display_name }}{% endif %}</span>
+            <span>{{ auction.player.position }} · {{ auction.player.overall }} OVR · {% ufl_coin auction.winning_bid "sm" %}{% if auction.winning_manager %} · {{ auction.winning_manager.display_name }}{% endif %}</span>
             <small>{{ auction.ends_at|date:"d M Y H:i" }} · {{ auction.status }} · League office</small>
             <div class="mgl-cp-actions is-row">
                 <form method="post" action="{% url 'control_close_auction' auction.id %}">{% csrf_token %}<input type="hidden" name="next_page" value="control_auctions"><button class="header-button mgl-cp-approve" type="submit">CLOSE</button></form>

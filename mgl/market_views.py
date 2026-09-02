@@ -136,7 +136,6 @@ def control_centre_redirect(request, default="control_centre"):
     return redirect(page)
 
 
-@career_required
 def transfer_market(request):
     close_expired_auctions()
     auctions = (

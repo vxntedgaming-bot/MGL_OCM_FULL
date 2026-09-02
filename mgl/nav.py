@@ -13,9 +13,6 @@ LEAGUE_MENU = {
         "leagues_page",
         "leagues_all",
         "competition_page",
-        "clubs_index",
-        "club_page",
-        "club_page_clubs",
     },
     "current_slugs": {"premier-league", "championship", "league-one"},
     "items": (
@@ -23,6 +20,7 @@ LEAGUE_MENU = {
             "label": "Premier League",
             "url_name": "competition_page",
             "url_kwargs": {"slug": "premier-league"},
+            "style": "sub",
         },
         {
             "label": "Championship",
@@ -37,14 +35,6 @@ LEAGUE_MENU = {
             "style": "sub",
         },
         {"label": "All Leagues", "url_name": "leagues_page", "divider": True},
-        {
-            "label": "Cups",
-            "url_name": "competition_page",
-            "url_kwargs": {"slug": "cups"},
-            "divider": True,
-        },
-        {"label": "Clubs", "url_name": "clubs_index", "divider": True},
-        {"label": "Club Profiles", "url_name": "clubs_index"},
     ),
 }
 
@@ -61,25 +51,28 @@ CUPS_MENU = {
     },
     "items": (
         {
-            "label": "Phantom Cup",
-            "url_name": "competition_page",
-            "url_kwargs": {"slug": "phantom-cup"},
-        },
-        {
             "label": "UFL Champions League",
             "url_name": "competition_page",
             "url_kwargs": {"slug": "champions-league"},
-            "divider": True,
+            "style": "sub",
         },
         {
             "label": "UFL Europa League",
             "url_name": "competition_page",
             "url_kwargs": {"slug": "europa-league"},
+            "style": "sub",
         },
         {
-            "label": "UFL Europa Conference League",
+            "label": "UFL Conference League",
             "url_name": "competition_page",
             "url_kwargs": {"slug": "conference-league"},
+            "style": "sub",
+        },
+        {
+            "label": "UFL Phantom Cup",
+            "url_name": "competition_page",
+            "url_kwargs": {"slug": "phantom-cup"},
+            "style": "sub",
         },
     ),
 }
@@ -165,9 +158,14 @@ HISTORY_MENU = {
         "live_activity",
         "pressroom",
         "answer_press",
+        "clubs_index",
+        "club_page",
+        "club_page_clubs",
     },
     "items": (
         {"label": "Hall of Fame", "url_name": "hall_of_fame"},
+        {"label": "Clubs", "url_name": "clubs_index", "divider": True},
+        {"label": "Club Profiles", "url_name": "clubs_index"},
         {"label": "Manager Search", "url_name": "manager_search", "divider": True},
         {"label": "UFL Newsroom", "url_name": "live_activity", "divider": True},
         {"label": "UFL Press Conference", "url_name": "pressroom"},
@@ -243,8 +241,6 @@ CONTROL_MENU = {
 NAV_DROPDOWNS = (
     LEAGUE_MENU,
     CUPS_MENU,
-    STATS_MENU,
-    HISTORY_MENU,
 )
 
 # Approved managers / Control.
@@ -296,10 +292,10 @@ COMPETITIONS = {
     "championship": "Championship",
     "league-one": "League One",
     "cups": "UFL Cups",
-    "phantom-cup": "Phantom Cup",
+    "phantom-cup": "UFL Phantom Cup",
     "champions-league": "UFL Champions League",
     "europa-league": "UFL Europa League",
-    "conference-league": "UFL Europa Conference League",
+    "conference-league": "UFL Conference League",
 }
 
 LIVE_COMPETITION_SLUGS = {

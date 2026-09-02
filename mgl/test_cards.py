@@ -134,7 +134,7 @@ class PlayerCardAndBadgeTests(TestCase):
             asking_price=Decimal("12.00"),
             status=PlayerListing.LIVE,
         )
-        self.assertEqual(self.client.get(reverse("transfer_market")).status_code, 302)
+        self.assertEqual(self.client.get(reverse("transfer_market")).status_code, 200)
         self.client.login(username="carduser", password="test-pass-123")
         market = self.client.get(reverse("transfer_market"))
         self.assertEqual(market.status_code, 200)

@@ -177,7 +177,7 @@
                                 <td class="mgl-squad-actions" data-label="ACTIONS">
                                     <a href="{% url 'player_profile' player.id %}" class="mgl-sq-view" aria-label="View {{ player.name }}">VIEW</a>
                                     {% if player.current_listing %}
-                                        <span class="mgl-card-status">TRANSFER LISTED · {{ player.current_listing.asking_price }} TKN</span>
+                                        <span class="mgl-card-status">TRANSFER LISTED · {% ufl_coin player.current_listing.asking_price "sm" %}</span>
                                         <form method="post" action="{% url 'cancel_player_listing' player.current_listing.id %}">
                                             {% csrf_token %}
                                             <button type="submit" class="mgl-squad-action">WITHDRAW</button>
@@ -254,9 +254,9 @@
                             <td class="mgl-squad-pos" data-label="POS">{{ player.position }}</td>
                             <td data-label="STATUS">
                                 {% if player.current_listing.status == "OFFER" or player.current_listing.status == "PENDING" %}
-                                    <span class="mgl-card-status">IN NEGOTIATION · {{ player.current_listing.asking_price }} TKN</span>
+                                    <span class="mgl-card-status">IN NEGOTIATION · {% ufl_coin player.current_listing.asking_price "sm" %}</span>
                                 {% else %}
-                                    <span class="mgl-card-status">TRANSFER LISTED · {{ player.current_listing.asking_price }} TKN</span>
+                                    <span class="mgl-card-status">TRANSFER LISTED · {% ufl_coin player.current_listing.asking_price "sm" %}</span>
                                 {% endif %}
                             </td>
                             <td class="mgl-squad-actions" data-label="ACTIONS">

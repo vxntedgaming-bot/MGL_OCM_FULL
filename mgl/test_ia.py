@@ -19,7 +19,6 @@ class InformationArchitectureTests(TestCase):
 
     def test_public_restricted_pages_redirect_to_job_offers(self):
         for name in (
-            "transfer_market",
             "live_auctions",
             "scouting",
             "player_database",
@@ -46,6 +45,7 @@ class InformationArchitectureTests(TestCase):
             ("job_offers", None),
             ("clubs_index", None),
             ("public_transfers", None),
+            ("transfer_market", None),
             ("live_activity", None),
             ("pressroom", None),
             ("league_stats", {"slug": "premier-league"}),

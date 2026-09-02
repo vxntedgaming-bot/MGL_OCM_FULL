@@ -25,7 +25,7 @@
                     <div>
                         <a href="{% url 'player_profile' listing.player_id %}">{{ listing.player.name }}</a>
                         <p>{{ listing.player.position }} · {{ listing.player.overall }} · {{ listing.get_status_display }}</p>
-                        <p>{{ listing.asking_price }} TKN{% if listing.offered_player %} + {{ listing.offered_player.name }}{% endif %}</p>
+                        <p>{% ufl_coin listing.asking_price "sm" %}{% if listing.offered_player %} + {{ listing.offered_player.name }}{% endif %}</p>
                     </div>
                 </div>
                 {% if listing.status == "OFFER" and listing.team_id == club.id %}
@@ -47,7 +47,7 @@
                 <div class="mgl-xf-player">
                     <div>
                         <a href="{% url 'player_profile' listing.player_id %}">{{ listing.player.name }}</a>
-                        <p>Your offer · {{ listing.asking_price }} TKN · {{ listing.get_status_display }}</p>
+                        <p>Your offer · {% ufl_coin listing.asking_price "sm" %} · {{ listing.get_status_display }}</p>
                     </div>
                 </div>
                 {% if listing.status == "OFFER" %}

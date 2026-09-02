@@ -329,9 +329,10 @@ class SiteManagementTests(TestCase):
         self.assertEqual(get_content("home.about_us"), "Saved about copy again.")
 
     @override_settings(DISCORD_INVITE_URL="")
-    def test_discord_url_saves_and_empty_hides_buttons(self):
+    def test_discord_url_saves_and_empty_uses_official_invite(self):
         home = self.client.get("/")
-        self.assertNotContains(home, "JOIN DISCORD")
+        self.assertContains(home, "JOIN DISCORD")
+        self.assertContains(home, "https://discord.gg/rhKg6gmE8K")
         self._login(self.owner)
         self.client.post(
             reverse("site_management_settings"),
@@ -376,7 +377,8 @@ class SiteManagementTests(TestCase):
         )
         self.client.logout()
         hidden = self.client.get("/")
-        self.assertNotContains(hidden, "JOIN DISCORD")
+        self.assertContains(hidden, "JOIN DISCORD")
+        self.assertContains(hidden, "https://discord.gg/rhKg6gmE8K")
         self.assertNotContains(hidden, "https://discord.gg/mgl-test-invite")
 
     def test_league_display_edit_keeps_id_and_does_not_duplicate(self):

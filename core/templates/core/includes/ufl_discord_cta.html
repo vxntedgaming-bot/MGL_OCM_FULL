@@ -3,8 +3,6 @@
     <div>
         <h2>JOIN THE UFL COMMUNITY</h2>
         <p>Arrange fixtures, discuss transfers, communicate with other managers and stay up to date with everything happening in UFL.</p>
-        {% if discord_invite_url %}
-            <a href="{{ discord_invite_url }}" target="_blank" rel="noopener">JOIN DISCORD →</a>
-        {% endif %}
+        <a href="{{ discord_invite_url|default:'https://discord.gg/rhKg6gmE8K' }}" target="_blank" rel="noopener">JOIN DISCORD →</a>
     </div>
 </section>

@@ -294,12 +294,18 @@ def settings_fields():
     return fields_for_section("settings")
 
 
+DEFAULT_UFL_DISCORD = "https://discord.gg/rhKg6gmE8K"
+
+
 def resolved_discord_invite():
-    """CMS URL wins when non-empty; otherwise keep the env setting. Empty still hides buttons."""
+    """CMS URL wins when non-empty; otherwise keep the env setting."""
     stored = stored_value("settings.discord_invite_url")
     if stored is not None and str(stored).strip():
         return str(stored).strip()
-    return (getattr(settings, "DISCORD_INVITE_URL", "") or "").strip()
+    env = (getattr(settings, "DISCORD_INVITE_URL", "") or "").strip()
+    if env:
+        return env
+    return DEFAULT_UFL_DISCORD
 
 
 def site_chrome():
@@ -336,7 +342,7 @@ def site_chrome():
     if discord_stored is not None and str(discord_stored).strip():
         discord_url = str(discord_stored).strip()
     else:
-        discord_url = (getattr(settings, "DISCORD_INVITE_URL", "") or "").strip()
+        discord_url = (getattr(settings, "DISCORD_INVITE_URL", "") or "").strip() or DEFAULT_UFL_DISCORD
 
     return {
         "site_name": value("settings.site_name"),

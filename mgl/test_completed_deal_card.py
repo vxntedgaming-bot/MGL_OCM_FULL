@@ -95,7 +95,7 @@ class CompletedDealCardTests(TestCase):
         self.assertContains(page, "Bayer Test")
         self.assertContains(page, "Target Forward")
         self.assertContains(page, "78 OVR")
-        self.assertContains(page, "Bayer Test paid 3.00 TKN")
+        self.assertContains(page, "3.00 UFL Coin")
         self.assertContains(page, "TRANSFER COMPLETED")
         self.assertContains(page, reverse("player_profile", args=[self.target.id]))
         self.assertIn("→", html)
@@ -122,7 +122,7 @@ class CompletedDealCardTests(TestCase):
         self.assertContains(page, "78 OVR")
         self.assertContains(page, "First Swap")
         self.assertContains(page, "76 OVR")
-        self.assertContains(page, "Bayer Test paid 2.00 TKN")
+        self.assertContains(page, "2.00 UFL Coin")
         self.assertContains(page, "TRANSFER COMPLETED")
         self.assertContains(page, reverse("player_profile", args=[self.target.id]))
         self.assertContains(page, reverse("player_profile", args=[self.swap_one.id]))
@@ -154,7 +154,7 @@ class CompletedDealCardTests(TestCase):
         self.assertContains(page, "76 OVR")
         self.assertContains(page, "74 OVR")
         self.assertContains(page, "71 OVR")
-        self.assertContains(page, "Bayer Test paid 2.00 TKN")
+        self.assertContains(page, "2.00 UFL Coin")
         self.assertContains(page, reverse("player_profile", args=[self.swap_two.id]))
         self.assertContains(page, reverse("player_profile", args=[self.swap_three.id]))
         post = self._deal_posts().get()
@@ -172,7 +172,7 @@ class CompletedDealCardTests(TestCase):
     def test_player_only_swap_shows_zero_tokens(self):
         self._complete("0", offered=self.swap_one)
         page = self._activity()
-        self.assertContains(page, "Bayer Test paid 0.00 TKN")
+        self.assertContains(page, "0.00 UFL Coin")
         self.assertContains(page, "First Swap")
         self.assertContains(page, "Target Forward")
         self.assertNotContains(page, "Transfer fee:")
@@ -187,7 +187,7 @@ class CompletedDealCardTests(TestCase):
         self.assertContains(page, "Target Forward")
         self.assertContains(page, "First Swap")
         self.assertContains(page, "Second Swap")
-        self.assertContains(page, "Bayer Test paid 3.00 TKN")
+        self.assertContains(page, "3.00 UFL Coin")
         self.assertContains(page, "TRANSFER COMPLETED")
 
     def test_seller_rejection_is_not_a_completed_deal(self):
@@ -257,7 +257,7 @@ class CompletedDealCardTests(TestCase):
         self.assertContains(home, "Atletico Test")
         self.assertContains(home, "Bayer Test")
         self.assertContains(activity, "mgl-deal-card")
-        self.assertContains(activity, "Bayer Test paid 3.00 TKN")
+        self.assertContains(activity, "3.00 UFL Coin")
 
     def test_live_activity_hides_free_agent_auction_and_scouting(self):
         NewsPost.objects.create(

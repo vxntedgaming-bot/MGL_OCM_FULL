@@ -134,7 +134,7 @@
             <div class="table-row">
                 <strong>{{ team.name }}</strong>
                 <span>{{ team.league.short_name }} · {% if team.manager %}{{ team.manager.username }}{% else %}VACANT{% endif %}</span>
-                <b class="mgl-cp-gold">{{ team.tokens }} TKN</b>
+                <b class="mgl-cp-gold">{% ufl_coin team.tokens "sm" %}</b>
             </div>
         {% empty %}
             {% include "mgl/includes/empty_state.html" with title="NO CLUBS YET" %}
@@ -157,7 +157,7 @@
                 <span class="mgl-cp-activity-dot" aria-hidden="true"></span>
                 <div>
                     <strong>{{ row.get_transaction_type_display }}</strong>
-                    <p>{{ row.player.name|default:"—" }} · {{ row.from_team.short_name|default:"FA" }} → {{ row.to_team.short_name|default:"—" }} · {{ row.amount }} TKN</p>
+                    <p>{{ row.player.name|default:"—" }} · {{ row.from_team.short_name|default:"FA" }} → {{ row.to_team.short_name|default:"—" }} · {% ufl_coin row.amount "sm" %}</p>
                     <small>{{ row.created_at|date:"d M Y H:i" }}{% if row.seller %} · {{ row.seller.display_name }}{% endif %}</small>
                 </div>
             </div>

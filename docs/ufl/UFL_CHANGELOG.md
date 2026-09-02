@@ -6,6 +6,23 @@ This file started with the documentation/audit pass. It does **not** claim that 
 
 ---
 
+## 2026-09-02 — Master website UI, navigation and visual theme
+
+Presentation, navigation and branding only. Existing Market, Job Centre, recruitment, scouting, auctions, Discord outbox and `/mgl/` routes remain the source of truth.
+
+- One shared header/footer for public and signed-in users. Auth unlocks MY TEAM, MARKET, JOB CENTRE, STATS, HISTORY, notifications and Control Centre only.
+- Deep teal + cyan UFL identity. Shared button system. Player OVR badges: 99–78 blue, 77–65 green, 64–0 dark teal.
+- Public Jobs, Transfer Market, Transfers and career-step links no longer bounce to Sign In.
+- JOIN THE UFL COMMUNITY uses `https://discord.gg/rhKg6gmE8K` when CMS/env is empty.
+- User-facing currency displays the UFL Coin icon + “UFL Coin”. Balances and economics unchanged.
+- LEAGUES dropdown: Premier League, Championship, League One, All Leagues. Clubs live under HISTORY.
+- CUPS dropdown: UFL Champions League, UFL Europa League, UFL Conference League, UFL Phantom Cup.
+- Supplied cup artwork on the cups hub and each competition page. League/cup breadcrumb strips removed.
+- News rows use player faces, a press microphone, or club logos. Club logos keep aspect ratio.
+- **No Season 1, no Discord sends, no token writes, no production migrations, no database reset.**
+
+---
+
 ## 2026-09-02 — Master pages navigation, destinations, Discord page_links
 
 Extension of the existing UFL site. Market, Job Centre, recruitment, scouting, auctions and the Discord outbox remain the source of truth.

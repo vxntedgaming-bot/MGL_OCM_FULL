@@ -662,7 +662,8 @@ class PublicHomepageRedesignTests(TestCase):
     def test_apply_and_cup_buttons_use_real_routes(self):
         home = self.client.get("/")
         self.assertEqual(home.status_code, 200)
-        self.assertContains(
+        self.assertContains(home, reverse("job_centre"))
+        self.assertNotContains(
             home, reverse("manager_login") + "?next=" + reverse("job_centre")
         )
         self.assertContains(home, reverse("leagues_page"))

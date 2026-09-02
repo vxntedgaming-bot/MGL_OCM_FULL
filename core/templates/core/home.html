@@ -10,22 +10,6 @@
 <link rel="icon" href="{% static 'core/img/ufl-logo-chrome.png' %}">
 {% endblock %}
 
-{% block header %}
-    {% if mgl_signed_in_nav %}
-        {{ block.super }}
-    {% else %}
-        {% include "core/includes/public_home_header.html" %}
-    {% endif %}
-{% endblock %}
-
-{% block footer %}
-    {% if mgl_signed_in_nav %}
-        {{ block.super }}
-    {% else %}
-        {% include "core/includes/public_home_footer.html" %}
-    {% endif %}
-{% endblock %}
-
 {% block content %}
 {% url 'competition_page' 'premier-league' as public_fixtures_url %}
 
@@ -109,7 +93,7 @@
             <a href="{% url 'public_transfers' %}">VIEW ALL →</a>
         </header>
         {% for row in recent_transfers %}
-            <p>{% if row.player %}<a href="{% url 'player_profile' row.player_id %}">{{ row.player.name }}</a>{% endif %} · {{ row.amount }} TKN</p>
+            <p>{% if row.player %}<a href="{% url 'player_profile' row.player_id %}">{{ row.player.name }}</a>{% endif %} · {% ufl_coin row.amount "sm" %}</p>
         {% empty %}
             {% include "mgl/includes/empty_state.html" with title="NO TRANSFERS YET" %}
         {% endfor %}

@@ -136,7 +136,7 @@
                 {% if row.from_team %}<a href="{% club_url row.from_team %}">{{ row.from_team.short_name }}</a>{% else %}FA{% endif %}
                 →
                 {% if row.to_team %}<a href="{% club_url row.to_team %}">{{ row.to_team.short_name }}</a>{% else %}—{% endif %}
-                · {{ row.amount }} TKN
+                · {% ufl_coin row.amount "sm" %}
             </p>
         {% empty %}
             {% include "mgl/includes/empty_state.html" with title="NO TRANSFERS YET" %}

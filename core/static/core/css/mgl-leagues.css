@@ -38,18 +38,18 @@
 
 .ufl-cup-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
 }
 
 .ufl-cup-card {
     display: grid;
     gap: 10px;
-    padding: 18px;
-    min-height: 280px;
-    border: 1px solid var(--ufl-line);
+    padding: 0 0 16px;
+    min-height: 0;
+    border: 1px solid color-mix(in srgb, var(--cup-accent, var(--ufl-cyan)) 35%, transparent);
     border-radius: 14px;
-    background: linear-gradient(180deg, #161b24, #0d1118);
+    background: var(--ufl-surface);
     color: inherit;
     text-decoration: none;
     position: relative;
@@ -57,16 +57,22 @@
 }
 
 .ufl-cup-card-art {
-    position: absolute;
-    right: -20px;
-    top: 24px;
-    width: 160px;
-    opacity: 0.55;
+    position: relative;
+    right: auto;
+    top: auto;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    opacity: 1;
+    overflow: hidden;
+    background: var(--ufl-bg);
 }
 
 .ufl-cup-card-art img {
     width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    display: block;
 }
 
 .ufl-cup-status {
@@ -81,8 +87,15 @@
 }
 
 .ufl-cup-card h3 {
-    margin: 48px 0 0;
-    max-width: 70%;
+    margin: 0 16px;
+    max-width: none;
+}
+
+.ufl-cup-card .ufl-cup-status,
+.ufl-cup-card p,
+.ufl-cup-card .secondary-button {
+    margin-left: 16px;
+    margin-right: 16px;
 }
 
 .ufl-cup-card p {

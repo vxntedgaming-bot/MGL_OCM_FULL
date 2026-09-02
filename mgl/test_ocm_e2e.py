@@ -102,7 +102,7 @@ class OcmEndToEndTests(TestCase):
         self.assertEqual(control.status_code, 200)
         self.assertContains(control, "Alice")
         self.assertContains(control, "Alpha FC")
-        self.assertContains(control, "50.00 TKN")
+        self.assertContains(control, "50.00 UFL Coin")
         self.client.post(reverse("control_approve_manager", args=[application_a.id]))
         application_a.refresh_from_db()
         user_a.refresh_from_db()

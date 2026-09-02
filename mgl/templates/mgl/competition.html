@@ -11,7 +11,19 @@
     {% url 'competition_page' 'cups' as cups_index %}
     {% if competition_slug == "cups" %}
 <section class="mgl-section ufl-cups-page">
-    {% include "core/includes/mgl_page_header.html" with header_section="CUPS" header_section_url=leagues_index header_title="CUP COMPETITIONS" header_icon="trophy" header_description="Compete in the biggest cups and chase glory. Live draws and results appear here when the league office starts a competition. Nothing on this page is a fake score." header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
+    {% include "core/includes/mgl_page_header.html" with hide_crumbs=1 header_title="CUP COMPETITIONS" header_icon="trophy" header_description="Compete in the biggest cups and chase glory. Live draws and results appear here when the league office starts a competition. Nothing on this page is a fake score." %}
+
+    <section class="ufl-cup-band">
+        <div class="ufl-cup-band-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 5h8v4a4 4 0 0 1-8 0V5z"/><path d="M12 13v3"/><path d="M9 20h6"/></svg>
+            <h2>UFL CUP COMPETITIONS</h2>
+        </div>
+        <div class="ufl-cup-grid">
+            {% for cup in official_cups %}
+                {% include "mgl/includes/cup_card.html" with cup=cup %}
+            {% endfor %}
+        </div>
+    </section>
 
     <section class="ufl-cup-band">
         <div class="ufl-cup-band-head">
@@ -57,7 +69,7 @@
 </section>
 {% elif coming_soon %}
 <section class="mgl-section ufl-cup-detail">
-    {% include "core/includes/mgl_page_header.html" with header_section="CUPS" header_section_url=cups_index header_title=competition_name header_icon="trophy" header_description=cup_copy.description header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
+    {% include "core/includes/mgl_page_header.html" with hide_crumbs=1 header_title=competition_name header_icon="trophy" header_description=cup_copy.description %}
     <div class="ufl-cup-hero">
         <div>
             <p class="mgl-home-kicker">{{ competition_name|upper }}</p>
@@ -75,8 +87,8 @@
                 {% endfor %}
             </p>
         </div>
-        <div class="ufl-cup-hero-art" aria-hidden="true">
-            <img src="{% static 'core/img/mgl-cup-trophy.png' %}" alt="">
+        <div class="ufl-cup-hero-art ufl-cup-art ufl-cup-card-{{ competition_slug }}" aria-hidden="true">
+            <img src="{% static 'core/img/cups/' %}{{ competition_slug }}.jpg" alt="{{ competition_name }}">
         </div>
     </div>
     <nav class="ufl-subtabs" aria-label="Competition sections">
@@ -136,13 +148,13 @@
 {% else %}
 <section class="mgl-section ufl-league-page">
     {% if competition_slug == "premier-league" %}
-        {% include "core/includes/mgl_page_header.html" with header_section="LEAGUES" header_section_url=leagues_index header_title="PREMIER LEAGUE" header_icon="trophy" header_description="The top active UFL competition. Live table, form and player leaders." header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
+        {% include "core/includes/mgl_page_header.html" with hide_crumbs=1 header_title="PREMIER LEAGUE" header_icon="trophy" header_description="The top active UFL competition. Live table, form and player leaders." %}
     {% elif competition_slug == "championship" %}
-        {% include "core/includes/mgl_page_header.html" with header_section="LEAGUES" header_section_url=leagues_index header_title="CHAMPIONSHIP" header_icon="trophy" header_description="Second UFL division. Live table, form and player leaders." header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
+        {% include "core/includes/mgl_page_header.html" with hide_crumbs=1 header_title="CHAMPIONSHIP" header_icon="trophy" header_description="Second UFL division. Live table, form and player leaders." %}
     {% elif competition_slug == "league-one" %}
-        {% include "core/includes/mgl_page_header.html" with header_section="LEAGUES" header_section_url=leagues_index header_title="LEAGUE ONE" header_icon="trophy" header_description="Third UFL division. Live table, form and player leaders." header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
+        {% include "core/includes/mgl_page_header.html" with hide_crumbs=1 header_title="LEAGUE ONE" header_icon="trophy" header_description="Third UFL division. Live table, form and player leaders." %}
     {% else %}
-        {% include "core/includes/mgl_page_header.html" with header_section="LEAGUES" header_section_url=leagues_index header_title=competition_name header_icon="trophy" header_action_url=leagues_index header_action_label="ALL LEAGUES →" %}
+        {% include "core/includes/mgl_page_header.html" with hide_crumbs=1 header_title=competition_name header_icon="trophy" %}
     {% endif %}
     <div class="ufl-league-title">
         <h2>{{ competition_name|upper }}</h2>

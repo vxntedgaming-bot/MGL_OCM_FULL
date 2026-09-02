@@ -153,6 +153,7 @@ class NavigationDropdownTests(TestCase):
         self.assertNotContains(response, reverse("control_centre"))
 
     def test_stats_dropdown_pages_load(self):
+        self.client.login(username="navuser", password="test-pass-123")
         for slug in ("premier-league", "championship", "league-one"):
             response = self.client.get(
                 reverse("league_stats", kwargs={"slug": slug})
@@ -516,7 +517,8 @@ class PlayerSearchAndCardNameTests(TestCase):
         self.assertContains(public, ">PLAYER</span>")
         self.assertContains(public, ">ACTION</span>")
         self.assertContains(public, "VIEW PLAYER")
-        self.assertNotContains(public, "SIGN FOR 0 TKN")
+        self.assertNotContains(public, "SIGN FOR")
+        self.assertNotContains(public, "0 UFL Coin")
         self.assertNotContains(public, "REQUEST TO SIGN")
         self.assertNotContains(public, "Ander Guevara")
 
@@ -537,7 +539,8 @@ class PlayerSearchAndCardNameTests(TestCase):
             manager=self.user,
         )
         signed_in = self.client.get(reverse("free_agents"))
-        self.assertContains(signed_in, "SIGN FOR 0 TKN")
+        self.assertContains(signed_in, "SIGN FOR")
+        self.assertContains(signed_in, "0 UFL Coin")
         self.assertNotContains(signed_in, ">BUY</button>")
         self.assertContains(signed_in, reverse("sign_free_agent", args=[self.vvd.id]))
 

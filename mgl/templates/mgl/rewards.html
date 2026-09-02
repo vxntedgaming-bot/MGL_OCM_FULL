@@ -27,7 +27,7 @@
                 <strong>{{ row.get_transaction_type_display }}</strong>
                 <span>{{ row.player.name|default:"—" }}</span>
                 <span class="mgl-info-club">{% team_logo row.from_team "xs" %} {{ row.from_team.short_name|default:"FA" }} → {% team_logo row.to_team "xs" %} {{ row.to_team.short_name|default:"—" }}</span>
-                <b>{{ row.amount }} TKN</b>
+                <b>{% ufl_coin row.amount "sm" %}</b>
                 <small>{{ row.status }}{% if row.approved_by %} · {{ row.approved_by.username }}{% endif %}</small>
             </div>
         {% empty %}

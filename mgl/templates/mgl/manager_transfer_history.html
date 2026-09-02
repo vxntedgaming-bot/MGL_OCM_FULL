@@ -16,7 +16,7 @@
             {% for listing in incoming_offers %}
                 <div class="table-row">
                     <strong>{% if listing.player %}<a href="{% url 'player_profile' listing.player.id %}">{{ listing.player.name }}</a>{% else %}Listing{% endif %}</strong>
-                    <span>{{ listing.asking_price }} TKN · {{ listing.get_status_display }}</span>
+                    <span>{% ufl_coin listing.asking_price "sm" %} · {{ listing.get_status_display }}</span>
                     <a href="{% url 'transfer_requests' %}" class="secondary-button">NEGOTIATE</a>
                 </div>
             {% empty %}
@@ -28,7 +28,7 @@
             {% for listing in outgoing_offers %}
                 <div class="table-row">
                     <strong>{% if listing.player %}<a href="{% url 'player_profile' listing.player.id %}">{{ listing.player.name }}</a>{% else %}Listing{% endif %}</strong>
-                    <span>{{ listing.asking_price }} TKN · {{ listing.get_status_display }}</span>
+                    <span>{% ufl_coin listing.asking_price "sm" %} · {{ listing.get_status_display }}</span>
                     <a href="{% url 'transfer_requests' %}" class="secondary-button">VIEW</a>
                 </div>
             {% empty %}
@@ -44,7 +44,7 @@
                         {% if row.from_team %}<a href="{% club_url row.from_team %}">{{ row.from_team.short_name }}</a>{% else %}FA{% endif %}
                         →
                         {% if row.to_team %}<a href="{% club_url row.to_team %}">{{ row.to_team.short_name }}</a>{% else %}—{% endif %}
-                        · {{ row.amount }} TKN
+                        · {% ufl_coin row.amount "sm" %}
                     </span>
                 </div>
             {% empty %}

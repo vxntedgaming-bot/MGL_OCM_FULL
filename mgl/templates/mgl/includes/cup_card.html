@@ -1,7 +1,7 @@
 {% load static %}
-<a href="{% url 'competition_page' cup.slug %}" class="ufl-cup-card ufl-cup-card-{{ cup.status }}">
-    <div class="ufl-cup-card-art" aria-hidden="true">
-        <img src="{% static 'core/img/mgl-cup-trophy.png' %}" alt="">
+<a href="{% url 'competition_page' cup.slug %}" class="ufl-cup-card ufl-cup-card-{{ cup.slug }} ufl-cup-card-{{ cup.status }}">
+    <div class="ufl-cup-card-art ufl-cup-art" aria-hidden="true">
+        <img src="{% static 'core/img/cups/' %}{{ cup.slug }}.jpg" alt="{{ cup.name }}">
     </div>
     <span class="ufl-cup-status">{{ cup.status_label }}</span>
     <h3>{{ cup.name }}</h3>

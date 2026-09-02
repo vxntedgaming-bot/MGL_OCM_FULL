@@ -18,13 +18,13 @@
                 <p class="mgl-cp-kicker">FROM</p>
                 {% team_logo listing.team "sm" %}
                 <strong>{{ listing.deal.current_club|default:listing.team.name }}</strong>
-                <p>SELLER {{ listing.seller.display_name|default:"—" }} · {{ listing.seller.tokens|default:"—" }} TKN</p>
+                <p>SELLER {{ listing.seller.display_name|default:"—" }} · {% ufl_coin listing.seller.tokens "sm" %}</p>
             </div>
             <p>→</p>
             <div>
                 <p class="mgl-cp-kicker">TO</p>
                 <strong>{{ listing.deal.requesting_club|default:listing.reserved_buyer.display_name }}</strong>
-                <p>BUYER {{ listing.deal.buyer_manager|default:listing.reserved_buyer.display_name }} · {{ listing.reserved_buyer.tokens }} TKN</p>
+                <p>BUYER {{ listing.deal.buyer_manager|default:listing.reserved_buyer.display_name }} · {% ufl_coin listing.reserved_buyer.tokens "sm" %}</p>
             </div>
         </div>
         <div class="mgl-cp-form-grid">

@@ -1,12 +1,12 @@
 /* Isolated public Home page. Loaded last. All rules scoped to body.ufl-home. */
 
 body.ufl-home {
-    --uh-gold: #e4c77a;
-    --uh-ink: #12100a;
-    --uh-line: rgba(228, 199, 122, 0.28);
-    --uh-muted: #9aa3ad;
+    --uh-gold: #2ee6d6;
+    --uh-ink: #042022;
+    --uh-line: rgba(46, 230, 214, 0.22);
+    --uh-muted: #8aa3a8;
     --uh-max: 1180px;
-    background: #000;
+    background: var(--ufl-bg, #041016);
     color: #fff;
 }
 
@@ -18,8 +18,9 @@ body.ufl-home .mgl-main {
 
 body.ufl-home .primary-button,
 body.ufl-home .secondary-button,
-body.ufl-home .header-button {
-    border-radius: 0;
+body.ufl-home .header-button,
+body.ufl-home .uh-btn {
+    border-radius: 8px;
 }
 
 body.ufl-home .mgl-home-experience article::before {
@@ -107,7 +108,7 @@ body.ufl-home .mgl-home-experience article::before {
     min-height: 30px;
     padding: 0 12px;
     border: 1px solid transparent;
-    border-radius: 0;
+    border-radius: 8px;
     font-family: var(--font-display);
     font-size: 11px;
     font-weight: 800;

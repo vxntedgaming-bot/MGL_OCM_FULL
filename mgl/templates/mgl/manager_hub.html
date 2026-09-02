@@ -113,7 +113,7 @@
                         <span>No squad</span>
                     {% endif %}
                     <span class="mgl-dash-balance">
-                        <span>PERSONAL BALANCE</span> {{ token_balance }} TKN
+                        <span>PERSONAL BALANCE</span> {% ufl_coin token_balance "md" %}
                     </span>
                 </p>
                 <div class="ud-pills">
@@ -188,7 +188,7 @@
                         <a href="{% url 'manager_rewards' %}" class="ud-tile">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M8 12h8M12 8v8"/></svg>
                             <strong>COMMERCIAL</strong>
-                            <small>{{ token_balance }} TKN</small>
+                            <small>{% ufl_coin token_balance "sm" %}</small>
                         </a>
                     </div>
                 </div>

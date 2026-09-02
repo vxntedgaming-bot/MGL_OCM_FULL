@@ -399,7 +399,8 @@ class PlayerReleaseLifecycleTests(TestCase):
         self.assertEqual(row.status, ApprovalStatus.APPROVED)
         page = self.client.get(reverse("free_agents"))
         self.assertContains(page, "OWNED STRIKER")
-        self.assertContains(page, "SIGN FOR 0 TKN")
+        self.assertContains(page, "SIGN FOR")
+        self.assertContains(page, "0 UFL Coin")
 
     def test_sign_free_agent_costs_zero_and_becomes_club_owned(self):
         request_player_release(self.owned, self.team_a, self.mgr_a)

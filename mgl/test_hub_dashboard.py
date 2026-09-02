@@ -149,7 +149,7 @@ class ManagerHubDashboardTests(TestCase):
         self.assertContains(response, "Notifications")
         self.assertNotContains(response, "1 Notification")
         self.assertContains(response, "PERSONAL BALANCE")
-        self.assertContains(response, "20.00 TKN")
+        self.assertContains(response, "20.00 UFL Coin")
         self.assertContains(response, "—")
         self.assertNotContains(response, "ENTER RESULT")
 

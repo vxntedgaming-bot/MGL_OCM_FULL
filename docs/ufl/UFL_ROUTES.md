@@ -48,7 +48,7 @@ Status values: **Live** (implemented page), **Coming soon** (placeholder), **Red
 | `/job-offers/` | `job_offers` | Same view as jobs | Public | — | None | Live | Jobs |
 | `/job-centre/` | — | Redirect to jobs | Public | — | Redirect | Redirect | Jobs |
 | `/rules/` | `ufl_rules` | Rules page | Public | — | None | Live | Public |
-| `/market/` | `transfer_market` | Transfer market | Career | Approved / OA | `career_required` | Live | Transfers |
+| `/market/` | `transfer_market` | Transfer market (browse public; buy actions stay signed-in) | Public GET | — | Buy/offer gated in view | Live | Transfers |
 | `/market/transfers/` | `transfer_history` | Transfer history | Career | Approved / OA | `career_required` | Live | Transfers |
 | `/transfers/` | `public_transfers` | Public completed transfers | Public | — | None | Live | Transfers |
 | `/market/scouting/` | `scouting` | Scouting HQ | Career | Approved / OA | `career_required` | Live | Scouting |

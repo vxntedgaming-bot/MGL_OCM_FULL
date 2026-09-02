@@ -206,7 +206,7 @@
         {% if live_listing %}
             <div class="mgl-history-row">
                 <strong>LISTED FOR TRANSFER</strong>
-                <span>{{ live_listing.asking_price }} TKN · {{ live_listing.team.name }}{% if live_listing.seller %} · {{ live_listing.seller.display_name }}{% endif %}</span>
+                <span>{% ufl_coin live_listing.asking_price "sm" %} · {{ live_listing.team.name }}{% if live_listing.seller %} · {{ live_listing.seller.display_name }}{% endif %}</span>
             </div>
         {% endif %}
         {% if live_auction %}
