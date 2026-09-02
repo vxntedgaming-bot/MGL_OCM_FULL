@@ -6,6 +6,18 @@ This file started with the documentation/audit pass. It does **not** claim that 
 
 ---
 
+## 2026-09-02 — Complete frontend reset (one system)
+
+Removed the stacked frontend. The site now loads only `core/static/core/css/ufl.css`.
+
+- Tokens: black / white / gold, green approve, red reject
+- Primary buttons are white on black; gold is reserved for branding and UFL Coins
+- Page stylesheets are no longer loaded
+- Django views, routes, data and permissions are unchanged
+- Presentation tests now expect the single stylesheet
+
+---
+
 ## 2026-09-02 — Canva front-end replacement
 
 Full visual replacement. Existing Django backend, database, models, permissions, URLs and economy rules are unchanged.
