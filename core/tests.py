@@ -165,8 +165,8 @@ class PhaseBStaticTests(TestCase):
     def test_homepage_still_loads_existing_css(self):
         response = self.client.get("/", HTTP_HOST="127.0.0.1")
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "core/css/mgl.css")
         self.assertContains(response, "core/css/ufl.css")
+        self.assertNotContains(response, "core/css/mgl-theme.css")
         self.assertContains(response, "YOUR CLUB")
 
 

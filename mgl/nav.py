@@ -125,6 +125,7 @@ STATS_MENU = {
         "league_stats",
     },
     "items": (
+        {"label": "Player Statistics", "url_name": "stats_page"},
         {
             "label": "Premier League Stats",
             "url_name": "league_stats",

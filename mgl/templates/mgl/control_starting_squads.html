@@ -7,10 +7,6 @@
 {% block control_heading %}UFL STARTING SQUAD GENERATOR{% endblock %}
 {% block control_intro %}Preview the official 30-player starting squad from the FC26 unassigned pool. Live squads stay untouched until the Owner approves. Existing live squads cannot be stacked.{% endblock %}
 
-{% block control_extra_css %}
-<link rel="stylesheet" href="{% static 'core/css/mgl-control-starting.css' %}?v=ss-2">
-{% endblock %}
-
 {% block control_body %}
 {% if lock %}
 <section class="dashboard-panel mgl-cp-panel mgl-ss-lock">

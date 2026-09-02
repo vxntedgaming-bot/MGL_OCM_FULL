@@ -3,10 +3,7 @@
 
 {% block title %}{% block control_title %}UFL Control{% endblock %}{% endblock %}
 {% block body_class %}mgl-control-body{% endblock %}
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'core/css/mgl-control.css' %}?v=cp-4">
-{% block control_extra_css %}{% endblock %}
-{% endblock %}
+{% block extra_css %}{% block control_extra_css %}{% endblock %}{% endblock %}
 
 {% block content %}
 <div class="mgl-cp-page">
