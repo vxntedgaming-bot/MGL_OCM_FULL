@@ -6,6 +6,19 @@ This file started with the documentation/audit pass. It does **not** claim that 
 
 ---
 
+## 2026-09-02 — Canva front-end replacement
+
+Full visual replacement. Existing Django backend, database, models, permissions, URLs and economy rules are unchanged.
+
+- One design system: `core/static/core/css/ufl.css`. `mgl-theme.css`, `ufl-system.css`, `ufl-pages.css` and `ufl-finish.css` are retired and no longer loaded.
+- Shared header is a true 3-column grid (logo | centred nav | utilities). Shared Canva footer on every page, including the manager hub.
+- Homepage, Job Centre, All Leagues, Fixtures, Login and Register follow the Canva page specs. Official cup artwork replaced in place.
+- User-facing Token / TKN copy is now UFL Coins. Stored balances and field names are unchanged.
+- OVR presentation remains 80–99 blue, 65–79 green, 0–64 red.
+- Tests: 587 / 587 passed on the isolated suite.
+
+---
+
 ## 2026-09-02 — Final QA / polish pass
 
 Presentation cleanup only. No database reset, no ownership, assignment, balance, fixture, rating, Season 1, Discord send, or production migration.

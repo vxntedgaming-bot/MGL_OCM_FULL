@@ -2,7 +2,7 @@
 
 **Status:** Current visual system only. Do not redesign from this document.
 
-Sources: `core/static/core/css/ufl-system.css`, `ufl-pages.css`, `ufl-finish.css`, `ufl-public-home.css`, `mgl-theme.css`, `mgl.css`, `mgl-hub.css`, `core/templates/core/base.html`, Public Home templates.
+Sources: `core/static/core/css/ufl.css` (single Canva design system), `mgl.css` (layout), page layout sheets, `core/templates/core/base.html`. Retired overlays: `mgl-theme.css`, `ufl-system.css`, `ufl-pages.css`, `ufl-finish.css`.
 
 ---
 
@@ -15,19 +15,20 @@ Sources: `core/static/core/css/ufl-system.css`, `ufl-pages.css`, `ufl-finish.css
 - **Player OVR colours:** 99–80 blue / HIGH, 79–65 green / MID, 64–0 red / LOW. Accent the badge only. Stored ratings are never changed.
 - **Global LIVE ACTIVITY bar** on Public Home and inner chrome (`live_activity_bar.html`, `.ufl-livebar`).
 - **Common Page Header** include: `core/includes/mgl_page_header.html`.
-- **Site-wide styling** via `ufl-system.css` then page CSS then `ufl-pages.css`.
+- **Site-wide styling** via `ufl.css`. Page sheets inherit Canva tokens.
 - Public and logged-in pages share the same colour/type language; Public Home uses a tighter header implementation.
 
 ---
 
-## Colour tokens (`:root` in `ufl-system.css`)
+## Colour tokens (`:root` in `ufl.css`)
 
 | Token | Value |
 |---|---|
-| `--ufl-bg` | `#080d10` |
-| `--ufl-bg-mid` | `#0a1216` |
-| `--ufl-surface` | `#0c1418` |
-| `--ufl-surface-2` | `#111d22` |
+| `--ufl-bg` | `#0d0d0d` |
+| `--ufl-bg-mid` | `#121212` |
+| `--ufl-surface` | `#121212` |
+| `--ufl-surface-2` | `#1a1a1a` |
+| `--ufl-cyan` | `#00e5ff` |
 | `--ufl-graphite` | `#16252b` |
 | `--ufl-gold` | remapped to cyan globally; gold kept only for the coin and Europa League |
 | `--ufl-cyan` | `#16d9d2` (primary accent) |

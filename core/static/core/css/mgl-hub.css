@@ -1,9 +1,9 @@
 /* Manager Hub / UFL Dashboard only. Loaded last on /mgl/hub/. */
 
 body.mgl-hub-page {
-    --ud-gold: #d4af37;
-    --ud-gold-2: #e4c77a;
-    --ud-line: rgba(212, 175, 55, 0.32);
+    --ud-gold: #00e5ff;
+    --ud-gold-2: #5ef2ff;
+    --ud-line: rgba(0, 229, 255, 0.28);
     background: #000;
     color: #fff;
 }

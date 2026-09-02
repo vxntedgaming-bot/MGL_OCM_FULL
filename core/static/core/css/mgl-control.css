@@ -6,10 +6,10 @@ body.mgl-control-body {
     --cp-panel: #12161d;
     --cp-panel-2: #181d26;
     --cp-line: rgba(255, 255, 255, 0.08);
-    --cp-accent: #e4c77a;
-    --cp-gold: #e4c77a;
-    --cp-accent-dim: rgba(228, 199, 122, 0.16);
-    --cp-glow: 0 0 0 1px rgba(228, 199, 122, 0.28);
+    --cp-accent: #00e5ff;
+    --cp-gold: #00e5ff;
+    --cp-accent-dim: rgba(0, 229, 255, 0.16);
+    --cp-glow: 0 0 0 1px rgba(0, 229, 255, 0.28);
     --cp-approve: #3dbe74;
     --cp-reject: #e25555;
     --cp-muted: #9aa3ad;

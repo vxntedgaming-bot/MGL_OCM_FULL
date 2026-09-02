@@ -597,7 +597,7 @@ body.mgl-jobs-body .mgl-main {
 
 .mgl-job-status h2 {
     margin: 0 0 8px;
-    color: var(--ufl-gold, #d4af37);
+    color: var(--ufl-cyan, #00e5ff);
     font-size: 13px;
     letter-spacing: 0.08em;
 }
