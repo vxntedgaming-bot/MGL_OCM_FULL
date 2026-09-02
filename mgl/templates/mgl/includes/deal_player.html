@@ -1,11 +1,12 @@
+{% load mgl_ui %}
 {% if player.id %}
 <a class="mgl-deal-player" href="{% url 'player_profile' player.id %}">
     <span class="mgl-deal-player-name">{{ player.name }}</span>
-    {% if player.overall %}<span class="mgl-deal-player-ovr ufl-ovr-{{ player.overall|ovr_band }}">{{ player.overall }} {{ player.overall|ovr_band_label }}</span>{% endif %}
+    {% if player.overall %}<span class="mgl-deal-player-ovr ufl-ovr-{{ player.overall|ovr_band }}">{{ player.overall }} OVR</span>{% endif %}
 </a>
 {% else %}
 <span class="mgl-deal-player">
     <span class="mgl-deal-player-name">{{ player.name }}</span>
-    {% if player.overall %}<span class="mgl-deal-player-ovr ufl-ovr-{{ player.overall|ovr_band }}">{{ player.overall }} {{ player.overall|ovr_band_label }}</span>{% endif %}
+    {% if player.overall %}<span class="mgl-deal-player-ovr ufl-ovr-{{ player.overall|ovr_band }}">{{ player.overall }} OVR</span>{% endif %}
 </span>
 {% endif %}

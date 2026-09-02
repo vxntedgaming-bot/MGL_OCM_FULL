@@ -609,7 +609,8 @@ class NotificationAndPressroomTests(TestCase):
         transfers = self.client.get(reverse("manager_notifications"), {"tab": "transfers"})
         self.assertContains(transfers, "TRANSFER APPROVED")
         fixtures = self.client.get(reverse("manager_notifications"), {"tab": "fixtures"})
-        self.assertNotContains(fixtures, "TRANSFER APPROVED")
+        self.assertContains(fixtures, "NO NOTIFICATIONS")
+        self.assertContains(fixtures, "You're all caught up.")
 
     def test_duplicate_notification_keys_are_not_repeated(self):
         press = create_press_question(
