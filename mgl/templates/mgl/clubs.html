@@ -6,7 +6,7 @@
 {% block content %}
 <section class="mgl-section">
     {% url 'clubs_index' as clubs_url %}
-    {% include "core/includes/mgl_page_header.html" with header_section="CLUBS" header_section_url=clubs_url header_title="UFL CLUBS" header_icon="stadium" header_description="Every UFL club, its league, manager and squad size." %}
+    {% include "core/includes/mgl_page_header.html" with header_section="CLUBS" header_section_url=clubs_url header_title="UFL CLUBS" header_icon="stadium" %}
     <div class="section-heading">
         <a href="{% url 'leagues_page' %}" class="view-all">TABLES →</a>
     </div>

@@ -6,6 +6,19 @@ This file started with the documentation/audit pass. It does **not** claim that 
 
 ---
 
+## 2026-09-02 — Frontend / UX refinement
+
+Controlled presentation pass. Backend, approvals, routes and stored data are unchanged.
+
+- Login is a single login card with a Sign Up Here link to the existing register route
+- Filler descriptions removed from leagues, clubs, stats, Job Centre, fixtures and cup headers
+- Manager Hub no longer uses a full-bleed match photo; stats sit in compact boxes from live standings
+- League tables show GF / GA from existing standings rows
+- Job application still uses the locked 1–3 / 3–5 / 6+ dropdown and Owner/Admin approval
+- Activity ticker still reads published NewsPost records only
+
+---
+
 ## 2026-09-02 — Compact black / white frontend
 
 Replaced the leftover gold/cyan chrome with one compact UFL design system. Backend, database, models, permissions, URLs and economy rules are unchanged.

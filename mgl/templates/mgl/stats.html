@@ -7,13 +7,13 @@
 <section class="mgl-section">
     {% url 'competition_page' competition_slug as league_url %}
     {% if competition_slug == "premier-league" %}
-        {% include "core/includes/mgl_page_header.html" with header_section="STATS" header_section_url=league_url header_title="PREMIER LEAGUE STATS" header_icon="chart" header_description="Premier League player and manager statistics from approved UFL matches." header_action_url=league_url header_action_label="LEAGUE TABLE →" %}
+        {% include "core/includes/mgl_page_header.html" with header_section="STATS" header_section_url=league_url header_title="PREMIER LEAGUE STATS" header_icon="chart" header_action_url=league_url header_action_label="LEAGUE TABLE →" %}
     {% elif competition_slug == "championship" %}
-        {% include "core/includes/mgl_page_header.html" with header_section="STATS" header_section_url=league_url header_title="CHAMPIONSHIP STATS" header_icon="chart" header_description="Championship player and manager statistics from approved UFL matches." header_action_url=league_url header_action_label="LEAGUE TABLE →" %}
+        {% include "core/includes/mgl_page_header.html" with header_section="STATS" header_section_url=league_url header_title="CHAMPIONSHIP STATS" header_icon="chart" header_action_url=league_url header_action_label="LEAGUE TABLE →" %}
     {% elif competition_slug == "league-one" %}
-        {% include "core/includes/mgl_page_header.html" with header_section="STATS" header_section_url=league_url header_title="LEAGUE ONE STATS" header_icon="chart" header_description="League One player and manager statistics from approved UFL matches." header_action_url=league_url header_action_label="LEAGUE TABLE →" %}
+        {% include "core/includes/mgl_page_header.html" with header_section="STATS" header_section_url=league_url header_title="LEAGUE ONE STATS" header_icon="chart" header_action_url=league_url header_action_label="LEAGUE TABLE →" %}
     {% else %}
-        {% include "core/includes/mgl_page_header.html" with header_section="STATS" header_section_url=league_url header_title=competition_name header_description="Player and manager statistics from approved UFL matches." header_action_url=league_url header_action_label="LEAGUE TABLE →" %}
+        {% include "core/includes/mgl_page_header.html" with header_section="STATS" header_section_url=league_url header_title=competition_name header_action_url=league_url header_action_label="LEAGUE TABLE →" %}
     {% endif %}
     {% include "mgl/includes/competition_selector.html" %}
 </section>

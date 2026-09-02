@@ -5,14 +5,13 @@
 {% block body_class %}mgl-auth-body{% endblock %}
 
 {% block content %}
-<section class="ufl-auth">
+<section class="ufl-auth ufl-auth-login">
     <div class="mgl-auth-card">
         <img src="{% static 'core/img/ufl-logo-chrome.png' %}" alt="UFL" class="mgl-auth-logo">
         <p class="ufl-auth-kicker">UFL MANAGER</p>
         <div class="eyebrow">JOIN UFL</div>
         <h1>REGISTRATION</h1>
-        <p>Create your UFL Manager account and build your legacy.</p>
-        <p>Create a member account and apply for a vacant club. Signing up does not need approval. You receive 20 once you are approved as a manager. That balance stays with your account if you change clubs.</p>
+        <p>Create a member account and apply for a vacant club. Signing up does not need approval.</p>
 
         <form method="post" class="mgl-form">
             {% csrf_token %}
@@ -37,14 +36,8 @@
             <button type="submit" class="primary-button">SIGN UP</button>
         </form>
 
-        <p class="mgl-help">Already have an account? <a href="{% url 'manager_login' %}">Log in</a>. Job applications still need Owner or Admin approval before you are assigned a club.</p>
+        <p class="mgl-help">Already have an account? <a href="{% url 'manager_login' %}">Log in</a>.</p>
         <a href="{% url 'job_centre' %}" class="secondary-button">CONTINUE AS GUEST</a>
-    </div>
-    <div class="mgl-auth-card">
-        <p class="ufl-auth-kicker">UFL MANAGER</p>
-        <h1>LOGIN</h1>
-        <p>Welcome back, Manager. Sign in to continue.</p>
-        <a href="{% url 'manager_login' %}" class="primary-button">SIGN IN</a>
     </div>
 </section>
 {% endblock %}

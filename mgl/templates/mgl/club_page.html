@@ -7,7 +7,7 @@
 {% block content %}
 <section class="mgl-section ufl-club-page">
     {% url 'clubs_index' as clubs_url %}
-    {% include "core/includes/mgl_page_header.html" with header_section="CLUBS" header_section_url=clubs_url header_title=team.name header_icon="stadium" header_description="Club profile, squad, fixtures, transfers, stats and history." %}
+    {% include "core/includes/mgl_page_header.html" with header_section="CLUBS" header_section_url=clubs_url header_title=team.name header_icon="stadium" %}
     <div class="mgl-club-hero">
         {% team_logo team "lg" %}
         <div>

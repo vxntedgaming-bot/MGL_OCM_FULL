@@ -8,7 +8,7 @@
 {% block content %}
 <div class="mgl-fx">
     {% url 'manager_hub' as hub_url %}
-        {% include "core/includes/mgl_page_header.html" with header_section="MY CAREER" header_section_url=hub_url header_title="FIXTURES" header_icon="calendar" header_description="Upcoming fixtures, results, opponent confirmation and league-office approval status." %}
+        {% include "core/includes/mgl_page_header.html" with header_section="MY CAREER" header_section_url=hub_url header_title="FIXTURES" header_icon="calendar" %}
 
         <form class="mgl-fx-filters" method="get" action="{% url 'fixture_list' %}">
             <label>

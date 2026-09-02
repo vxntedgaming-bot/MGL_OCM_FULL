@@ -255,7 +255,7 @@ button.primary-button,
     justify-self: center;
     display: flex;
     align-items: center;
-    gap: 2px;
+    gap: 8px;
 }
 
 .mgl-nav-link,
@@ -304,7 +304,8 @@ button.primary-button,
 .mgl-nav-item:hover,
 .mgl-nav-item.is-current { background: #1a1a1a; color: #fff; }
 .mgl-nav-item.has-divider { border-top: 1px solid var(--ufl-line); }
-.mgl-nav-chevron { display: inline-flex; width: 10px; height: 8px; margin-left: 4px; }
+.mgl-nav-trigger { display: inline-flex; align-items: center; gap: 4px; }
+.mgl-nav-chevron { display: inline-flex; align-items: center; width: 10px; height: 8px; }
 .mgl-nav-dropdown.is-open .mgl-nav-chevron { transform: rotate(180deg); }
 .mgl-nav-badge {
     min-width: 18px;
@@ -575,7 +576,13 @@ input:focus, select:focus, textarea:focus { border-color: #fff; outline: none; }
     grid-template-columns: 1fr 1fr;
     gap: 16px;
 }
+.ufl-auth-login {
+    grid-template-columns: minmax(0, 420px);
+    justify-content: center;
+}
 .ufl-auth .mgl-auth-card { padding: 24px; }
+.ufl-auth-signup { margin-top: 16px; color: var(--ufl-muted); font-size: 14px; }
+.ufl-auth-signup a { color: #fff; text-decoration: underline; font-weight: 700; }
 .ufl-auth-kicker { color: var(--ufl-muted); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; }
 .ufl-auth-note {
     display: flex; gap: 10px;
@@ -806,14 +813,14 @@ body.ufl-home .mgl-main { width: 100%; max-width: none; padding: 0; }
 .mgl-jobs-status {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
     flex-wrap: wrap;
     margin-bottom: 16px;
-    padding: 12px 16px;
+    padding: 8px 12px;
     background: var(--ufl-card);
     border: 1px solid var(--ufl-line);
     border-radius: var(--ufl-radius);
-    font-size: 13px;
+    font-size: 12px;
 }
 .mgl-jobs-status-window { display: flex; align-items: center; gap: 10px; }
 .mgl-jobs-status-window svg { width: 20px; height: 20px; }
@@ -985,8 +992,17 @@ body.ufl-home .mgl-main { width: 100%; max-width: none; padding: 0; }
 .mgl-mk-note { color: var(--ufl-muted); font-size: 13px; margin-top: 16px; }
 
 /* ----- Fixtures ----- */
-.mgl-fx { padding: 16px; }
+.mgl-fx { padding: 0; background: transparent; border: 0; }
 .mgl-fx-filters { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.mgl-fx-tabs { display: flex; gap: 16px; border-bottom: 1px solid var(--ufl-line); margin: 16px 0; }
+.mgl-fx-tabs button {
+    height: 36px; padding: 0; background: none; border: 0; color: var(--ufl-muted);
+    font-size: 12px; font-weight: 700; letter-spacing: 0.08em; cursor: pointer;
+}
+.mgl-fx-tabs button.is-active { color: #fff; box-shadow: inset 0 -2px 0 #fff; }
+.mgl-fx-toolbar { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.mgl-fx-month { font-size: 16px; margin: 16px 0 8px; }
+.mgl-fx-deadline { display: flex; justify-content: space-between; gap: 12px; padding: 12px 16px; background: var(--ufl-card); border: 1px solid var(--ufl-line); border-radius: 10px; margin-bottom: 16px; font-size: 13px; }
 .mgl-fx-filters label { display: grid; gap: 6px; font-size: 11px; font-weight: 700; color: var(--ufl-muted); }
 .mgl-fx-club {
     display: flex;
@@ -1161,21 +1177,73 @@ body.ufl-home .mgl-main { width: 100%; max-width: none; padding: 0; }
 
 /* ----- Hub ----- */
 .ud { display: grid; gap: 16px; }
-.ud-hero { position: relative; overflow: hidden; min-height: 200px; border: 1px solid var(--ufl-line); border-radius: var(--ufl-radius); }
-.ud-hero-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .35; }
-.ud-hero-main, .ud-hero-copy, .ud-stats { position: relative; z-index: 1; padding: 16px; }
+.ud-profile,
+.ud-hero {
+    background: var(--ufl-card);
+    border: 1px solid var(--ufl-line);
+    border-radius: var(--ufl-radius);
+    padding: 16px;
+}
+.ud-hero-bg { display: none; }
+.ud-profile-main,
 .ud-hero-main { display: flex; gap: 16px; align-items: center; }
-.ud-crest img { width: 64px; height: 64px; object-fit: contain; }
-.ud-kicker { color: var(--ufl-muted); font-size: 11px; letter-spacing: 0.1em; }
-.ud-hero h1 { font-size: 28px; }
-.ud-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-.ud-stats strong { font-size: 22px; }
-.ud-stats span { color: var(--ufl-muted); font-size: 12px; }
+.ud-crest img,
+.ud-crest-empty {
+    width: 64px; height: 64px; object-fit: contain;
+    display: grid; place-items: center; background: #111; border-radius: 8px;
+}
+.ud-kicker { color: var(--ufl-muted); font-size: 11px; letter-spacing: 0.1em; margin: 0 0 12px; }
+.ud-profile h1,
+.ud-hero h1 { font-size: 28px; margin: 0 0 6px; }
+.ud-meta { margin: 0 0 6px; color: var(--ufl-muted); font-size: 13px; display: flex; gap: 10px; flex-wrap: wrap; }
+.ud-stats {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+}
+.ud-stat-box,
+.ud-stats > div {
+    background: #111;
+    border: 1px solid var(--ufl-line);
+    border-radius: 8px;
+    padding: 12px;
+    min-height: 76px;
+}
+.ud-stat-box span,
+.ud-stats span { display: block; color: var(--ufl-muted); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
+.ud-stat-box strong,
+.ud-stats strong { display: block; font-size: 22px; margin-top: 6px; }
+.ud-stat-box em { font-style: normal; font-size: 14px; color: var(--ufl-muted); }
+.mgl-dash-form { display: flex; gap: 4px; margin-top: 8px; font-weight: 800; }
 .ud-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
 .ud-pill {
     display: inline-flex; align-items: center; height: 32px; padding: 0 10px;
     border: 1px solid var(--ufl-line); border-radius: 999px; font-size: 11px; font-weight: 700;
 }
+.ud-body { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 16px; }
+.ud-band { margin-bottom: 16px; }
+.ud-band-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.ud-band-head h2 { font-size: 16px; margin: 0; }
+.ud-band-head svg { width: 18px; height: 18px; }
+.ud-band-grid { display: grid; gap: 12px; }
+.ud-feature,
+.ud-tile,
+.ud-pending-card,
+.ud-panel {
+    background: var(--ufl-card);
+    border: 1px solid var(--ufl-line);
+    border-radius: var(--ufl-radius);
+    padding: 16px;
+}
+.ud-feature img { display: none; }
+.ud-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.ud-tile { display: grid; gap: 6px; min-height: 0; }
+.ud-tile svg { width: 18px; height: 18px; }
+.ud-lists { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.ud-row, .ud-rank { display: flex; justify-content: space-between; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 13px; }
+.ud-pending-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.ud-empty, .ud-note { color: var(--ufl-muted); font-size: 13px; }
 
 /* ----- Player cards ----- */
 .mgl-player-card-link { display: block; }
@@ -1251,7 +1319,7 @@ body.ufl-home .mgl-main { width: 100%; max-width: none; padding: 0; }
 .ufl-standings-head,
 .ufl-standings-row {
     display: grid;
-    grid-template-columns: 36px minmax(160px, 1.6fr) 40px 40px 40px 40px 44px 44px 80px 56px 64px;
+    grid-template-columns: 36px minmax(160px, 1.6fr) 36px 36px 36px 36px 36px 36px 44px 44px 80px 56px 64px;
     gap: 8px;
     align-items: center;
     min-width: 760px;
@@ -1390,7 +1458,10 @@ body.ufl-home .mgl-main { width: 100%; max-width: none; padding: 0; }
     .uh-steps { grid-template-columns: 1fr 1fr; }
     .mgl-cp-stats,
     .mgl-cp-census,
-    .ud-stats { grid-template-columns: repeat(2, 1fr); }
+    .ud-stats,
+    .ud-pending-grid,
+    .ud-lists { grid-template-columns: repeat(2, 1fr); }
+    .ud-body { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 800px) {
@@ -1419,9 +1490,13 @@ body.ufl-home .mgl-main { width: 100%; max-width: none; padding: 0; }
     .ufl-league-index,
     .mgl-pdb-grid,
     .ud-stats,
+    .ud-pending-grid,
+    .ud-lists,
+    .ud-tiles,
     .ud-hero-main {
         grid-template-columns: 1fr;
     }
+    .ud-body { grid-template-columns: 1fr; }
     .uh-hero { height: 320px; }
     .uh-brand { font-size: 26px; }
     .uh-hero h1,

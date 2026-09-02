@@ -12,6 +12,8 @@
         <span>W</span>
         <span>D</span>
         <span>L</span>
+        <span>GF</span>
+        <span>GA</span>
         <span>GD</span>
         <span>PTS</span>
         <span>FORM</span>
@@ -36,6 +38,8 @@
         <span>{{ row.wins }}</span>
         <span>{{ row.draws }}</span>
         <span>{{ row.losses }}</span>
+        <span>{{ row.gf|default:0 }}</span>
+        <span>{{ row.ga|default:0 }}</span>
         <span class="ufl-gd {% if row.gd > 0 %}is-pos{% elif row.gd < 0 %}is-neg{% endif %}">{% if row.gd > 0 %}+{% endif %}{{ row.gd }}</span>
         <b>{{ row.points }}</b>
         <span class="ufl-form">

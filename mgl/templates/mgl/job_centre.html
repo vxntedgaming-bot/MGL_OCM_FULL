@@ -16,7 +16,7 @@
             </svg>
             <div>
                 <span>TRANSFER WINDOW</span>
-                <strong>{% if window_open %}WINDOW OPEN{% else %}WINDOW CLOSED{% endif %}</strong>
+                <strong>{% if window_open %}TRANSFER WINDOW OPEN{% else %}TRANSFER WINDOW CLOSED{% endif %}</strong>
             </div>
         </div>
         {% if latest_result %}
@@ -40,7 +40,7 @@
     </div>
 
     <div class="mgl-jobs-shell">
-        {% include "core/includes/mgl_page_header.html" with header_section="JOB CENTRE" header_title="JOB OFFERS" header_icon="briefcase" header_description="Browse vacant clubs and apply to become a UFL manager. Submitting an application does not appoint you." %}
+        {% include "core/includes/mgl_page_header.html" with header_section="JOB CENTRE" header_title="JOB OFFERS" header_icon="briefcase" %}
         <div class="mgl-jobs-hero">
             <div class="mgl-jobs-hero-copy">
                 <div class="mgl-jobs-openings">
@@ -203,7 +203,7 @@
                             <input type="text" name="discord_username" required maxlength="64" placeholder="Your Discord username">
                         </label>
                         <label>
-                            GAMES PER WEEK
+                            HOW MANY GAMES A WEEK / GAMES PER WEEK
                             <select name="games_per_week" required>
                                 <option value="">Select...</option>
                                 {% for value, label in games_per_week_options %}
@@ -237,7 +237,7 @@
                             <input type="text" disabled placeholder="Your Discord username">
                         </label>
                         <label>
-                            GAMES PER WEEK
+                            HOW MANY GAMES A WEEK / GAMES PER WEEK
                             <select disabled>
                                 <option>1–3</option>
                                 <option>3–5</option>

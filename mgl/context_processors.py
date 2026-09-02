@@ -64,7 +64,7 @@ def mgl_nav(request):
     try:
         from mgl.activity import ACTIVITY_EMOJI, published_ticker_activity
 
-        ticker = list(published_ticker_activity()[:10])
+        ticker = list(published_ticker_activity()[:15])
         if ticker:
             live_latest = ticker[0].created_at
         for post in ticker:

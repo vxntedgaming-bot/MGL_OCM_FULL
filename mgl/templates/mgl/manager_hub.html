@@ -13,9 +13,9 @@
 
 {% block content %}
 <div class="ud">
-    <section class="ud-hero">
-        <img class="ud-hero-bg" src="{% static 'core/img/ufl-home-match.jpg' %}" alt="" aria-hidden="true">
-        <div class="ud-hero-main">
+    <section class="ud-profile">
+        <p class="ud-kicker">MANAGER HUB · UFL CAREER MODE</p>
+        <div class="ud-profile-main">
             <div class="ud-crest">
                 {% if team %}
                     {% team_logo team "xl" %}
@@ -24,28 +24,19 @@
                 {% endif %}
             </div>
             <div class="ud-hero-copy">
-                <p class="ud-kicker">
-                    MANAGER
-                    UFL CAREER MODE
-                    {% if team and team.league %} — {{ team.league|league_label|upper }}{% elif active_league %} — {{ active_league|league_label|upper }}{% endif %}
-                    {% if team and team.league.season %} — SEASON {{ team.league.season }}{% elif active_league.season %} — SEASON {{ active_league.season }}{% endif %}
-                </p>
                 <h1>{% if team %}{{ team.name }}{% else %}NO CLUB ASSIGNED{% endif %}</h1>
                 <p class="ud-meta">
                     <span>@{{ user.username }}</span>
                     {% if team and team.league %}
-                        <span>{{ team.league|league_label }}</span>
+                        <span>{{ team.league|league_label|upper }}</span>
                     {% elif active_league %}
-                        <span>{{ active_league|league_label }}</span>
+                        <span>{{ active_league|league_label|upper }}</span>
                     {% endif %}
                     <span>{{ manager.display_name }}</span>
                 </p>
                 <p class="ud-meta ud-meta-icons">
                     {% if team %}
-                        <span>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 12a3.5 3.5 0 1 0-3.5-3.5A3.5 3.5 0 0 0 12 12Z"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>
-                            Squad {{ roster_count }}/{{ roster_limit }}
-                        </span>
+                        <span>Squad {{ roster_count }}/{{ roster_limit }}</span>
                     {% else %}
                         <span>No squad</span>
                     {% endif %}
@@ -55,7 +46,7 @@
                 </p>
                 <div class="ud-pills">
                     {% if team and not outstanding_count %}
-                        <span class="ud-pill is-gold">✓ ALL CAUGHT UP</span>
+                        <span class="ud-pill">✓ ALL CAUGHT UP</span>
                     {% endif %}
                     {% if team %}
                         <a class="ud-pill is-ghost" href="{% url 'manager_hub' %}?resign=1">RESIGN CLUB</a>
@@ -64,19 +55,23 @@
             </div>
         </div>
         <div class="ud-stats" aria-label="Club statistics">
-            <div>
-                <strong>{% if standings_row %}{{ standings_row.position }}{% else %}—{% endif %}{% if standings_row %}<em>/{{ league_size }}</em>{% endif %}</strong>
+            <div class="ud-stat-box">
                 <span>POSITION</span>
+                <strong>{% if standings_row %}{{ standings_row.position }}{% else %}—{% endif %}{% if standings_row %}<em>/{{ league_size }}</em>{% endif %}</strong>
             </div>
-            <div>
-                <strong class="is-gold">{% if standings_row %}{{ standings_row.points }}{% else %}—{% endif %}</strong>
-                <span>POINTS{% if standings_row %} • {{ standings_row.played }} PLAYED{% else %} • NO MATCHES{% endif %}</span>
+            <div class="ud-stat-box">
+                <span>POINTS</span>
+                <strong>{% if standings_row %}{{ standings_row.points }}{% else %}—{% endif %}</strong>
             </div>
-            <div>
-                <strong class="is-gold">{% if standings_row %}{% if standings_row.gd > 0 %}+{% endif %}{{ standings_row.gd }}{% else %}—{% endif %}</strong>
+            <div class="ud-stat-box">
+                <span>PLAYED</span>
+                <strong>{% if standings_row %}{{ standings_row.played }}{% else %}0{% endif %}</strong>
+            </div>
+            <div class="ud-stat-box">
                 <span>GOAL DIFF</span>
+                <strong>{% if standings_row %}{% if standings_row.gd > 0 %}+{% endif %}{{ standings_row.gd }}{% else %}—{% endif %}</strong>
             </div>
-            <div>
+            <div class="ud-stat-box">
                 <span>FORM</span>
                 {% if form %}
                     <div class="mgl-dash-form">
@@ -102,7 +97,6 @@
                 </header>
                 <div class="ud-band-grid">
                     <a href="{% url 'team_management' %}" class="ud-feature">
-                        <img src="{% static 'core/img/ufl-dash-squad.jpg' %}" alt="" aria-hidden="true">
                         <div>
                             <strong>SQUAD</strong>
                             <small>{{ roster_count }}/{{ roster_limit }} players</small>
@@ -137,7 +131,6 @@
                     <h2>CLUB</h2>
                 </header>
                 <a href="{% url 'job_centre' %}" class="ud-feature is-jobs">
-                    <img src="{% static 'core/img/ufl-home-dugout.jpg' %}" alt="" aria-hidden="true">
                     <div>
                         <small>JOB OFFERS</small>
                         <strong>APPLY FOR A CLUB</strong>
@@ -153,7 +146,6 @@
                 </header>
                 <div class="ud-band-grid">
                     <a href="{% url 'transfer_market' %}" class="ud-feature">
-                        <img src="{% static 'core/img/ufl-dash-transfer.jpg' %}" alt="" aria-hidden="true">
                         <div>
                             <strong>TRANSFER MARKET</strong>
                             <small>Start a deal with another manager.</small>
@@ -185,7 +177,6 @@
                 </header>
                 <div class="ud-band-grid">
                     <a href="{% url 'scouting' %}" class="ud-feature">
-                        <img src="{% static 'core/img/ufl-dash-scout.jpg' %}" alt="" aria-hidden="true">
                         <div>
                             <strong>SCOUTING</strong>
                             <small>{% if active_scout %}Scout is out{% else %}No scout currently active.{% endif %}</small>
@@ -215,7 +206,6 @@
                 </header>
                 <div class="ud-band-grid">
                     <a href="{% url 'stats_page' %}" class="ud-feature">
-                        <img src="{% static 'core/img/ufl-dash-stats.jpg' %}" alt="" aria-hidden="true">
                         <div>
                             <strong>STATS HUB</strong>
                             <small>League &amp; cup records</small>
